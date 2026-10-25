@@ -896,7 +896,7 @@ S / D:
 
 Solicito se informe el detalle de materiales deportivos, insumos y programas de articulación barrial ejecutados en el presente ejercicio, especificando qué porcentaje y qué elementos fueron destinados a disciplinas de deporte adaptado e inclusivo en el distrito de Almirante Brown.`,
 
-                'BROWN_DENIS_LESTON': `OBJETO: SOLICITUD DE INFORMACIÓN SOBRE EQUIDAD PRESUPUESTARIA Y BECAS (LEY PROV. N° 12.475)
+                'BROWN_DENISE_LESTON': `OBJETO: SOLICITUD DE INFORMACIÓN SOBRE EQUIDAD PRESUPUESTARIA Y BECAS (LEY PROV. N° 12.475)
 Al Instituto Municipal del Deporte de Almirante Brown
 At. Coordinadora del Área de Género y Deporte: Sra. Denis Leston
 S / D:
@@ -1015,5 +1015,166 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
             });
         };
     </script>
+    <script>
+    // ============================================================================
+// 1. INICIALIZACIÓN DEL CLIENTE SUPABASE
+// ============================================================================
+// Reemplazar con las credenciales de tu panel de Supabase (Project Settings -> API)
+const SUPABASE_URL = "https://supabase.co"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; 
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Variable de estado para controlar el club en visualización activa
+let clubActivoId = null;
+let nombreClubActivo = "Almirante Brown";
+
+// ============================================================================
+// 2. FUNCIÓN ORQUESTADORA: CARGAR RADIOGRAFÍA COMPLETA (RPC)
+// ============================================================================
+async function cargarRadiografiaClub(nombreBusqueda) {
+    console.log(`[Auditoría] Solicitando radiografía unificada para: ${nombreBusqueda}`);
+    
+    // Llamada eficiente a la función RPC que empaqueta los 5 módulos en un solo JSON
+    const { data, error } = await supabase.rpc('obtener_radiografia_club', { 
+        club_buscado: nombreBusqueda 
+    });
+
+    if (error) {
+        console.error("[Error Supabase RPC]", error.message);
+        alert("Error al conectar con el ledger de auditoría federal.");
+        return;
+    }
+
+    if (!data || !data.perfil_club) {
+        console.warn("[Auditoría] No se encontraron registros consolidados para esta búsqueda.");
+        return;
+    }
+
+    // Almacenar el ID relacional para el módulo de firmas automatizadas
+    clubActivoId = data.perfil_club.id;
+    nombreClubActivo = data.perfil_club.nombre;
+
+    // Renderizar los componentes dinámicos en el DOM
+    actualizarPanelPerfil(data.perfil_club);
+    actualizarPanelFuncionarios(data.cuerpo_tecnico_y_directivos);
+    actualizarPanelOSINT(data.alertas_y_novedades_redes);
+}
+
+// ============================================================================
+// 3. LOGICAMOTOR: FIRMAR PETICIÓN AUTOMATIZADA (Criptografía SHA-256)
+// ============================================================================
+async function ejecutarFirmaPeticion() {
+    if (!clubActivoId) {
+        alert("Por favor, seleccione una ficha de club válida primero.");
+        return;
+    }
+
+    // Entrada ciudadana obligatoria (DNI o Correo Electrónico)
+    const identificador = prompt("Para registrar su adhesión legal y asegurar que cuente una sola vez, introduzca su DNI o Correo Electrónico (Será anonimizado inmediatamente mediante criptografía de grado blockchain):");
+    
+    if (!identificador || identificador.trim() === "") {
+        alert("Firma cancelada. El identificador es obligatorio para evitar reportes falsos o spam.");
+        return;
+    }
+
+    const provinciaUsuario = prompt("Introduzca su provincia de residencia actual (Ej: BUENOS_AIRES, SANTA_CRUZ, CABA):", "BUENOS_AIRES");
+
+    // Despacho asincrónico protegido por RLS hacia la función segura
+    const { data: totalFirmasActualizadas, error } = await supabase.rpc('firmar_peticion_automatizada', {
+        club_target_id: clubActivoId,
+        ciudadano_identificador: identificador.trim(),
+        provincia_usuario: provinciaUsuario.toUpperCase()
+    });
+
+    if (error) {
+        console.error("[Error de Criptografía/Firma]", error.message);
+        alert("No se pudo procesar la firma. Verifique las políticas de seguridad.");
+        return;
+    }
+
+    // Actualizar dinámicamente el contador en la pantalla de la interfaz
+    const nodoContador = document.getElementById("contador-firmas-ficha");
+    if (nodoContador) {
+        nodoContador.innerText = `${totalFirmasActualizadas} Firmas Ciudadanas Registradas`;
+    }
+
+    alert(`[✓] Firma procesada de forma segura.\nIdentidad encriptada bajo Doctrina Campillay.\nEl ledger federal registra ahora ${totalFirmasActualizadas} peticiones para este club.`);
+}
+
+// ============================================================================
+// 4. INYECTORES DE INTERFAZ (Manipulación Accesible del DOM)
+// ============================================================================
+function actualizarPanelPerfil(perfil) {
+    // Inyectar puntaje ITG y semáforos dinámicos en las Cards de Vercel
+    const nodoNombre = document.getElementById("club-nombre-titulo");
+    if (nodoNombre) nodoNombre.innerText = perfil.nombre;
+
+    const nodoScore = document.getElementById("itg-marcador-score");
+    if (nodoScore) {
+        nodoScore.innerText = `${perfil.itg_final} / 100`;
+        // Ajuste dinámico de color según rangos del algoritmo ITG
+        if (perfil.itg_final <= 30) nodoScore.className = "text-3xl font-black text-red-600";
+        else if (perfil.itg_final <= 75) nodoScore.className = "text-3xl font-black text-orange-500";
+        else nodoScore.className = "text-3xl font-black text-emerald-600";
+    }
+}
+
+function actualizarPanelFuncionarios(funcionarios) {
+    const contenedor = document.getElementById("contenedor-funcionarios-lista");
+    if (!contenedor || !funcionarios) return;
+
+    contenedor.innerHTML = ""; // Limpieza de amortiguación previa
+    
+    funcionarios.forEach(f => {
+        contenedor.innerHTML += `
+            <div class="p-4 bg-slate-100 rounded-xl border border-slate-200 text-xs shadow-sm">
+                <div class="flex justify-between items-start">
+                    <h4 class="font-bold text-slate-900">${f.nombre}</h4>
+                    <span class="bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded text-[10px] uppercase">${f.cargo}</span>
+                </div>
+                <p class="text-slate-600 mt-1"><strong>Competencia:</strong> ${f.competencia}</p>
+                <p class="text-slate-700 font-medium mt-1 bg-white p-2 rounded border border-slate-200">💡 ${f.skills}</p>
+                <a href="${f.perfil_url}" target="_blank" class="text-blue-600 hover:underline mt-2 inline-block font-semibold">🔗 Ver Redes Oficiales / OSINT</a>
+            </div>
+        `;
+    });
+}
+
+function actualizarPanelOSINT(novedades) {
+    const contenedor = document.getElementById("contenedor-novedades-osint");
+    if (!contenedor || !novedades) return;
+
+    contenedor.innerHTML = "";
+    
+    novedades.forEach(n => {
+        contenedor.innerHTML += `
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold uppercase tracking-wider text-slate-400">Origen: ${n.plataforma}</span>
+                    <span class="text-slate-400">${n.fecha}</span>
+                </div>
+                <blockquote class="border-l-4 border-blue-500 pl-3 italic text-slate-700 bg-slate-50 p-2 rounded text-sm">
+                    "${n.cita}"
+                </blockquote>
+                <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-lg text-xs text-amber-900">
+                    <strong>Análisis IA Auditoría:</strong> ${n.auditoria_ia}
+                </div>
+                <a href="${n.url}" target="_blank" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                    🔍 Verificar Evidencia en Ventana Interactiva ➔
+                </a>
+            </div>
+        `;
+    });
+}
+
+// ============================================================================
+// 5. INICIALIZACIÓN AUTOMÁTICA AL CARGAR LA PÁGINA
+// ============================================================================
+document.addEventListener("DOMContentLoaded", () => {
+    // Carga inicial por defecto con el caso piloto Almirante Brown al levantar Vercel
+    cargarRadiografiaClub(nombreClubActivo);
+});
+<script>
 </body>
 </html>
