@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditaDeporte - Transparencia en Deporte Adaptado</title>
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #212529;
+            --border: #dee2e6;
+            --green: #198754;
+            --yellow: #ffc107;
+            --orange: #fd7e14;
+            --red: #dc3545;
+            --blue: #0d6efd;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1, h2, h3 { color: #111; }
+        .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid var(--border); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; }
+        .badge-red { background: var(--red); color: white; }
+        .badge-orange { background: var(--orange); color: white; }
+        .badge-green { background: var(--green); color: white; }
+        .badge-blue { background: var(--blue); color: white; }
+        .itg-score { font-size: 2.5em; font-weight: bold; margin: 10px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+        th { background: #f1f3f5; }
+        button { background: var(--blue); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #0b5ed7; }
+        button.btn-outline { background: transparent; color: var(--blue); border: 1px solid var(--blue); }
+        .alert { padding: 10px; border-radius: 4px; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; margin-bottom: 15px; }
+        textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid var(--border); border-radius: 4px; margin-top: 10px; font-family: inherit; resize: vertical; box-sizing: border-box; }
+        .legal-template { display: none; background: #f8f9fa; padding: 15px; border: 1px solid var(--border); margin-top: 15px; white-space: pre-wrap; font-family: monospace; font-size: 0.85em; }
+        .module-breakdown { font-size: 0.85em; color: #555; background: #f8f9fa; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>AuditaDeporte y Discapacidad</h1>
+        <p>Plataforma de Trazabilidad de Fondos Públicos y Auditoría Ciudadana</p>
+    </div>
+
+    <div class="grid">
+        <!-- COLUMNA IZQUIERDA: FICHAS PÚBLICAS -->
+        <div>
+            <h2>Fichas de Auditoría (Resultados ITG)</h2>
+            
+            <!-- Ficha Almirante Brown -->
+            <div class="card" id="ficha-brown">
+                <h3>🏀 Instituto del Deporte de Almirante Brown</h3>
+                <span class="badge badge-red" id="badge-brown">OPACIDAD CRÍTICA</span>
+                <div class="itg-score" id="score-brown">15 / 100 pts</div>
+                <div class="module-breakdown">
+                    <strong>Desglose ITG:</strong> Transparencia (10/30) | Trazabilidad (15/30) | Gobernanza (10/20) | Respuesta (0/20)<br>
+                    <span style="color: var(--red);">⚠️ Penalización: -20 pts (Doble Mostrador detectado)</span>
+                </div>
+                
+                <h4>Reportes Comunitarios del Plantel</h4>
+                <table>
+                    <thead><tr><th>Rubro</th><th>Estado Oficial</th><th>Realidad en Cancha (Verificada)</th></tr></thead>
+                    <tbody id="tabla-reportes-brown">
+                        <tr>
+                            <td>Insumos y Sillas</td>
+                            <td>Sin licitaciones publicadas</td>
+                            <td style="color: #666; font-style: italic;">Esperando datos de la comunidad...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Ficha Nacional -->
+            <div class="card">
+                <h3>🇦🇷 Circuito Nacional (Nación -> ENARD -> COPAR -> FABA)</h3>
+                <span class="badge badge-orange">OPACIDAD ALTA</span>
+                <div class="itg-score">30 / 100 pts</div>
+                <div class="module-breakdown">
+                    <strong>Desglose ITG FABA:</strong> Transparencia (10/30) | Trazabilidad (15/30) | Gobernanza (10/20) | Respuesta (10/20)<br>
+                    <span style="color: var(--orange);">⚠️ Penalización: -15 pts (Fondos sin rendición pública)</span>
+                </div>
+                <p><strong>Cruce de IA:</strong> Nación declara transferencias devengadas, pero FABA no publica desglose de pasajes ni viáticos en su web.</p>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: PARTICIPACIÓN CIUDADANA Y LEGAL -->
+        <div>
+            <h2>Módulo de Acción Ciudadana</h2>
+            
+            <!-- Escudo del Deportista -->
+            <div class="card" style="border-top: 4px solid var(--blue);">
+                <h3>🛡️ Escudo del Deportista (Reporte Seguro)</h3>
+                <p style="font-size: 0.9em; color: #555;">La IA anonimizará tu estilo de escritura. Se requiere un umbral de 3 reportes coincidentes (o 1 con evidencia pública) para afectar el semáforo institucional (Ley 25.326).</p>
+                
+                <select id="report-rubro" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                    <option value="insumos">Falta de Insumos / Repuestos de Sillas</option>
+                    <option value="traslados">Falta de Transporte / Combis</option>
+                    <option value="becas">Atraso en Pago de Becas</option>
+                </select>
+                
+                <textarea id="report-text" placeholder="Escribí lo que pasó con tus palabras (Ej: Ayer Gustavo nos dijo que no hay plata para las cubiertas y tenemos que vender rifas...)"></textarea>
+                
+                <label style="display: block; margin-top: 10px; font-size: 0.9em;">
+                    <input type="checkbox" id="report-evidencia"> Tengo evidencia documental pública (Ej. foto del bono/rifa que nos obligan a vender).
+                </label>
+                
+                <button onclick="simularEnvioReporte()">Enviar Reporte Anónimo</button>
+                
+                <div id="report-status" class="alert" style="display: none; margin-top: 15px;"></div>
+            </div>
+
+            <!-- Generador Legal -->
+            <div class="card">
+                <h3>⚖️ Generador de Pedidos Legales (1 Clic)</h3>
+                <p style="font-size: 0.9em;">Documentos formateados con las leyes vigentes para copiar, pegar y presentar por TAD o Mesa de Entradas sin exponerte.</p>
+                
+                <button class="btn-outline" onclick="mostrarPlantilla('plantilla-a')">Pedido a Nación (Ley 27.275)</button>
+                <button class="btn-outline" onclick="mostrarPlantilla('plantilla-b')">Pedido a Municipio (Ley 12.475)</button>
+
+                <div id="plantilla-a" class="legal-template">OBJETO: SOLICITUD DE ACCESO A LA INFORMACIÓN PÚBLICA (LEY 27.275)
+A quien corresponda, De mi consideración:
+Por medio de la presente, y en ejercicio del derecho constitucional consagrado por la Ley N° 27.275... 
+1. Detalle pormenorizado de transferencias a FABA y COPAR.
+2. Copia de actas que deniegan o autorizan traslados de delegaciones.
+3. Estado de rendición de cuentas de las entidades subsidiadas.</div>
+
+                <div id="plantilla-b" class="legal-template">OBJETO: SOLICITUD DE INFORMACIÓN PÚBLICA (LEY PROV. N° 12.475)
+Al Presidente del Honorable Concejo Deliberante de Almirante Brown,
+En el marco del derecho reconocido por la Ley Provincial N° 12.475, solicito:
+1. Monto asignado y % de ejecución del programa de Deporte Adaptado.
+2. Nómina de contrataciones de transporte afectadas a planteles FABA.
+3. Inventario físico y compras de los últimos 24 meses relativas a insumos y sillas de ruedas de competencia.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ESTADO DEL SISTEMA (Backend simulado)
+    let contadoresReportes = {
+        'insumos': 0,
+        'traslados': 0,
+        'becas': 0
+    };
+
+    // Función de blanqueo de estilo IA (Simulada con Regex)
+    function anonimizarTextoIA(textoCrudo) {
+        let textoLimpio = textoCrudo.replace(/(ayer|hoy|lunes|martes|miércoles|jueves|viernes|gustavo|borro|yo|mi silla)/gi, "[DATO PROTEGIDO]");
+        return "Reporte verificado en territorio: " + textoLimpio.substring(0, 100) + "... (Estilo neutralizado por IA)";
+    }
+
+    function simularEnvioReporte() {
+        const rubro = document.getElementById('report-rubro').value;
+        const textoCrudo = document.getElementById('report-text').value;
+        const tieneEvidencia = document.getElementById('report-evidencia').checked;
+        const statusDiv = document.getElementById('report-status');
+        
+        if(textoCrudo.trim() === "") {
+            alert("Por favor escribí un reporte breve.");
+            return;
+        }
+
+        // 1. Anonimización en memoria RAM
+        const textoIA = anonimizarTextoIA(textoCrudo);
+        document.getElementById('report-text').value = ''; // Borra el crudo
+        
+        // 2. Lógica del Umbral Colectivo
+        contadoresReportes[rubro]++;
+        let cantidadActual = contadoresReportes[rubro];
+        
+        statusDiv.style.display = 'block';
+
+        if (tieneEvidencia) {
+            statusDiv.innerHTML = "<strong>✅ REPORTE VERIFICADO DIRECTAMENTE:</strong> Se adjuntó evidencia documental. Bypass del umbral colectivo aplicado.";
+            statusDiv.style.background = "#d1e7dd"; statusDiv.style.color = "#0f5132";
+            actualizarTablaPublica(rubro, textoIA);
+        } else if (cantidadActual >= 3) {
+            statusDiv.innerHTML = `<strong>✅ UMBRAL ALCANZADO (3/3):</strong> El reporte fue validado colectivamente y publicado en la ficha oficial.`;
+            statusDiv.style.background = "#d1e7dd"; statusDiv.style.color = "#0f5132";
+            actualizarTablaPublica(rubro, textoIA);
+        } else {
+            statusDiv.innerHTML = `<strong>⏳ EN VERIFICACIÓN (${cantidadActual}/3):</strong> Reporte anonimizado y guardado. Faltan ${3 - cantidadActual} reportes similares del plantel para publicarse en la web.`;
+            statusDiv.style.background = "#fff3cd"; statusDiv.style.color = "#856404";
+        }
+    }
+
+    function actualizarTablaPublica(rubro, textoPublico) {
+        const tbody = document.getElementById('tabla-reportes-brown');
+        // Actualizamos la fila simulando el impacto en la web pública
+        tbody.innerHTML = `
+            <tr>
+                <td><strong>${rubro.toUpperCase()}</strong></td>
+                <td><span class="badge badge-red">Alerta de Faltante</span></td>
+                <td style="color: var(--red); font-weight: bold;">${textoPublico}<br><small>Confirmado por Umbral Colectivo / Evidencia</small></td>
+            </tr>
+        `;
+    }
+
+    function mostrarPlantilla(id) {
+        document.getElementById('plantilla-a').style.display = 'none';
+        document.getElementById('plantilla-b').style.display = 'none';
+        document.getElementById(id).style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
