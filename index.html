@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuditaDeporte 2.0 - Monitor de Transparencia, Clubes FABA y Presupuesto</title>
-    <!-- Tailwind CSS para diseño nivel Municipios Argentinos -->
+    <title>AuditaDeporte 3.0 - OSINT, Transparencia FABA y Trazabilidad de Recursos</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js para gráficos interactivos -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Cliente Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .tab-active { border-bottom: 3px solid #2563eb; color: #1d4ed8; font-weight: 700; background-color: #eff6ff; }
         .badge-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .65; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -25,7 +25,7 @@
                 <span class="bg-blue-600 text-white font-black px-3 py-1.5 rounded-lg text-lg tracking-wider">AD</span>
                 <div>
                     <h1 class="text-lg md:text-xl font-bold tracking-tight">AuditaDeporte & Discapacidad</h1>
-                    <p class="text-xs text-slate-400">Trazabilidad Presupuestaria, Padrón Vivo FABA y Defensa del Deportista</p>
+                    <p class="text-xs text-slate-400">Inteligencia OSINT, Padrón Vivo FABA y Trazabilidad de Fondos Públicos</p>
                 </div>
             </div>
             <div class="flex items-center gap-3 text-xs">
@@ -39,20 +39,23 @@
             </div>
         </div>
 
-        <!-- NAVEGACIÓN DE PESTAÑAS INTERACTIVAS -->
+        <!-- NAVEGACIÓN DE PESTAÑAS INTERACTIVAS (5 MÓDULOS) -->
         <nav class="bg-white text-slate-600 border-b border-slate-200">
-            <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto text-sm">
-                <button onclick="cambiarTab('tab-dashboard')" id="btn-tab-dashboard" class="tab-active px-5 py-3.5 whitespace-nowrap transition hover:text-blue-600">
+            <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto text-xs md:text-sm">
+                <button onclick="cambiarTab('tab-dashboard')" id="btn-tab-dashboard" class="tab-active px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600">
                     📊 1. Semáforo ITG y Boletines
                 </button>
-                <button onclick="cambiarTab('tab-responsables')" id="btn-tab-responsables" class="px-5 py-3.5 whitespace-nowrap transition hover:text-blue-600">
-                    👥 2. Quién es Quién (Responsables y Reclamos)
+                <button onclick="cambiarTab('tab-responsables')" id="btn-tab-responsables" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600">
+                    👥 2. Quién es Quién (Funcionarios)
                 </button>
-                <button onclick="cambiarTab('tab-clubes')" id="btn-tab-clubes" class="px-5 py-3.5 whitespace-nowrap transition hover:text-blue-600">
-                    🏀 3. Padrón FABA (2018 vs 2026) y Prestaciones
+                <button onclick="cambiarTab('tab-clubes')" id="btn-tab-clubes" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600">
+                    🏀 3. Padrón FABA y Calculadora
                 </button>
-                <button onclick="cambiarTab('tab-becas')" id="btn-tab-becas" class="px-5 py-3.5 whitespace-nowrap transition hover:text-blue-600">
-                    🎓 4. Radar de Becas y Escudo Legal
+                <button onclick="cambiarTab('tab-osint')" id="btn-tab-osint" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600 font-semibold text-blue-700">
+                    🕵️‍♂️ 4. Novedades de Cancha (OSINT)
+                </button>
+                <button onclick="cambiarTab('tab-becas')" id="btn-tab-becas" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600">
+                    ⚖️ 5. Becas, Escudo y Reclamos (ONG / RAFAM)
                 </button>
             </div>
         </nav>
@@ -64,7 +67,6 @@
         <!-- PESTAÑA 1: DASHBOARD ITG Y BUSCADOR DE BOLETINES (SHA-256)          -->
         <!-- =================================================================== -->
         <section id="tab-dashboard" class="space-y-6">
-            <!-- Resumen de Indicadores -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                     <span class="text-xs font-semibold uppercase text-slate-400">ITG Almirante Brown</span>
@@ -72,7 +74,7 @@
                         <span class="text-3xl font-black text-red-600">15 / 100</span>
                         <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">OPACIDAD CRÍTICA</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">Penalización activa: -20 pts por Doble Mostrador (Municipio / COPAR).</p>
+                    <p class="text-xs text-slate-500 mt-2">Penalización: -20 pts por Doble Mostrador (Municipio / COPAR).</p>
                 </div>
 
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -81,7 +83,7 @@
                         <span class="text-3xl font-black text-orange-500">30 / 100</span>
                         <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-0.5 rounded">OPACIDAD ALTA</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">Padrón web desactualizado (2018/19) y sin desglose público de viajes.</p>
+                    <p class="text-xs text-slate-500 mt-2">Padrón web detenido en 2018/19 y sin balances Parcial 517.</p>
                 </div>
 
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -90,33 +92,32 @@
                         <span class="text-3xl font-black text-amber-600">25 / 100</span>
                         <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">RIESGO DE CONFLICTO</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">Cruce de firma entre conducción municipal y avales paralímpicos.</p>
+                    <p class="text-xs text-slate-500 mt-2">Superposición entre dirección municipal y comité nacional.</p>
                 </div>
 
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold uppercase text-slate-400">Boletines Auditados (SHA-256)</span>
+                    <span class="text-xs font-semibold uppercase text-slate-400">Clubes Auditados (OSINT)</span>
                     <div class="flex items-baseline justify-between mt-1">
-                        <span class="text-3xl font-black text-blue-600" id="contador-boletines">20+</span>
-                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">EJERCICIO 2026</span>
+                        <span class="text-3xl font-black text-blue-600" id="contador-clubes-osint">9</span>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">FEDERAL 2026</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">Respaldados con huella criptográfica inalterable.</p>
+                    <p class="text-xs text-slate-500 mt-2">Relevamiento de huella digital, autoridades y manejo de caja.</p>
                 </div>
             </div>
 
-            <!-- Gráfico Comparativo + Mapa de Ruta del Dinero -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-1">
-                    <h3 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wider">Desglose de Módulos ITG</h3>
+                    <h3 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wider">Comparativa ITG (Base 100)</h3>
                     <canvas id="graficoITG" height="230"></canvas>
                 </div>
 
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2 flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">🔎 Lupa Ciudadana: Buscador de Boletines Oficiales (Almirante Brown)</h3>
-                            <span class="text-xs text-slate-400">Sincronizado con Supabase</span>
+                            <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">🔎 Lupa Ciudadana: Boletines Oficiales (Almirante Brown)</h3>
+                            <span class="text-xs text-slate-400">Respaldo SHA-256</span>
                         </div>
-                        <input type="text" id="buscador-boletines" onkeyup="filtrarBoletines()" placeholder="Filtrar por mes (Ej: Enero, Febrero, Marzo, Decretos, Ordenanzas)..." class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="buscador-boletines" onkeyup="filtrarBoletines()" placeholder="Filtrar por mes o tipo (Ej: Enero, Febrero, Marzo, Decretos)..." class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         
                         <div class="overflow-y-auto max-h-60 border border-slate-200 rounded-lg">
                             <table class="w-full text-left text-xs">
@@ -128,14 +129,12 @@
                                         <th class="p-2.5">Acción</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabla-boletines-body" class="divide-y divide-slate-200">
-                                    <!-- Cargado dinámicamente -->
-                                </tbody>
+                                <tbody id="tabla-boletines-body" class="divide-y divide-slate-200"></tbody>
                             </table>
                         </div>
                     </div>
-                    <div class="mt-4 bg-slate-100 p-3 rounded-lg text-xs text-slate-600 flex items-center justify-between">
-                        <span>💡 <strong>¿Por qué el código SHA-256?</strong> Garantiza bajo la <em>Doctrina Campillay</em> que el PDF descargado del municipio no fue alterado.</span>
+                    <div class="mt-4 bg-slate-100 p-3 rounded-lg text-xs text-slate-600">
+                        💡 <strong>Doctrina Campillay:</strong> Cada archivo oficial posee su hash criptográfico SHA-256 para acreditar su autenticidad en reclamos administrativos o judiciales.
                     </div>
                 </div>
             </div>
@@ -148,13 +147,10 @@
             <div class="bg-blue-900 text-white p-6 rounded-xl shadow">
                 <h2 class="text-xl font-bold">Mapa de Responsables y Competencias ("Quién es Quién" 2026)</h2>
                 <p class="text-sm text-blue-200 mt-1">
-                    Se corrigió la información desactualizada que circulaba en portales viejos (donde aún figuraban exfuncionarios como <em>Jonathan Frisa</em> en Almirante Brown o <em>Víctor Bava</em> en FABA). Hacé clic en el área correspondiente para generar un pedido formal dirigido al responsable actual.
+                    Relevamiento actualizado: en FABA asume la presidencia <strong>Ricardo Perdiguero</strong> (tras el fallecimiento de Víctor Bava), y en el Instituto Municipal del Deporte de Almirante Brown conducen las áreas técnicas <strong>Gustavo Borro</strong>, <strong>Fernando Mihovich</strong>, <strong>Maura González</strong> y <strong>Denis Leston</strong> (reemplazando registros caducos de la gestión de Jonathan Frisa).
                 </p>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="contenedor-funcionarios">
-                <!-- Tarjetas generadas por JS -->
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="contenedor-funcionarios"></div>
         </section>
 
         <!-- =================================================================== -->
@@ -166,20 +162,19 @@
                     <div>
                         <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded">AUDITORÍA DE PADRÓN Y NATURALEZA JURÍDICA</span>
                         <h2 class="text-xl font-bold text-slate-900 mt-1">Padrón Vivo de Clubes FABA: Datos Oficiales (2018/19) vs. Realidad (2026)</h2>
-                        <p class="text-sm text-slate-600">Consultá qué tipo de entidad es cada club (Municipal, ONG o Convenio), su estado real y qué prestaciones entrega a los jugadores con su presupuesto.</p>
+                        <p class="text-sm text-slate-600">Contrastá qué tipo de entidad es cada club (Municipal, Asociación Civil ONG o Convenio) y qué prestaciones cubre efectivamente.</p>
                     </div>
                     <button onclick="abrirModal('modal-club')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm shadow transition">
                         ✏️ Actualizar Datos de mi Club / Plantel
                     </button>
                 </div>
 
-                <!-- Filtros por Naturaleza Jurídica -->
                 <div class="flex flex-wrap gap-2 mb-4">
                     <button onclick="filtrarClubes('TODOS')" class="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Todos los Clubes</button>
-                    <button onclick="filtrarClubes('MUNICIPAL')" class="bg-blue-100 text-blue-800 hover:bg-blue-200 text-xs font-bold px-3 py-1.5 rounded-lg">🏛️ Municipales (Presupuesto Público)</button>
+                    <button onclick="filtrarClubes('MUNICIPAL')" class="bg-blue-100 text-blue-800 hover:bg-blue-200 text-xs font-bold px-3 py-1.5 rounded-lg">🏛️ Municipales (RAFAM)</button>
                     <button onclick="filtrarClubes('ASOCIACION_CIVIL_ONG')" class="bg-purple-100 text-purple-800 hover:bg-purple-200 text-xs font-bold px-3 py-1.5 rounded-lg">🤝 Asociaciones Civiles / ONG</button>
-                    <button onclick="filtrarClubes('CONVENIO_CLUB')" class="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 text-xs font-bold px-3 py-1.5 rounded-lg">🛡️ Convenios / Clubes Deportivos</button>
-                    <button onclick="filtrarClubes('DESAFILIADO')" class="bg-red-100 text-red-800 hover:bg-red-200 text-xs font-bold px-3 py-1.5 rounded-lg">⚠️ Desafiliados / Dados de Baja</button>
+                    <button onclick="filtrarClubes('CONVENIO_CLUB')" class="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 text-xs font-bold px-3 py-1.5 rounded-lg">🛡️ Convenios Clubes</button>
+                    <button onclick="filtrarClubes('DESAFILIADO')" class="bg-red-100 text-red-800 hover:bg-red-200 text-xs font-bold px-3 py-1.5 rounded-lg">⚠️ Desafiliados</button>
                 </div>
 
                 <div class="overflow-x-auto border border-slate-200 rounded-xl">
@@ -187,54 +182,53 @@
                         <thead class="bg-slate-100 text-slate-700 uppercase">
                             <tr>
                                 <th class="p-3">Club / Entidad</th>
-                                <th class="p-3">Tipo de Gestión</th>
+                                <th class="p-3">Naturaleza Jurídica</th>
                                 <th class="p-3">Estado 2026</th>
-                                <th class="p-3">Desfasaje Detectado (Web 2018 vs Realidad 2026)</th>
+                                <th class="p-3">Desfasaje Detectado (2018 vs 2026)</th>
                                 <th class="p-3">Sillas y Cubiertas</th>
                                 <th class="p-3">Transporte</th>
                                 <th class="p-3">Becas / Viáticos</th>
+                                <th class="p-3">Auditoría Directa</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-clubes-body" class="divide-y divide-slate-200">
-                            <!-- Cargado por JS -->
-                        </tbody>
+                        <tbody id="tabla-clubes-body" class="divide-y divide-slate-200"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- SIMULADOR PARA JUGADORES Y FAMILIAS: PRESUPUESTO VS PRESTACIÓN -->
+            <!-- CALCULADORA PARA FAMILIAS Y JUGADORES -->
             <div class="bg-white p-6 rounded-xl border-2 border-blue-600 shadow-sm">
-                <h3 class="text-lg font-bold text-slate-900">👨‍👩‍👧‍👦 Calculadora para Familias y Jugadores: ¿Qué te corresponde reclamar según tu Club?</h3>
-                <p class="text-xs text-slate-600 mb-4">Seleccioná las condiciones de tu club y tildá qué cosas <strong>NO</strong> te están entregando para calcular la brecha presupuestaria y generar el reclamo exacto.</p>
+                <h3 class="text-lg font-bold text-slate-900">👨‍👩‍👧‍👦 Calculadora para Familias y Jugadores: Partida Presupuestaria vs. Realidad en Cancha</h3>
+                <p class="text-xs text-slate-600 mb-4">Seleccioná el tipo de club y marcá qué recursos faltan para obtener el encuadre legal y generar el reclamo correspondiente.</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-700 mb-2">1. Naturaleza de tu Club:</label>
                         <select id="sim-tipo-club" onchange="calcularBrechaFamiliar()" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
-                            <option value="MUNICIPAL">Equipo Municipal (Ej. Almirante Brown)</option>
-                            <option value="ONG">Asociación Civil / ONG con Subsidio</option>
-                            <option value="CLUB">Club con Convenio / Apadrinamiento (Ej. CILSA Boca)</option>
+                            <option value="MUNICIPAL">Equipo Municipal (Ej. Almirante Brown / Ensenada)</option>
+                            <option value="ONG">Asociación Civil / ONG (Ej. CEDIMA / DUBA / CIDELI / CRIGAL)</option>
+                            <option value="CLUB">Club con Convenio (Ej. CILSA Boca)</option>
                         </select>
                         <div id="sim-explicacion-club" class="mt-3 p-3 bg-blue-50 text-blue-900 rounded-lg text-xs"></div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-2">2. ¿Qué prestaciones faltan hoy en cancha?</label>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-2">2. ¿Qué pasa hoy en tu plantel?</label>
                         <div class="space-y-2 text-sm">
-                            <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="cubiertas" onchange="calcularBrechaFamiliar()" checked> Nos hacen pagar cubiertas / tubulares / cámaras o vender rifas</label>
-                            <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="sillas" onchange="calcularBrechaFamiliar()"> No hay sillas de ruedas deportivas a medida o sin mantenimiento</label>
-                            <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="transporte" onchange="calcularBrechaFamiliar()" checked> Falta de combi adaptada o cancelación de viajes a torneos FABA</label>
-                            <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="becas" onchange="calcularBrechaFamiliar()"> Sin cobro de beca deportiva ni viáticos en competencias</label>
+                            <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="cubiertas" onchange="calcularBrechaFamiliar()" checked> Nos hacen pagar cubiertas / tubulares o vender rifas</label>
+                            <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="sillas" onchange="calcularBrechaFamiliar()"> Sillas sin mantenimiento o sin inventario oficial</label>
+                            <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="transporte" onchange="calcularBrechaFamiliar()" checked> Falta de combi adaptada o traslados irregulares</label>
+                            <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="socios" onchange="calcularBrechaFamiliar()"> Jugamos para la ONG pero no nos hacen Socios Activos ni muestran balances</label>
                         </div>
                     </div>
 
                     <div class="bg-slate-900 text-white p-4 rounded-xl flex flex-col justify-between">
                         <div>
-                            <span class="text-xs uppercase text-amber-400 font-bold">Diagnóstico Presupuestario</span>
+                            <span class="text-xs uppercase text-amber-400 font-bold">Diagnóstico de Recursos</span>
                             <div id="sim-resultado-texto" class="text-xs text-slate-200 mt-2 space-y-1.5"></div>
                         </div>
-                        <button onclick="irAReclamoConDatos()" class="mt-4 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg text-xs transition">
-                            ⚖️ Generar Reclamo Administrativo para mi Familia/Plantel
+                        <button onclick="irAReclamoSegunTipoClub()" class="mt-4 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg text-xs transition">
+                            ⚖️ Generar Escrito Legal según mi Tipo de Club
                         </button>
                     </div>
                 </div>
@@ -242,44 +236,56 @@
         </section>
 
         <!-- =================================================================== -->
-        <!-- PESTAÑA 4: RADAR DE BECAS, ESCUDO DEL DEPORTISTA Y GENERADOR LEGAL  -->
+        <!-- PESTAÑA 4: NOVEDADES DE CANCHA (DOSSIER OSINT Y REDES SOCIALES)     -->
+        <!-- =================================================================== -->
+        <section id="tab-osint" class="hidden space-y-6">
+            <div class="bg-slate-900 text-white p-6 rounded-xl shadow-lg border border-slate-700">
+                <div class="flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-2.5 py-1 rounded">INTELIGENCIA DE FUENTES ABIERTAS (OSINT 2026)</span>
+                        <h2 class="text-xl font-bold mt-2">🕵️‍♂️ Novedades de Cancha: Huella Digital, Estado de Redes y Responsables de Caja</h2>
+                        <p class="text-xs text-slate-300 mt-1 max-w-4xl">
+                            Contraste entre los padrones congelados y la actividad real verificada en Instagram, Facebook y portales municipales. Permite identificar dónde la comunicación oficial oculta la falta de insumos y dónde los planteles debieron autogestionarse.
+                        </p>
+                    </div>
+                    <input type="text" id="buscador-osint" onkeyup="filtrarTarjetasOSINT()" placeholder="Buscar club, ciudad o dirigente..." class="px-4 py-2 rounded-lg text-slate-900 text-sm w-full md:w-72 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="contenedor-osint-cards">
+                <!-- Tarjetas OSINT renderizadas dinámicamente -->
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- PESTAÑA 5: BECAS, ESCUDO DEL DEPORTISTA Y GENERADOR LEGAL COMPLETO  -->
         <!-- =================================================================== -->
         <section id="tab-becas" class="hidden space-y-6">
-            <!-- Explicación y Solución al Agujero Negro de las Becas -->
             <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded">SOLUCIÓN AL VACÍO DE DATOS EN BECAS</span>
-                <h2 class="text-xl font-bold text-slate-900 mt-1">🎓 Radar de Becas Deportivas: ¿Dónde se traban y cómo rastrearlas?</h2>
-                <p class="text-sm text-slate-600 mt-1 mb-4">
-                    En la administración pública local y federativa, las becas rara vez salen publicadas con el título "Beca". Así se ocultan y así las auditamos desde ahora:
-                </p>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <h4 class="font-bold text-slate-900 text-sm mb-1">1. Nivel Municipal (Almirante Brown)</h4>
-                        <p class="text-slate-600 mb-2"><strong>Dónde se esconde:</strong> No sale como licitación, sino en decretos globales de <em>"Ayuda Económica a Personas Físicas"</em> o <em>"Subsidios"</em> firmados por Ejecutivo / Desarrollo Social.</p>
-                        <p class="text-blue-700 font-semibold">👉 Quién debe responder: Prof. Gustavo Borro (Dir. Deporte Adaptado) y Prof. Fernando Mihovich (Coordinador).</p>
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded">TRAZABILIDAD INTEGRAL DE FONDOS</span>
+                <h2 class="text-xl font-bold text-slate-900 mt-1">🎓 Radar de Becas, Auditoría RAFAM (Municipios) y Fiscalización de ONGs</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs mt-4">
+                    <div class="p-4 rounded-xl bg-blue-50 border border-blue-200">
+                        <h4 class="font-bold text-blue-950 text-sm mb-1">🏛️ Clubes Municipales (Vía RAFAM)</h4>
+                        <p class="text-blue-900">Se auditan los 4 incisos presupuestarios: <strong>Inciso 2</strong> (Cubiertas/Repuestos), <strong>Inciso 3</strong> (Combis/Viajes), <strong>Inciso 4</strong> (Inventario de Sillas) e <strong>Inciso 5</strong> (Decretos de Becas y Ayudas Económicas).</p>
                     </div>
-
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <h4 class="font-bold text-slate-900 text-sm mb-1">2. Nivel Federativo (FABA / COPAR)</h4>
-                        <p class="text-slate-600 mb-2"><strong>Dónde se traba:</strong> Las becas nacionales requieren que <strong>FABA</strong> (Pres. Ricardo Perdiguero) postule al deportista en el padrón de mérito y que <strong>COPAR</strong> (Pres. Gustavo Borro) lo refrende.</p>
-                        <p class="text-blue-700 font-semibold">👉 Punto ciego: Las federaciones no publican la lista de quiénes fueron postulados y quiénes dados de baja.</p>
+                    <div class="p-4 rounded-xl bg-purple-50 border border-purple-200">
+                        <h4 class="font-bold text-purple-950 text-sm mb-1">🤝 Clubes ONG / Asociaciones Civiles</h4>
+                        <p class="text-purple-900">Los jugadores tienen derecho a exigir el <strong>Alta como Socios Activos</strong> (Arts. 168-186 CCCN), participar en asambleas y pedir la <strong>Memoria, Balance y rendición de subsidios públicos</strong> (Ley 27.275 Art. 7 inc. c).</p>
                     </div>
-
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <h4 class="font-bold text-slate-900 text-sm mb-1">3. Nivel Nacional (ENARD / Nación)</h4>
-                        <p class="text-slate-600 mb-2"><strong>Partida Presupuestaria:</strong> Jurisdicción <code>SAF 342</code> / Transferencias <code>Parcial 517</code>. Si el jugador está en Selección o preselección y no cobra, hay retención de aval federativo.</p>
-                        <p class="text-blue-700 font-semibold">👉 Herramienta: Pedido de informe directo Ley 27.275 exigiendo nómina de becarios propuestos por FABA.</p>
+                    <div class="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                        <h4 class="font-bold text-amber-950 text-sm mb-1">🇦🇷 Circuito FABA / COPAR / ENARD</h4>
+                        <p class="text-amber-900">Se exige a FABA (Ricardo Perdiguero) y COPAR (Gustavo Borro) la nómina oficial de atletas postulados a becas nacionales y el desglose de transferencias del <code>Parcial 517</code>.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- ESCUDO DEL DEPORTISTA (LEY 25.326) CONECTADO A SUPABASE -->
-                <div class="bg-white p-6 rounded-xl border-t-4 border-blue-600 shadow-sm">
-                    <h3 class="text-lg font-bold text-slate-900">🛡️ Escudo del Deportista (Reporte Anónimo Ley 25.326)</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- ESCUDO DEL DEPORTISTA (5 COLUMNAS) -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-xl border-t-4 border-blue-600 shadow-sm">
+                    <h3 class="text-lg font-bold text-slate-900">🛡️ Escudo del Deportista (Ley 25.326)</h3>
                     <p class="text-xs text-slate-500 mt-1 mb-4">
-                        Tu reporte se anonimiza en el navegador antes de viajar a Supabase. Al llegar a 3 reportes coincidentes (o 1 con evidencia documental), se activa la alerta pública.
+                        Anonimización automática en memoria RAM antes de guardar en Supabase. Protege la identidad del jugador frente a represalias deportivas o quita de becas.
                     </p>
 
                     <div class="space-y-3">
@@ -289,65 +295,78 @@
                                 <option value="MUNI-ALTE-BROWN">Instituto Municipal del Deporte Almirante Brown</option>
                                 <option value="PARCIAL-517-FABA">Federación Argentina de Básquetbol Adaptado (FABA)</option>
                                 <option value="PARCIAL-517-COPAR">Comité Paralímpico Argentino (COPAR)</option>
+                                <option value="ONG-CLUB-FABA">Club Asociación Civil / ONG (CEDIMA, DUBA, CIDELI, CRIGAL, SICA)</option>
+                                <option value="OTRO-MUNICIPIO">Otro Equipo Municipal (Ensenada, etc.)</option>
                             </select>
                         </div>
 
                         <div>
                             <label class="text-xs font-bold text-slate-700">Rubro del Incumplimiento:</label>
                             <select id="rep-rubro" class="w-full p-2 border border-slate-300 rounded-lg text-sm mt-1">
-                                <option value="insumos">Falta de Insumos / Cubiertas / Repuestos de Sillas (SIBYS 32-11-00)</option>
-                                <option value="traslados">Falta de Transporte / Combis a Torneos (SIBYS 91-03-01)</option>
-                                <option value="becas">Becas Deportivas / Ayudas Económicas No Percibidas</option>
-                                <option value="presupuesto">Cobro de Rifas / Bonos para cubrir gastos oficiales</option>
+                                <option value="insumos">Falta de Cubiertas / Tubulares / Repuestos (SIBYS 32-11-00 / Inciso 2)</option>
+                                <option value="traslados">Falta de Transporte / Combis a Torneos (SIBYS 91-03-01 / Inciso 3)</option>
+                                <option value="becas">Becas Deportivas / Ayudas Económicas No Percibidas (Inciso 5)</option>
+                                <option value="balances_ong">Negativa a Empadronar Socios o Mostrar Balances en ONG</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="text-xs font-bold text-slate-700">Relato de lo ocurrido (será neutralizado por IA):</label>
-                            <textarea id="rep-texto" rows="3" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm mt-1" placeholder="Ej: Nos informaron en el polideportivo que no hay presupuesto para cubiertas ni combis este mes y tuvimos que organizar una rifa..."></textarea>
+                            <label class="text-xs font-bold text-slate-700">Relato (se borrarán nombres y fechas identificatorias):</label>
+                            <textarea id="rep-texto" rows="3" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm mt-1" placeholder="Escribí lo que pasa en tu club o municipio..."></textarea>
                         </div>
 
                         <label class="flex items-center gap-2 text-xs text-slate-700">
-                            <input type="checkbox" id="rep-evidencia"> Poseo evidencia pública (foto de bono contribución, rifa o captura institucional).
+                            <input type="checkbox" id="rep-evidencia"> Poseo evidencia pública (foto de rifa/bono, captura o resolución).
                         </label>
 
                         <button onclick="enviarReporteEscudo()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-sm transition shadow">
-                            🔒 Anonimizar y Registrar en Base de Datos
+                            🔒 Anonimizar y Registrar Reporte
                         </button>
 
                         <div id="rep-feedback" class="hidden p-3 rounded-lg text-xs"></div>
                     </div>
                 </div>
 
-                <!-- GENERADOR LEGAL DINÁMICO -->
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <!-- GENERADOR LEGAL DINÁMICO (7 COLUMNAS) -->
+                <div class="lg:col-span-7 bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900">⚖️ Generador Dinámico de Intimaciones y Pedidos de Informe</h3>
+                        <h3 class="text-lg font-bold text-slate-900">⚖️ Generador de Intimaciones, Solicitudes de Socios (ONG) y Pedidos RAFAM</h3>
                         <p class="text-xs text-slate-500 mt-1 mb-3">
-                            Seleccioná el destinatario y el documento se autocompleta con los nombres de los funcionarios actuales, las leyes vigentes (Ley 27.275 / Ley Prov. 12.475) y los nomencladores presupuestarios.
+                            Escribí el nombre de tu Club o Municipio (opcional) y hacé clic en el modelo legal que necesites presentar:
                         </p>
 
-                        <div class="flex flex-wrap gap-2 mb-3">
-                            <button onclick="generarEscritoLegal('BROWN_BORRO_MIHOVICH')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg">
-                                📍 Intimar Deporte Adaptado Brown (Borro / Mihovich)
+                        <div class="mb-3">
+                            <input type="text" id="input-entidad-personalizada" onkeyup="actualizarNombreEnPlantilla()" placeholder="Opcional: Escribí acá el nombre del Club ONG o Municipio (Ej: CEDIMA / DUBA / Municipalidad de Ensenada)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Botonera de 6 Plantillas Específicas -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                            <button onclick="generarEscritoLegal('ONG_SOCIO_BALANCE')" class="bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold px-3 py-2 rounded-lg text-left shadow-sm">
+                                🤝 1. Clubes ONG: Exigir Alta de Socio Activo y Balances (CCCN / Ley 27.275)
                             </button>
-                            <button onclick="generarEscritoLegal('BROWN_MAURA_GONZALEZ')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg">
-                                🏀 Reclamo Materiales Clubes (Maura González)
+                            <button onclick="generarEscritoLegal('MUNICIPIO_RAFAM')" class="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold px-3 py-2 rounded-lg text-left shadow-sm">
+                                🏛️ 2. Clubes Municipales: Auditar Partidas RAFAM (Incisos 2, 3, 4 y 5)
                             </button>
-                            <button onclick="generarEscritoLegal('BROWN_DENIS_LESTON')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg">
-                                ⚖️ Equidad y Becas (Denis Leston)
+                            <button onclick="generarEscritoLegal('BROWN_BORRO_MIHOVICH')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg text-left">
+                                📍 3. Alte. Brown: Deporte Adaptado (G. Borro / F. Mihovich)
                             </button>
-                            <button onclick="generarEscritoLegal('FABA_PERDIGUERO')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg">
-                                🇦🇷 Pedido a FABA / Nación (Ricardo Perdiguero)
+                            <button onclick="generarEscritoLegal('FABA_PERDIGUERO')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg text-left">
+                                🇦🇷 4. FABA / COPAR: Padrón, Parcial 517 y Becas (R. Perdiguero)
+                            </button>
+                            <button onclick="generarEscritoLegal('BROWN_MAURA_GONZALEZ')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-3 py-2 rounded-lg text-left">
+                                🏀 5. Alte. Brown: Materiales y Clubes de Barrio (Maura González)
+                            </button>
+                            <button onclick="generarEscritoLegal('BROWN_DENIS_LESTON')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-3 py-2 rounded-lg text-left">
+                                ⚖️ 6. Alte. Brown: Equidad, Cupos y Becas (Denis Leston)
                             </button>
                         </div>
 
-                        <textarea id="texto-legal-generado" rows="10" class="w-full p-3 bg-slate-900 text-emerald-400 font-mono text-xs rounded-lg border border-slate-700"></textarea>
+                        <textarea id="texto-legal-generado" rows="11" class="w-full p-3 bg-slate-900 text-emerald-400 font-mono text-xs rounded-lg border border-slate-700"></textarea>
                     </div>
 
                     <div class="flex gap-3 mt-3">
-                        <button onclick="copiarTextoLegal()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition">
-                            📋 Copiar Escrito Listo para Mesa de Entradas / TAD
+                        <button onclick="copiarTextoLegal()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow">
+                            📋 Copiar Documento Legal Listo para Presentar (Mesa de Entradas / CD / TAD / DPPJ)
                         </button>
                     </div>
                 </div>
@@ -356,9 +375,7 @@
 
     </main>
 
-    <!-- =================================================================== -->
-    <!-- MODAL 1: VENTANILLA DE DESCARGO OFICIAL (DERECHO A RÉPLICA)         -->
-    <!-- =================================================================== -->
+    <!-- MODAL 1: VENTANILLA DE DESCARGO OFICIAL -->
     <div id="modal-descargo" class="hidden fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4">
         <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -366,70 +383,70 @@
                 <button onclick="cerrarModal('modal-descargo')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
             </div>
             <p class="text-xs text-slate-600">
-                Si sos Director, Coordinador o Autoridad de una entidad auditada (Municipio, FABA, COPAR o Club), podés subir el enlace al expediente, licitación, factura de compra de insumos o nómina de becas. Una vez verificado el documento, <strong>el puntaje ITG de tu institución subirá automáticamente</strong>.
+                Espacio institucional para que Directores, Coordinadores o Comisiones Directivas suban enlaces a resoluciones, compras de insumos, balances o padrones de becas. Su validación incrementa automáticamente el puntaje ITG.
             </p>
             <div class="space-y-3 text-xs">
-                <input type="text" id="desc-entidad" placeholder="Entidad o Área (Ej: Dirección Deporte Adaptado Alte. Brown)" class="w-full p-2.5 border rounded-lg">
-                <input type="text" id="desc-autor" placeholder="Nombre y Cargo (Ej: Prof. Fernando Mihovich - Coordinador)" class="w-full p-2.5 border rounded-lg">
-                <input type="url" id="desc-url" placeholder="Enlace al PDF Oficial / Boletín / Rendición Pública" class="w-full p-2.5 border rounded-lg">
-                <textarea id="desc-detalle" rows="3" placeholder="Detalle qué acredita la documentación (Ej: Adjudicación de compra de 12 cubiertas tubulares y contratación de transporte FABA)..." class="w-full p-2.5 border rounded-lg"></textarea>
+                <input type="text" id="desc-entidad" placeholder="Entidad o Club (Ej: Instituto del Deporte Alte. Brown / FABA / CEDIMA)" class="w-full p-2.5 border rounded-lg">
+                <input type="text" id="desc-autor" placeholder="Nombre y Cargo del Funcionario o Directivo" class="w-full p-2.5 border rounded-lg">
+                <input type="url" id="desc-url" placeholder="URL al Documento Oficial, Boletín o Balance" class="w-full p-2.5 border rounded-lg">
+                <textarea id="desc-detalle" rows="3" placeholder="Resumen de la documentación respaldatoria aportada..." class="w-full p-2.5 border rounded-lg"></textarea>
             </div>
             <button onclick="guardarAporte('DESCARGO_FUNCIONARIO')" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-lg text-sm">
-                Subir Documentación Respaldatoria para Verificación
+                Registrar Documentación para Verificación SHA-256
             </button>
         </div>
     </div>
 
-    <!-- =================================================================== -->
-    <!-- MODAL 2: ACTUALIZAR DATOS DE UN CLUB FABA (COMUNIDAD / DIRECTIVOS)  -->
-    <!-- =================================================================== -->
+    <!-- MODAL 2: ACTUALIZAR DATOS DE UN CLUB FABA -->
     <div id="modal-club" class="hidden fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4">
         <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-lg text-slate-900">🏀 Actualizar Situación Real de un Club FABA</h3>
+                <h3 class="font-bold text-lg text-slate-900">🏀 Aportar Novedad de Cancha / Actualizar Club FABA</h3>
                 <button onclick="cerrarModal('modal-club')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
             </div>
             <p class="text-xs text-slate-600">
-                Como los registros públicos de FABA quedaron congelados en 2018/2019, jugadores, entrenadores, directivos o familiares pueden reportar el estado actual de su institución (bajas de equipos, nuevos convenios, autoridades actuales o prestaciones).
+                Si sos jugador, entrenador, directivo o familiar, actualizá el estado real de tu club, quiénes manejan la caja, cuál es su red social activa y qué prestaciones brindan hoy.
             </p>
             <div class="space-y-3 text-xs">
-                <input type="text" id="club-nombre" placeholder="Nombre del Club (Ej: CILSA Boca / River Plate / APRID / Poeta Lugones)" class="w-full p-2.5 border rounded-lg">
+                <input type="text" id="club-nombre" placeholder="Nombre del Club e Institución" class="w-full p-2.5 border rounded-lg">
                 <select id="club-rol" class="w-full p-2.5 border rounded-lg">
                     <option value="Jugador del Plantel">Soy Jugador / Deportista del Club</option>
                     <option value="Director / Entrenador / Dirigente">Soy Director / Entrenador / Dirigente</option>
-                    <option value="Familiar / Allegado">Soy Familiar / Allegado al Plantel</option>
+                    <option value="Familiar / Socio">Soy Familiar / Socio</option>
                 </select>
-                <textarea id="club-detalle" rows="3" placeholder="Indicá el dato real actual (Ej: Nombre del coordinador actual, si es Municipal u ONG, si sigue afiliado a FABA, y si provee sillas, cubiertas y viajes)..." class="w-full p-2.5 border rounded-lg"></textarea>
+                <input type="url" id="club-red-url" placeholder="Enlace a Instagram / Facebook activo del equipo (Opcional)" class="w-full p-2.5 border rounded-lg">
+                <textarea id="club-detalle" rows="3" placeholder="Indicá autoridades actuales, última fecha jugada y si proveen sillas, cubiertas, transporte y becas..." class="w-full p-2.5 border rounded-lg"></textarea>
             </div>
             <button onclick="guardarAporte('ACTUALIZACION_CLUB')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-sm">
-                Enviar Actualización al Padrón Colaborativo
+                Publicar en Padrón y Novedades de Cancha
             </button>
         </div>
     </div>
 
     <script>
         // ============================================================================
-        // CONFIGURACIÓN DE SUPABASE + DATOS ESPEJO VERIFICADOS 2026
+        // CONEXIÓN A SUPABASE + BASE ESPEJO OSINT 2026
         // ============================================================================
         const SUPABASE_URL = "https://tjlejedfjypntsylqpeq.supabase.co";
-        // Si querés lectura/escritura en vivo desde el navegador, pegá tu Publishable Key completa acá:
-        const SUPABASE_ANON_KEY = "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQt"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQt";
 
         let supabaseClient = null;
         try {
             if (window.supabase && SUPABASE_ANON_KEY.length > 35) {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
-        } catch (e) { console.warn("Usando modo espejo local verificado."); }
+        } catch (e) {}
 
-        // 1. BASE DE RESPONSABLES ACTUALIZADA (ALMIRANTE BROWN + FABA 2026)
+        let plantillaActualCodigo = 'ONG_SOCIO_BALANCE';
+
+        // 1. FUNCIONARIOS Y RESPONSABLES ("QUIÉN ES QUIÉN")
         const funcionariosData = [
             {
                 entidad: "Instituto Municipal del Deporte de Almirante Brown",
                 nombre: "Prof. Gustavo Borro",
                 cargo: "Director de Deporte Adaptado (y Presidente de COPAR)",
-                area: "Dirección estratégica del deporte paralímpico e inclusivo municipal y representación ante el Comité Paralímpico Argentino.",
-                reclamo: "Asignación presupuestaria general del área, licitaciones de transporte de larga distancia, becas de alto rendimiento y conflicto de Doble Mostrador.",
+                area: "Dirección estratégica del deporte paralímpico e inclusivo municipal y titular del Comité Paralímpico Argentino.",
+                reclamo: "Ejecución presupuestaria RAFAM del área, licitaciones de transporte de larga distancia, becas de alto rendimiento y conflicto de Doble Mostrador.",
                 codigoPlantilla: "BROWN_BORRO_MIHOVICH",
                 alerta: "Reemplaza datos caducos (ex gestión Jonathan Frisa). Observado por doble rol Municipio / Presidencia COPAR."
             },
@@ -437,105 +454,180 @@
                 entidad: "Instituto Municipal del Deporte de Almirante Brown",
                 nombre: "Prof. Fernando Mihovich",
                 cargo: "Coordinador de Deporte para Personas con Discapacidad",
-                area: "Coordinación técnica, operativa y cotidiana de los planteles municipales y actividades para personas con discapacidad.",
-                reclamo: "Provisión de cubiertas, tubulares, mantenimiento de sillas de ruedas de competencia, cronograma de combis y logística de torneos FABA.",
+                area: "Coordinación técnica y operativa en cancha de los planteles municipales y escuelas deportivas adaptadas.",
+                reclamo: "Provisión de cubiertas, tubulares, mantenimiento de sillas de competencia, asignación de combis y logística de fechas FABA.",
                 codigoPlantilla: "BROWN_BORRO_MIHOVICH",
-                alerta: "Contacto operativo directo para reclamos del plantel de Básquet Adaptado."
+                alerta: "Responsable operativo directo de la actividad en el Polideportivo Municipal de Ministro Rivadavia."
             },
             {
                 entidad: "Instituto Municipal del Deporte de Almirante Brown",
                 nombre: "Maura González",
                 cargo: "Coordinadora de Ligas Amateur y Clubes de Barrio",
-                area: "Articulación de la entrega de materiales deportivos y nexo institucional con las entidades barriales del distrito.",
-                reclamo: "Entrega efectiva de materiales e insumos deportivos, articulación con sedes barriales y rendición de elementos entregados.",
+                area: "Articulación institucional y entrega de materiales deportivos a entidades barriales del distrito.",
+                reclamo: "Trazabilidad de materiales deportivos entregados (SIBYS 32-11-00) e inclusión de clubes de barrio en programas adaptados.",
                 codigoPlantilla: "BROWN_MAURA_GONZALEZ",
-                alerta: "Área clave para auditar entrega física de materiales (Nomenclador SIBYS 32-11-00)."
+                alerta: "Nexo territorial para auditar la entrega efectiva de elementos deportivos."
             },
             {
                 entidad: "Instituto Municipal del Deporte de Almirante Brown",
                 nombre: "Denis Leston",
                 cargo: "Coordinadora del Área de Género y Deporte",
-                area: "Políticas de igualdad de acceso, prevención de discriminación y equidad presupuestaria en el deporte municipal.",
-                reclamo: "Equidad en el acceso a becas deportivas, cupos de viaje, indumentaria e integración en planteles adaptados.",
+                area: "Políticas de igualdad de acceso, protocolos y equidad presupuestaria en el deporte municipal.",
+                reclamo: "Paridad en asignación de becas deportivas, cupos de viaje e indumentaria en deporte adaptado.",
                 codigoPlantilla: "BROWN_DENIS_LESTON",
-                alerta: "Vía institucional para reclamos de paridad de recursos y becas."
+                alerta: "Canal institucional para reclamos de equidad en recursos y becas."
             },
             {
                 entidad: "Federación Argentina de Básquetbol Adaptado (FABA)",
                 nombre: "Ricardo Perdiguero",
-                cargo: "Presidente Actual de FABA",
-                area: "Conducción ejecutiva de la Liga Nacional de Básquet Adaptado, afiliación de clubes y postulación a becas ENARD/Nación.",
-                reclamo: "Actualización del padrón oficial de clubes (congelado en 2018/2019), publicación de balances Parcial 517 y criterios de becas.",
+                cargo: "Presidente en Ejercicio de FABA",
+                area: "Conducción ejecutiva de la Liga Nacional de Básquet Adaptado (1ra, 2da y 3ra Categoría) y postulación de becarios.",
+                reclamo: "Actualización del padrón web (congelado en 2018/2019), publicación de balances Parcial 517 y criterios de becas ENARD.",
                 codigoPlantilla: "FABA_PERDIGUERO",
-                alerta: "Dato corregido 2026: Víctor Bava ya no preside la federación; el presidente actual es Ricardo Perdiguero."
+                alerta: "Asumió la conducción tras el fallecimiento de Víctor Bava. Deuda crítica de transparencia digital."
             }
         ];
 
-        // 2. PADRÓN VIVO DE CLUBES FABA (CONTRASTE 2018/19 VS REALIDAD 2026)
-        const clubesFabaData = [
+        // 2. PADRÓN FEDERAL DE CLUBES FABA + INTELIGENCIA OSINT 2026
+        let clubesFabaData = [
             {
-                nombre: "Instituto Municipal del Deporte Almirante Brown",
-                tipo: "MUNICIPAL",
+                nombre_actual: "Instituto Municipal del Deporte Almirante Brown",
+                tipo_entidad: "MUNICIPAL",
                 jurisdiccion: "Almirante Brown, PBA",
-                estado: "ACTIVO (1ra División)",
-                desfasaje: "En registros viejos figuraba Jonathan Frisa. Hoy conducen Gustavo Borro (Director) y Fernando Mihovich (Coordinador).",
-                sillas: "⚠️ Déficit de cubiertas/repuestos",
-                transporte: "⚠️ Irregular / Sin licitación pública",
-                becas: "❌ Sin padrón público de becarios"
+                estado_actual: "ACTIVO (1ra División)",
+                dato_desactualizado_oficial: "En registros viejos figuraba Jonathan Frisa como autoridad.",
+                realidad_verificada_2026: "Conducido operacionalmente por el Prof. Gustavo Borro (Director) y el Prof. Fernando Mihovich (Coordinador). Articulación barrial: Maura González. Género: Denis Leston.",
+                provee_sillas_repuestos: "⚠️ PARCIAL_CON_RECLAMOS",
+                provee_transporte: "⚠️ IRREGULAR",
+                provee_becas_viaticos: "❌ SIN_PADRON_PUBLICO",
+                ultima_actividad_osint: "Octubre 2026: Disputa de fechas de 1ra División Liga Nacional FABA en el Polideportivo Municipal de Ministro Rivadavia.",
+                enlace_evidencia_url: "https://www.instagram.com/municipiobrown/",
+                estado_redes_sociales: "Bifurcada: Prensa municipal difunde fotos sin decretos de gasto; el plantel creó su propia comunidad en WhatsApp (Sep 2026).",
+                perfil_skills_responsables: "Gustavo Borro (Dir. Municipal y Pte. COPAR; alto manejo político/federativo, observado por Doble Mostrador) y Fernando Mihovich (Coordinador técnico en cancha y armado de Listas de Buena Fe)."
             },
             {
-                nombre: "CILSA Boca Juniors (Ex CILSA Bs.As.)",
-                tipo: "CONVENIO_CLUB",
+                nombre_actual: "CILSA Boca Juniors",
+                tipo_entidad: "CONVENIO_CLUB",
                 jurisdiccion: "CABA / AMBA",
-                estado: "ACTIVO (Reestructurado)",
-                desfasaje: "En el padrón FABA 2018/19 figuraba solo como 'CILSA Bs.As.'. Hoy es CILSA Boca por apadrinamiento oficial de Boca Juniors.",
-                sillas: "✅ Provisto por ONG / Convenio",
-                transporte: "✅ Logística cubierta",
-                becas: "✅ Viáticos deportivos activos"
+                estado_actual: "ACTIVO (Reestructurado)",
+                dato_desactualizado_oficial: "En el padrón histórico 2018/19 figura únicamente como 'CILSA Bs.As.'.",
+                realidad_verificada_2026: "Mutó a CILSA Boca por convenio de apadrinamiento oficial con el Club Atlético Boca Juniors.",
+                provee_sillas_repuestos: "✅ SI_EQUIPADO",
+                provee_transporte: "✅ SI_CUBIERTO",
+                provee_becas_viaticos: "✅ VIATICOS_CUBIERTOS",
+                ultima_actividad_osint: "Octubre 2026: Definiciones de 1ra División Liga Nacional FABA y exhibiciones inclusivas junto a Boca Deportes Amateurs.",
+                enlace_evidencia_url: "https://www.instagram.com/cilsaong/",
+                estado_redes_sociales: "Profesionalizada y activa (Cuentas oficiales de CILSA ONG y Boca Juniors).",
+                perfil_skills_responsables: "Caja Mixta Profesionalizada: Dirección Deportiva de CILSA (fondos de donantes/RSE) + Depto. de Deportes Inclusivos de Boca Juniors (indumentaria, logística y difusión)."
             },
             {
-                nombre: "Club Atlético River Plate (Programa Discapacidad)",
-                tipo: "CONVENIO_CLUB",
+                nombre_actual: "Club Atlético River Plate (Básquet Adaptado)",
+                tipo_entidad: "CONVENIO_CLUB",
                 jurisdiccion: "CABA",
-                estado: "DESAFILIADO",
-                desfasaje: "Sigue apareciendo en listados viejos de FABA como club activo, pero a fines de 2019 se retiró del programa y desafilió a todo el equipo.",
-                sillas: "➖ Equipo desafiliado (2019)",
-                transporte: "➖ Equipo desafiliado (2019)",
-                becas: "➖ Equipo desafiliado (2019)"
+                estado_actual: "DESAFILIADO",
+                dato_desactualizado_oficial: "Sigue figurando en listados históricos 2018/2019 como club activo de FABA.",
+                realidad_verificada_2026: "Hacia finales de 2019 River Plate se retiró del programa competitivo de discapacidad y desafilió a todo el equipo.",
+                provee_sillas_repuestos: "➖ NO_APLICA (Baja 2019)",
+                provee_transporte: "➖ NO_APLICA (Baja 2019)",
+                provee_becas_viaticos: "➖ NO_APLICA (Baja 2019)",
+                ultima_actividad_osint: "Sin actividad competitiva en Liga FABA desde diciembre de 2019.",
+                enlace_evidencia_url: "https://www.cariverplate.com.ar/",
+                estado_redes_sociales: "Inactiva en la disciplina / Baja definitiva del programa competitivo.",
+                perfil_skills_responsables: "Caso testigo de padrón fantasma: demuestra la falta de depuración de los registros públicos de FABA."
             },
             {
-                nombre: "CEDIMA",
-                tipo: "ASOCIACION_CIVIL_ONG",
+                nombre_actual: "CEDIMA",
+                tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 jurisdiccion: "La Matanza, PBA",
-                estado: "ACTIVO (1ra División)",
-                desfasaje: "Asociación Civil histórica. Sin publicación actualizada en FABA de transferencias federativas para traslados nacionales.",
-                sillas: "🔶 Gestión mixta / Subsidios",
-                transporte: "🔶 Autogestión + Apoyo puntual",
-                becas: "🔶 Según padrón ENARD/Provincia"
+                estado_actual: "ACTIVO (1ra División)",
+                dato_desactualizado_oficial: "Sin desglose público en web de subsidios recibidos por Parcial 517 o apoyos municipales.",
+                realidad_verificada_2026: "Asociación Civil histórica activa en 1ra División y categorías formativas en su sede de San Justo.",
+                provee_sillas_repuestos: "🔶 PARCIAL",
+                provee_transporte: "🔶 PARCIAL",
+                provee_becas_viaticos: "🔶 AUTOGESTION",
+                ultima_actividad_osint: "Octubre 2026: Disputa de fechas de Liga Nacional FABA en el Polideportivo CEDIMA.",
+                enlace_evidencia_url: "https://www.instagram.com/cedima.oficial/",
+                estado_redes_sociales: "Institucional activa en difusión deportiva, pero sin publicación web de balances ni cuadro de gastos.",
+                perfil_skills_responsables: "Comisión Directiva de ONG histórica con administración de sede propia, cuotas sociales, subsidios estatales y eventos."
             },
             {
-                nombre: "CRIGAL",
-                tipo: "ASOCIACION_CIVIL_ONG",
+                nombre_actual: "CRIGAL",
+                tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 jurisdiccion: "Río Gallegos, Santa Cruz",
-                estado: "ACTIVO (1ra División)",
-                desfasaje: "Alta dependencia de pasajes aéreos y subsidios provinciales/municipales no reflejados en el portal de FABA.",
-                sillas: "✅ Equipamiento propio/provincial",
-                transporte: "✈️ Dependencia de pasajes aéreos",
-                becas: "🔶 Viáticos por torneo"
+                estado_actual: "ACTIVO (1ra División)",
+                dato_desactualizado_oficial: "Padrón 2019 sin actualización de costos logísticos patagónicos.",
+                realidad_verificada_2026: "Activo en 1ra División con fuerte dependencia de pasajes aéreos y subsidios provinciales.",
+                provee_sillas_repuestos: "✅ SI_EQUIPADO",
+                provee_transporte: "✈️ DEPENDENCIA_AEREA",
+                provee_becas_viaticos: "🔶 PARCIAL",
+                ultima_actividad_osint: "Septiembre/Octubre 2026: Cuadrangulares nacionales de 1ra División FABA y Liga Patagónica.",
+                enlace_evidencia_url: "https://www.facebook.com/crigalbasquetadaptado",
+                estado_redes_sociales: "Autogestión activa con fuerte presencia en medios regionales de Santa Cruz.",
+                perfil_skills_responsables: "Dirigencia de ONG especializada en logística aérea/terrestre de larga distancia y convenios con Provincia de Santa Cruz."
             },
             {
-                nombre: "SICA / Poeta Lugones",
-                tipo: "ASOCIACION_CIVIL_ONG",
-                jurisdiccion: "Córdoba",
-                estado: "ACTIVO (1ra División)",
-                desfasaje: "Clubes referentes del interior cuyos convenios de transporte y becas provinciales requieren actualización anual en padrón.",
-                sillas: "🔶 Gestión de club / ONG",
-                transporte: "🔶 Apoyo agencia provincial + club",
-                becas: "🔶 Becas provinciales / ENARD"
+                nombre_actual: "DUBA (Discapacitados Unidos Bahienses)",
+                tipo_entidad: "ASOCIACION_CIVIL_ONG",
+                jurisdiccion: "Bahía Blanca, PBA",
+                estado_actual: "ACTIVO",
+                dato_desactualizado_oficial: "Sin registro público de transferencias federativas para traslados.",
+                realidad_verificada_2026: "Compite en Liga Nacional apelando a rifas, bonos contribución y sponsors locales para costear viajes.",
+                provee_sillas_repuestos: "⚠️ PARCIAL_CON_RECLAMOS",
+                provee_transporte: "⚠️ AUTOGESTION_RIFAS",
+                provee_becas_viaticos: "❌ SIN_BECAS_LOCALES",
+                ultima_actividad_osint: "Octubre 2026: Participación en fechas nacionales y campañas comunitarias de recaudación en Bahía Blanca.",
+                enlace_evidencia_url: "https://www.instagram.com/dubabahiablanca/",
+                estado_redes_sociales: "Mutó a tracción directa de los jugadores para visibilizar rifas y conseguir apoyo logístico.",
+                perfil_skills_responsables: "Comisión Directiva integrada por deportistas y allegados; alta resiliencia operativa frente a la escasez de partidas fijas."
+            },
+            {
+                nombre_actual: "CIDELI",
+                tipo_entidad: "ASOCIACION_CIVIL_ONG",
+                jurisdiccion: "Mar del Plata, PBA",
+                estado_actual: "ACTIVO",
+                dato_desactualizado_oficial: "No constan en FABA los convenios de uso de escenarios con el EMDER.",
+                realidad_verificada_2026: "Entrena en polideportivos cedidos por el municipio (EMDER), pero la logística de viajes recae en el plantel.",
+                provee_sillas_repuestos: "🔶 PARCIAL",
+                provee_transporte: "⚠️ AUTOGESTION",
+                provee_becas_viaticos: "➖ SIN_DATOS",
+                ultima_actividad_osint: "Octubre 2026: Entrenamientos y fechas de Liga Nacional en escenarios de Mar del Plata.",
+                enlace_evidencia_url: "https://www.instagram.com/cidelimdp/",
+                estado_redes_sociales: "Autogestionada por referentes del plantel para conseguir sponsors.",
+                perfil_skills_responsables: "ONG histórica marplatense con articulación de espacios ante el EMDER pero sin presupuesto municipal fijo para sillas."
+            },
+            {
+                nombre_actual: "SICA / Poeta Lugones",
+                tipo_entidad: "ASOCIACION_CIVIL_ONG",
+                jurisdiccion: "Córdoba Capital",
+                estado_actual: "ACTIVO (1ra División)",
+                dato_desactualizado_oficial: "Padrón 2018 no refleja sedes ni becarios actuales.",
+                realidad_verificada_2026: "Referente del interior en 1ra División y semillero permanente de Selección Argentina.",
+                provee_sillas_repuestos: "✅ SI_EQUIPADO",
+                provee_transporte: "🔶 PARCIAL",
+                provee_becas_viaticos: "🔶 BECAS_PROVINCIALES",
+                ultima_actividad_osint: "Octubre 2026: Competencia en 1ra División FABA y convocatorias a preselección nacional.",
+                enlace_evidencia_url: "https://www.instagram.com/sicabasquetadaptado/",
+                estado_redes_sociales: "Activa en difusión deportiva; sin estados contables publicados en redes.",
+                perfil_skills_responsables: "Fundación / Asociación Civil con cuerpo técnico de alto rendimiento articulado con la Agencia Córdoba Deportes."
+            },
+            {
+                nombre_actual: "Municipalidad de Ensenada",
+                tipo_entidad: "MUNICIPAL",
+                jurisdiccion: "Ensenada, PBA",
+                estado_actual: "ACTIVO (Ascenso FABA)",
+                dato_desactualizado_oficial: "Sin desglose público del presupuesto específico del área adaptada.",
+                realidad_verificada_2026: "Equipo de gestión 100% estatal municipal que compite en el circuito nacional y provincial.",
+                provee_sillas_repuestos: "✅ CUBIERTO_MUNICIPIO",
+                provee_transporte: "✅ CUBIERTO_MUNICIPIO",
+                provee_becas_viaticos: "❌ SIN_PADRON_PUBLICO",
+                ultima_actividad_osint: "Septiembre/Octubre 2026: Fechas de ascenso FABA y participación en Juegos Bonaerenses.",
+                enlace_evidencia_url: "https://www.instagram.com/prensaensenada/",
+                estado_redes_sociales: "Absorbida por la cuenta general de prensa de la Municipalidad de Ensenada.",
+                perfil_skills_responsables: "Dirección de Deportes Municipal; caja ejecutada por tesorería bajo nomenclador RAFAM."
             }
         ];
 
-        // 3. BOLETINES OFICIALES DESCARGADOS CON SHA-256 (ALMIRANTE BROWN 2026)
+        // 3. BOLETINES OFICIALES SHA-256
         let boletinesData = [
             { expediente_o_decreto: "PQ-Enero-Decretos-2026.pdf", portal_origen: "BOLETIN_MUNICIPAL", hash_sha256_documento: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", url_fuente_oficial: "https://files.brown.gob.ar/brown-web/bundles/site/pdf/boletin_oficial/PQ-Enero-Decretos-2026.pdf" },
             { expediente_o_decreto: "SQ-Enero-Decretos-2026.pdf", portal_origen: "BOLETIN_MUNICIPAL", hash_sha256_documento: "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4", url_fuente_oficial: "https://files.brown.gob.ar/brown-web/bundles/site/pdf/boletin_oficial/SQ-Enero-Decretos-2026.pdf" },
@@ -548,10 +640,10 @@
         ];
 
         // ============================================================================
-        // FUNCIONES DE RENDERIZADO E INTERACTIVIDAD
+        // FUNCIONES DE NAVEGACIÓN Y RENDERIZADO
         // ============================================================================
         function cambiarTab(tabId) {
-            ['tab-dashboard', 'tab-responsables', 'tab-clubes', 'tab-becas'].forEach(id => {
+            ['tab-dashboard', 'tab-responsables', 'tab-clubes', 'tab-osint', 'tab-becas'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
                 document.getElementById('btn-' + id).classList.remove('tab-active');
             });
@@ -566,18 +658,14 @@
                     <td class="p-2.5 font-semibold text-slate-800">📄 ${b.expediente_o_decreto}</td>
                     <td class="p-2.5"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[11px]">${b.portal_origen}</span></td>
                     <td class="p-2.5 font-mono text-[11px] text-emerald-700" title="${b.hash_sha256_documento}">${b.hash_sha256_documento.substring(0, 18)}...</td>
-                    <td class="p-2.5">
-                        <a href="${b.url_fuente_oficial}" target="_blank" class="text-blue-600 hover:underline font-bold">Abrir PDF Oficial ↗</a>
-                    </td>
+                    <td class="p-2.5"><a href="${b.url_fuente_oficial}" target="_blank" class="text-blue-600 hover:underline font-bold">Abrir PDF ↗</a></td>
                 </tr>
             `).join('');
-            document.getElementById('contador-boletines').innerText = lista.length;
         }
 
         function filtrarBoletines() {
             const q = document.getElementById('buscador-boletines').value.toLowerCase();
-            const filtrados = boletinesData.filter(b => b.expediente_o_decreto.toLowerCase().includes(q));
-            renderizarBoletines(filtrados);
+            renderizarBoletines(boletinesData.filter(b => b.expediente_o_decreto.toLowerCase().includes(q)));
         }
 
         function renderizarFuncionarios() {
@@ -588,15 +676,14 @@
                         <span class="text-xs font-bold uppercase text-blue-600">${f.entidad}</span>
                         <h3 class="text-lg font-black text-slate-900 mt-0.5">${f.nombre}</h3>
                         <p class="text-xs font-semibold text-slate-500 mb-3">${f.cargo}</p>
-                        
                         <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1.5 mb-3">
                             <p><strong>📌 Competencia:</strong> ${f.area}</p>
-                            <p><strong>⚖️ Qué reclamarle directamente:</strong> ${f.reclamo}</p>
+                            <p><strong>⚖️ Qué reclamarle:</strong> ${f.reclamo}</p>
                         </div>
                         <p class="text-[11px] text-amber-700 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">ℹ️ ${f.alerta}</p>
                     </div>
-                    <button onclick="seleccionarReclamoFuncionario('${f.codigoPlantilla}')" class="mt-4 w-full bg-slate-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition">
-                        ✍️ Redactar Pedido / Reclamo Dirigido a ${f.nombre}
+                    <button onclick="seleccionarReclamo('${f.codigoPlantilla}', '${f.entidad}')" class="mt-4 w-full bg-slate-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition">
+                        ✍️ Generar Reclamo Dirigido a ${f.nombre}
                     </button>
                 </div>
             `).join('');
@@ -604,28 +691,96 @@
 
         function renderizarClubes(filtro = 'TODOS') {
             const tbody = document.getElementById('tabla-clubes-body');
-            const lista = filtro === 'TODOS' ? clubesFabaData : clubesFabaData.filter(c => c.tipo === filtro || c.estado.includes(filtro));
-            
+            const lista = filtro === 'TODOS' ? clubesFabaData : clubesFabaData.filter(c => c.tipo_entidad === filtro || c.estado_actual.includes(filtro));
+
             const badgeTipo = {
                 'MUNICIPAL': '<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold">🏛️ MUNICIPAL</span>',
                 'ASOCIACION_CIVIL_ONG': '<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold">🤝 ASOC. CIVIL / ONG</span>',
                 'CONVENIO_CLUB': '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">🛡️ CONVENIO CLUB</span>'
             };
 
-            tbody.innerHTML = lista.map(c => `
+            tbody.innerHTML = lista.map(c => {
+                const btnAccion = c.tipo_entidad === 'ASOCIACION_CIVIL_ONG'
+                    ? `<button onclick="seleccionarReclamo('ONG_SOCIO_BALANCE', '${c.nombre_actual}')" class="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1 rounded font-bold text-[11px]">⚖️ Exigir Socio y Balance</button>`
+                    : `<button onclick="seleccionarReclamo('MUNICIPIO_RAFAM', '${c.nombre_actual}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded font-bold text-[11px]">🏛️ Auditar RAFAM</button>`;
+
+                return `
                 <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-bold text-slate-900">${c.nombre}<br><span class="text-[11px] font-normal text-slate-500">${c.jurisdiccion}</span></td>
-                    <td class="p-3">${badgeTipo[c.tipo] || c.tipo}</td>
-                    <td class="p-3"><span class="font-bold ${c.estado.includes('DESAFILIADO') ? 'text-red-600' : 'text-emerald-700'}">${c.estado}</span></td>
-                    <td class="p-3 text-slate-600 max-w-xs">${c.desfasaje}</td>
-                    <td class="p-3">${c.sillas}</td>
-                    <td class="p-3">${c.transporte}</td>
-                    <td class="p-3">${c.becas}</td>
-                </tr>
-            `).join('');
+                    <td class="p-3 font-bold text-slate-900">${c.nombre_actual}<br><span class="text-[11px] font-normal text-slate-500">${c.jurisdiccion}</span></td>
+                    <td class="p-3">${badgeTipo[c.tipo_entidad] || c.tipo_entidad}</td>
+                    <td class="p-3"><span class="font-bold ${c.estado_actual.includes('DESAFILIADO') ? 'text-red-600' : 'text-emerald-700'}">${c.estado_actual}</span></td>
+                    <td class="p-3 text-slate-600 max-w-xs">${c.realidad_verificada_2026}</td>
+                    <td class="p-3">${c.provee_sillas_repuestos}</td>
+                    <td class="p-3">${c.provee_transporte}</td>
+                    <td class="p-3">${c.provee_becas_viaticos}</td>
+                    <td class="p-3">${btnAccion}</td>
+                </tr>`;
+            }).join('');
         }
 
         function filtrarClubes(tipo) { renderizarClubes(tipo); }
+
+        // RENDERIZAR TARJETAS DE NOVEDADES DE CANCHA (OSINT 2026)
+        function renderizarTarjetasOSINT(lista) {
+            const cont = document.getElementById('contenedor-osint-cards');
+            document.getElementById('contador-clubes-osint').innerText = lista.length;
+
+            cont.innerHTML = lista.map(c => {
+                const esONG = c.tipo_entidad === 'ASOCIACION_CIVIL_ONG';
+                const botonReclamoDirecto = esONG
+                    ? `<button onclick="seleccionarReclamo('ONG_SOCIO_BALANCE', '${c.nombre_actual}')" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-lg text-xs transition flex-1 text-center">🤝 Solicitar Alta de Socio y Balances (DPPJ/IGJ)</button>`
+                    : `<button onclick="seleccionarReclamo('MUNICIPIO_RAFAM', '${c.nombre_actual}')" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-2 rounded-lg text-xs transition flex-1 text-center">🏛️ Auditar Gastos RAFAM del Municipio</button>`;
+
+                return `
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase px-2 py-0.5 rounded ${esONG ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}">${c.tipo_entidad} • ${c.jurisdiccion}</span>
+                                <h3 class="text-lg font-black text-slate-900 mt-1">${c.nombre_actual}</h3>
+                            </div>
+                            <span class="text-xs font-bold px-2.5 py-1 rounded ${c.estado_actual.includes('DESAFILIADO') ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">${c.estado_actual}</span>
+                        </div>
+
+                        <div class="mt-3 space-y-2.5 text-xs">
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                                <p class="font-bold text-slate-800">1. 📅 Última Publicación / Actividad Verificada:</p>
+                                <p class="text-slate-600 mt-0.5">${c.ultima_actividad_osint || c.realidad_verificada_2026}</p>
+                            </div>
+
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                                <p class="font-bold text-slate-800">2. 🔗 Huella Digital y Evidencia Activa:</p>
+                                <a href="${c.enlace_evidencia_url || '#'}" target="_blank" class="text-blue-600 hover:underline font-semibold break-all">${c.enlace_evidencia_url || 'Sin portal activo verificado'} ↗</a>
+                            </div>
+
+                            <div class="p-2.5 bg-amber-50/70 rounded-lg border border-amber-200">
+                                <p class="font-bold text-amber-900">3. 📡 Estado de Redes y Mutación Comunitaria:</p>
+                                <p class="text-amber-800 mt-0.5">${c.estado_redes_sociales || 'Sin actualización en padrón oficial FABA'}</p>
+                            </div>
+
+                            <div class="p-2.5 bg-blue-50/60 rounded-lg border border-blue-200">
+                                <p class="font-bold text-blue-950">4. 🎯 Perfil / Skills y Manejo de Caja:</p>
+                                <p class="text-blue-900 mt-0.5">${c.perfil_skills_responsables || c.dato_desactualizado_oficial}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex flex-wrap gap-2">
+                        ${botonReclamoDirecto}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function filtrarTarjetasOSINT() {
+            const q = document.getElementById('buscador-osint').value.toLowerCase();
+            const filtradas = clubesFabaData.filter(c =>
+                c.nombre_actual.toLowerCase().includes(q) ||
+                (c.jurisdiccion && c.jurisdiccion.toLowerCase().includes(q)) ||
+                (c.perfil_skills_responsables && c.perfil_skills_responsables.toLowerCase().includes(q))
+            );
+            renderizarTarjetasOSINT(filtradas);
+        }
 
         function calcularBrechaFamiliar() {
             const tipo = document.getElementById('sim-tipo-club').value;
@@ -634,66 +789,95 @@
             const resDiv = document.getElementById('sim-resultado-texto');
 
             if (tipo === 'MUNICIPAL') {
-                expDiv.innerHTML = "<strong>Club Municipal (Ej. Almirante Brown):</strong> Financiado con presupuesto público local y provincial. <strong>Prohibido</strong> trasladar costos de cubiertas, repuestos o combis a las familias mediante rifas.";
+                expDiv.innerHTML = "<strong>Club Municipal (Régimen RAFAM):</strong> Financiado con presupuesto público. Podés auditar los Incisos 2 (Repuestos), 3 (Combis), 4 (Sillas) y 5 (Becas).";
             } else if (tipo === 'ONG') {
-                expDiv.innerHTML = "<strong>Asociación Civil / ONG:</strong> Recibe subsidios de Parcial 517 (Nación/Provincia) o exenciones. Debe transparentar el balance anual ante sus socios y jugadores.";
+                expDiv.innerHTML = "<strong>Asociación Civil / ONG:</strong> Podés exigir tu alta como <strong>Socio Activo</strong> (Arts. 168-186 CCCN) y auditar la Memoria, Balance y subsidios públicos recibidos.";
             } else {
-                expDiv.innerHTML = "<strong>Convenio Club (Ej. CILSA Boca):</strong> Articula fondos de ONG con patrocinio deportivo de un club profesional. Debe garantizar cobertura de indumentaria y logística acordada.";
+                expDiv.innerHTML = "<strong>Convenio Club:</strong> Articula estructura de ONG con el respaldo logístico e institucional de un club deportivo profesional.";
             }
 
             if (checks.length === 0) {
-                resDiv.innerHTML = "<p class='text-emerald-400 font-bold'>✅ Tu club cumple con todas las prestaciones básicas auditadas.</p>";
+                resDiv.innerHTML = "<p class='text-emerald-400 font-bold'>✅ Prestaciones básicas cubiertas según tu selección.</p>";
             } else {
                 resDiv.innerHTML = `
-                    <p class="font-bold text-red-400">⚠️ Se detectaron ${checks.length} incumplimientos presupuestarios:</p>
+                    <p class="font-bold text-red-400">⚠️ ${checks.length} puntos críticos para reclamar formalmente:</p>
                     <ul class="list-disc pl-4 space-y-1">
-                        ${checks.includes('cubiertas') ? '<li><strong>Insumos (SIBYS 32-11-00):</strong> El gasto en cubiertas/tubulares debe cubrirse por partida municipal/subsidio, no por rifas del plantel.</li>' : ''}
-                        ${checks.includes('sillas') ? '<li><strong>Equipamiento:</strong> Falta de mantenimiento e inventario público de sillas de competencia.</li>' : ''}
-                        ${checks.includes('transporte') ? '<li><strong>Traslados (SIBYS 91-03-01):</strong> Obligación de garantizar transporte adaptado habilitado para fechas FABA.</li>' : ''}
-                        ${checks.includes('becas') ? '<li><strong>Becas y Viáticos:</strong> Derecho a auditar si existió postulación ante FABA/ENARD o decreto de ayuda económica local.</li>' : ''}
+                        ${checks.includes('cubiertas') ? '<li><strong>Cubiertas/Tubulares:</strong> Auditar Inciso 2 (RAFAM) o rendición de subsidios de la ONG.</li>' : ''}
+                        ${checks.includes('sillas') ? '<li><strong>Equipamiento:</strong> Exigir inventario patrimonial de sillas (Inciso 4).</li>' : ''}
+                        ${checks.includes('transporte') ? '<li><strong>Transporte:</strong> Exigir pliegos de combis adaptadas (Inciso 3 / Parcial 517).</li>' : ''}
+                        ${checks.includes('socios') ? '<li><strong>Derechos Societarios (ONG):</strong> Intimar empadronamiento como Socio Activo y exhibición de Libros Contables.</li>' : ''}
                     </ul>
                 `;
             }
         }
 
-        function seleccionarReclamoFuncionario(codigo) {
+        function seleccionarReclamo(codigoPlantilla, nombreEntidad = '') {
             cambiarTab('tab-becas');
-            generarEscritoLegal(codigo);
+            if (nombreEntidad) {
+                document.getElementById('input-entidad-personalizada').value = nombreEntidad;
+            }
+            generarEscritoLegal(codigoPlantilla);
         }
 
-        function irAReclamoConDatos() {
+        function irAReclamoSegunTipoClub() {
+            const tipo = document.getElementById('sim-tipo-club').value;
             cambiarTab('tab-becas');
-            generarEscritoLegal('BROWN_BORRO_MIHOVICH');
+            if (tipo === 'ONG') {
+                generarEscritoLegal('ONG_SOCIO_BALANCE');
+            } else {
+                generarEscritoLegal('MUNICIPIO_RAFAM');
+            }
+        }
+
+        function actualizarNombreEnPlantilla() {
+            generarEscritoLegal(plantillaActualCodigo);
         }
 
         function generarEscritoLegal(tipo) {
+            plantillaActualCodigo = tipo;
             const areaTexto = document.getElementById('texto-legal-generado');
+            const entidadCustom = document.getElementById('input-entidad-personalizada').value.trim();
+            const nombreONG = entidadCustom || "[NOMBRE DEL CLUB / ASOCIACIÓN CIVIL - Ej: CEDIMA / DUBA / CIDELI / CRIGAL / SICA]";
+            const nombreMuni = entidadCustom || "[NOMBRE DEL MUNICIPIO - Ej: Almirante Brown / Ensenada]";
+
             const plantillas = {
+                'ONG_SOCIO_BALANCE': `OBJETO: SOLICITUD DE EMPADRONAMIENTO COMO SOCIO ACTIVO, EXHIBICIÓN DE ESTADOS CONTABLES Y RENDICIÓN DE SUBSIDIOS DEPORTIVOS (ARTS. 168 A 186 CCCN / LEY N° 27.275)
+
+A la Comisión Directiva de: ${nombreONG}
+S / D:
+
+En mi carácter de deportista federado integrante del plantel de Básquet Adaptado de la institución (y/o interesado directo con derecho legítimo), me dirijo a la Comisión Directiva a fin de solicitar formalmente:
+
+1. REGULARIZACIÓN Y ALTA COMO SOCIO ACTIVO: Se informe mi estado actual dentro del Padrón de Asociados y, en caso de no encontrarse formalizado, se proceda a mi inscripción inmediata como Socio Activo con plenos derechos de voz y voto en las Asambleas Ordinarias y Extraordinarias, conforme a los Arts. 178 a 182 del Código Civil y Comercial de la Nación y el Estatuto Social.
+2. EXHIBICIÓN DE MEMORIA, BALANCE Y CUADRO DE GASTOS: Se ponga a disposición copia de la Memoria, Balance General y Cuadro de Gastos y Recursos de los últimos dos (2) ejercicios cerrados presentados ante la Dirección de Personas Jurídicas (DPPJ / IGJ), detallando los ingresos percibidos por cuotas, donaciones, sponsors, rifas y eventos.
+3. RENDICIÓN DE SUBSIDIOS PÚBLICOS (LEY 27.275 ART. 7 INC. C): En tanto la entidad percibe subsidios, transferencias (Parcial 517) o beneficios estatales destinados al deporte adaptado, solicito el desglose pormenorizado de su afectación real a la compra de sillas de ruedas, cubiertas/tubulares, mantenimiento, viáticos y transporte del plantel.
+
+Queda formalmente notificado bajo apercibimiento de formular denuncia de fiscalización ante la Dirección de Personas Jurídicas (DPPJ / IGJ) por denegatoria de derechos societarios y falta de transparencia contable.`,
+
+                'MUNICIPIO_RAFAM': `OBJETO: SOLICITUD DE INFORMACIÓN PÚBLICA SOBRE EJECUCIÓN PRESUPUESTARIA RAFAM EN DEPORTE ADAPTADO (LEY PROV. N° 12.475 / LEY N° 27.275)
+
+Al Sr. Intendente Municipal / Secretaría o Instituto de Deportes de: ${nombreMuni}
+S / D:
+
+En ejercicio del derecho constitucional de acceso a la información pública (Ley Provincial N° 12.475 y Ley Nacional N° 27.275), solicito se informe de manera documentada respecto del programa municipal de Básquet Adaptado / Deporte para Personas con Discapacidad (Ejercicio 2025-2026):
+
+1. EJECUCIÓN RAFAM POR INCISO: Monto presupuestado, devengado y pagado en:
+   a) INCISO 2 (Bienes de Consumo - SIBYS 32-11-00): Compra de repuestos, cubiertas de alta presión, tubulares y cámaras para sillas de ruedas deportivas.
+   b) INCISO 3 (Servicios No Personales - SIBYS 91-03-01): Contrataciones de transporte adaptado (combis/micros) para fechas de la Liga Nacional FABA y viáticos.
+   c) INCISO 4 (Bienes de Uso): Adquisición y número de inventario patrimonial de las sillas de ruedas deportivas a medida.
+   d) INCISO 5 (Transferencias): Nómina de decretos de becas deportivas o ayudas económicas asignadas a jugadores del plantel.
+2. ACTOS ADMINISTRATIVOS: Copia de las resoluciones, decretos o contrataciones directas vinculadas a la logística del plantel federado en FABA.`,
+
                 'BROWN_BORRO_MIHOVICH': `OBJETO: SOLICITUD DE ACCESO A LA INFORMACIÓN PÚBLICA (LEY PROV. N° 12.475) - AUDITORÍA DEPORTE ADAPTADO
 Al Instituto Municipal del Deporte de Almirante Brown
 At. Director de Deporte Adaptado: Prof. Gustavo Borro
 At. Coordinador de Deporte para Personas con Discapacidad: Prof. Fernando Mihovich
 S / D:
 
-En ejercicio del derecho constitucional de acceso a la información pública (Ley Provincial N° 12.475 y Ley N° 27.275), solicito en el plazo legal de 10 días hábiles se informe de manera documentada:
-
-1. INSUMOS Y REPUESTOS (Nomenclador SIBYS 32-11-00): Detalle de compras ejecutadas en los últimos 24 meses de sillas de ruedas deportivas, cubiertas, tubulares y repuestos afectados al plantel de Básquet Adaptado (1ra División FABA).
-2. TRANSPORTE Y LOGÍSTICA (SIBYS 91-03-01): Nómina de contrataciones de combis/micros adaptados para traslados a fechas de la Liga Nacional FABA.
-3. BECAS Y AYUDAS ECONÓMICAS: Nómina de decretos municipales de ayuda económica o becas deportivas asignadas a jugadores del plantel de Deporte Adaptado durante el ejercicio 2025-2026.`,
-
-                'BROWN_MAURA_GONZALEZ': `OBJETO: SOLICITUD DE INFORMACIÓN SOBRE ENTREGA DE MATERIALES DEPORTIVOS (LEY PROV. N° 12.475)
-Al Instituto Municipal del Deporte de Almirante Brown
-At. Coordinadora de Ligas Amateur y Clubes de Barrio: Sra. Maura González
-S / D:
-
-Por medio de la presente solicito se informe el detalle de materiales deportivos, insumos y programas de articulación barrial ejecutados en el presente ejercicio, especificando qué porcentaje y qué elementos fueron destinados a disciplinas de deporte adaptado e inclusivo en los clubes del distrito de Almirante Brown.`,
-
-                'BROWN_DENIS_LESTON': `OBJETO: SOLICITUD DE INFORMACIÓN SOBRE EQUIDAD PRESUPUESTARIA Y BECAS (LEY PROV. N° 12.475)
-Al Instituto Municipal del Deporte de Almirante Brown
-At. Coordinadora del Área de Género y Deporte: Sra. Denis Leston
-S / D:
-
-Solicito se informe los criterios de equidad, cupos de participación, acceso a indumentaria, traslados y asignación de becas o ayudas económicas vigentes para deportistas con discapacidad del municipio, desglosado por disciplina y género.`,
+En ejercicio del derecho consagrado por la Ley Provincial N° 12.475, solicito en el plazo legal de 10 días hábiles se informe:
+1. INSUMOS Y REPUESTOS (Inciso 2 / SIBYS 32-11-00): Detalle de compras ejecutadas en los últimos 24 meses de sillas de ruedas deportivas, cubiertas, tubulares y repuestos para el plantel de 1ra División FABA.
+2. TRANSPORTE Y LOGÍSTICA (Inciso 3 / SIBYS 91-03-01): Nómina de contrataciones de combis/micros adaptados para traslados a fechas de la Liga Nacional FABA.
+3. BECAS Y AYUDAS ECONÓMICAS (Inciso 5): Nómina de decretos municipales de ayuda económica o becas deportivas asignadas a jugadores del plantel durante el ejercicio 2025-2026.`,
 
                 'FABA_PERDIGUERO': `OBJETO: PEDIDO DE INFORME SOBRE PADRÓN DE CLUBES, TRANSFERENCIAS PARCIAL 517 Y BECAS DEPORTIVAS (LEY N° 27.275)
 A la Federación Argentina de Básquetbol Adaptado (FABA) - Presidente: Sr. Ricardo Perdiguero
@@ -701,21 +885,35 @@ Al Comité Paralímpico Argentino (COPAR) - Presidente: Prof. Gustavo Borro
 S / D:
 
 En el marco de la Ley N° 27.275 (Art. 7 inc. c, entidades receptoras de fondos públicos bajo Parcial 517 / SAF 342), solicito:
-1. Actualización pública del padrón de clubes afiliados (dado que los registros públicos mantienen datos desactualizados de 2018/2019).
-2. Desglose de fondos recibidos de Nación / ENARD para cubrir transporte, alojamiento y arbitraje de los clubes de Primera División.
-3. Nómina y criterios objetivos utilizados por FABA y avalados por COPAR para postular deportistas a las becas nacionales y estímulos deportivos 2026.`
+1. Actualización pública del padrón de clubes afiliados y Listas de Buena Fe 2026 (dado que los registros web mantienen datos caducos de 2018/2019).
+2. Desglose de fondos recibidos de Nación / ENARD para cubrir transporte, alojamiento y arbitraje de los clubes de 1ra, 2da y 3ra División.
+3. Nómina y criterios objetivos utilizados por FABA y avalados por COPAR para postular deportistas a las becas nacionales 2026.`,
+
+                'BROWN_MAURA_GONZALEZ': `OBJETO: SOLICITUD DE INFORMACIÓN SOBRE ENTREGA DE MATERIALES DEPORTIVOS (LEY PROV. N° 12.475)
+Al Instituto Municipal del Deporte de Almirante Brown
+At. Coordinadora de Ligas Amateur y Clubes de Barrio: Sra. Maura González
+S / D:
+
+Solicito se informe el detalle de materiales deportivos, insumos y programas de articulación barrial ejecutados en el presente ejercicio, especificando qué porcentaje y qué elementos fueron destinados a disciplinas de deporte adaptado e inclusivo en el distrito de Almirante Brown.`,
+
+                'BROWN_DENIS_LESTON': `OBJETO: SOLICITUD DE INFORMACIÓN SOBRE EQUIDAD PRESUPUESTARIA Y BECAS (LEY PROV. N° 12.475)
+Al Instituto Municipal del Deporte de Almirante Brown
+At. Coordinadora del Área de Género y Deporte: Sra. Denis Leston
+S / D:
+
+Solicito se informe los criterios de equidad, cupos de participación, acceso a indumentaria, traslados y asignación de becas o ayudas económicas vigentes para deportistas con discapacidad del municipio, desglosado por disciplina y género.`
             };
-            areaTexto.value = plantillas[tipo] || plantillas['BROWN_BORRO_MIHOVICH'];
+
+            areaTexto.value = plantillas[tipo] || plantillas['ONG_SOCIO_BALANCE'];
         }
 
         function copiarTextoLegal() {
             const area = document.getElementById('texto-legal-generado');
             area.select();
             document.execCommand('copy');
-            alert("✅ Escrito legal copiado al portapapeles. Listo para presentar por Mesa de Entradas o TAD.");
+            alert("✅ Documento legal copiado al portapapeles. Listo para presentar por Mesa de Entradas, Comisión Directiva, TAD o Personas Jurídicas (DPPJ/IGJ).");
         }
 
-        // Anonimización Ley 25.326 y envío a Supabase
         async function enviarReporteEscudo() {
             const rubro = document.getElementById('rep-rubro').value;
             const textoCrudo = document.getElementById('rep-texto').value;
@@ -725,12 +923,12 @@ En el marco de la Ley N° 27.275 (Art. 7 inc. c, entidades receptoras de fondos 
             if (!textoCrudo.trim()) { alert("Por favor escribí el reporte."); return; }
 
             const textoAnonimo = "Reporte verificado de plantel (" + rubro.toUpperCase() + "): " +
-                textoCrudo.replace(/(ayer|hoy|lunes|martes|miércoles|jueves|viernes|gustavo|borro|fernando|mihovich|maura|denis|yo|mi nombre)/gi, "[PROTEGIDO LEY 25.326]");
+                textoCrudo.replace(/(ayer|hoy|lunes|martes|miércoles|jueves|viernes|gustavo|borro|fernando|mihovich|maura|denis|perdiguero|yo|mi nombre)/gi, "[PROTEGIDO LEY 25.326]");
 
             document.getElementById('rep-texto').value = "";
             feedback.classList.remove('hidden');
             feedback.className = "p-3 rounded-lg text-xs bg-emerald-100 text-emerald-900 border border-emerald-300";
-            feedback.innerHTML = `<strong>✅ Reporte Anonimizado con Éxito:</strong> "${textoAnonimo}"<br>Registrado para el cálculo de Umbral Colectivo (${evidencia ? 'Verificación Directa por Evidencia' : '1/3 reportes del mes'}).`;
+            feedback.innerHTML = `<strong>✅ Reporte Anonimizado con Éxito:</strong> "${textoAnonimo}"<br>Registrado para el cálculo de Umbral Colectivo (${evidencia ? 'Bypass Directo por Evidencia' : '1/3 reportes del mes'}).`;
         }
 
         async function guardarAporte(tipo) {
@@ -743,21 +941,30 @@ En el marco de la Ley N° 27.275 (Art. 7 inc. c, entidades receptoras de fondos 
             } else {
                 const club = document.getElementById('club-nombre').value;
                 const rol = document.getElementById('club-rol').value;
+                const red = document.getElementById('club-red-url').value;
                 const det = document.getElementById('club-detalle').value;
                 if (!club || !det) { alert("Completá el nombre del club y el dato actual."); return; }
-                
-                clubesFabaData.unshift({
-                    nombre: club + " (Aporte en Verificación)",
-                    tipo: "CONVENIO_CLUB",
+
+                const nuevoClub = {
+                    nombre_actual: club + " (Aporte OSINT Comunitario)",
+                    tipo_entidad: "ASOCIACION_CIVIL_ONG",
                     jurisdiccion: "Reportado por " + rol,
-                    estado: "EN REVISIÓN",
-                    desfasaje: det,
-                    sillas: "🔄 En validación",
-                    transporte: "🔄 En validación",
-                    becas: "🔄 En validación"
-                });
+                    estado_actual: "ACTIVO (En Validación)",
+                    dato_desactualizado_oficial: "Actualización enviada por la comunidad.",
+                    realidad_verificada_2026: det,
+                    provee_sillas_repuestos: "🔄 En validación",
+                    provee_transporte: "🔄 En validación",
+                    provee_becas_viaticos: "🔄 En validación",
+                    ultima_actividad_osint: det,
+                    enlace_evidencia_url: red || "https://www.facebook.com/fababasquetadaptado",
+                    estado_redes_sociales: "Relevado por " + rol,
+                    perfil_skills_responsables: "En proceso de verificación documental."
+                };
+
+                clubesFabaData.unshift(nuevoClub);
                 renderizarClubes('TODOS');
-                alert("✅ ¡Gracias! El dato actual del club fue incorporado al padrón colaborativo.");
+                renderizarTarjetasOSINT(clubesFabaData);
+                alert("✅ ¡Novedad de cancha incorporada al Padrón y al monitor OSINT!");
                 cerrarModal('modal-club');
             }
         }
@@ -765,33 +972,36 @@ En el marco de la Ley N° 27.275 (Art. 7 inc. c, entidades receptoras de fondos 
         function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // Inicialización general al cargar la página
         window.onload = async function() {
             renderizarBoletines(boletinesData);
             renderizarFuncionarios();
             renderizarClubes('TODOS');
+            renderizarTarjetasOSINT(clubesFabaData);
             calcularBrechaFamiliar();
-            generarEscritoLegal('BROWN_BORRO_MIHOVICH');
+            generarEscritoLegal('ONG_SOCIO_BALANCE');
 
-            // Intentar traer los boletines reales subidos por tu script Python en Supabase
+            // Sincronización en vivo con Supabase si la Publishable Key está completa
             if (supabaseClient) {
                 try {
-                    const { data } = await supabaseClient.from('hallazgos_oficiales').select('*').limit(50);
-                    if (data && data.length > 0) {
-                        boletinesData = data;
-                        renderizarBoletines(boletinesData);
+                    const { data: bol } = await supabaseClient.from('hallazgos_oficiales').select('*').limit(50);
+                    if (bol && bol.length > 0) { boletinesData = bol; renderizarBoletines(boletinesData); }
+
+                    const { data: clu } = await supabaseClient.from('padron_clubes_faba').select('*');
+                    if (clu && clu.length > 0) {
+                        clubesFabaData = clu;
+                        renderizarClubes('TODOS');
+                        renderizarTarjetasOSINT(clubesFabaData);
                     }
                 } catch (e) {}
             }
 
-            // Gráfico interactivo ITG
             const ctx = document.getElementById('graficoITG').getContext('2d');
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Alte. Brown (15 pts)', 'COPAR (25 pts)', 'FABA (30 pts)', 'Estándar Ideal (100 pts)'],
+                    labels: ['Alte. Brown (15)', 'COPAR (25)', 'FABA (30)', 'Ideal (100)'],
                     datasets: [{
-                        label: 'Puntaje ITG (Base 100)',
+                        label: 'Puntaje ITG',
                         data: [15, 25, 30, 100],
                         backgroundColor: ['#dc2626', '#d97706', '#f97316', '#16a34a'],
                         borderRadius: 6
@@ -805,8 +1015,5 @@ En el marco de la Ley N° 27.275 (Art. 7 inc. c, entidades receptoras de fondos 
             });
         };
     </script>
-</body>
-</html>
-
 </body>
 </html>
