@@ -5,10 +5,10 @@ from datetime import datetime
 from supabase import create_client, Client
 
 # ============================================================================
-# CREDENCIALES SEGURAS DESDE GITHUB SECRETS O ENTORNO LOCAL
+# CREDENCIALES SEGURAS CON RESPALDO DE CONFIGURACIÓN
 # ============================================================================
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://tjlejedfjypntsylqpeq.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "LOCAL_TEST_KEY")
+SUPABASE_URL = os.getenv("SUPABASE_URL") or "https://tjlejedfjypntsylqpeq.supabase.co"
+SUPABASE_KEY = os.getenv("SUPABASE_KEY") or "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQt"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
