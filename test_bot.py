@@ -5,10 +5,13 @@ from datetime import datetime
 from supabase import create_client, Client
 
 # ============================================================================
-# CREDENCIALES SEGURAS CON RESPALDO DE CONFIGURACIÓN
+# CREDENCIALES SEGURAS CON LIMPIEZA DE URL
 # ============================================================================
-SUPABASE_URL = os.getenv("SUPABASE_URL") or "https://tjlejedfjypntsylqpeq.supabase.co"
-SUPABASE_KEY = os.getenv("SUPABASE_KEY") or "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQt"
+raw_url = os.getenv("SUPABASE_URL", "https://tjlejedfjypntsylqpeq.supabase.co")
+SUPABASE_URL = str(raw_url).strip().strip('"').strip("'")
+
+raw_key = os.getenv("SUPABASE_KEY", "LOCAL_TEST_KEY")
+SUPABASE_KEY = str(raw_key).strip().strip('"').strip("'")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
