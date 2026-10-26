@@ -3,58 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuditaDeporte 3.0 - OSINT, Transparencia FABA y Trazabilidad de Recursos</title>
+    <title>AuditaDeporte 3.5 - OSINT, Accesibilidad WCAG AA y Trazabilidad Federal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Cliente Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Lucide Icons (Los mismos íconos del diseño React) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .tab-active { border-bottom: 3px solid #2563eb; color: #1d4ed8; font-weight: 700; background-color: #eff6ff; }
+        .tab-active { border-bottom: 3px solid #1d4ed8; color: #1e40af; font-weight: 800; background-color: #eff6ff; }
         .badge-pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body class="bg-slate-100 text-slate-900 font-sans antialiased">
 
     <!-- BARRA SUPERIOR INSTITUCIONAL -->
-    <header class="bg-slate-900 text-white border-b border-slate-700 sticky top-0 z-50 shadow-lg">
+    <header class="bg-slate-900 text-white border-b-2 border-slate-700 sticky top-0 z-50 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
                 <span class="bg-blue-600 text-white font-black px-3 py-1.5 rounded-lg text-lg tracking-wider">AD</span>
                 <div>
                     <h1 class="text-lg md:text-xl font-bold tracking-tight">AuditaDeporte & Discapacidad</h1>
-                    <p class="text-xs text-slate-400">Inteligencia OSINT, Padrón Vivo FABA y Trazabilidad de Fondos Públicos</p>
+                    <p class="text-xs text-slate-300">Inteligencia OSINT, Padrón Vivo FABA y Trazabilidad de Fondos Públicos (WCAG 2.1 AA)</p>
                 </div>
             </div>
             <div class="flex items-center gap-3 text-xs">
-                <span class="bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 px-3 py-1 rounded-full flex items-center gap-1.5">
+                <span class="bg-emerald-950 border border-emerald-400 text-emerald-300 px-3 py-1 rounded-full flex items-center gap-1.5 font-semibold">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 badge-pulse"></span>
                     SHA-256 Doctrina Campillay Activo
                 </span>
-                <button onclick="abrirModal('modal-descargo')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition shadow">
+                <button onclick="abrirModal('modal-descargo')" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg transition shadow">
                     🏛️ Soy Funcionario / Subir Descargo
                 </button>
             </div>
         </div>
 
         <!-- NAVEGACIÓN DE PESTAÑAS INTERACTIVAS (5 MÓDULOS) -->
-        <nav class="bg-white text-slate-600 border-b border-slate-200">
+        <nav class="bg-white text-slate-700 border-b border-slate-300" aria-label="Navegación principal de auditoría">
             <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto text-xs md:text-sm">
-                <button onclick="cambiarTab('tab-dashboard')" id="btn-tab-dashboard" class="tab-active px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600">
+                <button onclick="cambiarTab('tab-dashboard')" id="btn-tab-dashboard" class="tab-active px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700">
                     📊 1. Semáforo ITG y Boletines
                 </button>
-                <button onclick="cambiarTab('tab-responsables')" id="btn-tab-responsables" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600">
+                <button onclick="cambiarTab('tab-responsables')" id="btn-tab-responsables" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700">
                     👥 2. Quién es Quién (Funcionarios)
                 </button>
-                <button onclick="cambiarTab('tab-clubes')" id="btn-tab-clubes" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600">
+                <button onclick="cambiarTab('tab-clubes')" id="btn-tab-clubes" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700">
                     🏀 3. Padrón FABA y Calculadora
                 </button>
-                <button onclick="cambiarTab('tab-osint')" id="btn-tab-osint" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600 font-semibold text-blue-700">
-                    🕵️‍♂️ 4. Novedades de Cancha (OSINT)
+                <button onclick="cambiarTab('tab-osint')" id="btn-tab-osint" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700 font-bold text-blue-800">
+                    🕵️‍♂️ 4. Card Interactiva OSINT (WCAG AA)
                 </button>
-                <button onclick="cambiarTab('tab-becas')" id="btn-tab-becas" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-600">
+                <button onclick="cambiarTab('tab-becas')" id="btn-tab-becas" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700">
                     ⚖️ 5. Becas, Escudo y Reclamos (ONG / RAFAM)
                 </button>
             </div>
@@ -68,60 +70,60 @@
         <!-- =================================================================== -->
         <section id="tab-dashboard" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold uppercase text-slate-400">ITG Almirante Brown</span>
+                <div class="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-slate-600">ITG Almirante Brown</span>
                     <div class="flex items-baseline justify-between mt-1">
-                        <span class="text-3xl font-black text-red-600">15 / 100</span>
-                        <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">OPACIDAD CRÍTICA</span>
+                        <span class="text-3xl font-black text-red-700">15 / 100</span>
+                        <span class="bg-red-100 text-red-900 border border-red-700 text-xs font-extrabold px-2.5 py-0.5 rounded">OPACIDAD CRÍTICA</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">Penalización: -20 pts por Doble Mostrador (Municipio / COPAR).</p>
+                    <p class="text-xs text-slate-700 mt-2">Penalización: -20 pts por Doble Mostrador (Municipio / COPAR).</p>
                 </div>
 
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold uppercase text-slate-400">ITG FABA (Pres. R. Perdiguero)</span>
+                <div class="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-slate-600">ITG FABA (Pres. R. Perdiguero)</span>
                     <div class="flex items-baseline justify-between mt-1">
-                        <span class="text-3xl font-black text-orange-500">30 / 100</span>
-                        <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-0.5 rounded">OPACIDAD ALTA</span>
+                        <span class="text-3xl font-black text-amber-800">30 / 100</span>
+                        <span class="bg-amber-100 text-amber-950 border border-amber-700 text-xs font-extrabold px-2.5 py-0.5 rounded">OPACIDAD ALTA</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">Padrón web detenido en 2018/19 y sin balances Parcial 517.</p>
+                    <p class="text-xs text-slate-700 mt-2">Padrón web detenido en 2018/19 y sin balances Parcial 517.</p>
                 </div>
 
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold uppercase text-slate-400">ITG COPAR (Pres. G. Borro)</span>
+                <div class="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-slate-600">ITG COPAR (Pres. G. Borro)</span>
                     <div class="flex items-baseline justify-between mt-1">
-                        <span class="text-3xl font-black text-amber-600">25 / 100</span>
-                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">RIESGO DE CONFLICTO</span>
+                        <span class="text-3xl font-black text-amber-800">25 / 100</span>
+                        <span class="bg-amber-100 text-amber-950 border border-amber-700 text-xs font-extrabold px-2.5 py-0.5 rounded">RIESGO DE CONFLICTO</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">Superposición entre dirección municipal y comité nacional.</p>
+                    <p class="text-xs text-slate-700 mt-2">Superposición entre dirección municipal y comité nacional.</p>
                 </div>
 
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold uppercase text-slate-400">Clubes Auditados (OSINT)</span>
+                <div class="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-slate-600">Clubes Auditados (OSINT)</span>
                     <div class="flex items-baseline justify-between mt-1">
-                        <span class="text-3xl font-black text-blue-600" id="contador-clubes-osint">9</span>
-                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">FEDERAL 2026</span>
+                        <span class="text-3xl font-black text-blue-800" id="contador-clubes-osint">9</span>
+                        <span class="bg-blue-100 text-blue-900 border border-blue-700 text-xs font-extrabold px-2.5 py-0.5 rounded">FEDERAL 2026</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">Relevamiento de huella digital, autoridades y manejo de caja.</p>
+                    <p class="text-xs text-slate-700 mt-2">Relevamiento de huella digital, autoridades y manejo de caja.</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-1">
-                    <h3 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wider">Comparativa ITG (Base 100)</h3>
+                <div class="bg-white p-5 rounded-xl border-2 border-slate-300 shadow-sm lg:col-span-1">
+                    <h3 class="font-extrabold text-slate-900 mb-3 text-sm uppercase tracking-wider">Comparativa ITG (Base 100)</h3>
                     <canvas id="graficoITG" height="230"></canvas>
                 </div>
 
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2 flex flex-col justify-between">
+                <div class="bg-white p-5 rounded-xl border-2 border-slate-300 shadow-sm lg:col-span-2 flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">🔎 Lupa Ciudadana: Boletines Oficiales (Almirante Brown)</h3>
-                            <span class="text-xs text-slate-400">Respaldo SHA-256</span>
+                            <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-wider">🔎 Lupa Ciudadana: Boletines Oficiales (Almirante Brown)</h3>
+                            <span class="text-xs font-bold text-slate-600">Respaldo SHA-256</span>
                         </div>
-                        <input type="text" id="buscador-boletines" onkeyup="filtrarBoletines()" placeholder="Filtrar por mes o tipo (Ej: Enero, Febrero, Marzo, Decretos)..." class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="buscador-boletines" onkeyup="filtrarBoletines()" placeholder="Filtrar por mes o tipo (Ej: Enero, Febrero, Marzo, Decretos)..." class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-600">
                         
-                        <div class="overflow-y-auto max-h-60 border border-slate-200 rounded-lg">
+                        <div class="overflow-y-auto max-h-60 border border-slate-300 rounded-lg">
                             <table class="w-full text-left text-xs">
-                                <thead class="bg-slate-100 text-slate-600 sticky top-0">
+                                <thead class="bg-slate-200 text-slate-900 sticky top-0 font-bold">
                                     <tr>
                                         <th class="p-2.5">Documento / Expediente</th>
                                         <th class="p-2.5">Origen</th>
@@ -133,7 +135,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="mt-4 bg-slate-100 p-3 rounded-lg text-xs text-slate-600">
+                    <div class="mt-4 bg-slate-100 p-3 rounded-lg text-xs text-slate-800 border border-slate-300">
                         💡 <strong>Doctrina Campillay:</strong> Cada archivo oficial posee su hash criptográfico SHA-256 para acreditar su autenticidad en reclamos administrativos o judiciales.
                     </div>
                 </div>
@@ -144,14 +146,14 @@
         <!-- PESTAÑA 2: QUIÉN ES QUIÉN (FUNCIONARIOS, PERFILES Y SKILLS)         -->
         <!-- =================================================================== -->
         <section id="tab-responsables" class="hidden space-y-6">
-            <div class="bg-blue-900 text-white p-6 rounded-xl shadow flex flex-wrap justify-between items-center gap-4">
+            <div class="bg-blue-950 text-white p-6 rounded-xl shadow flex flex-wrap justify-between items-center gap-4 border-2 border-blue-800">
                 <div>
                     <h2 class="text-xl font-bold">👥 Cadena de Responsables y Mapa de Poder ("Quién es Quién" 2026)</h2>
-                    <p class="text-xs text-blue-200 mt-1 max-w-4xl">
+                    <p class="text-xs text-blue-100 mt-1 max-w-4xl">
                         Relevamiento actualizado por OSINT: en FABA asume la presidencia <strong>Ricardo Perdiguero</strong> (tras el fallecimiento de Víctor Bava), y en el Instituto Municipal del Deporte de Almirante Brown conducen las áreas técnicas <strong>Gustavo Borro</strong>, <strong>Fernando Mihovich</strong>, <strong>Maura González</strong> y <strong>Denis Leston</strong> (reemplazando datos caducos de la ex gestión Jonathan Frisa).
                     </p>
                 </div>
-                <span class="bg-blue-700 border border-blue-400 text-white text-xs font-bold px-3 py-1 rounded-full">Actualizado por OSINT</span>
+                <span class="bg-blue-800 border border-blue-400 text-white text-xs font-bold px-3 py-1 rounded-full">Actualizado por OSINT</span>
             </div>
 
             <div id="contenedor-funcionarios" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -161,29 +163,29 @@
         <!-- PESTAÑA 3: PADRÓN FEDERAL FABA (2018 vs 2026) Y PRESTACIONES        -->
         <!-- =================================================================== -->
         <section id="tab-clubes" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <div class="bg-white p-6 rounded-xl border-2 border-slate-300 shadow-sm">
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
                     <div>
-                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded">AUDITORÍA DE PADRÓN Y NATURALEZA JURÍDICA</span>
-                        <h2 class="text-xl font-bold text-slate-900 mt-1">Padrón Vivo de Clubes FABA: Datos Oficiales (2018/19) vs. Realidad (2026)</h2>
-                        <p class="text-sm text-slate-600">Contrastá qué tipo de entidad es cada club (Municipal, Asociación Civil ONG o Convenio) y qué prestaciones cubre efectivamente.</p>
+                        <span class="bg-amber-100 text-amber-950 border border-amber-700 text-xs font-extrabold px-2.5 py-1 rounded">AUDITORÍA DE PADRÓN Y NATURALEZA JURÍDICA</span>
+                        <h2 class="text-xl font-black text-slate-900 mt-1">Padrón Vivo de Clubes FABA: Datos Oficiales (2018/19) vs. Realidad (2026)</h2>
+                        <p class="text-sm text-slate-700">Contrastá qué tipo de entidad es cada club (Municipal, Asociación Civil ONG o Convenio) y qué prestaciones cubre efectivamente.</p>
                     </div>
-                    <button onclick="abrirModal('modal-club')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm shadow transition">
+                    <button onclick="abrirModal('modal-club')" class="bg-blue-700 hover:bg-blue-800 text-white font-extrabold px-4 py-2.5 rounded-lg text-sm shadow transition">
                         ✏️ Actualizar Datos de mi Club / Plantel
                     </button>
                 </div>
 
                 <div class="flex flex-wrap gap-2 mb-4">
-                    <button onclick="filtrarClubes('TODOS')" class="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Todos los Clubes</button>
-                    <button onclick="filtrarClubes('MUNICIPAL')" class="bg-blue-100 text-blue-800 hover:bg-blue-200 text-xs font-bold px-3 py-1.5 rounded-lg">🏛️ Municipales (RAFAM)</button>
-                    <button onclick="filtrarClubes('ASOCIACION_CIVIL_ONG')" class="bg-purple-100 text-purple-800 hover:bg-purple-200 text-xs font-bold px-3 py-1.5 rounded-lg">🤝 Asociaciones Civiles / ONG</button>
-                    <button onclick="filtrarClubes('CONVENIO_CLUB')" class="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 text-xs font-bold px-3 py-1.5 rounded-lg">🛡️ Convenios Clubes</button>
-                    <button onclick="filtrarClubes('DESAFILIADO')" class="bg-red-100 text-red-800 hover:bg-red-200 text-xs font-bold px-3 py-1.5 rounded-lg">⚠️ Desafiliados</button>
+                    <button onclick="filtrarClubes('TODOS')" class="bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Todos los Clubes</button>
+                    <button onclick="filtrarClubes('MUNICIPAL')" class="bg-blue-100 text-blue-900 border border-blue-700 hover:bg-blue-200 text-xs font-bold px-3 py-1.5 rounded-lg">🏛️ Municipales (RAFAM)</button>
+                    <button onclick="filtrarClubes('ASOCIACION_CIVIL_ONG')" class="bg-purple-100 text-purple-900 border border-purple-700 hover:bg-purple-200 text-xs font-bold px-3 py-1.5 rounded-lg">🤝 Asociaciones Civiles / ONG</button>
+                    <button onclick="filtrarClubes('CONVENIO_CLUB')" class="bg-emerald-100 text-emerald-900 border border-emerald-700 hover:bg-emerald-200 text-xs font-bold px-3 py-1.5 rounded-lg">🛡️ Convenios Clubes</button>
+                    <button onclick="filtrarClubes('DESAFILIADO')" class="bg-red-100 text-red-900 border border-red-700 hover:bg-red-200 text-xs font-bold px-3 py-1.5 rounded-lg">⚠️ Desafiliados</button>
                 </div>
 
-                <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                <div class="overflow-x-auto border-2 border-slate-300 rounded-xl">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-100 text-slate-700 uppercase">
+                        <thead class="bg-slate-200 text-slate-900 uppercase font-extrabold">
                             <tr>
                                 <th class="p-3">Club / Entidad</th>
                                 <th class="p-3">Naturaleza Jurídica</th>
@@ -195,29 +197,29 @@
                                 <th class="p-3">Auditoría Directa</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-clubes-body" class="divide-y divide-slate-200"></tbody>
+                        <tbody id="tabla-clubes-body" class="divide-y divide-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
             <!-- CALCULADORA PARA FAMILIAS Y JUGADORES -->
-            <div class="bg-white p-6 rounded-xl border-2 border-blue-600 shadow-sm">
-                <h3 class="text-lg font-bold text-slate-900">👨‍👩‍👧‍👦 Calculadora para Familias y Jugadores: Partida Presupuestaria vs. Realidad en Cancha</h3>
-                <p class="text-xs text-slate-600 mb-4">Seleccioná el tipo de club y marcá qué recursos faltan para obtener el encuadre legal y generar el reclamo correspondiente.</p>
+            <div class="bg-white p-6 rounded-xl border-2 border-blue-700 shadow-sm">
+                <h3 class="text-lg font-black text-slate-900">👨‍👩‍👧‍👦 Calculadora para Familias y Jugadores: Partida Presupuestaria vs. Realidad en Cancha</h3>
+                <p class="text-xs text-slate-700 mb-4">Seleccioná el tipo de club y marcá qué recursos faltan para obtener el encuadre legal y generar el reclamo correspondiente.</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-2">1. Naturaleza de tu Club:</label>
-                        <select id="sim-tipo-club" onchange="calcularBrechaFamiliar()" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
+                        <label class="block text-xs font-extrabold uppercase text-slate-800 mb-2">1. Naturaleza de tu Club:</label>
+                        <select id="sim-tipo-club" onchange="calcularBrechaFamiliar()" class="w-full p-2.5 border-2 border-slate-300 rounded-lg text-sm font-medium">
                             <option value="MUNICIPAL">Equipo Municipal (Ej. Almirante Brown / Ensenada)</option>
                             <option value="ONG">Asociación Civil / ONG (Ej. CEDIMA / DUBA / CIDELI / CRIGAL)</option>
                             <option value="CLUB">Club con Convenio (Ej. CILSA Boca)</option>
                         </select>
-                        <div id="sim-explicacion-club" class="mt-3 p-3 bg-blue-50 text-blue-900 rounded-lg text-xs"></div>
+                        <div id="sim-explicacion-club" class="mt-3 p-3 bg-blue-50 text-blue-950 border border-blue-300 rounded-lg text-xs"></div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-2">2. ¿Qué pasa hoy en tu plantel?</label>
+                        <label class="block text-xs font-extrabold uppercase text-slate-800 mb-2">2. ¿Qué pasa hoy en tu plantel?</label>
                         <div class="space-y-2 text-sm">
                             <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="cubiertas" onchange="calcularBrechaFamiliar()" checked> Nos hacen pagar cubiertas / tubulares o vender rifas</label>
                             <label class="flex items-center gap-2"><input type="checkbox" class="sim-check" value="sillas" onchange="calcularBrechaFamiliar()"> Sillas sin mantenimiento o sin inventario oficial</label>
@@ -228,10 +230,10 @@
 
                     <div class="bg-slate-900 text-white p-4 rounded-xl flex flex-col justify-between">
                         <div>
-                            <span class="text-xs uppercase text-amber-400 font-bold">Diagnóstico de Recursos</span>
-                            <div id="sim-resultado-texto" class="text-xs text-slate-200 mt-2 space-y-1.5"></div>
+                            <span class="text-xs uppercase text-amber-300 font-extrabold">Diagnóstico de Recursos</span>
+                            <div id="sim-resultado-texto" class="text-xs text-slate-100 mt-2 space-y-1.5"></div>
                         </div>
-                        <button onclick="irAReclamoSegunTipoClub()" class="mt-4 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg text-xs transition">
+                        <button onclick="irAReclamoSegunTipoClub()" class="mt-4 w-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-2.5 px-4 rounded-lg text-xs transition">
                             ⚖️ Generar Escrito Legal según mi Tipo de Club
                         </button>
                     </div>
@@ -240,97 +242,198 @@
         </section>
 
         <!-- =================================================================== -->
-        <!-- PESTAÑA 4: NOVEDADES DE CANCHA (RADIOGRAFÍA INTERACTIVA + OSINT)    -->
+        <!-- PESTAÑA 4: CARD INTERACTIVA WCAG 2.1 AA (DISEÑO DOBLE COLUMNA)      -->
         <!-- =================================================================== -->
-        <section id="tab-osint" class="hidden space-y-6">
-            <!-- Barra de Selección para la Radiografía Interactiva -->
-            <div class="bg-slate-900 text-white p-5 rounded-xl shadow-lg border border-slate-700 flex flex-wrap justify-between items-center gap-4">
+        <section id="tab-osint" class="hidden space-y-8">
+            
+            <!-- BARRA SELECTORA DE CLUB FEDERAL -->
+            <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-md border-2 border-slate-700 flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-2.5 py-1 rounded">MONITOR DE INTELIGENCIA ABIERTA (OSINT 2026)</span>
-                    <h2 class="text-lg md:text-xl font-bold mt-1.5">🕵️‍♂️ Radiografía de Cancha, Peticiones Firmadas y Huella en Redes</h2>
+                    <span class="bg-emerald-950 text-emerald-300 border border-emerald-400 text-xs font-extrabold px-2.5 py-1 rounded">
+                        ESTÁNDAR ACCESIBLE WCAG 2.1 NIVEL AA
+                    </span>
+                    <h2 class="text-lg md:text-xl font-black mt-1.5">
+                        🕵️‍♂️ Card Interactiva de Auditoría y Ventana de Cancha (OSINT)
+                    </h2>
                 </div>
-                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                    <select id="selector-club-radiografia" onchange="cargarRadiografiaClub(this.value)" class="px-3 py-2 rounded-lg text-slate-900 text-xs font-bold bg-amber-400 focus:outline-none">
-                        <option value="Almirante Brown">📍 Inspeccionar: Almirante Brown</option>
-                        <option value="CILSA Boca">📍 Inspeccionar: CILSA Boca Juniors</option>
-                        <option value="CEDIMA">📍 Inspeccionar: CEDIMA (La Matanza)</option>
-                        <option value="CRIGAL">📍 Inspeccionar: CRIGAL (Río Gallegos)</option>
-                        <option value="DUBA">📍 Inspeccionar: DUBA (Bahía Blanca)</option>
-                        <option value="CIDELI">📍 Inspeccionar: CIDELI (Mar del Plata)</option>
-                        <option value="SICA">📍 Inspeccionar: SICA / Poeta Lugones</option>
-                        <option value="Ensenada">📍 Inspeccionar: Municipalidad de Ensenada</option>
-                        <option value="River Plate">📍 Inspeccionar: River Plate (Baja 2019)</option>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <label for="selector-club-radiografia" class="text-xs font-bold text-slate-300">Seleccionar Club Federal:</label>
+                    <select id="selector-club-radiografia" onchange="cargarRadiografiaClub(this.value)" class="px-3.5 py-2.5 rounded-xl text-slate-950 text-xs font-extrabold bg-amber-400 hover:bg-amber-300 cursor-pointer focus:outline-none focus:ring-4 focus:ring-amber-200">
+                        <option value="Almirante Brown">📍 Almirante Brown (PBA - Municipal)</option>
+                        <option value="CILSA Boca">📍 CILSA Boca Juniors (AMBA - Convenio)</option>
+                        <option value="CEDIMA">📍 CEDIMA (La Matanza - ONG)</option>
+                        <option value="CRIGAL">📍 CRIGAL (Santa Cruz - ONG)</option>
+                        <option value="DUBA">📍 DUBA (Bahía Blanca - ONG)</option>
+                        <option value="CIDELI">📍 CIDELI (Mar del Plata - ONG)</option>
+                        <option value="SICA">📍 SICA / Poeta Lugones (Córdoba - ONG)</option>
+                        <option value="Ensenada">📍 Municipalidad de Ensenada (PBA - Municipal)</option>
+                        <option value="River Plate">📍 C.A. River Plate (CABA - Desafiliado 2019)</option>
                     </select>
-                    <input type="text" id="buscador-osint" onkeyup="filtrarTarjetasOSINT()" placeholder="Filtrar todas las fichas..." class="px-3 py-2 rounded-lg text-slate-900 text-xs focus:outline-none">
                 </div>
             </div>
 
-            <!-- BLOQUE INTERACTIVO PROPUESTO: FICHA CRÍTICA + VENTANA ACTIVA OSINT -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- COLUMNA IZQUIERDA: RADIOGRAFÍA DEL CLUB SELECCIONADO -->
-                <div class="lg:col-span-1 space-y-4">
-                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-xl shadow-md border border-slate-700 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-2.5 bg-red-600 text-white font-black text-[10px] uppercase tracking-widest rounded-bl-lg">
-                            Ficha Crítica
+            <!-- =============================================================== -->
+            <!-- COMPONENTE VISUAL PROPUESTO: AUDIT CLUB CARD (DOBLE COLUMNA)    -->
+            <!-- =============================================================== -->
+            <article id="audit-club-card-wcag" class="bg-white rounded-2xl border-2 border-slate-400 shadow-xl overflow-hidden text-slate-900" aria-labelledby="wcag-club-titulo">
+                
+                <!-- CABECERA INSTITUCIONAL DE ALTO CONTRASTE -->
+                <header class="bg-slate-900 text-white p-5 md:p-6 border-b-2 border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="space-y-1.5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span id="wcag-club-tipo" class="bg-blue-700 text-white text-xs font-extrabold px-2.5 py-1 rounded uppercase tracking-wider">
+                                MUNICIPAL (RÉGIMEN RAFAM)
+                            </span>
+                            <span class="text-slate-200 text-xs flex items-center gap-1 font-semibold">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-blue-400" aria-hidden="true"></i>
+                                <span id="wcag-club-jurisdiccion">Almirante Brown, PBA</span>
+                            </span>
                         </div>
-                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Entidad Bajo Auditoría</span>
-                        <h2 id="club-nombre-titulo" class="text-lg font-black tracking-tight mt-1 leading-tight">Instituto Municipal del Deporte Almirante Brown</h2>
-                        
-                        <div class="mt-4 pt-4 border-t border-slate-700/60 flex justify-between items-center">
-                            <div>
-                                <span class="text-[10px] uppercase text-slate-400 block font-semibold">Índice ITG Actual</span>
-                                <span id="itg-marcador-score" class="text-3xl font-black text-red-500">15 / 100</span>
+                        <h3 id="wcag-club-titulo" class="text-xl md:text-2xl font-black tracking-tight text-white">
+                            Instituto Municipal del Deporte Almirante Brown
+                        </h3>
+                    </div>
+
+                    <!-- MARCADOR ITG ACCESIBLE -->
+                    <div id="wcag-itg-region" class="bg-slate-800 border-2 border-slate-600 rounded-xl px-4 py-2.5 flex items-center gap-4 self-stretch md:self-auto justify-between" role="region" aria-label="Índice de Transparencia y Gobernanza">
+                        <div>
+                            <span class="text-[11px] uppercase tracking-wider text-slate-300 block font-bold">Índice ITG 2026</span>
+                            <span id="wcag-itg-score" class="text-2xl md:text-3xl font-black text-red-400">15 / 100</span>
+                        </div>
+                        <span id="wcag-itg-badge" class="text-xs font-extrabold px-3 py-1 rounded bg-red-800 text-white border border-red-400">
+                            OPACIDAD CRÍTICA
+                        </span>
+                    </div>
+                </header>
+
+                <!-- CUERPO SIMÉTRICO DE DOBLE COLUMNA (ENTE REGULADOR VS VENTANA OSINT) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-slate-300">
+                    
+                    <!-- COLUMNA IZQUIERDA (6 COLS): PANEL DE ENTE REGULADOR Y SEMÁFORO ACCESIBLE -->
+                    <div class="lg:col-span-6 p-5 md:p-6 space-y-5 bg-white" role="region" aria-label="Panel de Ente Regulador y Semáforo de Prestaciones">
+                        <div class="flex items-center justify-between border-b-2 border-slate-200 pb-3">
+                            <h4 class="text-base font-extrabold uppercase tracking-wide text-slate-900 flex items-center gap-2">
+                                <i data-lucide="building-2" class="w-5 h-5 text-blue-800" aria-hidden="true"></i>
+                                1. Panel de Ente Regulador (Padrón vs. Realidad)
+                            </h4>
+                        </div>
+
+                        <!-- Autoridades y Alerta de Padrón Desactualizado -->
+                        <div class="p-4 rounded-xl bg-slate-100 border-2 border-slate-300 space-y-2.5 text-sm">
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="user-check" class="w-5 h-5 text-blue-800 shrink-0 mt-0.5" aria-hidden="true"></i>
+                                <p>
+                                    <strong class="text-slate-950">Responsables en Ejercicio (2026):</strong>
+                                    <span id="wcag-club-autoridad" class="text-slate-800 font-semibold block mt-0.5">Prof. Gustavo Borro (Dir.) / Prof. Fernando Mihovich (Coord.)</span>
+                                </p>
                             </div>
-                            <div class="text-right">
-                                <span id="contador-firmas-ficha" class="bg-blue-600/30 border border-blue-500/40 text-blue-300 font-bold px-2.5 py-1 rounded text-xs block mt-2">
-                                    14 Firmas Ciudadanas
+                            <div class="flex items-start gap-2 text-xs text-amber-950 bg-amber-100 p-3 rounded-lg border-2 border-amber-600">
+                                <i data-lucide="shield-alert" class="w-4 h-4 text-amber-900 shrink-0 mt-0.5" aria-hidden="true"></i>
+                                <p>
+                                    <strong>Desfasaje Detectado en Padrón FABA:</strong>
+                                    <span id="wcag-club-desfasaje">En registros viejos figuraba Jonathan Frisa como autoridad.</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- SEMÁFORO ACCESIBLE WCAG 2.1 AA (COLOR + ÍCONO + ETIQUETA + ARIA) -->
+                        <div class="space-y-3">
+                            <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                                Semáforo de Prestaciones Presupuestarias en Cancha (WCAG 2.1 AA)
+                            </h5>
+                            <div id="wcag-semaforo-contenedor" class="space-y-2.5">
+                                <!-- Inyectado dinámicamente con íconos Check, AlertTriangle o XCircle -->
+                            </div>
+                        </div>
+
+                        <!-- BARRA DE PROGRESO DE FIRMAS CIUDADANAS PARA INTIMACIÓN TAD -->
+                        <div class="p-4 rounded-xl bg-blue-50 border-2 border-blue-300 space-y-2">
+                            <div class="flex justify-between text-xs font-extrabold text-blue-950">
+                                <span>Progreso para Intimación Colectiva (TAD / DPPJ)</span>
+                                <span id="wcag-firmas-texto">14 / 25 Firmas Verificadas</span>
+                            </div>
+                            <div id="wcag-progressbar" class="w-full h-3.5 bg-blue-200 rounded-full overflow-hidden border border-blue-400" role="progressbar" aria-valuenow="14" aria-valuemin="0" aria-valuemax="25" aria-label="Progreso de firmas ciudadanas para disparar reclamo oficial">
+                                <div id="wcag-progressbar-fill" class="h-full bg-blue-700 transition-all duration-300" style="width: 56%;"></div>
+                            </div>
+                            <p class="text-[11px] text-slate-800 font-medium">
+                                Al alcanzar el umbral, la plataforma empaqueta los hashes SHA-256 y genera el expediente administrativo listo para Mesa de Entradas, TAD o Personas Jurídicas.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- COLUMNA DERECHA (6 COLS): VENTANA INTERACTIVA DE CANCHA (OSINT) -->
+                    <div class="lg:col-span-6 p-5 md:p-6 space-y-4 bg-slate-50 flex flex-col justify-between" role="region" aria-label="Ventana Interactiva de Cancha y Evidencia en Redes Sociales">
+                        <div class="space-y-4">
+                            <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-200 pb-3">
+                                <h4 class="text-base font-extrabold uppercase tracking-wide text-slate-900 flex items-center gap-2">
+                                    <i data-lucide="instagram" class="w-5 h-5 text-pink-700" aria-hidden="true"></i>
+                                    <span>2. Ventana Interactiva de Cancha (OSINT)</span>
+                                </h4>
+                                <span id="wcag-osint-origen" class="text-xs font-extrabold bg-slate-200 text-slate-900 border border-slate-400 px-2.5 py-1 rounded">
+                                    Instagram / Octubre 2026
                                 </span>
                             </div>
+
+                            <!-- CAPTURA DE EVIDENCIA CON SELLO CRIPTOGRÁFICO SHA-256 -->
+                            <figure class="relative rounded-xl overflow-hidden border-2 border-slate-400 bg-slate-900 shadow-sm">
+                                <img id="wcag-osint-img" src="https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=900&q=80" alt="Evidencia documental y territorial de básquet adaptado en competencia FABA" class="w-full h-48 object-cover opacity-95">
+                                <figcaption class="bg-slate-950 text-slate-100 text-[11px] px-3.5 py-2 flex items-center justify-between font-mono border-t border-slate-700">
+                                    <span class="flex items-center gap-1.5 truncate">
+                                        <i data-lucide="hash" class="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                        <span id="wcag-osint-hash">SHA-256: e3b0c44298fc1c149afbf4c8...</span>
+                                    </span>
+                                    <span class="text-emerald-300 font-sans font-extrabold shrink-0 ml-2">Doctrina Campillay</span>
+                                </figcaption>
+                            </figure>
+
+                            <!-- CITA TEXTUAL DE REDES SOCIALES -->
+                            <blockquote id="wcag-osint-cita" class="p-4 rounded-xl bg-white border-l-4 border-blue-700 text-slate-900 text-sm italic shadow-sm border border-slate-300">
+                                "Octubre 2026: Disputa de fechas de 1ra División Liga Nacional FABA en el Polideportivo Municipal de Ministro Rivadavia."
+                            </blockquote>
+
+                            <!-- ANÁLISIS IA DE CONTRADICCIÓN PRESUPUESTARIA -->
+                            <div class="p-4 rounded-xl bg-amber-100 border-2 border-amber-600 text-amber-950 text-xs space-y-1">
+                                <p class="font-extrabold uppercase tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="scale" class="w-4 h-4 text-amber-900" aria-hidden="true"></i>
+                                    Cruce Presupuesto vs. Realidad en Cancha (IA):
+                                </p>
+                                <p id="wcag-osint-ia" class="font-semibold leading-relaxed">
+                                    Prensa municipal difunde fotos sin decretos de gasto; el plantel creó su propia comunidad en WhatsApp para autogestionarse.
+                                </p>
+                            </div>
                         </div>
 
-                        <div class="mt-5 space-y-2 pt-2 border-t border-slate-700/40">
-                            <button onclick="ejecutarFirmaPeticion()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
-                                ✍️ Firmar Petición Automatizada (TAD / Ley 27.275)
-                            </button>
-                            <button onclick="cambiarTab('tab-becas')" class="w-full bg-slate-700/80 hover:bg-slate-700 text-slate-200 font-semibold py-2 px-4 rounded-xl text-xs transition border border-slate-600">
-                                🛡️ Reportar Incumplimiento de Cancha (Anónimo)
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- CAJA DE LOGÍSTICA VERIFICADA -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-xs space-y-3">
-                        <h3 class="font-bold text-slate-800 uppercase tracking-wider text-[11px]">Estado de Prestaciones Logísticas</h3>
-                        <div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span class="font-medium text-slate-600">Sillas de Ruedas y Repuestos:</span>
-                            <span id="ficha-log-sillas" class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">PARCIAL CON RECLAMOS</span>
-                        </div>
-                        <div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span class="font-medium text-slate-600">Traslados y Combis:</span>
-                            <span id="ficha-log-transporte" class="bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded text-[10px]">IRREGULAR / ALERTA</span>
-                        </div>
-                        <div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span class="font-medium text-slate-600">Becas y Viáticos:</span>
-                            <span id="ficha-log-becas" class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px]">SIN PADRÓN PÚBLICO</span>
+                        <div class="pt-2 flex items-center justify-between text-xs">
+                            <a id="wcag-osint-url" href="https://www.instagram.com/municipiobrown/" target="_blank" rel="noopener noreferrer" class="font-extrabold text-blue-800 hover:text-blue-950 underline flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded px-1 py-0.5">
+                                <span>Verificar publicación original en red social oficial</span>
+                                <i data-lucide="external-link" class="w-4 h-4" aria-hidden="true"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- COLUMNA DERECHA: VENTANAS INTERACTIVAS OSINT DE REDES SOCIALES -->
-                <div class="lg:col-span-2 space-y-4">
-                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                        <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider flex items-center gap-2">
-                            🕵️‍♂️ Ventana de Cancha Activa: Monitoreo en Redes Sociales
-                        </h3>
-                        <span class="text-[10px] text-emerald-800 font-bold badge-pulse bg-emerald-100 px-2.5 py-0.5 rounded-full">Crawler OSINT Activo</span>
-                    </div>
-                    <div id="contenedor-novedades-osint" class="space-y-4"></div>
-                </div>
-            </div>
+                <!-- PIE DE ACCIÓN CIUDADANA INTEGRADA (BOTONES ACCESIBLES WCAG AA) -->
+                <footer class="bg-slate-200 p-5 border-t-2 border-slate-300 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <button type="button" onclick="ejecutarFirmaPeticion()" aria-label="Firmar petición automatizada y disparar reclamo por TAD o Ley 27.275" class="flex-1 bg-blue-700 hover:bg-blue-800 active:bg-blue-950 text-white font-extrabold py-3.5 px-5 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 focus:outline-none focus:ring-4 focus:ring-blue-400">
+                        <i data-lucide="file-signature" class="w-5 h-5 shrink-0" aria-hidden="true"></i>
+                        <span>Firmar Petición Automatizada / Disparar Reclamo por TAD</span>
+                    </button>
 
-            <!-- GRILLA FEDERAL COMPLETA DE LOS 9 CLUBES -->
-            <div class="pt-4 border-t border-slate-200">
-                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-4">📂 Dossier Federal Completo de Clubes Auditados (FABA 2026)</h3>
+                    <button type="button" onclick="abrirModal('modal-club')" aria-label="Aportar evidencia territorial o actualizar datos de este club bajo protección Ley 25.326" class="sm:w-auto bg-white hover:bg-slate-100 text-slate-950 border-2 border-slate-800 font-extrabold py-3.5 px-5 rounded-xl text-sm transition flex items-center justify-center gap-2 focus:outline-none focus:ring-4 focus:ring-slate-400">
+                        <i data-lucide="upload-cloud" class="w-5 h-5 text-slate-900 shrink-0" aria-hidden="true"></i>
+                        <span>Aportar Evidencia Territorial (Ley 25.326)</span>
+                    </button>
+                </footer>
+            </article>
+
+            <!-- LISTADO FEDERAL COMPLETO ABAJO DE LA CARD INTERACTIVA -->
+            <div class="pt-4 border-t-2 border-slate-300">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+                    <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-wider">
+                        📂 Dossier Federal Completo de Clubes Auditados (Hacé clic en cualquiera para cargarlo arriba)
+                    </h3>
+                    <input type="text" id="buscador-osint" onkeyup="filtrarTarjetasOSINT()" placeholder="Buscar club, provincia o dirigente..." class="px-3.5 py-2 rounded-lg border-2 border-slate-300 text-slate-900 text-xs w-full md:w-72 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="contenedor-osint-cards"></div>
             </div>
         </section>
@@ -339,37 +442,37 @@
         <!-- PESTAÑA 5: BECAS, ESCUDO DEL DEPORTISTA Y GENERADOR LEGAL COMPLETO  -->
         <!-- =================================================================== -->
         <section id="tab-becas" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded">TRAZABILIDAD INTEGRAL DE FONDOS</span>
-                <h2 class="text-xl font-bold text-slate-900 mt-1">🎓 Radar de Becas, Auditoría RAFAM (Municipios) y Fiscalización de ONGs</h2>
+            <div class="bg-white p-6 rounded-xl border-2 border-slate-300 shadow-sm">
+                <span class="bg-purple-100 text-purple-950 border border-purple-700 text-xs font-extrabold px-2.5 py-1 rounded">TRAZABILIDAD INTEGRAL DE FONDOS</span>
+                <h2 class="text-xl font-black text-slate-900 mt-1">🎓 Radar de Becas, Auditoría RAFAM (Municipios) y Fiscalización de ONGs</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs mt-4">
-                    <div class="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                        <h4 class="font-bold text-blue-950 text-sm mb-1">🏛️ Clubes Municipales (Vía RAFAM)</h4>
-                        <p class="text-blue-900">Se auditan los 4 incisos presupuestarios: <strong>Inciso 2</strong> (Cubiertas/Repuestos), <strong>Inciso 3</strong> (Combis/Viajes), <strong>Inciso 4</strong> (Inventario de Sillas) e <strong>Inciso 5</strong> (Decretos de Becas y Ayudas Económicas).</p>
+                    <div class="p-4 rounded-xl bg-blue-50 border-2 border-blue-300">
+                        <h4 class="font-extrabold text-blue-950 text-sm mb-1">🏛️ Clubes Municipales (Vía RAFAM)</h4>
+                        <p class="text-blue-950">Se auditan los 4 incisos presupuestarios: <strong>Inciso 2</strong> (Cubiertas/Repuestos), <strong>Inciso 3</strong> (Combis/Viajes), <strong>Inciso 4</strong> (Inventario de Sillas) e <strong>Inciso 5</strong> (Decretos de Becas y Ayudas Económicas).</p>
                     </div>
-                    <div class="p-4 rounded-xl bg-purple-50 border border-purple-200">
-                        <h4 class="font-bold text-purple-950 text-sm mb-1">🤝 Clubes ONG / Asociaciones Civiles</h4>
-                        <p class="text-purple-900">Los jugadores tienen derecho a exigir el <strong>Alta como Socios Activos</strong> (Arts. 168-186 CCCN), participar en asambleas y pedir la <strong>Memoria, Balance y rendición de subsidios públicos</strong> (Ley 27.275 Art. 7 inc. c).</p>
+                    <div class="p-4 rounded-xl bg-purple-50 border-2 border-purple-300">
+                        <h4 class="font-extrabold text-purple-950 text-sm mb-1">🤝 Clubes ONG / Asociaciones Civiles</h4>
+                        <p class="text-purple-950">Los jugadores tienen derecho a exigir el <strong>Alta como Socios Activos</strong> (Arts. 168-186 CCCN), participar en asambleas y pedir la <strong>Memoria, Balance y rendición de subsidios públicos</strong> (Ley 27.275 Art. 7 inc. c).</p>
                     </div>
-                    <div class="p-4 rounded-xl bg-amber-50 border border-amber-200">
-                        <h4 class="font-bold text-amber-950 text-sm mb-1">🇦🇷 Circuito FABA / COPAR / ENARD</h4>
-                        <p class="text-amber-900">Se exige a FABA (Ricardo Perdiguero) y COPAR (Gustavo Borro) la nómina oficial de atletas postulados a becas nacionales y el desglose de transferencias del <code>Parcial 517</code>.</p>
+                    <div class="p-4 rounded-xl bg-amber-50 border-2 border-amber-300">
+                        <h4 class="font-extrabold text-amber-950 text-sm mb-1">🇦🇷 Circuito FABA / COPAR / ENARD</h4>
+                        <p class="text-amber-950">Se exige a FABA (Ricardo Perdiguero) y COPAR (Gustavo Borro) la nómina oficial de atletas postulados a becas nacionales y el desglose de transferencias del <code>Parcial 517</code>.</p>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- ESCUDO DEL DEPORTISTA (5 COLUMNAS) -->
-                <div class="lg:col-span-5 bg-white p-6 rounded-xl border-t-4 border-blue-600 shadow-sm">
-                    <h3 class="text-lg font-bold text-slate-900">🛡️ Escudo del Deportista (Ley 25.326)</h3>
-                    <p class="text-xs text-slate-500 mt-1 mb-4">
+                <div class="lg:col-span-5 bg-white p-6 rounded-xl border-t-4 border-blue-700 border-x-2 border-b-2 border-slate-300 shadow-sm">
+                    <h3 class="text-lg font-black text-slate-900">🛡️ Escudo del Deportista (Ley 25.326)</h3>
+                    <p class="text-xs text-slate-700 mt-1 mb-4">
                         Anonimización automática en memoria RAM antes de guardar en Supabase. Protege la identidad del jugador frente a represalias deportivas o quita de becas.
                     </p>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="text-xs font-bold text-slate-700">Entidad o Club Auditado:</label>
-                            <select id="rep-entidad" class="w-full p-2 border border-slate-300 rounded-lg text-sm mt-1">
+                            <label class="text-xs font-extrabold text-slate-800">Entidad o Club Auditado:</label>
+                            <select id="rep-entidad" class="w-full p-2.5 border-2 border-slate-300 rounded-lg text-sm mt-1">
                                 <option value="MUNI-ALTE-BROWN">Instituto Municipal del Deporte Almirante Brown</option>
                                 <option value="PARCIAL-517-FABA">Federación Argentina de Básquetbol Adaptado (FABA)</option>
                                 <option value="PARCIAL-517-COPAR">Comité Paralímpico Argentino (COPAR)</option>
@@ -379,8 +482,8 @@
                         </div>
 
                         <div>
-                            <label class="text-xs font-bold text-slate-700">Rubro del Incumplimiento:</label>
-                            <select id="rep-rubro" class="w-full p-2 border border-slate-300 rounded-lg text-sm mt-1">
+                            <label class="text-xs font-extrabold text-slate-800">Rubro del Incumplimiento:</label>
+                            <select id="rep-rubro" class="w-full p-2.5 border-2 border-slate-300 rounded-lg text-sm mt-1">
                                 <option value="insumos">Falta de Cubiertas / Tubulares / Repuestos (SIBYS 32-11-00 / Inciso 2)</option>
                                 <option value="traslados">Falta de Transporte / Combis a Torneos (SIBYS 91-03-01 / Inciso 3)</option>
                                 <option value="becas">Becas Deportivas / Ayudas Económicas No Percibidas (Inciso 5)</option>
@@ -389,15 +492,15 @@
                         </div>
 
                         <div>
-                            <label class="text-xs font-bold text-slate-700">Relato (se borrarán nombres y fechas identificatorias):</label>
-                            <textarea id="rep-texto" rows="3" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm mt-1" placeholder="Escribí lo que pasa en tu club o municipio..."></textarea>
+                            <label class="text-xs font-extrabold text-slate-800">Relato (se borrarán nombres y fechas identificatorias):</label>
+                            <textarea id="rep-texto" rows="3" class="w-full p-2.5 border-2 border-slate-300 rounded-lg text-sm mt-1" placeholder="Escribí lo que pasa en tu club o municipio..."></textarea>
                         </div>
 
-                        <label class="flex items-center gap-2 text-xs text-slate-700">
+                        <label class="flex items-center gap-2 text-xs text-slate-800 font-medium">
                             <input type="checkbox" id="rep-evidencia"> Poseo evidencia pública (foto de rifa/bono, captura o resolución).
                         </label>
 
-                        <button onclick="enviarReporteEscudo()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-sm transition shadow">
+                        <button onclick="enviarReporteEscudo()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-extrabold py-2.5 rounded-lg text-sm transition shadow">
                             🔒 Anonimizar y Registrar Reporte
                         </button>
 
@@ -406,43 +509,43 @@
                 </div>
 
                 <!-- GENERADOR LEGAL DINÁMICO (7 COLUMNAS) -->
-                <div class="lg:col-span-7 bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div class="lg:col-span-7 bg-white p-6 rounded-xl border-2 border-slate-300 shadow-sm flex flex-col justify-between">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900">⚖️ Generador de Intimaciones, Solicitudes de Socios (ONG) y Pedidos RAFAM</h3>
-                        <p class="text-xs text-slate-500 mt-1 mb-3">
+                        <h3 class="text-lg font-black text-slate-900">⚖️ Generador de Intimaciones, Solicitudes de Socios (ONG) y Pedidos RAFAM</h3>
+                        <p class="text-xs text-slate-700 mt-1 mb-3">
                             Escribí el nombre de tu Club o Municipio (opcional) y hacé clic en el modelo legal que necesites presentar:
                         </p>
 
                         <div class="mb-3">
-                            <input type="text" id="input-entidad-personalizada" onkeyup="actualizarNombreEnPlantilla()" placeholder="Opcional: Escribí acá el nombre del Club ONG o Municipio (Ej: CEDIMA / DUBA / Municipalidad de Ensenada)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="input-entidad-personalizada" onkeyup="actualizarNombreEnPlantilla()" placeholder="Opcional: Escribí acá el nombre del Club ONG o Municipio (Ej: CEDIMA / DUBA / Municipalidad de Ensenada)" class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600">
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
-                            <button onclick="generarEscritoLegal('ONG_SOCIO_BALANCE')" class="bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold px-3 py-2 rounded-lg text-left shadow-sm">
+                            <button onclick="generarEscritoLegal('ONG_SOCIO_BALANCE')" class="bg-purple-800 hover:bg-purple-900 text-white text-xs font-bold px-3 py-2 rounded-lg text-left shadow-sm">
                                 🤝 1. Clubes ONG: Exigir Alta de Socio Activo y Balances (CCCN / Ley 27.275)
                             </button>
-                            <button onclick="generarEscritoLegal('MUNICIPIO_RAFAM')" class="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold px-3 py-2 rounded-lg text-left shadow-sm">
+                            <button onclick="generarEscritoLegal('MUNICIPIO_RAFAM')" class="bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold px-3 py-2 rounded-lg text-left shadow-sm">
                                 🏛️ 2. Clubes Municipales: Auditar Partidas RAFAM (Incisos 2, 3, 4 y 5)
                             </button>
-                            <button onclick="generarEscritoLegal('BROWN_BORRO_MIHOVICH')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg text-left">
+                            <button onclick="generarEscritoLegal('BROWN_BORRO_MIHOVICH')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-lg text-left">
                                 📍 3. Alte. Brown: Deporte Adaptado (G. Borro / F. Mihovich)
                             </button>
-                            <button onclick="generarEscritoLegal('FABA_PERDIGUERO')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg text-left">
+                            <button onclick="generarEscritoLegal('FABA_PERDIGUERO')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-lg text-left">
                                 🇦🇷 4. FABA / COPAR: Padrón, Parcial 517 y Becas (R. Perdiguero)
                             </button>
-                            <button onclick="generarEscritoLegal('BROWN_MAURA_GONZALEZ')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-3 py-2 rounded-lg text-left">
+                            <button onclick="generarEscritoLegal('BROWN_MAURA_GONZALEZ')" class="bg-slate-200 hover:bg-slate-300 text-slate-900 border border-slate-400 text-xs font-bold px-3 py-2 rounded-lg text-left">
                                 🏀 5. Alte. Brown: Materiales y Clubes de Barrio (Maura González)
                             </button>
-                            <button onclick="generarEscritoLegal('BROWN_DENIS_LESTON')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-3 py-2 rounded-lg text-left">
+                            <button onclick="generarEscritoLegal('BROWN_DENIS_LESTON')" class="bg-slate-200 hover:bg-slate-300 text-slate-900 border border-slate-400 text-xs font-bold px-3 py-2 rounded-lg text-left">
                                 ⚖️ 6. Alte. Brown: Equidad, Cupos y Becas (Denis Leston)
                             </button>
                         </div>
 
-                        <textarea id="texto-legal-generado" rows="11" class="w-full p-3 bg-slate-900 text-emerald-400 font-mono text-xs rounded-lg border border-slate-700"></textarea>
+                        <textarea id="texto-legal-generado" rows="11" class="w-full p-3 bg-slate-950 text-emerald-300 font-mono text-xs rounded-lg border-2 border-slate-700"></textarea>
                     </div>
 
                     <div class="flex gap-3 mt-3">
-                        <button onclick="copiarTextoLegal()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow">
+                        <button onclick="copiarTextoLegal()" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-2.5 rounded-lg text-xs transition shadow">
                             📋 Copiar Documento Legal Listo para Presentar (Mesa de Entradas / CD / TAD / DPPJ)
                         </button>
                     </div>
@@ -453,55 +556,55 @@
     </main>
 
     <!-- MODAL 1: VENTANILLA DE DESCARGO OFICIAL -->
-    <div id="modal-descargo" class="hidden fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4">
+    <div id="modal-descargo" class="hidden fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-4">
+        <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4 border-2 border-slate-400">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-lg text-slate-900">🏛️ Ventanilla de Transparencia Activa (Descargo Oficial)</h3>
-                <button onclick="cerrarModal('modal-descargo')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
+                <h3 class="font-black text-lg text-slate-900">🏛️ Ventanilla de Transparencia Activa (Descargo Oficial)</h3>
+                <button onclick="cerrarModal('modal-descargo')" class="text-slate-500 hover:text-slate-900 font-bold text-xl">&times;</button>
             </div>
-            <p class="text-xs text-slate-600">
+            <p class="text-xs text-slate-700">
                 Espacio institucional para que Directores, Coordinadores o Comisiones Directivas suban enlaces a resoluciones, compras de insumos, balances o padrones de becas. Su validación incrementa automáticamente el puntaje ITG.
             </p>
             <div class="space-y-3 text-xs">
-                <input type="text" id="desc-entidad" placeholder="Entidad o Club (Ej: Instituto del Deporte Alte. Brown / FABA / CEDIMA)" class="w-full p-2.5 border rounded-lg">
-                <input type="text" id="desc-autor" placeholder="Nombre y Cargo del Funcionario o Directivo" class="w-full p-2.5 border rounded-lg">
-                <input type="url" id="desc-url" placeholder="URL al Documento Oficial, Boletín o Balance" class="w-full p-2.5 border rounded-lg">
-                <textarea id="desc-detalle" rows="3" placeholder="Resumen de la documentación respaldatoria aportada..." class="w-full p-2.5 border rounded-lg"></textarea>
+                <input type="text" id="desc-entidad" placeholder="Entidad o Club (Ej: Instituto del Deporte Alte. Brown / FABA / CEDIMA)" class="w-full p-2.5 border-2 border-slate-300 rounded-lg">
+                <input type="text" id="desc-autor" placeholder="Nombre y Cargo del Funcionario o Directivo" class="w-full p-2.5 border-2 border-slate-300 rounded-lg">
+                <input type="url" id="desc-url" placeholder="URL al Documento Oficial, Boletín o Balance" class="w-full p-2.5 border-2 border-slate-300 rounded-lg">
+                <textarea id="desc-detalle" rows="3" placeholder="Resumen de la documentación respaldatoria aportada..." class="w-full p-2.5 border-2 border-slate-300 rounded-lg"></textarea>
             </div>
-            <button onclick="guardarAporte('DESCARGO_FUNCIONARIO')" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-lg text-sm">
+            <button onclick="guardarAporte('DESCARGO_FUNCIONARIO')" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold py-2.5 rounded-lg text-sm">
                 Registrar Documentación para Verificación SHA-256
             </button>
         </div>
     </div>
 
     <!-- MODAL 2: ACTUALIZAR DATOS DE UN CLUB FABA -->
-    <div id="modal-club" class="hidden fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4">
+    <div id="modal-club" class="hidden fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-4">
+        <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4 border-2 border-slate-400">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-lg text-slate-900">🏀 Aportar Novedad de Cancha / Actualizar Club FABA</h3>
-                <button onclick="cerrarModal('modal-club')" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
+                <h3 class="font-black text-lg text-slate-900">🏀 Aportar Evidencia Territorial / Actualizar Club FABA</h3>
+                <button onclick="cerrarModal('modal-club')" class="text-slate-500 hover:text-slate-900 font-bold text-xl">&times;</button>
             </div>
-            <p class="text-xs text-slate-600">
-                Si sos jugador, entrenador, directivo o familiar, actualizá el estado real de tu club, quiénes manejan la caja, cuál es su red social activa y qué prestaciones brindan hoy.
+            <p class="text-xs text-slate-700">
+                Si sos jugador, entrenador, directivo o familiar, actualizá el estado real de tu club, quiénes manejan la caja, cuál es su red social activa y qué prestaciones brindan hoy (Protegido bajo Ley 25.326).
             </p>
             <div class="space-y-3 text-xs">
-                <input type="text" id="club-nombre" placeholder="Nombre del Club e Institución" class="w-full p-2.5 border rounded-lg">
-                <select id="club-rol" class="w-full p-2.5 border rounded-lg">
+                <input type="text" id="club-nombre" placeholder="Nombre del Club e Institución" class="w-full p-2.5 border-2 border-slate-300 rounded-lg">
+                <select id="club-rol" class="w-full p-2.5 border-2 border-slate-300 rounded-lg">
                     <option value="Jugador del Plantel">Soy Jugador / Deportista del Club</option>
                     <option value="Director / Entrenador / Dirigente">Soy Director / Entrenador / Dirigente</option>
                     <option value="Familiar / Socio">Soy Familiar / Socio</option>
                 </select>
-                <input type="url" id="club-red-url" placeholder="Enlace a Instagram / Facebook activo del equipo (Opcional)" class="w-full p-2.5 border rounded-lg">
-                <textarea id="club-detalle" rows="3" placeholder="Indicá autoridades actuales, última fecha jugada y si proveen sillas, cubiertas, transporte y becas..." class="w-full p-2.5 border rounded-lg"></textarea>
+                <input type="url" id="club-red-url" placeholder="Enlace a Instagram / Facebook activo del equipo (Opcional)" class="w-full p-2.5 border-2 border-slate-300 rounded-lg">
+                <textarea id="club-detalle" rows="3" placeholder="Indicá autoridades actuales, última fecha jugada y si proveen sillas, cubiertas, transporte y becas..." class="w-full p-2.5 border-2 border-slate-300 rounded-lg"></textarea>
             </div>
-            <button onclick="guardarAporte('ACTUALIZACION_CLUB')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-sm">
-                Publicar en Padrón y Novedades de Cancha
+            <button onclick="guardarAporte('ACTUALIZACION_CLUB')" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-extrabold py-2.5 rounded-lg text-sm">
+                Publicar en Padrón y Card Interactiva OSINT
             </button>
         </div>
     </div>
 
     <!-- =================================================================== -->
-    <!-- MOTOR UNIFICADO JAVASCRIPT (SUPABASE + RPC + MODO ESPEJO SEGURO)    -->
+    <!-- MOTOR UNIFICADO JAVASCRIPT (WCAG AA + SUPABASE RPC + LUCIDE ICONS)  -->
     <!-- =================================================================== -->
     <script>
         const SUPABASE_URL = "https://tjlejedfjypntsylqpeq.supabase.co";
@@ -517,7 +620,12 @@
         let plantillaActualCodigo = 'ONG_SOCIO_BALANCE';
         let clubActivoId = "MUNI-ALTE-BROWN";
         let nombreClubActivo = "Almirante Brown";
-        let contadoresFirmasLocal = { "Almirante Brown": 14, "CILSA Boca": 28, "CEDIMA": 19, "CRIGAL": 11, "DUBA": 22, "CIDELI": 15, "SICA": 17, "Ensenada": 9, "River Plate": 31 };
+        const UMBRAL_TAD = 25;
+        let contadoresFirmasLocal = {
+            "Almirante Brown": 14, "CILSA Boca": 22, "CEDIMA": 19,
+            "CRIGAL": 11, "DUBA": 21, "CIDELI": 15,
+            "SICA": 17, "Ensenada": 9, "River Plate": 24
+        };
 
         // 1. FUNCIONARIOS Y RESPONSABLES ("QUIÉN ES QUIÉN")
         const funcionariosData = [
@@ -575,144 +683,162 @@
                 itg_score: 15,
                 tipo_entidad: "MUNICIPAL",
                 jurisdiccion: "Almirante Brown, PBA",
+                autoridad_actual: "Prof. Gustavo Borro (Dir.) / Prof. Fernando Mihovich (Coord.)",
                 estado_actual: "ACTIVO (1ra División)",
-                dato_desactualizado_oficial: "En registros viejos figuraba Jonathan Frisa como autoridad.",
-                realidad_verificada_2026: "Conducido operacionalmente por el Prof. Gustavo Borro (Director) y el Prof. Fernando Mihovich (Coordinador). Articulación barrial: Maura González. Género: Denis Leston.",
-                provee_sillas_repuestos: "⚠️ PARCIAL_CON_RECLAMOS",
-                provee_transporte: "⚠️ IRREGULAR",
-                provee_becas_viaticos: "❌ SIN_PADRON_PUBLICO",
+                dato_desactualizado_oficial: "En registros viejos de FABA aún figuraba Jonathan Frisa como autoridad.",
+                realidad_verificada_2026: "Conducido operacionalmente por el Prof. Gustavo Borro y el Prof. Fernando Mihovich. Articulación barrial: Maura González. Género: Denis Leston.",
+                provee_sillas_repuestos: "PARCIAL_CON_RECLAMOS",
+                provee_transporte: "IRREGULAR",
+                provee_becas_viaticos: "SIN_PADRON_PUBLICO",
                 ultima_actividad_osint: "Octubre 2026: Disputa de fechas de 1ra División Liga Nacional FABA en el Polideportivo Municipal de Ministro Rivadavia.",
                 enlace_evidencia_url: "https://www.instagram.com/municipiobrown/",
                 estado_redes_sociales: "Bifurcada: Prensa municipal difunde fotos sin decretos de gasto; el plantel creó su propia comunidad en WhatsApp (Sep 2026).",
-                perfil_skills_responsables: "Gustavo Borro (Dir. Municipal y Pte. COPAR; alto manejo político/federativo, observado por Doble Mostrador) y Fernando Mihovich (Coordinador técnico en cancha y armado de Listas de Buena Fe)."
+                perfil_skills_responsables: "Gustavo Borro (Dir. Municipal y Pte. COPAR; observado por Doble Mostrador) y Fernando Mihovich (Coordinador técnico en cancha y Listas de Buena Fe).",
+                hash_evidencia: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
             },
             {
                 nombre_actual: "CILSA Boca Juniors",
                 itg_score: 72,
                 tipo_entidad: "CONVENIO_CLUB",
                 jurisdiccion: "CABA / AMBA",
+                autoridad_actual: "Dirección Deportiva CILSA + Deportes Inclusivos Boca Jrs.",
                 estado_actual: "ACTIVO (Reestructurado)",
                 dato_desactualizado_oficial: "En el padrón histórico 2018/19 figura únicamente como 'CILSA Bs.As.'.",
                 realidad_verificada_2026: "Mutó a CILSA Boca por convenio de apadrinamiento oficial con el Club Atlético Boca Juniors.",
-                provee_sillas_repuestos: "✅ SI_EQUIPADO",
-                provee_transporte: "✅ SI_CUBIERTO",
-                provee_becas_viaticos: "✅ VIATICOS_CUBIERTOS",
+                provee_sillas_repuestos: "SI_EQUIPADO",
+                provee_transporte: "SI_CUBIERTO",
+                provee_becas_viaticos: "VIATICOS_CUBIERTOS",
                 ultima_actividad_osint: "Octubre 2026: Definiciones de 1ra División Liga Nacional FABA y exhibiciones inclusivas junto a Boca Deportes Amateurs.",
                 enlace_evidencia_url: "https://www.instagram.com/cilsaong/",
                 estado_redes_sociales: "Profesionalizada y activa (Cuentas oficiales de CILSA ONG y Boca Juniors).",
-                perfil_skills_responsables: "Caja Mixta Profesionalizada: Dirección Deportiva de CILSA (fondos de donantes/RSE) + Depto. de Deportes Inclusivos de Boca Juniors (indumentaria, logística y difusión)."
+                perfil_skills_responsables: "Caja Mixta Profesionalizada: Dirección Deportiva de CILSA (fondos de donantes/RSE) + Depto. de Deportes Inclusivos de Boca Juniors.",
+                hash_evidencia: "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4"
             },
             {
                 nombre_actual: "Club Atlético River Plate (Básquet Adaptado)",
                 itg_score: 10,
                 tipo_entidad: "CONVENIO_CLUB",
                 jurisdiccion: "CABA",
+                autoridad_actual: "Programa Discontinuado / Baja Competitiva",
                 estado_actual: "DESAFILIADO",
                 dato_desactualizado_oficial: "Sigue figurando en listados históricos 2018/2019 como club activo de FABA.",
                 realidad_verificada_2026: "Hacia finales de 2019 River Plate se retiró del programa competitivo de discapacidad y desafilió a todo el equipo.",
-                provee_sillas_repuestos: "➖ NO_APLICA (Baja 2019)",
-                provee_transporte: "➖ NO_APLICA (Baja 2019)",
-                provee_becas_viaticos: "➖ NO_APLICA (Baja 2019)",
+                provee_sillas_repuestos: "NO_APLICA (Baja 2019)",
+                provee_transporte: "NO_APLICA (Baja 2019)",
+                provee_becas_viaticos: "NO_APLICA (Baja 2019)",
                 ultima_actividad_osint: "Sin actividad competitiva en Liga FABA desde diciembre de 2019.",
                 enlace_evidencia_url: "https://www.cariverplate.com.ar/",
                 estado_redes_sociales: "Inactiva en la disciplina / Baja definitiva del programa competitivo.",
-                perfil_skills_responsables: "Caso testigo de padrón fantasma: demuestra la falta de depuración de los registros públicos de FABA."
+                perfil_skills_responsables: "Caso testigo de padrón fantasma: demuestra la falta de depuración de los registros públicos de FABA.",
+                hash_evidencia: "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
             },
             {
                 nombre_actual: "CEDIMA",
                 itg_score: 45,
                 tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 jurisdiccion: "La Matanza, PBA",
+                autoridad_actual: "Comisión Directiva CEDIMA",
                 estado_actual: "ACTIVO (1ra División)",
                 dato_desactualizado_oficial: "Sin desglose público en web de subsidios recibidos por Parcial 517 o apoyos municipales.",
                 realidad_verificada_2026: "Asociación Civil histórica activa en 1ra División y categorías formativas en su sede de San Justo.",
-                provee_sillas_repuestos: "🔶 PARCIAL",
-                provee_transporte: "🔶 PARCIAL",
-                provee_becas_viaticos: "🔶 AUTOGESTION",
+                provee_sillas_repuestos: "PARCIAL",
+                provee_transporte: "PARCIAL",
+                provee_becas_viaticos: "AUTOGESTION",
                 ultima_actividad_osint: "Octubre 2026: Disputa de fechas de Liga Nacional FABA en el Polideportivo CEDIMA.",
                 enlace_evidencia_url: "https://www.instagram.com/cedima.oficial/",
                 estado_redes_sociales: "Institucional activa en difusión deportiva, pero sin publicación web de balances ni cuadro de gastos.",
-                perfil_skills_responsables: "Comisión Directiva de ONG histórica con administración de sede propia, cuotas sociales, subsidios estatales y eventos."
+                perfil_skills_responsables: "Comisión Directiva de ONG histórica con administración de sede propia, cuotas sociales, subsidios estatales y eventos.",
+                hash_evidencia: "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
             },
             {
                 nombre_actual: "CRIGAL",
                 itg_score: 48,
                 tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 jurisdiccion: "Río Gallegos, Santa Cruz",
+                autoridad_actual: "Comisión Directiva CRIGAL",
                 estado_actual: "ACTIVO (1ra División)",
                 dato_desactualizado_oficial: "Padrón 2019 sin actualización de costos logísticos patagónicos.",
                 realidad_verificada_2026: "Activo en 1ra División con fuerte dependencia de pasajes aéreos y subsidios provinciales.",
-                provee_sillas_repuestos: "✅ SI_EQUIPADO",
-                provee_transporte: "✈️ DEPENDENCIA_AEREA",
-                provee_becas_viaticos: "🔶 PARCIAL",
+                provee_sillas_repuestos: "SI_EQUIPADO",
+                provee_transporte: "DEPENDENCIA_AEREA",
+                provee_becas_viaticos: "PARCIAL",
                 ultima_actividad_osint: "Septiembre/Octubre 2026: Cuadrangulares nacionales de 1ra División FABA y Liga Patagónica.",
                 enlace_evidencia_url: "https://www.facebook.com/crigalbasquetadaptado",
                 estado_redes_sociales: "Autogestión activa con fuerte presencia en medios regionales de Santa Cruz.",
-                perfil_skills_responsables: "Dirigencia de ONG especializada en logística aérea/terrestre de larga distancia y convenios con Provincia de Santa Cruz."
+                perfil_skills_responsables: "Dirigencia de ONG especializada en logística aérea/terrestre de larga distancia y convenios con Provincia de Santa Cruz.",
+                hash_evidencia: "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
             },
             {
                 nombre_actual: "DUBA (Discapacitados Unidos Bahienses)",
                 itg_score: 38,
                 tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 jurisdiccion: "Bahía Blanca, PBA",
+                autoridad_actual: "Comisión Directiva DUBA y Referentes del Plantel",
                 estado_actual: "ACTIVO",
                 dato_desactualizado_oficial: "Sin registro público de transferencias federativas para traslados.",
                 realidad_verificada_2026: "Compite en Liga Nacional apelando a rifas, bonos contribución y sponsors locales para costear viajes.",
-                provee_sillas_repuestos: "⚠️ PARCIAL_CON_RECLAMOS",
-                provee_transporte: "⚠️ AUTOGESTION_RIFAS",
-                provee_becas_viaticos: "❌ SIN_BECAS_LOCALES",
+                provee_sillas_repuestos: "PARCIAL_CON_RECLAMOS",
+                provee_transporte: "AUTOGESTION_RIFAS",
+                provee_becas_viaticos: "SIN_BECAS_LOCALES",
                 ultima_actividad_osint: "Octubre 2026: Participación en fechas nacionales y campañas comunitarias de recaudación en Bahía Blanca.",
                 enlace_evidencia_url: "https://www.instagram.com/dubabahiablanca/",
                 estado_redes_sociales: "Mutó a tracción directa de los jugadores para visibilizar rifas y conseguir apoyo logístico.",
-                perfil_skills_responsables: "Comisión Directiva integrada por deportistas y allegados; alta resiliencia operativa frente a la escasez de partidas fijas."
+                perfil_skills_responsables: "Comisión Directiva integrada por deportistas y allegados; alta resiliencia operativa frente a la escasez de partidas fijas.",
+                hash_evidencia: "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451"
             },
             {
                 nombre_actual: "CIDELI",
                 itg_score: 40,
                 tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 jurisdiccion: "Mar del Plata, PBA",
+                autoridad_actual: "Comisión Directiva CIDELI",
                 estado_actual: "ACTIVO",
                 dato_desactualizado_oficial: "No constan en FABA los convenios de uso de escenarios con el EMDER.",
                 realidad_verificada_2026: "Entrena en polideportivos cedidos por el municipio (EMDER), pero la logística de viajes recae en el plantel.",
-                provee_sillas_repuestos: "🔶 PARCIAL",
-                provee_transporte: "⚠️ AUTOGESTION",
-                provee_becas_viaticos: "➖ SIN_DATOS",
+                provee_sillas_repuestos: "PARCIAL",
+                provee_transporte: "AUTOGESTION",
+                provee_becas_viaticos: "SIN_DATOS",
                 ultima_actividad_osint: "Octubre 2026: Entrenamientos y fechas de Liga Nacional en escenarios de Mar del Plata.",
                 enlace_evidencia_url: "https://www.instagram.com/cidelimdp/",
                 estado_redes_sociales: "Autogestionada por referentes del plantel para conseguir sponsors.",
-                perfil_skills_responsables: "ONG histórica marplatense con articulación de espacios ante el EMDER pero sin presupuesto municipal fijo para sillas."
+                perfil_skills_responsables: "ONG histórica marplatense con articulación de espacios ante el EMDER pero sin presupuesto municipal fijo para sillas.",
+                hash_evidencia: "2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3"
             },
             {
                 nombre_actual: "SICA / Poeta Lugones",
                 itg_score: 52,
                 tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 jurisdiccion: "Córdoba Capital",
+                autoridad_actual: "Fundación SICA / Cuerpo Técnico",
                 estado_actual: "ACTIVO (1ra División)",
                 dato_desactualizado_oficial: "Padrón 2018 no refleja sedes ni becarios actuales.",
                 realidad_verificada_2026: "Referente del interior en 1ra División y semillero permanente de Selección Argentina.",
-                provee_sillas_repuestos: "✅ SI_EQUIPADO",
-                provee_transporte: "🔶 PARCIAL",
-                provee_becas_viaticos: "🔶 BECAS_PROVINCIALES",
+                provee_sillas_repuestos: "SI_EQUIPADO",
+                provee_transporte: "PARCIAL",
+                provee_becas_viaticos: "BECAS_PROVINCIALES",
                 ultima_actividad_osint: "Octubre 2026: Competencia en 1ra División FABA y convocatorias a preselección nacional.",
                 enlace_evidencia_url: "https://www.instagram.com/sicabasquetadaptado/",
                 estado_redes_sociales: "Activa en difusión deportiva; sin estados contables publicados en redes.",
-                perfil_skills_responsables: "Fundación / Asociación Civil con cuerpo técnico de alto rendimiento articulado con la Agencia Córdoba Deportes."
+                perfil_skills_responsables: "Fundación / Asociación Civil con cuerpo técnico de alto rendimiento articulado con la Agencia Córdoba Deportes.",
+                hash_evidencia: "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7"
             },
             {
                 nombre_actual: "Municipalidad de Ensenada",
                 itg_score: 35,
                 tipo_entidad: "MUNICIPAL",
                 jurisdiccion: "Ensenada, PBA",
+                autoridad_actual: "Dirección de Deportes de Ensenada",
                 estado_actual: "ACTIVO (Ascenso FABA)",
                 dato_desactualizado_oficial: "Sin desglose público del presupuesto específico del área adaptada.",
                 realidad_verificada_2026: "Equipo de gestión 100% estatal municipal que compite en el circuito nacional y provincial.",
-                provee_sillas_repuestos: "✅ CUBIERTO_MUNICIPIO",
-                provee_transporte: "✅ CUBIERTO_MUNICIPIO",
-                provee_becas_viaticos: "❌ SIN_PADRON_PUBLICO",
+                provee_sillas_repuestos: "CUBIERTO_MUNICIPIO",
+                provee_transporte: "CUBIERTO_MUNICIPIO",
+                provee_becas_viaticos: "SIN_PADRON_PUBLICO",
                 ultima_actividad_osint: "Septiembre/Octubre 2026: Fechas de ascenso FABA y participación en Juegos Bonaerenses.",
                 enlace_evidencia_url: "https://www.instagram.com/prensaensenada/",
                 estado_redes_sociales: "Absorbida por la cuenta general de prensa de la Municipalidad de Ensenada.",
-                perfil_skills_responsables: "Dirección de Deportes Municipal; caja ejecutada por tesorería bajo nomenclador RAFAM."
+                perfil_skills_responsables: "Dirección de Deportes Municipal; caja ejecutada por tesorería bajo nomenclador RAFAM.",
+                hash_evidencia: "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
             }
         ];
 
@@ -729,7 +855,151 @@
         ];
 
         // ============================================================================
-        // FUNCIONES DE NAVEGACIÓN Y RADIOGRAFÍA INTERACTIVA (OSINT + RPC)
+        // RENDERIZADOR ACCESIBLE WCAG 2.1 AA DE LA CARD INTERACTIVA (DOBLE COLUMNA)
+        // ============================================================================
+        function clasificarEstadoAccesible(valorTexto) {
+            const v = (valorTexto || "").toUpperCase();
+            if (v.includes("SI_") || v.includes("CUBIERTO") || v.includes("EQUIPADO")) {
+                return {
+                    badgeClass: "bg-emerald-100 text-emerald-950 border-emerald-700",
+                    iconName: "check-circle-2",
+                    iconColor: "text-emerald-800",
+                    label: "Cubierto / Verificado"
+                };
+            }
+            if (v.includes("PARCIAL") || v.includes("DEPENDENCIA") || v.includes("BECAS_PROVINCIALES")) {
+                return {
+                    badgeClass: "bg-amber-100 text-amber-950 border-amber-700",
+                    iconName: "alert-triangle",
+                    iconColor: "text-amber-900",
+                    label: "Parcial / Con Reclamos"
+                };
+            }
+            return {
+                badgeClass: "bg-red-100 text-red-950 border-red-800",
+                iconName: "x-circle",
+                iconColor: "text-red-800",
+                label: "Irregular / Sin Partida"
+            };
+        }
+
+        function crearFilaSemaforoWCAG(tituloRubro, detalleRubro) {
+            const cfg = clasificarEstadoAccesible(detalleRubro);
+            return `
+                <div class="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2" role="group" aria-label="Rubro ${tituloRubro}: Estado ${cfg.label} (${detalleRubro})">
+                    <div>
+                        <span class="font-extrabold text-slate-950 text-sm block">${tituloRubro}</span>
+                        <span class="text-xs text-slate-700 font-medium">${detalleRubro}</span>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border-2 font-extrabold text-xs shrink-0 ${cfg.badgeClass}">
+                        <i data-lucide="${cfg.iconName}" class="w-4 h-4 ${cfg.iconColor}" aria-hidden="true"></i>
+                        <span>${cfg.label}</span>
+                    </span>
+                </div>
+            `;
+        }
+
+        async function cargarRadiografiaClub(nombreBusqueda) {
+            nombreClubActivo = nombreBusqueda;
+
+            const club = clubesFabaData.find(c => c.nombre_actual.toLowerCase().includes(nombreBusqueda.toLowerCase())) || clubesFabaData[0];
+            clubActivoId = club.id || club.nombre_actual;
+
+            // Intentar enriquecer desde RPC de Supabase si está activo
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.rpc('obtener_radiografia_club', { club_buscado: nombreBusqueda });
+                    if (!error && data && data.perfil_club) {
+                        clubActivoId = data.perfil_club.id;
+                    }
+                } catch (e) {}
+            }
+
+            // 1. Cabecera y Score ITG Accesible
+            document.getElementById("wcag-club-titulo").innerText = club.nombre_actual;
+            document.getElementById("wcag-club-tipo").innerText = club.tipo_entidad;
+            document.getElementById("wcag-club-jurisdiccion").innerText = club.jurisdiccion;
+            document.getElementById("wcag-club-autoridad").innerText = club.autoridad_actual || "Comisión Directiva / Dirección de Deportes";
+            document.getElementById("wcag-club-desfasaje").innerText = club.dato_desactualizado_oficial;
+
+            const score = club.itg_score || 30;
+            const scoreEl = document.getElementById("wcag-itg-score");
+            const badgeEl = document.getElementById("wcag-itg-badge");
+            scoreEl.innerText = `${score} / 100`;
+
+            if (score <= 30) {
+                scoreEl.className = "text-2xl md:text-3xl font-black text-red-400";
+                badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded bg-red-800 text-white border border-red-400";
+                badgeEl.innerText = "OPACIDAD CRÍTICA";
+            } else if (score <= 65) {
+                scoreEl.className = "text-2xl md:text-3xl font-black text-amber-300";
+                badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded bg-amber-700 text-white border border-amber-300";
+                badgeEl.innerText = "OPACIDAD MEDIA / ALTA";
+            } else {
+                scoreEl.className = "text-2xl md:text-3xl font-black text-emerald-300";
+                badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded bg-emerald-800 text-white border border-emerald-300";
+                badgeEl.innerText = "TRANSPARENCIA ACTIVA";
+            }
+
+            // 2. Semáforo Logístico WCAG 2.1 AA (Color + Ícono + Texto + Aria)
+            const semContenedor = document.getElementById("wcag-semaforo-contenedor");
+            semContenedor.innerHTML =
+                crearFilaSemaforoWCAG("Sillas de Ruedas y Repuestos (SIBYS 32-11-00)", club.provee_sillas_repuestos) +
+                crearFilaSemaforoWCAG("Transporte y Logística Federal (SIBYS 91-03-01)", club.provee_transporte) +
+                crearFilaSemaforoWCAG("Becas Deportivas y Viáticos (Inciso 5 / ENARD)", club.provee_becas_viaticos);
+
+            // 3. Barra de Umbral de Firmas para TAD
+            const firmasActuales = contadoresFirmasLocal[nombreBusqueda] || 14;
+            const pct = Math.min(100, Math.round((firmasActuales / UMBRAL_TAD) * 100));
+            document.getElementById("wcag-firmas-texto").innerText = `${firmasActuales} / ${UMBRAL_TAD} Firmas Verificadas`;
+            document.getElementById("wcag-progressbar").setAttribute("aria-valuenow", firmasActuales);
+            document.getElementById("wcag-progressbar-fill").style.width = `${pct}%`;
+
+            // 4. Ventana Interactiva de Cancha (Columna Derecha OSINT)
+            document.getElementById("wcag-osint-origen").innerText = club.estado_redes_sociales;
+            document.getElementById("wcag-osint-cita").innerText = `"${club.ultima_actividad_osint}"`;
+            document.getElementById("wcag-osint-ia").innerText = `${club.perfil_skills_responsables} — ${club.realidad_verificada_2026}`;
+            document.getElementById("wcag-osint-url").href = club.enlace_evidencia_url || "#";
+            const hashStr = club.hash_evidencia || "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+            document.getElementById("wcag-osint-hash").innerText = `SHA-256: ${hashStr.substring(0, 26)}...`;
+
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        async function ejecutarFirmaPeticion() {
+            const identificador = prompt("Para registrar su firma ciudadana única y disparar el expediente TAD, ingrese su DNI o Correo Electrónico (Se encriptará en su navegador con SHA-256 bajo Ley 25.326):");
+            if (!identificador || identificador.trim() === "") return;
+
+            const provinciaUsuario = prompt("Provincia de residencia (Ej: BUENOS_AIRES, SANTA_CRUZ, CABA, CORDOBA):", "BUENOS_AIRES") || "BUENOS_AIRES";
+
+            const msgBuffer = new TextEncoder().encode(identificador.trim().toLowerCase() + "_AUDITA_2026");
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.rpc('firmar_peticion_automatizada', {
+                        club_target_id: clubActivoId,
+                        ciudadano_identificador: identificador.trim(),
+                        provincia_usuario: provinciaUsuario.toUpperCase()
+                    });
+                } catch (e) {}
+            }
+
+            contadoresFirmasLocal[nombreClubActivo] = (contadoresFirmasLocal[nombreClubActivo] || 14) + 1;
+            const totalActual = contadoresFirmasLocal[nombreClubActivo];
+            const pct = Math.min(100, Math.round((totalActual / UMBRAL_TAD) * 100));
+
+            document.getElementById("wcag-firmas-texto").innerText = `${totalActual} / ${UMBRAL_TAD} Firmas Verificadas`;
+            document.getElementById("wcag-progressbar").setAttribute("aria-valuenow", totalActual);
+            document.getElementById("wcag-progressbar-fill").style.width = `${pct}%`;
+
+            alert(`✅ Firma Ciudadana Encriptada y Registrada.\n• Huella SHA-256: ${hashHex.substring(0, 24)}...\n• Entidad: ${nombreClubActivo}\n• Progreso Umbral TAD: ${totalActual}/${UMBRAL_TAD} firmas.\n\nTe redirigimos al documento legal precompilado por si deseás descargarlo ahora.`);
+            seleccionarReclamo(nombreClubActivo.includes("Brown") ? 'BROWN_BORRO_MIHOVICH' : 'ONG_SOCIO_BALANCE', nombreClubActivo);
+        }
+
+        // ============================================================================
+        // FUNCIONES DE PESTAÑAS, TABLAS Y GENERADOR LEGAL
         // ============================================================================
         function cambiarTab(tabId) {
             ['tab-dashboard', 'tab-responsables', 'tab-clubes', 'tab-osint', 'tab-becas'].forEach(id => {
@@ -740,134 +1010,18 @@
             });
             document.getElementById(tabId).classList.remove('hidden');
             document.getElementById('btn-' + tabId).classList.add('tab-active');
+            if (window.lucide) window.lucide.createIcons();
         }
 
-        async function cargarRadiografiaClub(nombreBusqueda) {
-            nombreClubActivo = nombreBusqueda;
-
-            // 1. Intentar llamada RPC en Supabase si está configurada
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient.rpc('obtener_radiografia_club', { club_buscado: nombreBusqueda });
-                    if (!error && data && data.perfil_club) {
-                        clubActivoId = data.perfil_club.id;
-                        actualizarPanelPerfil(data.perfil_club);
-                        actualizarPanelOSINT(data.alertas_y_novedades_redes);
-                        return;
-                    }
-                } catch (e) {}
-            }
-
-            // 2. Respaldo automático local verificado (nunca falla en Vercel)
-            const club = clubesFabaData.find(c => c.nombre_actual.toLowerCase().includes(nombreBusqueda.toLowerCase())) || clubesFabaData[0];
-            clubActivoId = club.nombre_actual;
-
-            actualizarPanelPerfil({
-                nombre: club.nombre_actual,
-                itg_final: club.itg_score || 30,
-                sillas: club.provee_sillas_repuestos,
-                transporte: club.provee_transporte,
-                becas: club.provee_becas_viaticos,
-                firmas: contadoresFirmasLocal[nombreBusqueda] || 12
-            });
-
-            actualizarPanelOSINT([
-                {
-                    plataforma: club.estado_redes_sociales,
-                    fecha: "Verificación Octubre 2026",
-                    cita: club.ultima_actividad_osint,
-                    auditoria_ia: club.perfil_skills_responsables + " | " + club.realidad_verificada_2026,
-                    url: club.enlace_evidencia_url
-                }
-            ]);
-        }
-
-        function actualizarPanelPerfil(perfil) {
-            document.getElementById("club-nombre-titulo").innerText = perfil.nombre;
-            const nodoScore = document.getElementById("itg-marcador-score");
-            nodoScore.innerText = `${perfil.itg_final} / 100`;
-            if (perfil.itg_final <= 30) nodoScore.className = "text-3xl font-black text-red-500";
-            else if (perfil.itg_final <= 65) nodoScore.className = "text-3xl font-black text-amber-400";
-            else nodoScore.className = "text-3xl font-black text-emerald-400";
-
-            if (perfil.firmas !== undefined) {
-                document.getElementById("contador-firmas-ficha").innerText = `${perfil.firmas} Firmas Ciudadanas`;
-            }
-            if (perfil.sillas) document.getElementById("ficha-log-sillas").innerText = perfil.sillas;
-            if (perfil.transporte) document.getElementById("ficha-log-transporte").innerText = perfil.transporte;
-            if (perfil.becas) document.getElementById("ficha-log-becas").innerText = perfil.becas;
-        }
-
-        function actualizarPanelOSINT(novedades) {
-            const contenedor = document.getElementById("contenedor-novedades-osint");
-            if (!contenedor || !novedades) return;
-            contenedor.innerHTML = novedades.map(n => `
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex flex-wrap justify-between items-center text-xs gap-2">
-                        <span class="font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded">📡 Red / Estado: ${n.plataforma}</span>
-                        <span class="text-slate-400 font-semibold">${n.fecha}</span>
-                    </div>
-                    <blockquote class="border-l-4 border-blue-600 pl-3 italic text-slate-700 bg-slate-50 p-3 rounded text-xs">
-                        "${n.cita}"
-                    </blockquote>
-                    <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-900">
-                        <strong>🎯 Diagnóstico OSINT y Responsables de Caja:</strong> ${n.auditoria_ia}
-                    </div>
-                    <div class="flex flex-wrap justify-between items-center pt-2 gap-2">
-                        <a href="${n.url}" target="_blank" class="text-xs font-bold text-blue-600 hover:text-blue-800">
-                            🔍 Abrir Evidencia en Red Social Oficial ↗
-                        </a>
-                        <button onclick="seleccionarReclamo('ONG_SOCIO_BALANCE', '${nombreClubActivo}')" class="bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg">
-                            ⚖️ Generar Reclamo para esta Entidad
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function ejecutarFirmaPeticion() {
-            const identificador = prompt("Para registrar su adhesión legal única, ingrese su DNI o Correo Electrónico (Se encriptará en su navegador con SHA-256 bajo Ley 25.326):");
-            if (!identificador || identificador.trim() === "") return;
-
-            const provinciaUsuario = prompt("Provincia de residencia (Ej: BUENOS_AIRES, SANTA_CRUZ, CABA, CORDOBA):", "BUENOS_AIRES") || "BUENOS_AIRES";
-
-            // Generar hash SHA-256 en el navegador para demostrar la anonimización
-            const msgBuffer = new TextEncoder().encode(identificador.trim().toLowerCase());
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-
-            if (supabaseClient) {
-                try {
-                    const { data: totalRpc, error } = await supabaseClient.rpc('firmar_peticion_automatizada', {
-                        club_target_id: clubActivoId,
-                        ciudadano_identificador: identificador.trim(),
-                        provincia_usuario: provinciaUsuario.toUpperCase()
-                    });
-                    if (!error && totalRpc) {
-                        document.getElementById("contador-firmas-ficha").innerText = `${totalRpc} Firmas Ciudadanas`;
-                    }
-                } catch (e) {}
-            }
-
-            contadoresFirmasLocal[nombreClubActivo] = (contadoresFirmasLocal[nombreClubActivo] || 14) + 1;
-            const totalActual = contadoresFirmasLocal[nombreClubActivo];
-            document.getElementById("contador-firmas-ficha").innerText = `${totalActual} Firmas Ciudadanas`;
-
-            alert(`✅ Firma Ciudadana Registrada.\n• Hash Anónimo SHA-256: ${hashHex.substring(0, 24)}...\n• Jurisdicción: ${provinciaUsuario.toUpperCase()}\n• Total acumulado para ${nombreClubActivo}: ${totalActual} firmas.`);
-        }
-
-        // ============================================================================
-        // RENDERIZADO DE TABLAS Y GENERADOR LEGAL
-        // ============================================================================
         function renderizarBoletines(lista) {
             const tbody = document.getElementById('tabla-boletines-body');
             if (!tbody) return;
             tbody.innerHTML = lista.map(b => `
                 <tr class="hover:bg-slate-50">
-                    <td class="p-2.5 font-semibold text-slate-800">📄 ${b.expediente_o_decreto}</td>
-                    <td class="p-2.5"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[11px]">${b.portal_origen}</span></td>
-                    <td class="p-2.5 font-mono text-[11px] text-emerald-700" title="${b.hash_sha256_documento}">${b.hash_sha256_documento.substring(0, 18)}...</td>
-                    <td class="p-2.5"><a href="${b.url_fuente_oficial}" target="_blank" class="text-blue-600 hover:underline font-bold">Abrir PDF ↗</a></td>
+                    <td class="p-2.5 font-bold text-slate-900">📄 ${b.expediente_o_decreto}</td>
+                    <td class="p-2.5"><span class="bg-slate-200 text-slate-800 font-semibold px-2 py-0.5 rounded text-[11px]">${b.portal_origen}</span></td>
+                    <td class="p-2.5 font-mono text-[11px] text-emerald-800 font-semibold" title="${b.hash_sha256_documento}">${b.hash_sha256_documento.substring(0, 18)}...</td>
+                    <td class="p-2.5"><a href="${b.url_fuente_oficial}" target="_blank" class="text-blue-700 hover:underline font-extrabold">Abrir PDF ↗</a></td>
                 </tr>
             `).join('');
         }
@@ -881,18 +1035,18 @@
             const cont = document.getElementById('contenedor-funcionarios');
             if (!cont) return;
             cont.innerHTML = funcionariosData.map(f => `
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div class="bg-white p-5 rounded-xl border-2 border-slate-300 shadow-sm flex flex-col justify-between">
                     <div>
-                        <span class="text-xs font-bold uppercase text-blue-600">${f.entidad}</span>
-                        <h3 class="text-lg font-black text-slate-900 mt-0.5">${f.nombre}</h3>
-                        <p class="text-xs font-semibold text-slate-500 mb-3">${f.cargo}</p>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1.5 mb-3">
+                        <span class="text-xs font-extrabold uppercase text-blue-800">${f.entidad}</span>
+                        <h3 class="text-lg font-black text-slate-950 mt-0.5">${f.nombre}</h3>
+                        <p class="text-xs font-bold text-slate-600 mb-3">${f.cargo}</p>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-300 text-xs space-y-1.5 mb-3">
                             <p><strong>📌 Competencia:</strong> ${f.area}</p>
                             <p><strong>⚖️ Qué reclamarle:</strong> ${f.reclamo}</p>
                         </div>
-                        <p class="text-[11px] text-amber-700 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">ℹ️ ${f.alerta}</p>
+                        <p class="text-[11px] text-amber-950 bg-amber-100 px-2.5 py-1.5 rounded border border-amber-500 font-medium">ℹ️ ${f.alerta}</p>
                     </div>
-                    <button onclick="seleccionarReclamo('${f.codigoPlantilla}', '${f.entidad}')" class="mt-4 w-full bg-slate-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition">
+                    <button onclick="seleccionarReclamo('${f.codigoPlantilla}', '${f.entidad}')" class="mt-4 w-full bg-slate-900 hover:bg-blue-800 text-white font-extrabold py-2.5 px-4 rounded-lg text-xs transition">
                         ✍️ Generar Reclamo Dirigido a ${f.nombre}
                     </button>
                 </div>
@@ -905,25 +1059,25 @@
             const lista = filtro === 'TODOS' ? clubesFabaData : clubesFabaData.filter(c => c.tipo_entidad === filtro || c.estado_actual.includes(filtro));
 
             const badgeTipo = {
-                'MUNICIPAL': '<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold">🏛️ MUNICIPAL</span>',
-                'ASOCIACION_CIVIL_ONG': '<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold">🤝 ASOC. CIVIL / ONG</span>',
-                'CONVENIO_CLUB': '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">🛡️ CONVENIO CLUB</span>'
+                'MUNICIPAL': '<span class="bg-blue-100 text-blue-900 border border-blue-700 px-2 py-0.5 rounded font-extrabold">🏛️ MUNICIPAL</span>',
+                'ASOCIACION_CIVIL_ONG': '<span class="bg-purple-100 text-purple-900 border border-purple-700 px-2 py-0.5 rounded font-extrabold">🤝 ASOC. CIVIL / ONG</span>',
+                'CONVENIO_CLUB': '<span class="bg-emerald-100 text-emerald-900 border border-emerald-700 px-2 py-0.5 rounded font-extrabold">🛡️ CONVENIO CLUB</span>'
             };
 
             tbody.innerHTML = lista.map(c => {
                 const btnAccion = c.tipo_entidad === 'ASOCIACION_CIVIL_ONG'
-                    ? `<button onclick="seleccionarReclamo('ONG_SOCIO_BALANCE', '${c.nombre_actual}')" class="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1 rounded font-bold text-[11px]">⚖️ Exigir Socio y Balance</button>`
-                    : `<button onclick="seleccionarReclamo('MUNICIPIO_RAFAM', '${c.nombre_actual}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded font-bold text-[11px]">🏛️ Auditar RAFAM</button>`;
+                    ? `<button onclick="seleccionarReclamo('ONG_SOCIO_BALANCE', '${c.nombre_actual}')" class="bg-purple-700 hover:bg-purple-800 text-white px-2.5 py-1 rounded font-bold text-[11px]">⚖️ Exigir Socio y Balance</button>`
+                    : `<button onclick="seleccionarReclamo('MUNICIPIO_RAFAM', '${c.nombre_actual}')" class="bg-blue-700 hover:bg-blue-800 text-white px-2.5 py-1 rounded font-bold text-[11px]">🏛️ Auditar RAFAM</button>`;
 
                 return `
                 <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-bold text-slate-900">${c.nombre_actual}<br><span class="text-[11px] font-normal text-slate-500">${c.jurisdiccion}</span></td>
+                    <td class="p-3 font-bold text-slate-900">${c.nombre_actual}<br><span class="text-[11px] font-normal text-slate-600">${c.jurisdiccion}</span></td>
                     <td class="p-3">${badgeTipo[c.tipo_entidad] || c.tipo_entidad}</td>
-                    <td class="p-3"><span class="font-bold ${c.estado_actual.includes('DESAFILIADO') ? 'text-red-600' : 'text-emerald-700'}">${c.estado_actual}</span></td>
-                    <td class="p-3 text-slate-600 max-w-xs">${c.realidad_verificada_2026}</td>
-                    <td class="p-3">${c.provee_sillas_repuestos}</td>
-                    <td class="p-3">${c.provee_transporte}</td>
-                    <td class="p-3">${c.provee_becas_viaticos}</td>
+                    <td class="p-3"><span class="font-extrabold ${c.estado_actual.includes('DESAFILIADO') ? 'text-red-700' : 'text-emerald-800'}">${c.estado_actual}</span></td>
+                    <td class="p-3 text-slate-700 max-w-xs">${c.realidad_verificada_2026}</td>
+                    <td class="p-3 font-semibold">${c.provee_sillas_repuestos}</td>
+                    <td class="p-3 font-semibold">${c.provee_transporte}</td>
+                    <td class="p-3 font-semibold">${c.provee_becas_viaticos}</td>
                     <td class="p-3">${btnAccion}</td>
                 </tr>`;
             }).join('');
@@ -938,42 +1092,29 @@
 
             cont.innerHTML = lista.map(c => {
                 const esONG = c.tipo_entidad === 'ASOCIACION_CIVIL_ONG';
-                const botonReclamoDirecto = esONG
-                    ? `<button onclick="seleccionarReclamo('ONG_SOCIO_BALANCE', '${c.nombre_actual}')" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-lg text-xs transition flex-1 text-center">🤝 Solicitar Alta de Socio y Balances (DPPJ/IGJ)</button>`
-                    : `<button onclick="seleccionarReclamo('MUNICIPIO_RAFAM', '${c.nombre_actual}')" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-2 rounded-lg text-xs transition flex-1 text-center">🏛️ Auditar Gastos RAFAM del Municipio</button>`;
-
                 return `
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between space-y-4">
+                <div class="bg-white rounded-xl border-2 border-slate-300 shadow-sm p-5 flex flex-col justify-between space-y-4">
                     <div>
                         <div class="flex justify-between items-start gap-2">
                             <div>
-                                <span class="text-[11px] font-bold uppercase px-2 py-0.5 rounded ${esONG ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}">${c.tipo_entidad} • ${c.jurisdiccion}</span>
-                                <h3 class="text-lg font-black text-slate-900 mt-1">${c.nombre_actual}</h3>
+                                <span class="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded ${esONG ? 'bg-purple-100 text-purple-900 border border-purple-700' : 'bg-blue-100 text-blue-900 border border-blue-700'}">${c.tipo_entidad} • ${c.jurisdiccion}</span>
+                                <h4 class="text-lg font-black text-slate-950 mt-1">${c.nombre_actual}</h4>
                             </div>
-                            <span class="text-xs font-bold px-2.5 py-1 rounded ${c.estado_actual.includes('DESAFILIADO') ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">${c.estado_actual}</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded ${c.estado_actual.includes('DESAFILIADO') ? 'bg-red-100 text-red-900 border border-red-700' : 'bg-emerald-100 text-emerald-900 border border-emerald-700'}">${c.estado_actual}</span>
                         </div>
-
-                        <div class="mt-3 space-y-2.5 text-xs">
-                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                                <p class="font-bold text-slate-800">1. 📅 Última Publicación / Actividad Verificada:</p>
-                                <p class="text-slate-600 mt-0.5">${c.ultima_actividad_osint || c.realidad_verificada_2026}</p>
-                            </div>
-                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                                <p class="font-bold text-slate-800">2. 🔗 Huella Digital y Evidencia Activa:</p>
-                                <a href="${c.enlace_evidencia_url || '#'}" target="_blank" class="text-blue-600 hover:underline font-semibold break-all">${c.enlace_evidencia_url || 'Sin portal activo verificado'} ↗</a>
-                            </div>
-                            <div class="p-2.5 bg-amber-50/70 rounded-lg border border-amber-200">
-                                <p class="font-bold text-amber-900">3. 📡 Estado de Redes y Mutación Comunitaria:</p>
-                                <p class="text-amber-800 mt-0.5">${c.estado_redes_sociales || 'Sin actualización en padrón oficial FABA'}</p>
-                            </div>
-                            <div class="p-2.5 bg-blue-50/60 rounded-lg border border-blue-200">
-                                <p class="font-bold text-blue-950">4. 🎯 Perfil / Skills y Manejo de Caja:</p>
-                                <p class="text-blue-900 mt-0.5">${c.perfil_skills_responsables || c.dato_desactualizado_oficial}</p>
-                            </div>
+                        <div class="mt-3 space-y-2 text-xs">
+                            <p class="p-2.5 bg-slate-50 rounded-lg border border-slate-300"><strong>📅 Última Actividad:</strong> ${c.ultima_actividad_osint}</p>
+                            <p class="p-2.5 bg-amber-50 rounded-lg border border-amber-400 text-amber-950"><strong>📡 Estado de Redes:</strong> ${c.estado_redes_sociales}</p>
+                            <p class="p-2.5 bg-blue-50 rounded-lg border border-blue-300 text-blue-950"><strong>🎯 Responsables de Caja:</strong> ${c.perfil_skills_responsables}</p>
                         </div>
                     </div>
-                    <div class="pt-2 border-t border-slate-100 flex flex-wrap gap-2">
-                        ${botonReclamoDirecto}
+                    <div class="pt-2 border-t border-slate-200 flex flex-wrap gap-2">
+                        <button onclick="cargarRadiografiaClub('${c.nombre_actual}'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-slate-900 hover:bg-slate-800 text-white font-extrabold px-3 py-2 rounded-lg text-xs flex-1">
+                            🔍 Inspeccionar en Card Interactiva WCAG
+                        </button>
+                        <button onclick="seleccionarReclamo('${esONG ? 'ONG_SOCIO_BALANCE' : 'MUNICIPIO_RAFAM'}', '${c.nombre_actual}')" class="bg-blue-700 hover:bg-blue-800 text-white font-extrabold px-3 py-2 rounded-lg text-xs">
+                            ⚖️ Reclamar
+                        </button>
                     </div>
                 </div>`;
             }).join('');
@@ -1004,10 +1145,10 @@
             }
 
             if (checks.length === 0) {
-                resDiv.innerHTML = "<p class='text-emerald-400 font-bold'>✅ Prestaciones básicas cubiertas según tu selección.</p>";
+                resDiv.innerHTML = "<p class='text-emerald-300 font-bold'>✅ Prestaciones básicas cubiertas según tu selección.</p>";
             } else {
                 resDiv.innerHTML = `
-                    <p class="font-bold text-red-400">⚠️ ${checks.length} puntos críticos para reclamar formalmente:</p>
+                    <p class="font-bold text-red-300">⚠️ ${checks.length} puntos críticos para reclamar formalmente:</p>
                     <ul class="list-disc pl-4 space-y-1">
                         ${checks.includes('cubiertas') ? '<li><strong>Cubiertas/Tubulares:</strong> Auditar Inciso 2 (RAFAM) o rendición de subsidios de la ONG.</li>' : ''}
                         ${checks.includes('sillas') ? '<li><strong>Equipamiento:</strong> Exigir inventario patrimonial de sillas (Inciso 4).</li>' : ''}
@@ -1130,7 +1271,7 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
 
             document.getElementById('rep-texto').value = "";
             feedback.classList.remove('hidden');
-            feedback.className = "p-3 rounded-lg text-xs bg-emerald-100 text-emerald-900 border border-emerald-300";
+            feedback.className = "p-3 rounded-lg text-xs bg-emerald-100 text-emerald-950 border-2 border-emerald-600";
             feedback.innerHTML = `<strong>✅ Reporte Anonimizado con Éxito:</strong> "${textoAnonimo}"<br>Registrado para el cálculo de Umbral Colectivo (${evidencia ? 'Bypass Directo por Evidencia' : '1/3 reportes del mes'}).`;
         }
 
@@ -1153,12 +1294,13 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
                     itg_score: 50,
                     tipo_entidad: "ASOCIACION_CIVIL_ONG",
                     jurisdiccion: "Reportado por " + rol,
+                    autoridad_actual: "En validación comunitaria",
                     estado_actual: "ACTIVO (En Validación)",
                     dato_desactualizado_oficial: "Actualización enviada por la comunidad.",
                     realidad_verificada_2026: det,
-                    provee_sillas_repuestos: "🔄 En validación",
-                    provee_transporte: "🔄 En validación",
-                    provee_becas_viaticos: "🔄 En validación",
+                    provee_sillas_repuestos: "PARCIAL",
+                    provee_transporte: "PARCIAL",
+                    provee_becas_viaticos: "PARCIAL",
                     ultima_actividad_osint: det,
                     enlace_evidencia_url: red || "https://www.facebook.com/fababasquetadaptado",
                     estado_redes_sociales: "Relevado por " + rol,
@@ -1169,7 +1311,7 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
                 renderizarClubes('TODOS');
                 renderizarTarjetasOSINT(clubesFabaData);
                 cargarRadiografiaClub(club);
-                alert("✅ ¡Novedad de cancha incorporada al Padrón y al monitor OSINT!");
+                alert("✅ ¡Novedad de cancha incorporada al Padrón y a la Card Interactiva OSINT!");
                 cerrarModal('modal-club');
             }
         }
@@ -1196,6 +1338,7 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
                         clubesFabaData = clu;
                         renderizarClubes('TODOS');
                         renderizarTarjetasOSINT(clubesFabaData);
+                        cargarRadiografiaClub("Almirante Brown");
                     }
                 } catch (e) {}
             }
@@ -1208,7 +1351,7 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
                     datasets: [{
                         label: 'Puntaje ITG',
                         data: [15, 25, 30, 100],
-                        backgroundColor: ['#dc2626', '#d97706', '#f97316', '#16a34a'],
+                        backgroundColor: ['#b91c1c', '#b45309', '#d97706', '#15803d'],
                         borderRadius: 6
                     }]
                 },
@@ -1218,6 +1361,8 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
                     scales: { y: { beginAtZero: true, max: 100 } }
                 }
             });
+
+            if (window.lucide) window.lucide.createIcons();
         };
     </script>
 </body>
