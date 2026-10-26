@@ -5,13 +5,17 @@ from datetime import datetime
 from supabase import create_client, Client
 
 # ============================================================================
-# CREDENCIALES SEGURAS CON LIMPIEZA DE URL
+# DIAGNÓSTICO Y CONexIÓN SEGURA DE SUPABASE
 # ============================================================================
-raw_url = os.getenv("SUPABASE_URL", "https://tjlejedfjypntsylqpeq.supabase.co")
-SUPABASE_URL = str(raw_url).strip().strip('"').strip("'")
+raw_url = os.getenv("SUPABASE_URL")
+print(f"[DEBUG] SUPABASE_URL cruda recibida: '{raw_url}'")
 
-raw_key = os.getenv("SUPABASE_KEY", "LOCAL_TEST_KEY")
-SUPABASE_KEY = str(raw_key).strip().strip('"').strip("'")
+# Si no llega desde GitHub Secrets, usa el respaldo seguro por defecto
+SUPABASE_URL = str(raw_url).strip().strip('"').strip("'") if raw_url else "https://tjlejedfjypntsylqpeq.supabase.co"
+print(f"[DEBUG] SUPABASE_URL procesada: '{SUPABASE_URL}'")
+
+raw_key = os.getenv("SUPABASE_KEY")
+SUPABASE_KEY = str(raw_key).strip().strip('"').strip("'") if raw_key else "LOCAL_TEST_KEY"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
