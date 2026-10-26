@@ -1,0 +1,31 @@
+name: Ejecucion Diaria de Bots de Auditoria
+
+on:
+  schedule:
+  - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-bots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar codigo del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar Supabase
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests supabase
+
+      - name: Verificar archivos y Ejecutar Barrido Federal de Auditoria
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          ls -la
+          python test_bot.py
