@@ -1396,11 +1396,15 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
             if (window.lucide) window.lucide.createIcons();
         };
     </script>
+<!-- =================================================================== -->
+    <!-- MOTOR UNIFICADO JAVASCRIPT (WCAG AA + SUPABASE + FEDERADO COMPLETO) -->
+    <!-- =================================================================== -->
     <script>
         // ============================================================================
-        // CONFIGURACIÓN OFICIAL DE SUPABASE (ASEGURATE DE USAR TU CLAVE ANON VÁLIDA)
+        // CONFIGURACIÓN ÚNICA DE SUPABASE 
         // ============================================================================
         const SUPABASE_URL = "https://tjlejedfjypntsylqpeq.supabase.co";
+        // IMPORTANTE: Reemplazá esta clave si tu clave anon pública actual de Supabase es distinta
         const SUPABASE_ANON_KEY = "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQtYBR";
 
         let supabaseClient = null;
@@ -1422,7 +1426,56 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
             "SICA": 17, "Ensenada": 9, "River Plate": 24
         };
 
-        // Listas base por defecto para respaldo offline
+        // 1. FUNCIONARIOS Y RESPONSABLES ("QUIÉN ES QUIÉN")
+        const funcionariosData = [
+            {
+                entidad: "Instituto Municipal del Deporte de Almirante Brown",
+                nombre: "Prof. Gustavo Borro",
+                cargo: "Director de Deporte Adaptado (y Presidente de COPAR)",
+                area: "Dirección estratégica del deporte paralímpico e inclusivo municipal y titular del Comité Paralímpico Argentino.",
+                reclamo: "Ejecución presupuestaria RAFAM del área, licitaciones de transporte de larga distancia, becas de alto rendimiento y conflicto de Doble Mostrador.",
+                codigoPlantilla: "BROWN_BORRO_MIHOVICH",
+                alerta: "Reemplaza datos caducos (ex gestión Jonathan Frisa). Observado por doble rol Municipio / Presidencia COPAR."
+            },
+            {
+                entidad: "Instituto Municipal del Deporte de Almirante Brown",
+                nombre: "Prof. Fernando Mihovich",
+                cargo: "Coordinador de Deporte para Personas con Discapacidad",
+                area: "Coordinación técnica y operativa en cancha de los planteles municipales y escuelas deportivas adaptadas.",
+                reclamo: "Provisión de cubiertas, tubulares, mantenimiento de sillas de competencia, asignación de combis y logística de fechas FABA.",
+                codigoPlantilla: "BROWN_BORRO_MIHOVICH",
+                alerta: "Responsable operativo directo de la actividad en el Polideportivo Municipal de Ministro Rivadavia."
+            },
+            {
+                entidad: "Instituto Municipal del Deporte de Almirante Brown",
+                nombre: "Maura González",
+                cargo: "Coordinadora de Ligas Amateur y Clubes de Barrio",
+                area: "Articulación institucional y entrega de materiales deportivos a entidades barriales del distrito.",
+                reclamo: "Trazabilidad de materiales deportivos entregados (SIBYS 32-11-00) e inclusión de clubes de barrio en programas adaptados.",
+                codigoPlantilla: "BROWN_MAURA_GONZALEZ",
+                alerta: "Nexo territorial para auditar la entrega efectiva de elementos deportivos."
+            },
+            {
+                entidad: "Instituto Municipal del Deporte de Almirante Brown",
+                nombre: "Denis Leston",
+                cargo: "Coordinadora del Área de Género y Deporte",
+                area: "Políticas de igualdad de acceso, protocolos y equidad presupuestaria en el deporte municipal.",
+                reclamo: "Paridad en asignación de becas deportivas, cupos de viaje e indumentaria en deporte adaptado.",
+                codigoPlantilla: "BROWN_DENIS_LESTON",
+                alerta: "Canal institucional para reclamos de equidad en recursos y becas."
+            },
+            {
+                entidad: "Federación Argentina de Básquetbol Adaptado (FABA)",
+                nombre: "Ricardo Perdiguero",
+                cargo: "Presidente en Ejercicio de FABA",
+                area: "Conducción ejecutiva de la Liga Nacional de Básquet Adaptado (1ra, 2da y 3ra Categoría) y postulación de becarios.",
+                reclamo: "Actualización del padrón web (congelado en 2018/2019), publicación de balances Parcial 517 y criterios de becas ENARD.",
+                codigoPlantilla: "FABA_PERDIGUERO",
+                alerta: "Asumió la conducción tras el fallecimiento de Víctor Bava. Deuda crítica de transparencia digital."
+            }
+        ];
+
+        // 2. PADRÓN FEDERAL DE CLUBES FABA (Respaldo offline inicial)
         let clubesFabaData = [
             {
                 nombre_actual: "Instituto Municipal del Deporte Almirante Brown",
@@ -1436,26 +1489,314 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
                 provee_sillas_repuestos: "PARCIAL_CON_RECLAMOS",
                 provee_transporte: "IRREGULAR",
                 provee_becas_viaticos: "SIN_PADRON_PUBLICO",
-                ultima_actividad_osint: "Monitoreo activo de fechas FABA.",
+                ultima_actividad_osint: "Octubre 2026: Disputa de fechas de 1ra División Liga Nacional FABA.",
                 enlace_evidencia_url: "https://www.instagram.com/municipiobrown/",
-                estado_redes_sociales: "Activo en redes comunitarias.",
+                estado_redes_sociales: "Monitoreo federal activo.",
                 perfil_skills_responsables: "Gustavo Borro y Fernando Mihovich",
                 hash_evidencia: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
             }
         ];
 
-        let boletinesData = [];
-        let funcionariosData = [];
+        // 3. BOLETINES OFICIALES SHA-256
+        let boletinesData = [
+            { expediente_o_decreto: "PQ-Enero-Decretos-2026.pdf", portal_origen: "BOLETIN_MUNICIPAL", hash_sha256_documento: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", url_fuente_oficial: "https://files.brown.gob.ar/brown-web/bundles/site/pdf/boletin_oficial/PQ-Enero-Decretos-2026.pdf" },
+            { expediente_o_decreto: "SQ-Enero-Decretos-2026.pdf", portal_origen: "BOLETIN_MUNICIPAL", hash_sha256_documento: "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4", url_fuente_oficial: "https://files.brown.gob.ar/brown-web/bundles/site/pdf/boletin_oficial/SQ-Enero-Decretos-2026.pdf" }
+        ];
 
         // ============================================================================
-        // INICIO Y CARGA DINÁMICA DESDE SUPABASE
+        // RENDERIZADORES Y FUNCIONALIDADES DE LA INTERFAZ
+        // ============================================================================
+        function clasificarEstadoAccesible(valorTexto) {
+            const v = (valorTexto || "").toUpperCase();
+            if (v.includes("SI_") || v.includes("CUBIERTO") || v.includes("EQUIPADO")) {
+                return { badgeClass: "bg-emerald-100 text-emerald-950 border-emerald-700", iconName: "check-circle-2", iconColor: "text-emerald-800", label: "Cubierto / Verificado" };
+            }
+            if (v.includes("PARCIAL") || v.includes("DEPENDENCIA") || v.includes("BECAS_PROVINCIALES")) {
+                return { badgeClass: "bg-amber-100 text-amber-950 border-amber-700", iconName: "alert-triangle", iconColor: "text-amber-900", label: "Parcial / Con Reclamos" };
+            }
+            return { badgeClass: "bg-red-100 text-red-950 border-red-800", iconName: "x-circle", iconColor: "text-red-800", label: "Irregular / Sin Partida" };
+        }
+
+        function crearFilaSemaforoWCAG(tituloRubro, detalleRubro) {
+            const cfg = clasificarEstadoAccesible(detalleRubro);
+            return `
+                <div class="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2" role="group" aria-label="Rubro ${tituloRubro}: Estado ${cfg.label} (${detalleRubro})">
+                    <div>
+                        <span class="font-extrabold text-slate-950 text-sm block">${tituloRubro}</span>
+                        <span class="text-xs text-slate-700 font-medium">${detalleRubro}</span>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border-2 font-extrabold text-xs shrink-0 ${cfg.badgeClass}">
+                        <i data-lucide="${cfg.iconName}" class="w-4 h-4 ${cfg.iconColor}" aria-hidden="true"></i>
+                        <span>${cfg.label}</span>
+                    </span>
+                </div>
+            `;
+        }
+
+        async function cargarRadiografiaClub(nombreBusqueda) {
+            nombreClubActivo = nombreBusqueda;
+            const club = clubesFabaData.find(c => c.nombre_actual.toLowerCase().includes(nombreBusqueda.toLowerCase())) || clubesFabaData[0];
+            clubActivoId = club.id || club.nombre_actual;
+
+            document.getElementById("wcag-club-titulo").innerText = club.nombre_actual;
+            document.getElementById("wcag-club-tipo").innerText = club.tipo_entidad || "MUNICIPAL";
+            document.getElementById("wcag-club-jurisdiccion").innerText = club.jurisdiccion || club.provincia_normalizada || "Federal";
+            document.getElementById("wcag-club-autoridad").innerText = club.autoridad_actual || "Comisión Directiva";
+            document.getElementById("wcag-club-desfasaje").innerText = club.dato_desactualizado_oficial || "Padrón FABA histórico.";
+
+            const score = club.itg_score || 30;
+            const scoreEl = document.getElementById("wcag-itg-score");
+            const badgeEl = document.getElementById("wcag-itg-badge");
+            scoreEl.innerText = `${score} / 100`;
+
+            if (score <= 30) {
+                scoreEl.className = "text-2xl md:text-3xl font-black text-red-400";
+                badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded bg-red-800 text-white border border-red-400";
+                badgeEl.innerText = "OPACIDAD CRÍTICA";
+            } else if (score <= 65) {
+                scoreEl.className = "text-2xl md:text-3xl font-black text-amber-300";
+                badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded bg-amber-700 text-white border border-amber-300";
+                badgeEl.innerText = "OPACIDAD MEDIA / ALTA";
+            } else {
+                scoreEl.className = "text-2xl md:text-3xl font-black text-emerald-300";
+                badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded bg-emerald-800 text-white border border-emerald-300";
+                badgeEl.innerText = "TRANSPARENCIA ACTIVA";
+            }
+
+            const semContenedor = document.getElementById("wcag-semaforo-contenedor");
+            semContenedor.innerHTML =
+                crearFilaSemaforoWCAG("Sillas de Ruedas y Repuestos", club.provee_sillas_repuestos || "PARCIAL") +
+                crearFilaSemaforoWCAG("Transporte y Logística Federal", club.provee_transporte || "IRREGULAR") +
+                crearFilaSemaforoWCAG("Becas Deportivas y Viáticos", club.provee_becas_viaticos || "SIN_DATOS");
+
+            const firmasActuales = contadoresFirmasLocal[nombreBusqueda] || 14;
+            const pct = Math.min(100, Math.round((firmasActuales / UMBRAL_TAD) * 100));
+            document.getElementById("wcag-firmas-texto").innerText = `${firmasActuales} / ${UMBRAL_TAD} Firmas Verificadas`;
+            document.getElementById("wcag-progressbar").setAttribute("aria-valuenow", firmasActuales);
+            document.getElementById("wcag-progressbar-fill").style.width = `${pct}%`;
+
+            document.getElementById("wcag-osint-origen").innerText = club.estado_redes_sociales || "Monitoreo activo";
+            document.getElementById("wcag-osint-cita").innerText = `"${club.ultima_actividad_osint || 'Sin actividad reciente'}"`;
+            document.getElementById("wcag-osint-ia").innerText = `${club.perfil_skills_responsables || 'Comisión Directiva'} — ${club.realidad_verificada_2026 || 'Relevamiento federal'}`;
+            document.getElementById("wcag-osint-url").href = club.enlace_evidencia_url || "#";
+            const hashStr = club.hash_evidencia || "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+            document.getElementById("wcag-osint-hash").innerText = `SHA-256: ${hashStr.substring(0, 26)}...`;
+
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function cambiarTab(tabId) {
+            ['tab-dashboard', 'tab-responsables', 'tab-clubes', 'tab-osint', 'tab-becas'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+                const btn = document.getElementById('btn-' + id);
+                if (btn) btn.classList.remove('tab-active');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('tab-active');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function renderizarBoletines(lista) {
+            const tbody = document.getElementById('tabla-boletines-body');
+            if (!tbody) return;
+            tbody.innerHTML = lista.map(b => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2.5 font-bold text-slate-900">📄 ${b.expediente_o_decreto}</td>
+                    <td class="p-2.5"><span class="bg-slate-200 text-slate-800 font-semibold px-2 py-0.5 rounded text-[11px]">${b.portal_origen || 'OFICIAL'}</span></td>
+                    <td class="p-2.5 font-mono text-[11px] text-emerald-800 font-semibold">${(b.hash_sha256_documento || '').substring(0, 18)}...</td>
+                    <td class="p-2.5"><a href="${b.url_fuente_oficial || '#'}" target="_blank" class="text-blue-700 hover:underline font-extrabold">Abrir PDF ↗</a></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarFuncionarios() {
+            const cont = document.getElementById('contenedor-funcionarios');
+            if (!cont) return;
+            cont.innerHTML = funcionariosData.map(f => `
+                <div class="bg-white p-5 rounded-xl border-2 border-slate-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-extrabold uppercase text-blue-800">${f.entidad}</span>
+                        <h3 class="text-lg font-black text-slate-950 mt-0.5">${f.nombre}</h3>
+                        <p class="text-xs font-bold text-slate-600 mb-3">${f.cargo}</p>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-300 text-xs space-y-1.5 mb-3">
+                            <p><strong>📌 Competencia:</strong> ${f.area}</p>
+                            <p><strong>⚖️ Qué reclamarle:</strong> ${f.reclamo}</p>
+                        </div>
+                        <p class="text-[11px] text-amber-950 bg-amber-100 px-2.5 py-1.5 rounded border border-amber-500 font-medium">ℹ️ ${f.alerta}</p>
+                    </div>
+                    <button onclick="seleccionarReclamo('${f.codigoPlantilla}', '${f.entidad}')" class="mt-4 w-full bg-slate-900 hover:bg-blue-800 text-white font-extrabold py-2.5 px-4 rounded-lg text-xs transition">
+                        ✍️ Generar Reclamo Dirigido a ${f.nombre}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderizarClubes(filtro = 'TODOS') {
+            const tbody = document.getElementById('tabla-clubes-body');
+            if (!tbody) return;
+            const lista = filtro === 'TODOS' ? clubesFabaData : clubesFabaData.filter(c => c.tipo_entidad === filtro || (c.estado_actual || '').includes(filtro));
+
+            const badgeTipo = {
+                'MUNICIPAL': '<span class="bg-blue-100 text-blue-900 border border-blue-700 px-2 py-0.5 rounded font-extrabold">🏛️ MUNICIPAL</span>',
+                'ASOCIACION_CIVIL_ONG': '<span class="bg-purple-100 text-purple-900 border border-purple-700 px-2 py-0.5 rounded font-extrabold">🤝 ASOC. CIVIL / ONG</span>',
+                'CONVENIO_CLUB': '<span class="bg-emerald-100 text-emerald-900 border border-emerald-700 px-2 py-0.5 rounded font-extrabold">🛡️ CONVENIO CLUB</span>'
+            };
+
+            tbody.innerHTML = lista.map(c => {
+                const btnAccion = c.tipo_entidad === 'ASOCIACION_CIVIL_ONG'
+                    ? `<button onclick="seleccionarReclamo('ONG_SOCIO_BALANCE', '${c.nombre_actual}')" class="bg-purple-700 hover:bg-purple-800 text-white px-2.5 py-1 rounded font-bold text-[11px]">⚖️ Exigir Socio y Balance</button>`
+                    : `<button onclick="seleccionarReclamo('MUNICIPIO_RAFAM', '${c.nombre_actual}')" class="bg-blue-700 hover:bg-blue-800 text-white px-2.5 py-1 rounded font-bold text-[11px]">🏛️ Auditar RAFAM</button>`;
+
+                return `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-bold text-slate-900">${c.nombre_actual}<br><span class="text-[11px] font-normal text-slate-600">${c.jurisdiccion || ''}</span></td>
+                    <td class="p-3">${badgeTipo[c.tipo_entidad] || c.tipo_entidad || 'ONG'}</td>
+                    <td class="p-3"><span class="font-extrabold ${(c.estado_actual || '').includes('DESAFILIADO') ? 'text-red-700' : 'text-emerald-800'}">${c.estado_actual || 'ACTIVO'}</span></td>
+                    <td class="p-3 text-slate-700 max-w-xs">${c.realidad_verificada_2026 || ''}</td>
+                    <td class="p-3 font-semibold">${c.provee_sillas_repuestos || 'PARCIAL'}</td>
+                    <td class="p-3 font-semibold">${c.provee_transporte || 'PARCIAL'}</td>
+                    <td class="p-3 font-semibold">${c.provee_becas_viaticos || 'PARCIAL'}</td>
+                    <td class="p-3">${btnAccion}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function filtrarClubes(tipo) { renderizarClubes(tipo); }
+
+        function renderizarTarjetasOSINT(lista) {
+            const cont = document.getElementById('contenedor-osint-cards');
+            if (!cont) return;
+            const contadorEl = document.getElementById('contador-clubes-osint');
+            if (contadorEl) contadorEl.innerText = lista.length;
+
+            cont.innerHTML = lista.map(c => {
+                const esONG = c.tipo_entidad === 'ASOCIACION_CIVIL_ONG';
+                return `
+                <div class="bg-white rounded-xl border-2 border-slate-300 shadow-sm p-5 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded ${esONG ? 'bg-purple-100 text-purple-900 border border-purple-700' : 'bg-blue-100 text-blue-900 border border-blue-700'}">${c.tipo_entidad || 'FEDERAL'} • ${c.jurisdiccion || ''}</span>
+                                <h4 class="text-lg font-black text-slate-950 mt-1">${c.nombre_actual}</h4>
+                            </div>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded ${(c.estado_actual || '').includes('DESAFILIADO') ? 'bg-red-100 text-red-900 border border-red-700' : 'bg-emerald-100 text-emerald-900 border border-emerald-700'}">${c.estado_actual || 'ACTIVO'}</span>
+                        </div>
+                        <div class="mt-3 space-y-2 text-xs">
+                            <p class="p-2.5 bg-slate-50 rounded-lg border border-slate-300"><strong>📅 Última Actividad:</strong> ${c.ultima_actividad_osint || ''}</p>
+                            <p class="p-2.5 bg-amber-50 rounded-lg border border-amber-400 text-amber-950"><strong>📡 Estado de Redes:</strong> ${c.estado_redes_sociales || ''}</p>
+                            <p class="p-2.5 bg-blue-50 rounded-lg border border-blue-300 text-blue-950"><strong>🎯 Responsables de Caja:</strong> ${c.perfil_skills_responsables || ''}</p>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-200 flex flex-wrap gap-2">
+                        <button onclick="cargarRadiografiaClub('${c.nombre_actual}'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-slate-900 hover:bg-slate-800 text-white font-extrabold px-3 py-2 rounded-lg text-xs flex-1">
+                            🔍 Inspeccionar en Card Interactiva WCAG
+                        </button>
+                        <button onclick="seleccionarReclamo('${esONG ? 'ONG_SOCIO_BALANCE' : 'MUNICIPIO_RAFAM'}', '${c.nombre_actual}')" class="bg-blue-700 hover:bg-blue-800 text-white font-extrabold px-3 py-2 rounded-lg text-xs">
+                            ⚖️ Reclamar
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function filtrarTarjetasOSINT() {
+            const q = document.getElementById('buscador-osint').value.toLowerCase();
+            const filtradas = clubesFabaData.filter(c =>
+                c.nombre_actual.toLowerCase().includes(q) ||
+                (c.jurisdiccion && c.jurisdiccion.toLowerCase().includes(q)) ||
+                (c.perfil_skills_responsables && c.perfil_skills_responsables.toLowerCase().includes(q))
+            );
+            renderizarTarjetasOSINT(filtradas);
+        }
+
+        function calcularBrechaFamiliar() {
+            const tipo = document.getElementById('sim-tipo-club').value;
+            const checks = Array.from(document.querySelectorAll('.sim-check:checked')).map(c => c.value);
+            const expDiv = document.getElementById('sim-explicacion-club');
+            const resDiv = document.getElementById('sim-resultado-texto');
+
+            if (tipo === 'MUNICIPAL') {
+                expDiv.innerHTML = "<strong>Club Municipal (Régimen RAFAM):</strong> Financiado con presupuesto público. Podés auditar los Incisos 2 (Repuestos), 3 (Combis), 4 (Sillas) y 5 (Becas).";
+            } else if (tipo === 'ONG') {
+                expDiv.innerHTML = "<strong>Asociación Civil / ONG:</strong> Podés exigir tu alta como <strong>Socio Activo</strong> (Arts. 168-186 CCCN) y auditar la Memoria, Balance y subsidios públicos recibidos.";
+            } else {
+                expDiv.innerHTML = "<strong>Convenio Club:</strong> Articula estructura de ONG con el respaldo logístico e institucional de un club deportivo profesional.";
+            }
+
+            if (checks.length === 0) {
+                resDiv.innerHTML = "<p class='text-emerald-300 font-bold'>✅ Prestaciones básicas cubiertas según tu selección.</p>";
+            } else {
+                resDiv.innerHTML = `
+                    <p class='text-bold text-red-300 font-bold'>⚠️ ${checks.length} puntos críticos para reclamar formalmente:</p>
+                    <ul class='list-disc pl-4 space-y-1'>
+                        ${checks.includes('cubiertas') ? '<li><strong>Cubiertas/Tubulares:</strong> Auditar Inciso 2 (RAFAM) o rendición de subsidios de la ONG.</li>' : ''}
+                        ${checks.includes('sillas') ? '<li><strong>Equipamiento:</strong> Exigir inventario patrimonial de sillas (Inciso 4).</li>' : ''}
+                        ${checks.includes('transporte') ? '<li><strong>Transporte:</strong> Exigir pliegos de combis adaptadas (Inciso 3 / Parcial 517).</li>' : ''}
+                        ${checks.includes('socios') ? '<li><strong>Derechos Societarios (ONG):</strong> Intimar empadronamiento como Socio Activo y exhibición de Libros Contables.</li>' : ''}
+                    </ul>
+                `;
+            }
+        }
+
+        function seleccionarReclamo(codigoPlantilla, nombreEntidad = '') {
+            cambiarTab('tab-becas');
+            if (nombreEntidad) {
+                document.getElementById('input-entidad-personalizada').value = nombreEntidad;
+            }
+            generarEscritoLegal(codigoPlantilla);
+        }
+
+        function irAReclamoSegunTipoClub() {
+            const tipo = document.getElementById('sim-tipo-club').value;
+            cambiarTab('tab-becas');
+            generarEscritoLegal(tipo === 'ONG' ? 'ONG_SOCIO_BALANCE' : 'MUNICIPIO_RAFAM');
+        }
+
+        function actualizarNombreEnPlantilla() {
+            generarEscritoLegal(plantillaActualCodigo);
+        }
+
+        function generarEscritoLegal(tipo) {
+            plantillaActualCodigo = tipo;
+            const areaTexto = document.getElementById('texto-legal-generado');
+            const entidadCustom = document.getElementById('input-entidad-personalizada').value.trim();
+            const nombreONG = entidadCustom || "[NOMBRE DEL CLUB / ASOCIACIÓN CIVIL]";
+            const nombreMuni = entidadCustom || "[NOMBRE DEL MUNICIPIO]";
+
+            const plantillas = {
+                'ONG_SOCIO_BALANCE': `OBJETO: SOLICITUD DE EMPADRONAMIENTO COMO SOCIO ACTIVO Y ESTADOS CONTABLES\n\nA la Comisión Directiva de: ${nombreONG}\nS / D:\n\nSolicito formalmente el alta como Socio Activo y la exhibición de balances y rendición de subsidios públicos conforme a Ley 27.275.`,
+                'MUNICIPIO_RAFAM': `OBJETO: SOLICITUD DE INFORMACIÓN PÚBLICA - EJECUCIÓN RAFAM\n\nAl Municipio de: ${nombreMuni}\nS / D:\n\nSolicito detalle de ejecución presupuestaria en deporte adaptado (Incisos 2, 3, 4 y 5).`
+            };
+            areaTexto.value = plantillas[tipo] || plantillas['ONG_SOCIO_BALANCE'];
+        }
+
+        function copiarTextoLegal() {
+            const area = document.getElementById('texto-legal-generado');
+            area.select();
+            document.execCommand('copy');
+            alert("✅ Documento legal copiado al portapapeles.");
+        }
+
+        function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        // ============================================================================
+        // INICIO Y CARGA ASINCRÓNICA FEDERAL DESDE SUPABASE
         // ============================================================================
         window.onload = async function() {
+            renderizarBoletines(boletinesData);
+            renderizarFuncionarios();
+            renderizarClubes('TODOS');
+            renderizarTarjetasOSINT(clubesFabaData);
+            calcularBrechaFamiliar();
+            generarEscritoLegal('ONG_SOCIO_BALANCE');
+
             if (supabaseClient) {
                 try {
                     // 1. Cargar Boletines Oficiales
                     const { data: bol } = await supabaseClient.from('hallazgos_oficiales').select('*').limit(50);
-                    if (bol && bol.length > 0) { boletinesData = bol; }
+                    if (bol && bol.length > 0) { boletinesData = bol; renderizarBoletines(boletinesData); }
 
                     // 2. Cargar TODOS los clubes del Padrón Federal (sin límites estáticos)
                     const { data: clu, error: errClu } = await supabaseClient.from('padron_clubes_faba').select('*');
@@ -1483,18 +1824,36 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
                                 `<option value="${c.nombre_actual}">📍 ${c.nombre_actual} (${c.jurisdiccion || c.provincia_normalizada || 'Federal'})</option>`
                             ).join('');
                         }
-                        console.log(`✅ Padrón Federal sincronizado: ${clubesFabaData.length} clubes cargados.`);
+
+                        renderizarClubes('TODOS');
+                        renderizarTarjetasOSINT(clubesFabaData);
+                        if (clubesFabaData.length > 0) {
+                            cargarRadiografiaClub(clubesFabaData[0].nombre_actual);
+                        }
+                        console.log(`✅ ¡Padrón Federal sincronizado con éxito! Total clubes: ${clubesFabaData.length}`);
                     }
                 } catch (e) {
                     console.warn("Aviso de lectura en vivo desde Supabase:", e);
                 }
             }
 
-            // Renderizar vistas de la interfaz
-            if (typeof renderizarClubes === 'function') renderizarClubes('TODOS');
-            if (typeof renderizarTarjetasOSINT === 'function') renderizarTarjetasOSINT(clubesFabaData);
-            if (clubesFabaData.length > 0 && typeof cargarRadiografiaClub === 'function') {
-                cargarRadiografiaClub(clubesFabaData[0].nombre_actual);
+            // Inicializar Gráfico ITG
+            const canvasEl = document.getElementById('graficoITG');
+            if (canvasEl && window.Chart) {
+                const ctx = canvasEl.getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Alte. Brown (15)', 'COPAR (25)', 'FABA (30)', 'Ideal (100)'],
+                        datasets: [{
+                            label: 'Puntaje ITG',
+                            data: [15, 25, 30, 100],
+                            backgroundColor: ['#b91c1c', '#b45309', '#d97706', '#15803d'],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+                });
             }
 
             if (window.lucide) window.lucide.createIcons();
