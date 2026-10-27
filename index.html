@@ -1396,5 +1396,109 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
             if (window.lucide) window.lucide.createIcons();
         };
     </script>
+    <script>
+        // ============================================================================
+        // CONFIGURACIÓN OFICIAL DE SUPABASE (ASEGURATE DE USAR TU CLAVE ANON VÁLIDA)
+        // ============================================================================
+        const SUPABASE_URL = "https://tjlejedfjypntsylqpeq.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQtYBR";
+
+        let supabaseClient = null;
+        try {
+            if (window.supabase && SUPABASE_ANON_KEY.length > 20) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.warn("Error iniciando el cliente de Supabase:", e);
+        }
+
+        let plantillaActualCodigo = 'ONG_SOCIO_BALANCE';
+        let clubActivoId = "MUNI-ALTE-BROWN";
+        let nombreClubActivo = "Almirante Brown";
+        const UMBRAL_TAD = 25;
+        let contadoresFirmasLocal = {
+            "Almirante Brown": 14, "CILSA Boca": 22, "CEDIMA": 19,
+            "CRIGAL": 11, "DUBA": 21, "CIDELI": 15,
+            "SICA": 17, "Ensenada": 9, "River Plate": 24
+        };
+
+        // Listas base por defecto para respaldo offline
+        let clubesFabaData = [
+            {
+                nombre_actual: "Instituto Municipal del Deporte Almirante Brown",
+                itg_score: 15,
+                tipo_entidad: "MUNICIPAL",
+                jurisdiccion: "Almirante Brown, PBA",
+                autoridad_actual: "Prof. Gustavo Borro (Dir.) / Prof. Fernando Mihovich (Coord.)",
+                estado_actual: "ACTIVO (1ra División)",
+                dato_desactualizado_oficial: "En registros viejos de FABA aún figuraba Jonathan Frisa como autoridad.",
+                realidad_verificada_2026: "Conducido operacionalmente por el Prof. Gustavo Borro y el Prof. Fernando Mihovich.",
+                provee_sillas_repuestos: "PARCIAL_CON_RECLAMOS",
+                provee_transporte: "IRREGULAR",
+                provee_becas_viaticos: "SIN_PADRON_PUBLICO",
+                ultima_actividad_osint: "Monitoreo activo de fechas FABA.",
+                enlace_evidencia_url: "https://www.instagram.com/municipiobrown/",
+                estado_redes_sociales: "Activo en redes comunitarias.",
+                perfil_skills_responsables: "Gustavo Borro y Fernando Mihovich",
+                hash_evidencia: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+        ];
+
+        let boletinesData = [];
+        let funcionariosData = [];
+
+        // ============================================================================
+        // INICIO Y CARGA DINÁMICA DESDE SUPABASE
+        // ============================================================================
+        window.onload = async function() {
+            if (supabaseClient) {
+                try {
+                    // 1. Cargar Boletines Oficiales
+                    const { data: bol } = await supabaseClient.from('hallazgos_oficiales').select('*').limit(50);
+                    if (bol && bol.length > 0) { boletinesData = bol; }
+
+                    // 2. Cargar TODOS los clubes del Padrón Federal (sin límites estáticos)
+                    const { data: clu, error: errClu } = await supabaseClient.from('padron_clubes_faba').select('*');
+                    const { data: nov } = await supabaseClient.from('osint_novedades_cancha').select('*').order('fecha_registro', { ascending: false }).limit(100);
+
+                    if (!errClu && clu && clu.length > 0) {
+                        clubesFabaData = clu.map(c => {
+                            const ultimaNov = (nov || []).find(n =>
+                                n.club_id === c.id ||
+                                (n.nombre_club_referencia && c.nombre_actual.toLowerCase().includes(n.nombre_club_referencia.split(' (')[0].toLowerCase()))
+                            );
+                            return {
+                                ...c,
+                                ultima_actividad_osint: ultimaNov ? ultimaNov.cita_textual : (c.ultima_actividad_osint || c.realidad_verificada_2026 || "Monitoreo federal activo"),
+                                perfil_skills_responsables: ultimaNov ? ultimaNov.analisis_ia_contradiccion : (c.perfil_skills_responsables || c.autoridad_actual || "Comisión Directiva"),
+                                enlace_evidencia_url: ultimaNov ? ultimaNov.url_evidencia : (c.enlace_evidencia_url || "https://www.facebook.com/fababasquetadaptado"),
+                                hash_evidencia: ultimaNov ? ultimaNov.hash_sha256 : (c.hash_evidencia || "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+                            };
+                        });
+
+                        // Alimentar dinámicamente el selector desplegable con TODOS los clubes hallados
+                        const selector = document.getElementById('selector-club-radiografia');
+                        if (selector) {
+                            selector.innerHTML = clubesFabaData.map(c =>
+                                `<option value="${c.nombre_actual}">📍 ${c.nombre_actual} (${c.jurisdiccion || c.provincia_normalizada || 'Federal'})</option>`
+                            ).join('');
+                        }
+                        console.log(`✅ Padrón Federal sincronizado: ${clubesFabaData.length} clubes cargados.`);
+                    }
+                } catch (e) {
+                    console.warn("Aviso de lectura en vivo desde Supabase:", e);
+                }
+            }
+
+            // Renderizar vistas de la interfaz
+            if (typeof renderizarClubes === 'function') renderizarClubes('TODOS');
+            if (typeof renderizarTarjetasOSINT === 'function') renderizarTarjetasOSINT(clubesFabaData);
+            if (clubesFabaData.length > 0 && typeof cargarRadiografiaClub === 'function') {
+                cargarRadiografiaClub(clubesFabaData[0].nombre_actual);
+            }
+
+            if (window.lucide) window.lucide.createIcons();
+        };
+    </script>
 </body>
 </html>
