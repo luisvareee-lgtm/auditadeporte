@@ -1,215 +1,419 @@
-<!-- =================================================================== -->
-    <!-- MOTOR UNIFICADO JAVASCRIPT (WCAG AA + SUPABASE + FEDERADO COMPLETO) -->
-    <!-- =================================================================== -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditaDeporte 3.5 - OSINT, Accesibilidad WCAG AA y Trazabilidad Federal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Cliente Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .tab-active { border-bottom: 3px solid #1d4ed8; color: #1e40af; font-weight: 800; background-color: #eff6ff; }
+        .badge-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans antialiased">
+
+    <!-- BARRA SUPERIOR INSTITUCIONAL -->
+    <header class="bg-slate-900 text-white border-b-2 border-slate-700 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <span class="bg-blue-600 text-white font-black px-3 py-1.5 rounded-lg text-lg tracking-wider">AD</span>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold tracking-tight">AuditaDeporte & Discapacidad</h1>
+                    <p class="text-xs text-slate-300">Inteligencia OSINT, Padrón Vivo FABA y Trazabilidad de Fondos Públicos (WCAG 2.1 AA)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+                <span class="bg-emerald-950 border border-emerald-400 text-emerald-300 px-3 py-1 rounded-full flex items-center gap-1.5 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 badge-pulse"></span>
+                    SHA-256 Doctrina Campillay Activo
+                </span>
+                <button onclick="abrirModal('modal-descargo')" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg transition shadow">
+                    🏛️ Soy Funcionario / Subir Descargo
+                </button>
+            </div>
+        </div>
+
+        <!-- NAVEGACIÓN DE PESTAÑAS INTERACTIVAS (5 MÓDULOS) -->
+        <nav class="bg-white text-slate-700 border-b border-slate-300" aria-label="Navegación principal de auditoría">
+            <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto text-xs md:text-sm">
+                <button onclick="cambiarTab('tab-dashboard')" id="btn-tab-dashboard" class="tab-active px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700">
+                    📊 1. Semáforo ITG y Boletines
+                </button>
+                <button onclick="cambiarTab('tab-responsables')" id="btn-tab-responsables" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700">
+                    👥 2. Quién es Quién (Funcionarios)
+                </button>
+                <button onclick="cambiarTab('tab-clubes')" id="btn-tab-clubes" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700">
+                    🏀 3. Padrón FABA y Calculadora
+                </button>
+                <button onclick="cambiarTab('tab-osint')" id="btn-tab-osint" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700 font-bold text-blue-800">
+                    🕵️‍♂️ 4. Card Interactiva OSINT (WCAG AA)
+                </button>
+                <button onclick="cambiarTab('tab-becas')" id="btn-tab-becas" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700">
+                    ⚖️ 5. Becas, Escudo y Reclamos (ONG / RAFAM)
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- PESTAÑA 1: DASHBOARD ITG Y BUSCADOR DE BOLETINES -->
+        <section id="tab-dashboard" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-slate-600">ITG Almirante Brown</span>
+                    <div class="flex items-baseline justify-between mt-1">
+                        <span class="text-3xl font-black text-red-700">15 / 100</span>
+                        <span class="bg-red-100 text-red-900 border border-red-700 text-xs font-extrabold px-2.5 py-0.5 rounded">OPACIDAD CRÍTICA</span>
+                    </div>
+                    <p class="text-xs text-slate-700 mt-2">Penalización: -20 pts por Doble Mostrador (Municipio / COPAR).</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-slate-600">ITG FABA (Pres. R. Perdiguero)</span>
+                    <div class="flex items-baseline justify-between mt-1">
+                        <span class="text-3xl font-black text-amber-800">30 / 100</span>
+                        <span class="bg-amber-100 text-amber-950 border border-amber-700 text-xs font-extrabold px-2.5 py-0.5 rounded">OPACIDAD ALTA</span>
+                    </div>
+                    <p class="text-xs text-slate-700 mt-2">Padrón web detenido en 2018/19 y sin balances Parcial 517.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-slate-600">ITG COPAR (Pres. G. Borro)</span>
+                    <div class="flex items-baseline justify-between mt-1">
+                        <span class="text-3xl font-black text-amber-800">25 / 100</span>
+                        <span class="bg-amber-100 text-amber-950 border border-amber-700 text-xs font-extrabold px-2.5 py-0.5 rounded">RIESGO DE CONFLICTO</span>
+                    </div>
+                    <p class="text-xs text-slate-700 mt-2">Superposición entre dirección municipal y comité nacional.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-slate-600">Clubes Auditados (OSINT)</span>
+                    <div class="flex items-baseline justify-between mt-1">
+                        <span class="text-3xl font-black text-blue-800" id="contador-clubes-osint">9</span>
+                        <span class="bg-blue-100 text-blue-900 border border-blue-700 text-xs font-extrabold px-2.5 py-0.5 rounded">FEDERAL 2026</span>
+                    </div>
+                    <p class="text-xs text-slate-700 mt-2">Relevamiento de huella digital, autoridades y manejo de caja.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-xl border-2 border-slate-300 shadow-sm lg:col-span-1">
+                    <h3 class="font-extrabold text-slate-900 mb-3 text-sm uppercase tracking-wider">Comparativa ITG (Base 100)</h3>
+                    <canvas id="graficoITG" height="230"></canvas>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border-2 border-slate-300 shadow-sm lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-wider">🔎 Lupa Ciudadana: Boletines Oficiales (Almirante Brown)</h3>
+                            <span class="text-xs font-bold text-slate-600">Respaldo SHA-256</span>
+                        </div>
+                        <input type="text" id="buscador-boletines" onkeyup="filtrarBoletines()" placeholder="Filtrar por mes o tipo..." class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        
+                        <div class="overflow-y-auto max-h-60 border border-slate-300 rounded-lg">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-200 text-slate-900 sticky top-0 font-bold">
+                                    <tr>
+                                        <th class="p-2.5">Documento / Expediente</th>
+                                        <th class="p-2.5">Origen</th>
+                                        <th class="p-2.5">Huella Legal SHA-256</th>
+                                        <th class="p-2.5">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-boletines-body" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 2: QUIÉN ES QUIÉN -->
+        <section id="tab-responsables" class="hidden space-y-6">
+            <div class="bg-blue-950 text-white p-6 rounded-xl shadow flex flex-wrap justify-between items-center gap-4 border-2 border-blue-800">
+                <div>
+                    <h2 class="text-xl font-bold">👥 Cadena de Responsables y Mapa de Poder ("Quién es Quién" 2026)</h2>
+                    <p class="text-xs text-blue-100 mt-1 max-w-4xl">
+                        Relevamiento actualizado por OSINT: en FABA asume la presidencia <strong>Ricardo Perdiguero</strong>, y en el Instituto Municipal del Deporte de Almirante Brown conducen las áreas técnicas <strong>Gustavo Borro</strong>, <strong>Fernando Mihovich</strong>, <strong>Maura González</strong> y <strong>Denis Leston</strong>.
+                    </p>
+                </div>
+                <span class="bg-blue-800 border border-blue-400 text-white text-xs font-bold px-3 py-1 rounded-full">Actualizado por OSINT</span>
+            </div>
+            <div id="contenedor-funcionarios" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </section>
+
+        <!-- PESTAÑA 3: PADRÓN FABA Y CALCULADORA -->
+        <section id="tab-clubes" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl border-2 border-slate-300 shadow-sm">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+                    <div>
+                        <span class="bg-amber-100 text-amber-950 border border-amber-700 text-xs font-extrabold px-2.5 py-1 rounded">AUDITORÍA DE PADRÓN Y NATURALEZA JURÍDICA</span>
+                        <h2 class="text-xl font-black text-slate-900 mt-1">Padrón Vivo de Clubes FABA: Datos Oficiales vs. Realidad</h2>
+                    </div>
+                    <button onclick="abrirModal('modal-club')" class="bg-blue-700 hover:bg-blue-800 text-white font-extrabold px-4 py-2.5 rounded-lg text-sm shadow transition">
+                        ✏️ Actualizar Datos de mi Club / Plantel
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button onclick="filtrarClubes('TODOS')" class="bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Todos los Clubes</button>
+                    <button onclick="filtrarClubes('MUNICIPAL')" class="bg-blue-100 text-blue-900 border border-blue-700 hover:bg-blue-200 text-xs font-bold px-3 py-1.5 rounded-lg">🏛️ Municipales (RAFAM)</button>
+                    <button onclick="filtrarClubes('ASOCIACION_CIVIL_ONG')" class="bg-purple-100 text-purple-900 border border-purple-700 hover:bg-purple-200 text-xs font-bold px-3 py-1.5 rounded-lg">🤝 Asociaciones Civiles / ONG</button>
+                </div>
+
+                <div class="overflow-x-auto border-2 border-slate-300 rounded-xl">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-200 text-slate-900 uppercase font-extrabold">
+                            <tr>
+                                <th class="p-3">Club / Entidad</th>
+                                <th class="p-3">Naturaleza Jurídica</th>
+                                <th class="p-3">Estado 2026</th>
+                                <th class="p-3">Realidad Verificada</th>
+                                <th class="p-3">Sillas y Cubiertas</th>
+                                <th class="p-3">Transporte</th>
+                                <th class="p-3">Becas / Viáticos</th>
+                                <th class="p-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-clubes-body" class="divide-y divide-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 4: CARD INTERACTIVA OSINT -->
+        <section id="tab-osint" class="hidden space-y-8">
+            <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-md border-2 border-slate-700 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <span class="bg-emerald-950 text-emerald-300 border border-emerald-400 text-xs font-extrabold px-2.5 py-1 rounded">ESTÁNDAR ACCESIBLE WCAG 2.1 NIVEL AA</span>
+                    <h2 class="text-lg md:text-xl font-black mt-1.5">🕵️‍♂️ Card Interactiva de Auditoría y Ventana de Cancha (OSINT)</h2>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <label for="selector-club-radiografia" class="text-xs font-bold text-slate-300">Seleccionar Club Federal:</label>
+                    <select id="selector-club-radiografia" onchange="cargarRadiografiaClub(this.value)" class="px-3.5 py-2.5 rounded-xl text-slate-950 text-xs font-extrabold bg-amber-400 hover:bg-amber-300 cursor-pointer">
+                        <option value="Almirante Brown">📍 Almirante Brown (PBA - Municipal)</option>
+                    </select>
+                </div>
+            </div>
+
+            <article id="audit-club-card-wcag" class="bg-white rounded-2xl border-2 border-slate-400 shadow-xl overflow-hidden text-slate-900">
+                <header class="bg-slate-900 text-white p-5 md:p-6 border-b-2 border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="space-y-1.5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span id="wcag-club-tipo" class="bg-blue-700 text-white text-xs font-extrabold px-2.5 py-1 rounded uppercase tracking-wider">MUNICIPAL</span>
+                            <span class="text-slate-200 text-xs flex items-center gap-1 font-semibold">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-blue-400" aria-hidden="true"></i>
+                                <span id="wcag-club-jurisdiccion">Almirante Brown, PBA</span>
+                            </span>
+                        </div>
+                        <h3 id="wcag-club-titulo" class="text-xl md:text-2xl font-black tracking-tight text-white">Instituto Municipal del Deporte Almirante Brown</h3>
+                    </div>
+
+                    <div id="wcag-itg-region" class="bg-slate-800 border-2 border-slate-600 rounded-xl px-4 py-2.5 flex items-center gap-4">
+                        <div>
+                            <span class="text-[11px] uppercase tracking-wider text-slate-300 block font-bold">Índice ITG 2026</span>
+                            <span id="wcag-itg-score" class="text-2xl md:text-3xl font-black text-red-400">15 / 100</span>
+                        </div>
+                        <span id="wcag-itg-badge" class="text-xs font-extrabold px-3 py-1 rounded bg-red-800 text-white border border-red-400">OPACIDAD CRÍTICA</span>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-slate-300">
+                    <div class="lg:col-span-6 p-5 md:p-6 space-y-5 bg-white">
+                        <h4 class="text-base font-extrabold uppercase tracking-wide text-slate-900 flex items-center gap-2">
+                            <i data-lucide="building-2" class="w-5 h-5 text-blue-800"></i>
+                            1. Panel de Ente Regulador (Padrón vs. Realidad)
+                        </h4>
+                        <div class="p-4 rounded-xl bg-slate-100 border-2 border-slate-300 space-y-2.5 text-sm">
+                            <p><strong>Responsables en Ejercicio (2026):</strong> <span id="wcag-club-autoridad" class="text-slate-800 font-semibold">Prof. Gustavo Borro</span></p>
+                            <p class="text-xs text-amber-950 bg-amber-100 p-2.5 rounded border border-amber-600"><strong>Desfasaje:</strong> <span id="wcag-club-desfasaje">Datos desactualizados en padrón FABA.</span></p>
+                        </div>
+                        <div id="wcag-semaforo-contenedor" class="space-y-2.5"></div>
+
+                        <div class="p-4 rounded-xl bg-blue-50 border-2 border-blue-300 space-y-2">
+                            <div class="flex justify-between text-xs font-extrabold text-blue-950">
+                                <span>Progreso para Intimación Colectiva (TAD)</span>
+                                <span id="wcag-firmas-texto">14 / 25 Firmas</span>
+                            </div>
+                            <div id="wcag-progressbar" class="w-full h-3.5 bg-blue-200 rounded-full overflow-hidden border border-blue-400">
+                                <div id="wcag-progressbar-fill" class="h-full bg-blue-700 transition-all duration-300" style="width: 56%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-6 p-5 md:p-6 space-y-4 bg-slate-50 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between border-b-2 border-slate-200 pb-3">
+                                <h4 class="text-base font-extrabold uppercase tracking-wide text-slate-900 flex items-center gap-2">
+                                    <i data-lucide="activity" class="w-5 h-5 text-blue-700"></i>
+                                    <span>2. Ventana OSINT (Redes y Cancha)</span>
+                                </h4>
+                                <span id="wcag-osint-origen" class="text-xs font-extrabold bg-slate-200 px-2.5 py-1 rounded">Monitoreo Activo</span>
+                            </div>
+
+                            <blockquote id="wcag-osint-cita" class="p-4 rounded-xl bg-white border-l-4 border-blue-700 text-slate-900 text-sm italic shadow-sm border border-slate-300">
+                                "Cargando última novedad desde redes..."
+                            </blockquote>
+
+                            <div class="p-4 rounded-xl bg-amber-100 border-2 border-amber-600 text-amber-950 text-xs space-y-1">
+                                <p class="font-extrabold uppercase tracking-wider">Cruce Presupuesto vs Realidad (IA):</p>
+                                <p id="wcag-osint-ia" class="font-semibold leading-relaxed">Analizando datos de la institución...</p>
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <a id="wcag-osint-url" href="#" target="_blank" class="font-extrabold text-blue-800 hover:underline flex items-center gap-1.5 text-xs">
+                                <span>Verificar fuente o red social oficial ↗</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <div class="pt-4 border-t-2 border-slate-300">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+                    <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-wider">📂 Dossier Federal de Clubes Auditados</h3>
+                    <input type="text" id="buscador-osint" onkeyup="filtrarTarjetasOSINT()" placeholder="Buscar club o provincia..." class="px-3.5 py-2 rounded-lg border-2 border-slate-300 text-xs w-full md:w-72">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="contenedor-osint-cards"></div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 5: BECAS Y RECLAMOS -->
+        <section id="tab-becas" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl border-2 border-slate-300 shadow-sm">
+                <h2 class="text-xl font-black text-slate-900 mb-2">⚖️ Generador de Intimaciones y Pedidos RAFAM</h2>
+                <input type="text" id="input-entidad-personalizada" placeholder="Nombre del Club o Municipio..." class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg text-xs mb-3">
+                <div class="flex gap-2 mb-3">
+                    <button onclick="generarEscritoLegal('ONG_SOCIO_BALANCE')" class="bg-purple-800 text-white text-xs font-bold px-3 py-2 rounded-lg">🤝 Exigir Socio / Balance</button>
+                    <button onclick="generarEscritoLegal('MUNICIPIO_RAFAM')" class="bg-blue-800 text-white text-xs font-bold px-3 py-2 rounded-lg">🏛️ Auditar RAFAM</button>
+                </div>
+                <textarea id="texto-legal-generado" rows="8" class="w-full p-3 bg-slate-950 text-emerald-300 font-mono text-xs rounded-lg"></textarea>
+                <button onclick="copiarTextoLegal()" class="mt-3 bg-emerald-700 text-white font-extrabold py-2 px-4 rounded-lg text-xs">📋 Copiar Documento Legal</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL ACTUALIZAR CLUB -->
+    <div id="modal-club" class="hidden fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-4">
+        <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-black text-lg">🏀 Actualizar Club FABA</h3>
+                <button onclick="cerrarModal('modal-club')" class="font-bold text-xl">&times;</button>
+            </div>
+            <p class="text-xs text-slate-700">Actualizá los datos de tu plantel protegido por Ley 25.326.</p>
+            <div class="space-y-3 text-xs">
+                <input type="text" id="club-nombre" placeholder="Nombre del Club" class="w-full p-2.5 border rounded-lg">
+                <textarea id="club-detalle" rows="3" placeholder="Detalle de autoridades, estado o recursos..." class="w-full p-2.5 border rounded-lg"></textarea>
+            </div>
+            <button onclick="cerrarModal('modal-club')" class="w-full bg-blue-700 text-white font-extrabold py-2.5 rounded-lg text-sm">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- SCRIPT ÚNICO UNIFICADO -->
     <script>
-        // ============================================================================
-        // CONFIGURACIÓN ÚNICA Y SEGURA DE SUPABASE (SIN DUPLICADOS)
-        // ============================================================================
-        if (typeof window.SUPABASE_URL === 'undefined') {
-            window.SUPABASE_URL = "https://tjlejedfjypntsylqpeq.supabase.co";
-        }
-        if (typeof window.SUPABASE_ANON_KEY === 'undefined') {
-            // Reemplazá este texto por tu clave anon / public real de Supabase si es distinta
-            window.SUPABASE_ANON_KEY = "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQtYBR";
-        }
+        const SUPABASE_URL = "https://tjlejedfjypntsylqpeq.supabase.co";
+        // Asegurate de colocar tu clave anon / public real aquí:
+        const SUPABASE_ANON_KEY = "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQtYBR";
 
         let supabaseClient = null;
         try {
-            if (window.supabase && window.SUPABASE_ANON_KEY.length > 20) {
-                supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+            if (window.supabase && SUPABASE_ANON_KEY.length > 20) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
         } catch (e) {
-            console.warn("Error iniciando el cliente de Supabase:", e);
+            console.warn("Error Supabase:", e);
         }
 
         let plantillaActualCodigo = 'ONG_SOCIO_BALANCE';
         let clubActivoId = "MUNI-ALTE-BROWN";
         let nombreClubActivo = "Almirante Brown";
         const UMBRAL_TAD = 25;
-        let contadoresFirmasLocal = {
-            "Almirante Brown": 14, "CILSA Boca": 22, "CEDIMA": 19,
-            "CRIGAL": 11, "DUBA": 21, "CIDELI": 15,
-            "SICA": 17, "Ensenada": 9, "River Plate": 24
-        };
+        let contadoresFirmasLocal = { "Almirante Brown": 14 };
 
-        // 1. FUNCIONARIOS Y RESPONSABLES ("QUIÉN ES QUIÉN")
         const funcionariosData = [
-            {
-                entidad: "Instituto Municipal del Deporte de Almirante Brown",
-                nombre: "Prof. Gustavo Borro",
-                cargo: "Director de Deporte Adaptado (y Presidente de COPAR)",
-                area: "Dirección estratégica del deporte paralímpico e inclusivo municipal y titular del Comité Paralímpico Argentino.",
-                reclamo: "Ejecución presupuestaria RAFAM del área, licitaciones de transporte de larga distancia, becas de alto rendimiento y conflicto de Doble Mostrador.",
-                codigoPlantilla: "BROWN_BORRO_MIHOVICH",
-                alerta: "Reemplaza datos caducos (ex gestión Jonathan Frisa). Observado por doble rol Municipio / Presidencia COPAR."
-            },
-            {
-                entidad: "Instituto Municipal del Deporte de Almirante Brown",
-                nombre: "Prof. Fernando Mihovich",
-                cargo: "Coordinador de Deporte para Personas con Discapacidad",
-                area: "Coordinación técnica y operativa en cancha de los planteles municipales y escuelas deportivas adaptadas.",
-                reclamo: "Provisión de cubiertas, tubulares, mantenimiento de sillas de competencia, asignación de combis y logística de fechas FABA.",
-                codigoPlantilla: "BROWN_BORRO_MIHOVICH",
-                alerta: "Responsable operativo directo de la actividad en el Polideportivo Municipal de Ministro Rivadavia."
-            },
-            {
-                entidad: "Instituto Municipal del Deporte de Almirante Brown",
-                nombre: "Maura González",
-                cargo: "Coordinadora de Ligas Amateur y Clubes de Barrio",
-                area: "Articulación institucional y entrega de materiales deportivos a entidades barriales del distrito.",
-                reclamo: "Trazabilidad de materiales deportivos entregados (SIBYS 32-11-00) e inclusión de clubes de barrio en programas adaptados.",
-                codigoPlantilla: "BROWN_MAURA_GONZALEZ",
-                alerta: "Nexo territorial para auditar la entrega efectiva de elementos deportivos."
-            },
-            {
-                entidad: "Instituto Municipal del Deporte de Almirante Brown",
-                nombre: "Denis Leston",
-                cargo: "Coordinadora del Área de Género y Deporte",
-                area: "Políticas de igualdad de acceso, protocolos y equidad presupuestaria en el deporte municipal.",
-                reclamo: "Paridad en asignación de becas deportivas, cupos de viaje e indumentaria en deporte adaptado.",
-                codigoPlantilla: "BROWN_DENIS_LESTON",
-                alerta: "Canal institucional para reclamos de equidad en recursos y becas."
-            },
-            {
-                entidad: "Federación Argentina de Básquetbol Adaptado (FABA)",
-                nombre: "Ricardo Perdiguero",
-                cargo: "Presidente en Ejercicio de FABA",
-                area: "Conducción ejecutiva de la Liga Nacional de Básquet Adaptado (1ra, 2da y 3ra Categoría) y postulación de becarios.",
-                reclamo: "Actualización del padrón web (congelado en 2018/2019), publicación de balances Parcial 517 y criterios de becas ENARD.",
-                codigoPlantilla: "FABA_PERDIGUERO",
-                alerta: "Asumió la conducción tras el fallecimiento de Víctor Bava. Deuda crítica de transparencia digital."
-            }
+            { entidad: "Instituto Municipal del Deporte de Almirante Brown", nombre: "Prof. Gustavo Borro", cargo: "Director de Deporte Adaptado", area: "Dirección estratégica paralímpica.", reclamo: "Ejecución presupuestaria RAFAM.", codigoPlantilla: "BROWN_BORRO_MIHOVICH", alerta: "Observado por doble rol." },
+            { entidad: "Federación Argentina de Básquetbol Adaptado (FABA)", nombre: "Ricardo Perdiguero", cargo: "Presidente FABA", area: "Conducción ejecutiva FABA.", reclamo: "Actualización de padrón web.", codigoPlantilla: "FABA_PERDIGUERO", alerta: "Deuda de transparencia digital." }
         ];
 
-        // 2. PADRÓN FEDERAL DE CLUBES FABA (Respaldo offline inicial)
         let clubesFabaData = [
             {
                 nombre_actual: "Instituto Municipal del Deporte Almirante Brown",
                 itg_score: 15,
                 tipo_entidad: "MUNICIPAL",
                 jurisdiccion: "Almirante Brown, PBA",
-                autoridad_actual: "Prof. Gustavo Borro (Dir.) / Prof. Fernando Mihovich (Coord.)",
+                autoridad_actual: "Prof. Gustavo Borro",
                 estado_actual: "ACTIVO (1ra División)",
-                dato_desactualizado_oficial: "En registros viejos de FABA aún figuraba Jonathan Frisa como autoridad.",
-                realidad_verificada_2026: "Conducido operacionalmente por el Prof. Gustavo Borro y el Prof. Fernando Mihovich.",
+                realidad_verificada_2026: "Conducido por Gustavo Borro y Fernando Mihovich.",
                 provee_sillas_repuestos: "PARCIAL_CON_RECLAMOS",
                 provee_transporte: "IRREGULAR",
                 provee_becas_viaticos: "SIN_PADRON_PUBLICO",
-                ultima_actividad_osint: "Octubre 2026: Disputa de fechas de 1ra División Liga Nacional FABA.",
+                ultima_actividad_osint: "Disputa de fechas FABA en Ministro Rivadavia.",
                 enlace_evidencia_url: "https://www.instagram.com/municipiobrown/",
                 estado_redes_sociales: "Monitoreo federal activo.",
-                perfil_skills_responsables: "Gustavo Borro y Fernando Mihovich",
+                perfil_skills_responsables: "Gustavo Borro",
                 hash_evidencia: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
             }
         ];
 
-        // 3. BOLETINES OFICIALES SHA-256
         let boletinesData = [
             { expediente_o_decreto: "PQ-Enero-Decretos-2026.pdf", portal_origen: "BOLETIN_MUNICIPAL", hash_sha256_documento: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", url_fuente_oficial: "https://files.brown.gob.ar/brown-web/bundles/site/pdf/boletin_oficial/PQ-Enero-Decretos-2026.pdf" }
         ];
 
-        // ============================================================================
-        // RENDERIZADORES Y FUNCIONALIDADES DE LA INTERFAZ
-        // ============================================================================
         function clasificarEstadoAccesible(valorTexto) {
             const v = (valorTexto || "").toUpperCase();
             if (v.includes("SI_") || v.includes("CUBIERTO") || v.includes("EQUIPADO")) {
-                return { badgeClass: "bg-emerald-100 text-emerald-950 border-emerald-700", iconName: "check-circle-2", iconColor: "text-emerald-800", label: "Cubierto / Verificado" };
+                return { badgeClass: "bg-emerald-100 text-emerald-950 border-emerald-700", label: "Cubierto / Verificado" };
             }
-            if (v.includes("PARCIAL") || v.includes("DEPENDENCIA") || v.includes("BECAS_PROVINCIALES")) {
-                return { badgeClass: "bg-amber-100 text-amber-950 border-amber-700", iconName: "alert-triangle", iconColor: "text-amber-900", label: "Parcial / Con Reclamos" };
+            if (v.includes("PARCIAL") || v.includes("DEPENDENCIA")) {
+                return { badgeClass: "bg-amber-100 text-amber-950 border-amber-700", label: "Parcial / Con Reclamos" };
             }
-            return { badgeClass: "bg-red-100 text-red-950 border-red-800", iconName: "x-circle", iconColor: "text-red-800", label: "Irregular / Sin Partida" };
+            return { badgeClass: "bg-red-100 text-red-950 border-red-800", label: "Irregular / Sin Partida" };
         }
 
         function crearFilaSemaforoWCAG(tituloRubro, detalleRubro) {
             const cfg = clasificarEstadoAccesible(detalleRubro);
             return `
-                <div class="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2" role="group" aria-label="Rubro ${tituloRubro}: Estado ${cfg.label} (${detalleRubro})">
-                    <div>
-                        <span class="font-extrabold text-slate-950 text-sm block">${tituloRubro}</span>
-                        <span class="text-xs text-slate-700 font-medium">${detalleRubro}</span>
-                    </div>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border-2 font-extrabold text-xs shrink-0 ${cfg.badgeClass}">
-                        <span>${cfg.label}</span>
-                    </span>
+                <div class="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300 flex justify-between items-center text-xs">
+                    <div><strong>${tituloRubro}:</strong> ${detalleRubro}</div>
+                    <span class="px-2 py-0.5 rounded border font-extrabold ${cfg.badgeClass}">${cfg.label}</span>
                 </div>
             `;
         }
 
-        async function cargarRadiografiaClub(nombreBusqueda) {
+        function cargarRadiografiaClub(nombreBusqueda) {
             nombreClubActivo = nombreBusqueda;
             const club = clubesFabaData.find(c => c.nombre_actual.toLowerCase().includes(nombreBusqueda.toLowerCase())) || clubesFabaData[0];
-            clubActivoId = club.id || club.nombre_actual;
-
-            const tituloEl = document.getElementById("wcag-club-titulo");
-            if (tituloEl) tituloEl.innerText = club.nombre_actual;
-
-            const tipoEl = document.getElementById("wcag-club-tipo");
-            if (tipoEl) tipoEl.innerText = club.tipo_entidad || "MUNICIPAL";
-
-            const juriEl = document.getElementById("wcag-club-jurisdiccion");
-            if (juriEl) juriEl.innerText = club.jurisdiccion || club.provincia_normalizada || "Federal";
-
-            const autoEl = document.getElementById("wcag-club-autoridad");
-            if (autoEl) autoEl.innerText = club.autoridad_actual || "Comisión Directiva";
-
-            const desfEl = document.getElementById("wcag-club-desfasaje");
-            if (desfEl) desfEl.innerText = club.dato_desactualizado_oficial || "Padrón FABA histórico.";
+            
+            document.getElementById("wcag-club-titulo").innerText = club.nombre_actual;
+            document.getElementById("wcag-club-tipo").innerText = club.tipo_entidad || "MUNICIPAL";
+            document.getElementById("wcag-club-jurisdiccion").innerText = club.jurisdiccion || "Federal";
+            document.getElementById("wcag-club-autoridad").innerText = club.autoridad_actual || "Comisión Directiva";
+            document.getElementById("wcag-club-desfasaje").innerText = club.dato_desactualizado_oficial || "Padrón FABA histórico.";
 
             const score = club.itg_score || 30;
-            const scoreEl = document.getElementById("wcag-itg-score");
-            const badgeEl = document.getElementById("wcag-itg-badge");
-            
-            if (scoreEl) scoreEl.innerText = `${score} / 100`;
-
-            if (badgeEl) {
-                if (score <= 30) {
-                    if (scoreEl) scoreEl.className = "text-2xl md:text-3xl font-black text-red-400";
-                    badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded bg-red-800 text-white border border-red-400";
-                    badgeEl.innerText = "OPACIDAD CRÍTICA";
-                } else {
-                    if (scoreEl) scoreEl.className = "text-2xl md:text-3xl font-black text-amber-300";
-                    badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded bg-amber-700 text-white border border-amber-300";
-                    badgeEl.innerText = "OPACIDAD MEDIA / ALTA";
-                }
-            }
+            document.getElementById("wcag-itg-score").innerText = `${score} / 100`;
 
             const semContenedor = document.getElementById("wcag-semaforo-contenedor");
             if (semContenedor) {
                 semContenedor.innerHTML =
-                    crearFilaSemaforoWCAG("Sillas de Ruedas y Repuestos", club.provee_sillas_repuestos || "PARCIAL") +
-                    crearFilaSemaforoWCAG("Transporte y Logística Federal", club.provee_transporte || "IRREGULAR") +
-                    crearFilaSemaforoWCAG("Becas Deportivas y Viáticos", club.provee_becas_viaticos || "SIN_DATOS");
+                    crearFilaSemaforoWCAG("Sillas y Repuestos", club.provee_sillas_repuestos) +
+                    crearFilaSemaforoWCAG("Transporte", club.provee_transporte) +
+                    crearFilaSemaforoWCAG("Becas", club.provee_becas_viaticos);
             }
 
-            const firmasActuales = contadoresFirmasLocal[nombreBusqueda] || 14;
-            const pct = Math.min(100, Math.round((firmasActuales / UMBRAL_TAD) * 100));
-            
-            const firmasTxt = document.getElementById("wcag-firmas-texto");
-            if (firmasTxt) firmasTxt.innerText = `${firmasActuales} / ${UMBRAL_TAD} Firmas Verificadas`;
-            
-            const progBar = document.getElementById("wcag-progressbar");
-            if (progBar) progBar.setAttribute("aria-valuenow", firmasActuales);
-            
-            const progFill = document.getElementById("wcag-progressbar-fill");
-            if (progFill) progFill.style.width = `${pct}%`;
-
-            const osintOrig = document.getElementById("wcag-osint-origen");
-            if (osintOrig) osintOrig.innerText = club.estado_redes_sociales || "Monitoreo activo";
-
-            const osintCita = document.getElementById("wcag-osint-cita");
-            if (osintCita) osintCita.innerText = `"${club.ultima_actividad_osint || 'Sin actividad reciente'}"`;
-
-            const osintIa = document.getElementById("wcag-osint-ia");
-            if (osintIa) osintIa.innerText = `${club.perfil_skills_responsables || 'Comisión Directiva'} — ${club.realidad_verificada_2026 || 'Relevamiento federal'}`;
-
-            const osintUrl = document.getElementById("wcag-osint-url");
-            if (osintUrl) osintUrl.href = club.enlace_evidencia_url || "#";
-
-            const hashStr = club.hash_evidencia || "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-            const hashEl = document.getElementById("wcag-osint-hash");
-            if (hashEl) hashEl.innerText = `SHA-256: ${hashStr.substring(0, 26)}...`;
+            document.getElementById("wcag-osint-origen").innerText = club.estado_redes_sociales || "Monitoreo activo";
+            document.getElementById("wcag-osint-cita").innerText = `"${club.ultima_actividad_osint || 'Sin actividad'}"`;
+            document.getElementById("wcag-osint-ia").innerText = `${club.perfil_skills_responsables || 'Comisión Directiva'} — ${club.realidad_verificada_2026 || ''}`;
+            document.getElementById("wcag-osint-url").href = club.enlace_evidencia_url || "#";
 
             if (window.lucide) window.lucide.createIcons();
         }
@@ -233,10 +437,10 @@
             if (!tbody) return;
             tbody.innerHTML = lista.map(b => `
                 <tr class="hover:bg-slate-50">
-                    <td class="p-2.5 font-bold text-slate-900">📄 ${b.expediente_o_decreto}</td>
-                    <td class="p-2.5"><span class="bg-slate-200 text-slate-800 font-semibold px-2 py-0.5 rounded text-[11px]">${b.portal_origen || 'OFICIAL'}</span></td>
-                    <td class="p-2.5 font-mono text-[11px] text-emerald-800 font-semibold">${(b.hash_sha256_documento || '').substring(0, 18)}...</td>
-                    <td class="p-2.5"><a href="${b.url_fuente_oficial || '#'}" target="_blank" class="text-blue-700 hover:underline font-extrabold">Abrir PDF ↗</a></td>
+                    <td class="p-2.5 font-bold">${b.expediente_o_decreto}</td>
+                    <td class="p-2.5">${b.portal_origen || 'OFICIAL'}</td>
+                    <td class="p-2.5 font-mono text-[11px] text-emerald-800">${(b.hash_sha256_documento || '').substring(0, 18)}...</td>
+                    <td class="p-2.5"><a href="${b.url_fuente_oficial || '#'}" target="_blank" class="text-blue-700 font-extrabold">Abrir PDF ↗</a></td>
                 </tr>
             `).join('');
         }
@@ -248,16 +452,9 @@
                 <div class="bg-white p-5 rounded-xl border-2 border-slate-300 shadow-sm flex flex-col justify-between">
                     <div>
                         <span class="text-xs font-extrabold uppercase text-blue-800">${f.entidad}</span>
-                        <h3 class="text-lg font-black text-slate-950 mt-0.5">${f.nombre}</h3>
+                        <h3 class="text-lg font-black mt-0.5">${f.nombre}</h3>
                         <p class="text-xs font-bold text-slate-600 mb-3">${f.cargo}</p>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-300 text-xs space-y-1.5 mb-3">
-                            <p><strong>📌 Competencia:</strong> ${f.area}</p>
-                            <p><strong>⚖️ Qué reclamarle:</strong> ${f.reclamo}</p>
-                        </div>
                     </div>
-                    <button onclick="seleccionarReclamo('${f.codigoPlantilla}', '${f.entidad}')" class="mt-4 w-full bg-slate-900 hover:bg-blue-800 text-white font-extrabold py-2.5 px-4 rounded-lg text-xs transition">
-                        ✍️ Generar Reclamo Dirigido a ${f.nombre}
-                    </button>
                 </div>
             `).join('');
         }
@@ -265,23 +462,17 @@
         function renderizarClubes(filtro = 'TODOS') {
             const tbody = document.getElementById('tabla-clubes-body');
             if (!tbody) return;
-            const lista = filtro === 'TODOS' ? clubesFabaData : clubesFabaData.filter(c => c.tipo_entidad === filtro || (c.estado_actual || '').includes(filtro));
-
-            const badgeTipo = {
-                'MUNICIPAL': '<span class="bg-blue-100 text-blue-900 border border-blue-700 px-2 py-0.5 rounded font-extrabold">🏛️ MUNICIPAL</span>',
-                'ASOCIACION_CIVIL_ONG': '<span class="bg-purple-100 text-purple-900 border border-purple-700 px-2 py-0.5 rounded font-extrabold">🤝 ASOC. CIVIL / ONG</span>',
-                'CONVENIO_CLUB': '<span class="bg-emerald-100 text-emerald-900 border border-emerald-700 px-2 py-0.5 rounded font-extrabold">🛡️ CONVENIO CLUB</span>'
-            };
+            const lista = filtro === 'TODOS' ? clubesFabaData : clubesFabaData.filter(c => c.tipo_entidad === filtro);
 
             tbody.innerHTML = lista.map(c => `
                 <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-bold text-slate-900">${c.nombre_actual}<br><span class="text-[11px] font-normal text-slate-600">${c.jurisdiccion || ''}</span></td>
-                    <td class="p-3">${badgeTipo[c.tipo_entidad] || '<span class="bg-blue-100 text-blue-900 border border-blue-700 px-2 py-0.5 rounded font-extrabold">FEDERAL</span>'}</td>
+                    <td class="p-3 font-bold">${c.nombre_actual}<br><span class="text-[11px] text-slate-600">${c.jurisdiccion || ''}</span></td>
+                    <td class="p-3">${c.tipo_entidad || 'FEDERAL'}</td>
                     <td class="p-3"><span class="font-extrabold text-emerald-800">${c.estado_actual || 'ACTIVO'}</span></td>
                     <td class="p-3 text-slate-700 max-w-xs">${c.realidad_verificada_2026 || ''}</td>
-                    <td class="p-3 font-semibold">${c.provee_sillas_repuestos || 'PARCIAL'}</td>
-                    <td class="p-3 font-semibold">${c.provee_transporte || 'PARCIAL'}</td>
-                    <td class="p-3 font-semibold">${c.provee_becas_viaticos || 'PARCIAL'}</td>
+                    <td class="p-3">${c.provee_sillas_repuestos || 'PARCIAL'}</td>
+                    <td class="p-3">${c.provee_transporte || 'PARCIAL'}</td>
+                    <td class="p-3">${c.provee_becas_viaticos || 'PARCIAL'}</td>
                     <td class="p-3"><button onclick="seleccionarReclamo('ONG_SOCIO_BALANCE', '${c.nombre_actual}')" class="bg-blue-700 text-white px-2.5 py-1 rounded font-bold text-[11px]">⚖️ Reclamar</button></td>
                 </tr>`).join('');
         }
@@ -295,33 +486,43 @@
             cont.innerHTML = lista.map(c => `
                 <div class="bg-white rounded-xl border-2 border-slate-300 shadow-sm p-5 flex flex-col justify-between space-y-4">
                     <div>
-                        <span class="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-700">${c.tipo_entidad || 'FEDERAL'} • ${c.jurisdiccion || ''}</span>
+                        <span class="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-900">${c.tipo_entidad || 'FEDERAL'}</span>
                         <h4 class="text-lg font-black text-slate-950 mt-1">${c.nombre_actual}</h4>
-                        <div class="mt-3 space-y-2 text-xs">
-                            <p class="p-2.5 bg-slate-50 rounded-lg border border-slate-300"><strong>📅 Última Actividad:</strong> ${c.ultima_actividad_osint || ''}</p>
-                            <p class="p-2.5 bg-amber-50 rounded-lg border border-amber-400 text-amber-950"><strong>📡 Estado de Redes:</strong> ${c.estado_redes_sociales || ''}</p>
-                        </div>
+                        <p class="text-xs text-slate-600 mt-2"><strong>Última Actividad:</strong> ${c.ultima_actividad_osint || ''}</p>
                     </div>
                     <button onclick="cargarRadiografiaClub('${c.nombre_actual}'); window.scrollTo({top: 0, behavior: 'smooth'});" class="bg-slate-900 text-white font-extrabold px-3 py-2 rounded-lg text-xs w-full">
-                        🔍 Inspeccionar en Card Interactiva WCAG
+                        🔍 Inspeccionar en Card WCAG
                     </button>
                 </div>`).join('');
         }
 
-        function seleccionarReclamo(codigoPlantilla, nombreEntidad = '') {
+        function filtrarTarjetasOSINT() {
+            const q = document.getElementById('buscador-osint').value.toLowerCase();
+            const filtradas = clubesFabaData.filter(c => c.nombre_actual.toLowerCase().includes(q));
+            renderizarTarjetasOSINT(filtradas);
+        }
+
+        function seleccionarReclamo(codigo, entidad = '') {
             cambiarTab('tab-becas');
-            if (nombreEntidad) {
-                const inputEntidad = document.getElementById('input-entidad-personalizada');
-                if (inputEntidad) inputEntidad.value = nombreEntidad;
-            }
+            if (entidad) document.getElementById('input-entidad-personalizada').value = entidad;
+        }
+
+        function generarEscritoLegal(tipo) {
+            const entidadCustom = document.getElementById('input-entidad-personalizada').value.trim() || "[INSTITUCIÓN]";
+            document.getElementById('texto-legal-generado').value = `OBJETO: SOLICITUD DE INFORMACIÓN\n\nA la entidad: ${entidadCustom}\n\nSolicito cumplimiento de transparencia conforme a normativa vigente.`;
+        }
+
+        function copiarTextoLegal() {
+            const area = document.getElementById('texto-legal-generado');
+            area.select();
+            document.execCommand('copy');
+            alert("✅ Documento copiado.");
         }
 
         function abrirModal(id) { const m = document.getElementById(id); if(m) m.classList.remove('hidden'); }
         function cerrarModal(id) { const m = document.getElementById(id); if(m) m.classList.add('hidden'); }
 
-        // ============================================================================
-        // INICIO Y CARGA ASINCRÓNICA FEDERAL DESDE SUPABASE
-        // ============================================================================
+        // CARGA DESDE SUPABASE AL INICIAR
         window.onload = async function() {
             renderizarBoletines(boletinesData);
             renderizarFuncionarios();
@@ -330,7 +531,6 @@
 
             if (supabaseClient) {
                 try {
-                    // Cargar TODOS los clubes del Padrón Federal sin filtros restrictivos
                     const { data: clu, error: errClu } = await supabaseClient.from('padron_clubes_faba').select('*');
                     const { data: nov } = await supabaseClient.from('osint_novedades_cancha').select('*').order('fecha_registro', { ascending: false }).limit(100);
 
@@ -341,12 +541,11 @@
                                 ...c,
                                 ultima_actividad_osint: ultimaNov ? ultimaNov.cita_textual : (c.ultima_actividad_osint || c.realidad_verificada_2026 || "Monitoreo federal activo"),
                                 perfil_skills_responsables: ultimaNov ? ultimaNov.analisis_ia_contradiccion : (c.perfil_skills_responsables || c.autoridad_actual || "Comisión Directiva"),
-                                enlace_evidencia_url: ultimaNov ? ultimaNov.url_evidencia : (c.enlace_evidencia_url || "https://www.facebook.com/fababasquetadaptado"),
-                                hash_evidencia: ultimaNov ? ultimaNov.hash_sha256 : (c.hash_evidencia || "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+                                enlace_evidencia_url: ultimaNov ? ultimaNov.url_evidencia : (c.enlace_evidencia_url || "#"),
+                                hash_evidencia: ultimaNov ? ultimaNov.hash_sha256 : (c.hash_evidencia || "e3b0c442...")
                             };
                         });
 
-                        // Alimentar el selector desplegable con todos los clubes del barrido federal
                         const selector = document.getElementById('selector-club-radiografia');
                         if (selector) {
                             selector.innerHTML = clubesFabaData.map(c =>
@@ -356,16 +555,15 @@
 
                         renderizarClubes('TODOS');
                         renderizarTarjetasOSINT(clubesFabaData);
-                        if (clubesFabaData.length > 0) {
-                            cargarRadiografiaClub(clubesFabaData[0].nombre_actual);
-                        }
-                        console.log(`✅ ¡Padrón Federal sincronizado con éxito! Total clubes: ${clubesFabaData.length}`);
+                        if (clubesFabaData.length > 0) cargarRadiografiaClub(clubesFabaData[0].nombre_actual);
                     }
                 } catch (e) {
-                    console.warn("Aviso de lectura en vivo desde Supabase:", e);
+                    console.warn("Aviso Supabase:", e);
                 }
             }
 
             if (window.lucide) window.lucide.createIcons();
         };
     </script>
+</body>
+</html>
