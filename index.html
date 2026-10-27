@@ -1319,7 +1319,7 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
         function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        window.onload = async function() {
+      window.onload = async function() {
             renderizarBoletines(boletinesData);
             renderizarFuncionarios();
             renderizarClubes('TODOS');
@@ -1334,12 +1334,12 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
                     const { data: bol } = await supabaseClient.from('hallazgos_oficiales').select('*').limit(50);
                     if (bol && bol.length > 0) { boletinesData = bol; renderizarBoletines(boletinesData); }
 
-                    // 2. Traer todos los Clubes del Padrón Federal + combinar con últimas alertas del Bot OSINT
-                    const { data: clu } = await supabaseClient.from('padron_clubes_faba').select('*').order('ultima_actualizacion', { ascending: false });
-                    const { data: nov } = await supabaseClient.from('osint_novedades_cancha').select('*').order('fecha_registro', { ascending: false }).limit(50);
+                    // 2. Traer TODOS los clubes federales desde Supabase sin límite estricto
+                    const { data: clu, error: errClu } = await supabaseClient.from('padron_clubes_faba').select('*');
+                    const { data: nov } = await supabaseClient.from('osint_novedades_cancha').select('*').order('fecha_registro', { ascending: false }).limit(100);
 
-                    if (clu && clu.length > 0) {
-                        // Enriquecer cada club con el último posteo y hash que haya encontrado test_bot.py
+                    if (!errClu && clu && clu.length > 0) {
+                        // Reemplazamos la lista estática por la lista completa que trajo Supabase del bot
                         clubesFabaData = clu.map(c => {
                             const ultimaNov = (nov || []).find(n =>
                                 n.club_id === c.id ||
@@ -1347,14 +1347,14 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
                             );
                             return {
                                 ...c,
-                                ultima_actividad_osint: ultimaNov ? ultimaNov.cita_textual : (c.ultima_actividad_osint || c.realidad_verificada_2026),
-                                perfil_skills_responsables: ultimaNov ? ultimaNov.analisis_ia_contradiccion : (c.perfil_skills_responsables || c.autoridad_actual),
+                                ultima_actividad_osint: ultimaNov ? ultimaNov.cita_textual : (c.ultima_actividad_osint || c.realidad_verificada_2026 || "Monitoreo federal activo"),
+                                perfil_skills_responsables: ultimaNov ? ultimaNov.analisis_ia_contradiccion : (c.perfil_skills_responsables || c.autoridad_actual || "Comisión Directiva"),
                                 enlace_evidencia_url: ultimaNov ? ultimaNov.url_evidencia : (c.enlace_evidencia_url || "https://www.facebook.com/fababasquetadaptado"),
-                                hash_evidencia: ultimaNov ? ultimaNov.hash_sha256 : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                                hash_evidencia: ultimaNov ? ultimaNov.hash_sha256 : (c.hash_evidencia || "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
                             };
                         });
 
-                        // Actualizar dinámicamente el menú desplegable amarillo con TODOS los clubes de la base de datos
+                        // Actualizar dinámicamente el selector de clubes y las vistas de la web
                         const selector = document.getElementById('selector-club-radiografia');
                         if (selector) {
                             selector.innerHTML = clubesFabaData.map(c =>
@@ -1364,10 +1364,13 @@ Solicito se informe los criterios de equidad, cupos de participación, acceso a 
 
                         renderizarClubes('TODOS');
                         renderizarTarjetasOSINT(clubesFabaData);
-                        cargarRadiografiaClub(clubesFabaData[0].nombre_actual);
+                        if (clubesFabaData.length > 0) {
+                            cargarRadiografiaClub(clubesFabaData[0].nombre_actual);
+                        }
+                        console.log(`✅ Padrón Federal cargado en la web: ${clubesFabaData.length} clubes sincronizados.`);
                     }
                 } catch (e) {
-                    console.warn("Error leyendo en vivo de Supabase:", e);
+                    console.warn("Aviso de sincronización con Supabase:", e);
                 }
             }
 
