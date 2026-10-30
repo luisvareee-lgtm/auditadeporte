@@ -72,6 +72,85 @@
         <!-- PESTAÑA 1: DASHBOARD ITG Y BUSCADOR DE BOLETINES (SHA-256)          -->
         <!-- =================================================================== -->
         <section id="tab-dashboard" class="space-y-6">
+            <!-- =============================================================== -->
+            <!-- MAPEO CIUDADANO PASO A PASO: LA RUTA DEL DINERO Y RECLAMO 1-CLIC -->
+            <!-- =============================================================== -->
+            <div class="bg-white p-6 rounded-2xl border-2 border-blue-600 shadow-md space-y-5">
+                <div class="flex flex-wrap justify-between items-center gap-4 border-b-2 border-slate-200 pb-4">
+                    <div>
+                        <span class="bg-blue-100 text-blue-900 border border-blue-700 text-xs font-extrabold px-2.5 py-1 rounded uppercase">
+                            Educación Cívica Accesible • Sin Jerga Contable
+                        </span>
+                        <h3 class="text-xl font-black text-slate-900 mt-1.5">
+                            🗺️ Mapa Paso a Paso: ¿Cómo funciona el sistema y dónde se traba la plata de tu equipo?
+                        </h3>
+                        <p class="text-xs text-slate-600 mt-0.5">
+                            Tocá cada etapa del circuito para entender qué dice el papel oficial, qué pasa en la cancha y cómo destrabarlo desde tu casa con 1 clic:
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FLUJO VISUAL DE 4 ETAPAS (EL CAMINO DE LOS RECURSOS) -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                    
+                    <!-- PASO 1 -->
+                    <div class="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="bg-slate-900 text-white font-black px-2.5 py-1 rounded text-[11px]">PASO 1 • EL PRESUPUESTO</span>
+                            <h4 class="font-black text-slate-950 text-sm mt-2">🏛️ Se aprueba la partida (RAFAM / Parcial 517)</h4>
+                            <p class="text-slate-700 mt-1.5 leading-relaxed">
+                                Todos los años el Municipio y Nación aprueban dinero específico para <strong>Repuestos de Sillas (Inciso 2)</strong>, <strong>Micros (Inciso 3)</strong> y <strong>Becas (Inciso 5)</strong>.
+                            </p>
+                        </div>
+                        <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-blue-950 font-semibold">
+                            🤖 <strong>Qué hace nuestro Bot:</strong> Escanea los PDFs de los Boletines Oficiales para ver cuánto dinero se aprobó realmente.
+                        </div>
+                    </div>
+
+                    <!-- PASO 2 -->
+                    <div class="p-4 rounded-xl bg-amber-50 border-2 border-amber-400 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="bg-amber-800 text-white font-black px-2.5 py-1 rounded text-[11px]">PASO 2 • EL CUELLO DE BOTELLA</span>
+                            <h4 class="font-black text-amber-950 text-sm mt-2">⚠️ El dinero queda en la burocracia o no se ejecuta</h4>
+                            <p class="text-amber-950 mt-1.5 leading-relaxed">
+                                Al no haber control ciudadano, el área de deportes no licita las cubiertas o las ONGs no muestran sus balances. <strong>El gasto cae sobre el bolsillo del jugador.</strong>
+                            </p>
+                        </div>
+                        <div class="p-2.5 bg-white border border-amber-300 rounded-lg text-amber-950 font-semibold">
+                            🕵️‍♂️ <strong>Qué hace nuestro Bot:</strong> Cruza las rifas y pedidos de auxilio en redes contra la falta de decretos y baja el puntaje del Semáforo ITG.
+                        </div>
+                    </div>
+
+                    <!-- PASO 3 -->
+                    <div class="p-4 rounded-xl bg-blue-50 border-2 border-blue-400 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="bg-blue-700 text-white font-black px-2.5 py-1 rounded text-[11px]">PASO 3 • GESTIÓN SIN SALIR DE CASA</span>
+                            <h4 class="font-black text-blue-950 text-sm mt-2">⚡ Reclamo Automatizado y Protegido (Ley 25.326)</h4>
+                            <p class="text-blue-950 mt-1.5 leading-relaxed">
+                                No tenés que ir a la municipalidad ni pagar un abogado. El sistema arma el expediente con pruebas criptográficas <strong>SHA-256</strong> y protege tu nombre.
+                            </p>
+                        </div>
+                        <button onclick="despacharGestionSinSalirDeCasa('RECLAMO_OFICIAL')" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-extrabold py-2.5 px-3 rounded-lg shadow transition">
+                            📨 Enviar Pedido Oficial a 1 Clic
+                        </button>
+                    </div>
+
+                    <!-- PASO 4 -->
+                    <div class="p-4 rounded-xl bg-emerald-50 border-2 border-emerald-500 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="bg-emerald-800 text-white font-black px-2.5 py-1 rounded text-[11px]">PASO 4 • SOLUCIÓN PRIVADA RSE</span>
+                            <h4 class="font-black text-emerald-950 text-sm mt-2">🤝 Una Empresa Paga Directo al Proveedor</h4>
+                            <p class="text-emerald-950 mt-1.5 leading-relaxed">
+                                Mientras el Estado demora, una empresa privada compra las cubiertas 27" o los buzos directo en la ortopedia/textil (con Factura A) a cambio de su logo en tus ruedas.
+                            </p>
+                        </div>
+                        <button onclick="cambiarTab('tab-rse')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-2.5 px-3 rounded-lg shadow transition">
+                            🛞 Abrir Licitación Privada RSE
+                        </button>
+                    </div>
+
+                </div>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm">
                     <span class="text-xs font-bold uppercase text-slate-600">ITG Almirante Brown</span>
