@@ -22,7 +22,5 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
-          python orquestador_bots_audita.py
-        run: |
           ls -la
-          python test_bot.py
+          python orquestador_bots_audita.py
