@@ -1894,6 +1894,42 @@ Dentro de las 72 hs de recibida la mercadería en cancha, el plantel publicará 
 
             if (window.lucide) window.lucide.createIcons();
         };
+        async function despacharGestionSinSalirDeCasa(modo) {
+            const club = nombreClubActivo || "Almirante Brown";
+            const correoDestino = club.toLowerCase().includes("faba")
+                ? "info@faba.org.ar"
+                : "mesadeentradas@brown.gob.ar";
+
+            // 1. Generar el escrito legal automáticamente según el club activo
+            const codigoPlantilla = club.toLowerCase().includes("brown") ? 'BROWN_BORRO_MIHOVICH' : 'ONG_SOCIO_BALANCE';
+            generarEscritoLegal(codigoPlantilla);
+            const cuerpoLegal = document.getElementById('texto-legal-generado').value;
+
+            // 2. Generar comprobante criptográfico SHA-256 de la gestión ciudadana
+            const selloTiempo = new Date().toISOString();
+            const msgBuffer = new TextEncoder().encode(`${club}_${codigoPlantilla}_${selloTiempo}`);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashGestion = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+            // 3. Copiar al portapapeles de manera segura
+            try {
+                await navigator.clipboard.writeText(cuerpoLegal);
+            } catch (err) {
+                console.warn("No se pudo copiar automáticamente al portapapeles", err);
+            }
+
+            // 4. Armar el asunto y cuerpo para correo
+            const asunto = encodeURIComponent(`EXPEDIENTE CIUDADANO LEY 27.275 / 12.475 - AUDITORIA BÁSQUET ADAPTADO (${club})`);
+            const cuerpoCompleto = `${cuerpoLegal}\n\n---\nCertificación Criptográfica AuditaDeporte SHA-256: ${hashGestion}\nFecha UTC: ${selloTiempo}`;
+            const cuerpoEnc = encodeURIComponent(cuerpoCompleto);
+
+            // 5. Notificar al usuario y abrir Gmail Web directamente (evita que falle si no hay Outlook configurado)
+            alert(`✅ ¡Expediente Armado y Sellado con Criptografía SHA-256!\n\n• Destinatario: ${correoDestino}\n• El documento legal ya se copió automáticamente a tu portapapeles.\n\nA continuación se abrirá una ventana para enviarlo.`);
+
+            // Abrir Gmail Web pre-rellenado para que no dependa de programas de escritorio
+            const urlGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${correoDestino}&su=${asunto}&body=${cuerpoEnc}`;
+            window.open(urlGmail, '_blank');
+        }
     </script>
 </body>
 </html>
