@@ -1,15 +1,15 @@
-name: Ejecucion Diaria de Bots de Auditoria
+name: Bots Auditoria Federal BSR
 
 on:
   schedule:
-  - cron: '0 3 * * *'
-  workflow_dispatch:
+    - cron: '0 9 * * *' # Corre todos los días a las 06:00 AM Argentina
+  workflow_dispatch:     # Permite ejecutarlo manualmente con 1 clic en GitHub
 
 jobs:
-  run-bots:
+  ejecutar-bots-osint:
     runs-on: ubuntu-latest
     steps:
-      - name: Descargar codigo del repositorio
+      - name: Descargar código del repositorio
         uses: actions/checkout@v4
 
       - name: Configurar Python 3.11
@@ -17,15 +17,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instalar Supabase
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests supabase
-
-      - name: Verificar archivos y Ejecutar Barrido Federal de Auditoria
+      - name: Ejecutar Orquestador de Bots (Padrón BSR + PDFs + SHA-256)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          python orquestador_bots_audita.py
         run: |
           ls -la
           python test_bot.py
