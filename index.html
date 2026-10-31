@@ -830,13 +830,24 @@
             actualizarMarcadoresMapa();
         }
 
-        function cambiarCapaMapa(modo) {
+       function cambiarCapaMapa(modo) {
             if (!mapaLeaflet) return;
             if (capaActualTiles) mapaLeaflet.removeLayer(capaActualTiles);
-            const url = modo === 'SATELITE'
-                ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-                : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-            capaActualTiles = L.tileLayer(url, { maxZoom: 18 }).addTo(mapaLeaflet);
+
+            let urlTiles = '';
+            let atribucion = '';
+
+            if (modo === 'SATELITE') {
+                // Capa satelital de alta resolución (Esri)
+                urlTiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+                atribucion = 'Tiles &copy; Esri World Imagery HD';
+            } else {
+                // Capa de radar/oscura alternativa 100% libre de API Key (OpenStreetMap Standard / Positron)
+                urlTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                atribucion = '&copy; OpenStreetMap contributors';
+            }
+
+            capaActualTiles = L.tileLayer(urlTiles, { attribution: atribucion, maxZoom: 18 }).addTo(mapaLeaflet);
         }
 
         function volarARegion(lat, lng, zoom) {
