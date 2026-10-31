@@ -356,9 +356,10 @@
 
 <script>
 /* ============ CONFIGURACIÓN ============ */
+// Pegá acá tu Project URL y tu clave pública "anon" de Supabase (Project Settings -> API)
 const CONFIG = {
-  SUPABASE_URL: "",        // Ej.: https://xxxx.supabase.co
-  SUPABASE_ANON_KEY: "",   // clave pública "anon" (nunca la service_role)
+  SUPABASE_URL: "",        // Ej.: "https://xxxx.supabase.co"
+  SUPABASE_ANON_KEY: "",   // Ej.: "eyJhbGciOiJIUzI1NiIsInR5cCI6..." (clave pública anon)
   CONTACT_EMAIL: ""        // Correo del proyecto, para el botón de patrocinio
 };
 
@@ -373,7 +374,42 @@ function toast(msg) {
   d.className = 'bg-slate-900 text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-lg border border-slate-600';
   d.textContent = msg; $('#toasts').appendChild(d); setTimeout(() => d.remove(), 3500);
 }
-  
+
+/* ============ DATOS LOCALES DE RESPALDO (27 CLUBES) ============ */
+const CLUBES_LOCALES = [
+  { id:"jujuy-basquet", nombre:"Jujuy Básquet", ciudad:"San Salvador de Jujuy", prov:"Jujuy", lat:-24.185, lng:-65.299, division:"Desarrollo", tipo:"Asociación civil" },
+  { id:"fudituc", nombre:"Fu.Di.Tuc", ciudad:"San Miguel de Tucumán", prov:"Tucumán", lat:-26.824, lng:-65.217, division:"3ra División", tipo:"Fundación" },
+  { id:"uncuyo", nombre:"UNCuyo Básquet Adaptado", ciudad:"Mendoza", prov:"Mendoza", lat:-32.889, lng:-68.844, division:"2da División", tipo:"Universitario" },
+  { id:"dimot", nombre:"DIMOT", ciudad:"Godoy Cruz", prov:"Mendoza", lat:-32.895, lng:-68.828, division:"2da División", tipo:"Asociación civil" },
+  { id:"cef-17", nombre:"CEF N° 17", ciudad:"Corrientes", prov:"Corrientes", lat:-27.469, lng:-58.834, division:"Desarrollo", tipo:"Estatal provincial" },
+  { id:"cripal", nombre:"CRIPAL", ciudad:"Cipolletti", prov:"Río Negro", lat:-39.034, lng:-67.591, division:"2da División", tipo:"Asociación civil" },
+  { id:"brown", nombre:"Instituto Municipal del Deporte Almirante Brown", ciudad:"Almirante Brown", prov:"Buenos Aires", lat:-34.832, lng:-58.385, division:"1ra División", tipo:"Municipal" },
+  { id:"cilsa-sf", nombre:"CILSA Santa Fe", ciudad:"Santa Fe", prov:"Santa Fe", lat:-31.648, lng:-60.708, division:"1ra División", tipo:"Asociación civil", instagram:"cilsaong" },
+  { id:"cilsa-boca", nombre:"CILSA Boca Juniors", ciudad:"CABA", prov:"CABA", lat:-34.635, lng:-58.364, division:"1ra División", tipo:"Convenio con club", instagram:"cilsaong" },
+  { id:"cedima", nombre:"CEDIMA", ciudad:"San Justo", prov:"Buenos Aires", lat:-34.678, lng:-58.561, division:"1ra División", tipo:"Asociación civil", instagram:"cedima.oficial" },
+  { id:"crigal", nombre:"CRIGAL", ciudad:"Río Gallegos", prov:"Santa Cruz", lat:-51.623, lng:-69.216, division:"1ra División", tipo:"Asociación civil", facebook:"crigalbasquetadaptado" },
+  { id:"sica", nombre:"SICA / Poeta Lugones", ciudad:"Córdoba", prov:"Córdoba", lat:-31.368, lng:-64.212, division:"1ra División", tipo:"Asociación civil", instagram:"sicabasquetadaptado",
+    nota:"No participó de la competencia 2026. Su continuidad se confirmará más adelante (informado por el equipo del proyecto)." },
+  { id:"duba", nombre:"DUBA", ciudad:"Bahía Blanca", prov:"Buenos Aires", lat:-38.718, lng:-62.266, division:"1ra División", tipo:"Asociación civil", instagram:"dubabahiablanca" },
+  { id:"adu", nombre:"ADU San Fernando", ciudad:"San Fernando", prov:"Buenos Aires", lat:-34.442, lng:-58.558, division:"2da División", tipo:"Asociación civil" },
+  { id:"cideli", nombre:"CIDELI", ciudad:"Mar del Plata", prov:"Buenos Aires", lat:-38.005, lng:-57.542, division:"2da División", tipo:"Asociación civil", instagram:"cidelimdp" },
+  { id:"malagueno", nombre:"Deportivo Malagueño", ciudad:"Malagueño", prov:"Córdoba", lat:-31.465, lng:-64.355, division:"1ra División", tipo:"Municipal" },
+  { id:"alta-gracia", nombre:"Brown de Alta Gracia", ciudad:"Alta Gracia", prov:"Córdoba", lat:-31.658, lng:-64.432, division:"1ra División", tipo:"Asociación civil" },
+  { id:"crol", nombre:"CROL", ciudad:"Rosario", prov:"Santa Fe", lat:-32.948, lng:-60.652, division:"2da División", tipo:"Asociación civil" },
+  { id:"criplap", nombre:"CRIPLaP", ciudad:"La Plata", prov:"Buenos Aires", lat:-34.921, lng:-57.954, division:"3ra División", tipo:"Asociación civil" },
+  { id:"muni-ensenada", nombre:"Municipalidad de Ensenada", ciudad:"Ensenada", prov:"Buenos Aires", lat:-34.867, lng:-57.912, division:"2da División", tipo:"Municipal", instagram:"prensaensenada" },
+  { id:"muni-berazategui", nombre:"Municipalidad de Berazategui", ciudad:"Berazategui", prov:"Buenos Aires", lat:-34.763, lng:-58.211, division:"3ra División", tipo:"Municipal" },
+  { id:"muni-avellaneda", nombre:"Municipalidad de Avellaneda", ciudad:"Avellaneda", prov:"Buenos Aires", lat:-34.662, lng:-58.365, division:"3ra División", tipo:"Municipal" },
+  { id:"river-plate", nombre:"Club Atlético River Plate", ciudad:"CABA", prov:"CABA", lat:-34.545, lng:-58.449, division:"1ra División", tipo:"Convenio con club",
+    nota:"Programa dado de baja en 2019 (confirmado por el equipo del proyecto; falta documento público que lo respalde). Puede seguir apareciendo en listados antiguos." },
+  { id:"prodea", nombre:"PRODEA", ciudad:"Paraná", prov:"Entre Ríos", lat:-31.731, lng:-60.528, division:"2da División", tipo:"Asociación civil" },
+  { id:"sol-lago", nombre:"SOL Y LAGO", ciudad:"Río Tercero", prov:"Córdoba", lat:-32.176, lng:-64.113, division:"2da División", tipo:"Asociación civil" },
+  { id:"apri", nombre:"APRI / Selección Litoral", ciudad:"Litoral", prov:"Santa Fe", lat:-32.948, lng:-60.652, division:"Desarrollo", tipo:"Asociación civil" },
+  { id:"echeverria", nombre:"Escuela Municipal Echeverría", ciudad:"Esteban Echeverría", prov:"Buenos Aires", lat:-34.821, lng:-58.465, division:"Desarrollo", tipo:"Municipal" }
+].map(c => ({ id: c.id || slug(c.nombre), logo: "", rev: {}, ...c }));
+
+let CLUBES = [...CLUBES_LOCALES];
+
 const CRITERIOS = [
   { k:'balance', t:'Balance o memoria anual' },
   { k:'autoridades', t:'Autoridades vigentes' },
@@ -459,7 +495,7 @@ function pintarMarcadores() {
   if (!cluster) return;
   cluster.clearLayers();
   filtrados().forEach(c => {
-    const m = L.marker([c.lat, c.lng], {
+    const m = L.marker([Number(c.lat), Number(c.lng)], {
       icon: L.divIcon({ html: pinEl(c), className: '', iconSize: [44, 44], iconAnchor: [22, 22] }),
       title: c.nombre, keyboard: true
     });
@@ -598,10 +634,13 @@ async function enviarDato(ev) {
   if (tipo === 'replica' && !$('#d-contacto').value.trim()) { est.textContent = 'Para la réplica necesitamos un contacto.'; est.classList.add('text-rose-700'); return; }
   const ultimo = Number(localStorage.getItem('ad_ultimo_envio') || 0);
   if (Date.now() - ultimo < 60000) { est.textContent = 'Esperá un minuto antes de enviar otro mensaje.'; est.classList.add('text-rose-700'); return; }
-  if (!sb) { est.textContent = 'El canal todavía no está activado en esta versión. Configurá Supabase para habilitarlo.'; est.classList.add('text-amber-800'); return; }
+  if (!sb) { est.textContent = 'El canal todavía no está activado en esta versión. Configurá SUPABASE_URL y SUPABASE_ANON_KEY en CONFIG.'; est.classList.add('text-amber-800'); return; }
   $('#d-enviar').disabled = true; est.textContent = 'Enviando…';
   const fila = {
-    tipo, club_id: $('#d-club').value || null, texto, url: url || null,
+    tipo,
+    club_slug: $('#d-club').value || null,
+    texto,
+    url: url || null,
     contacto: tipo === 'replica' ? $('#d-contacto').value.trim() : null
   };
   const { error } = await sb.from('tips').insert(fila, { returning: 'minimal' });
@@ -649,7 +688,7 @@ document.addEventListener('click', e => {
   const act = a.dataset.action;
   if (act === 'capa') setCapa(a.dataset.capa);
   else if (act === 'volar') map && map.flyTo([+a.dataset.lat, +a.dataset.lng], +a.dataset.z, { duration: 1.1 });
-  else if (act === 'club') { const c = CLUBES.find(x => x.id === a.dataset.id); if (c && map && !$('#s-mapa').classList.contains('hidden')) map.flyTo([c.lat, c.lng], 11, { duration: 1 }); abrirClub(a.dataset.id); }
+  else if (act === 'club') { const c = CLUBES.find(x => x.id === a.dataset.id); if (c && map && !$('#s-mapa').classList.contains('hidden')) map.flyTo([Number(c.lat), Number(c.lng)], 11, { duration: 1 }); abrirClub(a.dataset.id); }
   else if (act === 'abrir') $('#' + a.dataset.dialog).showModal();
   else if (act === 'cerrar') a.closest('dialog').close();
   else if (act === 'copiar') { const t = $('#' + a.dataset.target); t.select(); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.resolve(document.execCommand('copy'))).then(() => toast('Texto copiado')); }
@@ -660,7 +699,7 @@ document.addEventListener('click', e => {
   }
 });
 $$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
-$('#club-pedir').onclick = () => { $('#dlg-club').close(); const c = clubActivo; $('#p-tipo').value = /Municipal|Estatal/.test(c.tipo) ? 'municipio' : 'club'; $('#p-entidad').value = c.nombre; armarPedido(); showTab('pedir'); };
+$('#club-pedir').onclick = () => { $('#dlg-club').close(); const c = clubActivo; $('#p-tipo').value = /Municipal|Estatal/i.test(c.tipo) ? 'municipio' : 'club'; $('#p-entidad').value = c.nombre; armarPedido(); showTab('pedir'); };
 $('#club-dato').onclick = () => { $('#dlg-club').close(); $('#d-club').value = clubActivo.id; showTab('dato'); };
 $('#club-rse').onclick = () => { $('#dlg-club').close(); showTab('rse'); };
 $('#buscador').addEventListener('input', () => { refrescar(); });
@@ -671,77 +710,61 @@ $('#form-dato').addEventListener('submit', enviarDato);
 $('#d-texto').addEventListener('input', e => { $('#d-count').textContent = e.target.value.length + ' / 2000'; });
 $('#d-tipo').addEventListener('change', e => $('#d-contacto-wrap').classList.toggle('hidden', e.target.value !== 'replica'));
 
-/* ============ DATOS (Dinámicos desde Supabase) ============ */
-let CLUBES = [];
-
-// ... Mantené intactos CRITERIOS, INSTITUCIONES y PLIEGOS ...
-
 /* ============ ARRANQUE Y CONEXIÓN A SUPABASE ============ */
+const MAPA_DIVISION = { '1ra':'1ra División', '2da':'2da División', '3ra':'3ra División', 'desarrollo':'Desarrollo' };
+const MAPA_TIPO = {
+  'asociacion_civil':'Asociación civil',
+  'fundacion':'Fundación',
+  'municipal':'Municipal',
+  'estatal_provincial':'Estatal provincial',
+  'universitario':'Universitario',
+  'convenio_club':'Convenio con club'
+};
+
 window.addEventListener('DOMContentLoaded', async () => {
-  // 1. Mostrar estado de carga en el directorio
-  const dirContenedor = document.getElementById('dir');
-  if(dirContenedor) dirContenedor.innerHTML = '<p class="p-4 text-sm text-slate-500 font-bold animate-pulse">Cargando mapa federal desde Supabase...</p>';
-  
-  // 2. Fetch dinámico desde la vista de Supabase
+  // 1. Si configuraste SUPABASE_URL y SUPABASE_ANON_KEY, actualiza desde Supabase; si no, usa los 27 clubes locales
   if (sb) {
     try {
       const { data, error } = await sb.from('v_clubes_resumen').select('*');
-      if (error) throw error;
-      
-      if (data && data.length > 0) {
-        // Mapear los datos de la DB al formato que espera la UI
+      if (!error && data && data.length > 0) {
         CLUBES = data.map(d => ({
           id: d.slug,
           nombre: d.nombre,
           ciudad: d.ciudad,
           prov: d.provincia,
-          lat: d.lat,
-          lng: d.lng,
-          division: d.division === '1ra' ? '1ra División' : d.division === '2da' ? '2da División' : d.division === '3ra' ? '3ra División' : 'Desarrollo',
-          tipo: d.tipo_entidad.replace(/_/g, ' '),
+          lat: Number(d.lat),
+          lng: Number(d.lng),
+          division: MAPA_DIVISION[d.division] || d.division || 'Desarrollo',
+          tipo: MAPA_TIPO[d.tipo_entidad] || d.tipo_entidad || 'Asociación civil',
           logo: d.logo_url || "",
           instagram: d.instagram || "",
           facebook: d.facebook || "",
           nota: d.estado_nota || "",
-          rev: {} // Dejamos el objeto vacío para que no se rompa la tabla de auditoría
+          rev: {}
         }));
       }
     } catch (err) {
-      console.error("Error conectando a Supabase:", err);
-      toast("Error de conexión. Mostrando mapa vacío.");
+      console.warn("Usando padrón local de respaldo:", err);
     }
-  } else {
-    toast("No hay cliente Supabase configurado (Faltan credenciales).");
   }
 
-  // 3. Inicializar la UI con los datos ya cargados
-  const selectClub = document.getElementById('d-club');
-  if (selectClub) {
-    selectClub.innerHTML = '<option value="">— General / varias entidades —</option>' + 
-      CLUBES.map(c => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join('') + 
-      INSTITUCIONES.map(i => `<option value="${esc(slug(i.sigla))}">${esc(i.sigla)}</option>`).join('');
-  }
-  
-  const datalistEntidades = document.getElementById('lista-entidades');
-  if (datalistEntidades) {
-    datalistEntidades.innerHTML = CLUBES.map(c => `<option value="${esc(c.nombre)}">`).join('') + 
-      INSTITUCIONES.map(i => `<option value="${esc(i.sigla)}">`).join('');
-  }
-  
-  if(typeof renderInst === 'function') renderInst(); 
-  if(typeof renderRSE === 'function') renderRSE(); 
-  if(typeof renderDirectorio === 'function') renderDirectorio(); 
-  if(typeof renderTransp === 'function') renderTransp(); 
-  if(typeof armarPedido === 'function') armarPedido();
-  if(typeof iniciarMapa === 'function') iniciarMapa();
-  
+  // 2. Poblar selectores y renderizar toda la interfaz
+  const opts = '<option value="">— General / varias entidades —</option>' +
+    CLUBES.map(c => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join('') +
+    INSTITUCIONES.map(i => `<option value="${esc(slug(i.sigla))}">${esc(i.sigla)}</option>`).join('');
+  $('#d-club').innerHTML = opts;
+  $('#lista-entidades').innerHTML = CLUBES.map(c => `<option value="${esc(c.nombre)}">`).join('') +
+    INSTITUCIONES.map(i => `<option value="${esc(i.sigla)}">`).join('');
+
+  renderInst();
+  renderRSE();
+  renderDirectorio();
+  renderTransp();
+  armarPedido();
+  iniciarMapa();
   showTab((location.hash || '#mapa').slice(1), false);
   if (window.lucide) lucide.createIcons();
 });
 </script>
-</body>
-</html>
-
-    </script>
 </body>
 </html>
