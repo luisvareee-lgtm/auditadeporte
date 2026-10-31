@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuditaDeporte — Mapa Federal 3D, Auditoría Ciudadana y Patrocinio RSE</title>
+    <title>AuditaDeporte — Mapa Federal, Auditoría Ciudadana y Patrocinio RSE</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Leaflet Cartografía Interactiva CSS & JS -->
@@ -15,21 +15,9 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .tab-active { border-bottom: 4px solid #2563eb; color: #1e40af; font-weight: 900; background-color: #eff6ff; }
-        .mapa-wrapper {
-            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-            overflow: hidden;
-        }
-        #mapa-federal-3d {
-            width: 100%;
-            height: 600px;
-            z-index: 10;
-        }
-        .leaflet-popup-content-wrapper {
-            background: #0f172a !important;
-            color: #f8fafc !important;
-            border: 2px solid #38bdf8;
-            border-radius: 16px !important;
-        }
+        .mapa-wrapper { background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); overflow: hidden; }
+        #mapa-federal-3d { width: 100%; height: 600px; z-index: 10; }
+        .leaflet-popup-content-wrapper { background: #0f172a !important; color: #f8fafc !important; border: 2px solid #38bdf8; border-radius: 16px !important; }
         .leaflet-popup-tip { background: #38bdf8 !important; }
     </style>
 </head>
@@ -56,9 +44,8 @@
                 </div>
             </div>
 
-            <!-- BUSCADOR GLOBAL -->
             <div class="flex-1 max-w-md mx-auto w-full">
-                <input type="text" id="buscador-global-club" onkeyup="busquedaRapidaClub(this.value)" placeholder="🔍 Buscar club, provincia, directivo o DT (Ej: CILSA, Brown, CRIGAL, ADU)..." class="w-full bg-slate-900 border-2 border-slate-700 focus:border-amber-400 text-white text-xs rounded-xl px-4 py-2.5 focus:outline-none">
+                <input type="text" id="buscador-global-club" onkeyup="busquedaRapidaClub(this.value)" placeholder="🔍 Buscar club, provincia, directivo o DT (Ej: Jujuy Básquet, DIMOT, CRIPAL, Corrientes)..." class="w-full bg-slate-900 border-2 border-slate-700 focus:border-amber-400 text-white text-xs rounded-xl px-4 py-2.5 focus:outline-none">
             </div>
 
             <div class="flex items-center gap-2 text-xs">
@@ -68,11 +55,10 @@
             </div>
         </div>
 
-        <!-- NAVEGACIÓN -->
         <nav class="bg-white text-slate-700 border-b border-slate-300">
             <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto text-xs md:text-sm">
                 <button onclick="cambiarTab('tab-mapa-clubes')" id="btn-tab-mapa-clubes" class="tab-active px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700 font-extrabold">
-                    🗺️ 1. Mapa Interactivo y Clubes (1ra, 2da y 3ra Div.)
+                    🗺️ 1. Mapa Interactivo y Clubes (23 Federados)
                 </button>
                 <button onclick="cambiarTab('tab-hallazgos')" id="btn-tab-hallazgos" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700 font-bold">
                     📰 2. Lo que tenés que saber (Auditoría por Club)
@@ -92,24 +78,21 @@
 
     <main class="max-w-7xl mx-auto px-4 py-6 space-y-8">
 
-        <!-- =================================================================== -->
-        <!-- PESTAÑA 1: MAPA INTERACTIVO + DIRECTORIO DE CLUBES                  -->
-        <!-- =================================================================== -->
+        <!-- PESTAÑA 1 -->
         <section id="tab-mapa-clubes" class="space-y-6">
-
             <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-6 rounded-2xl border-2 border-blue-600 shadow-lg">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
                     <div class="lg:col-span-8 space-y-2">
                         <span class="bg-emerald-400 text-slate-950 text-[11px] font-black px-2.5 py-0.5 rounded uppercase">
-                            Observatorio Cívico • Trazabilidad y Gestión sin Salir de Casa
+                            Observatorio Cívico • Padrón Ampliado 2026 (Jujuy Básquet, DIMOT, Fu.Di.Tuc, CEF 17, CRIPAL)
                         </span>
                         <h2 class="text-xl md:text-2xl font-black leading-tight">
-                            Navegá el mapa interactivo o seleccioná cualquier club para ver las caras de sus directivos y DT, su presente deportivo, qué pasa con las sillas a medida y cómo aportar datos o reclamos anónimos.
+                            Navegá el mapa interactivo de todo el país para ver las caras de sus directivos, su presente deportivo, qué pasa con las sillas a medida y cómo aportar datos o reclamos anónimos.
                         </h2>
                     </div>
                     <div class="lg:col-span-4 grid grid-cols-2 gap-3 text-center text-xs">
                         <div class="bg-slate-800/90 p-3 rounded-xl border border-slate-700">
-                            <span class="text-2xl font-black text-amber-400 block" id="stat-total-clubes">17</span>
+                            <span class="text-2xl font-black text-amber-400 block" id="stat-total-clubes">23</span>
                             <span class="text-slate-300 font-bold text-[11px]">Clubes Federados</span>
                         </div>
                         <div class="bg-emerald-950/90 p-3 rounded-xl border border-emerald-500">
@@ -122,14 +105,12 @@
 
             <!-- MAPA + DIRECTORIO -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <!-- MAPA LEAFLET (7 COLS) -->
                 <div class="lg:col-span-7 bg-slate-950 text-white rounded-3xl border-2 border-slate-700 shadow-2xl overflow-hidden flex flex-col justify-between">
                     <div class="p-4 bg-slate-900 border-b border-slate-800 space-y-3">
                         <div class="flex flex-wrap justify-between items-center gap-2">
                             <div>
                                 <span class="text-[10px] uppercase tracking-wider text-sky-400 font-extrabold block">Cartografía Nacional 100% Operativa</span>
-                                <h3 class="text-base md:text-lg font-black">🗺️ Mapa Federal de Clubes FABA</h3>
+                                <h3 class="text-base md:text-lg font-black">🗺️ Mapa Federal de Clubes (23 Entidades)</h3>
                             </div>
                             <div class="flex gap-2 text-xs">
                                 <button onclick="cambiarCapaMapa('OSCURO')" class="bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-600 px-3 py-1.5 rounded-lg font-bold">🌙 Radar</button>
@@ -140,11 +121,11 @@
                         <!-- Vuelo Rápido por Región -->
                         <div class="flex flex-wrap gap-1.5 text-[11px] font-extrabold">
                             <button onclick="volarARegion(-38.4, -63.6, 4)" class="bg-amber-400 text-slate-950 px-2.5 py-1 rounded-lg">🇦🇷 Todo el País</button>
-                            <button onclick="volarARegion(-34.8, -58.3, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 PBA Sur</button>
-                            <button onclick="volarARegion(-34.6, -58.4, 11)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 CABA</button>
-                            <button onclick="volarARegion(-31.4, -64.1, 9)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Córdoba</button>
-                            <button onclick="volarARegion(-31.6, -60.7, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Santa Fe</button>
-                            <button onclick="volarARegion(-51.6, -69.2, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Santa Cruz (CRIGAL)</button>
+                            <button onclick="volarARegion(-24.18, -65.29, 9)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Jujuy Básquet</button>
+                            <button onclick="volarARegion(-26.82, -65.21, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Tucumán (Fu.Di.Tuc)</button>
+                            <button onclick="volarARegion(-32.88, -68.84, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Mendoza (UNCuyo / DIMOT)</button>
+                            <button onclick="volarARegion(-27.46, -58.83, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Corrientes (CEF 17)</button>
+                            <button onclick="volarARegion(-39.03, -67.59, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Río Negro (CRIPAL)</button>
                         </div>
                     </div>
 
@@ -153,25 +134,24 @@
                     </div>
 
                     <div class="p-3 bg-slate-900 border-t border-slate-800 flex justify-between items-center text-xs">
-                        <span class="text-slate-300">💡 Hacé zoom o tocá cualquier marcador para abrir la Ficha del Club.</span>
+                        <span class="text-slate-300">💡 Hacé zoom o tocá cualquier marcador para abrir su Ficha.</span>
                         <button onclick="abrirModal('modal-club')" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-3 py-1.5 rounded-xl">
                             ➕ Sumar Club
                         </button>
                     </div>
                 </div>
 
-                <!-- DIRECTORIO (5 COLS) -->
+                <!-- DIRECTORIO -->
                 <div class="lg:col-span-5 space-y-3">
                     <div class="bg-white p-4 rounded-2xl border-2 border-slate-300">
-                        <h3 class="text-base font-black text-slate-950">🏀 Perfiles de Clubes Federados</h3>
-                        <p class="text-xs text-slate-600">Retratos de directivos, DT y semáforo presupuestario.</p>
+                        <h3 class="text-base font-black text-slate-950">🏀 Perfiles de Clubes Federados (23)</h3>
+                        <p class="text-xs text-slate-600">Incluye Jujuy Básquet, Tucumán, Mendoza, Corrientes y Río Negro.</p>
                     </div>
                     <div id="grilla-perfiles-clubes" class="grid grid-cols-1 gap-3 max-h-[660px] overflow-y-auto pr-1"></div>
                 </div>
-
             </div>
 
-            <!-- FICHA INTEGRAL DEL CLUB -->
+            <!-- FICHA INTEGRAL -->
             <article id="ficha-integral-club" class="bg-white rounded-3xl border-4 border-blue-700 shadow-2xl overflow-hidden scroll-mt-24">
                 <header class="bg-slate-900 text-white p-6 md:p-8 border-b-2 border-slate-700">
                     <div class="flex flex-wrap justify-between items-start gap-4">
@@ -179,21 +159,20 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 <span id="ficha-division" class="bg-amber-400 text-slate-950 text-xs font-black px-3 py-1 rounded-full uppercase">1ra División</span>
                                 <span id="ficha-tipo-entidad" class="bg-blue-700 text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase">MUNICIPAL</span>
-                                <span id="ficha-ubicacion" class="text-slate-300 text-xs font-bold">📍 Almirante Brown</span>
+                                <span id="ficha-ubicacion" class="text-slate-300 text-xs font-bold">📍 Jujuy</span>
                             </div>
-                            <h2 id="ficha-nombre-club" class="text-2xl md:text-4xl font-black text-white">Instituto Municipal Alte. Brown</h2>
+                            <h2 id="ficha-nombre-club" class="text-2xl md:text-4xl font-black text-white">Jujuy Básquet</h2>
                             <p id="ficha-historia-breve" class="text-xs md:text-sm text-slate-300 leading-relaxed"></p>
                         </div>
                         <div class="bg-slate-800 border-2 border-slate-600 p-4 rounded-2xl text-center min-w-[215px]">
                             <span class="text-[10px] uppercase font-extrabold text-slate-300 block">Índice de Transparencia (ITG)</span>
-                            <span id="ficha-itg-numero" class="text-3xl font-black text-red-400 block mt-1">15 / 100</span>
-                            <span id="ficha-rendicion-badge" class="inline-block mt-1 text-[11px] font-black px-2.5 py-0.5 rounded bg-red-800 text-white">NO RINDE</span>
+                            <span id="ficha-itg-numero" class="text-3xl font-black text-red-400 block mt-1">44 / 100</span>
+                            <span id="ficha-rendicion-badge" class="inline-block mt-1 text-[11px] font-black px-2.5 py-0.5 rounded bg-amber-700 text-white">RENDICIÓN PARCIAL</span>
                         </div>
                     </div>
                 </header>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-slate-200">
-                    <!-- 1. DIRECTIVOS Y BOTÓN PARA CARGAR FOTO DEL CLUB -->
                     <div class="lg:col-span-4 p-6 space-y-4 bg-slate-50">
                         <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2">
                             <h3 class="text-sm font-black text-slate-900">👥 1. Directivos y Cuerpo Técnico</h3>
@@ -205,7 +184,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. PRESENTE DEPORTIVO Y SILLAS A MEDIDA -->
                     <div class="lg:col-span-4 p-6 space-y-4 bg-white">
                         <h3 class="text-sm font-black text-slate-900 border-b-2 border-slate-200 pb-2">🏀 2. Presente Deportivo y Sillas</h3>
                         <div class="relative rounded-xl overflow-hidden border-2 border-slate-300 bg-slate-900">
@@ -221,7 +199,7 @@
                                 <p id="ficha-proyeccion" class="text-slate-700 mt-1"></p>
                             </div>
                             <div class="p-3 bg-slate-50 border border-slate-300 rounded-xl">
-                                <strong class="text-slate-950 block">⭐ Destacados:</strong>
+                                <strong class="text-blue-950 block">⭐ Destacados:</strong>
                                 <p id="ficha-destacados" class="text-slate-700 mt-1"></p>
                             </div>
                             <div class="p-3 rounded-xl bg-slate-100 border border-slate-300 space-y-1.5 text-[11px]">
@@ -230,18 +208,17 @@
                                     <strong id="ficha-sem-sillas" class="text-amber-800 text-right"></strong>
                                 </div>
                                 <div class="flex justify-between gap-2">
-                                    <span class="font-bold text-slate-700">🚐 Transporte FABA:</span>
+                                    <span class="font-bold text-slate-700">🚐 Transporte:</span>
                                     <strong id="ficha-sem-transporte" class="text-red-700 text-right"></strong>
                                 </div>
                                 <div class="flex justify-between gap-2">
-                                    <span class="font-bold text-slate-700">🎓 Becas y Espacio Accesible:</span>
+                                    <span class="font-bold text-slate-700">🎓 Becas:</span>
                                     <strong id="ficha-sem-becas" class="text-red-700 text-right"></strong>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 3. AUDITORÍA Y APORTES ANÓNIMOS -->
                     <div class="lg:col-span-4 p-6 space-y-4 bg-slate-50 flex flex-col justify-between">
                         <div class="space-y-3">
                             <h3 class="text-sm font-black text-slate-900 border-b-2 border-slate-200 pb-2">📄 3. Auditoría y Aportes</h3>
@@ -251,19 +228,18 @@
                                 <p id="ficha-resultado-ciudadano" class="text-slate-700 leading-relaxed"></p>
                             </div>
                             
-                            <!-- SECCIÓN DE APORTES ANÓNIMOS MODERADOS POR BOT -->
                             <div class="p-3.5 bg-emerald-50 rounded-xl border-2 border-emerald-400 space-y-2 text-xs">
                                 <span class="bg-emerald-700 text-white font-black px-2 py-0.5 rounded text-[10px] uppercase">💬 Aporte Anónimo de Trazabilidad</span>
-                                <p class="text-slate-700 text-[11px]">¿Tenés un dato interno, costo real o estado de sillas de este club? Dejalo acá. <strong>Un bot IA filtra insultos y spam automáticamente</strong>:</p>
-                                <textarea id="input-aporte-anonimo" rows="2" placeholder="Escribir dato técnico o estado de insumos..." class="w-full p-2 bg-white border border-emerald-300 rounded-lg text-xs"></textarea>
-                                <button onclick="enviarAporteAnonimoModerado()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2 rounded-lg text-xs">Enviar Aporte Anónimo con Validación Bot</button>
+                                <p class="text-slate-700 text-[11px]">Dato técnico filtrado por bot moderador:</p>
+                                <textarea id="input-aporte-anonimo" rows="2" placeholder="Escribir estado de sillas o insumos..." class="w-full p-2 bg-white border border-emerald-300 rounded-lg text-xs"></textarea>
+                                <button onclick="enviarAporteAnonimoModerado()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2 rounded-lg text-xs">Enviar Aporte Anónimo</button>
                             </div>
                             <div id="lista-aportes-club" class="space-y-1.5 max-h-32 overflow-y-auto text-[11px]"></div>
                         </div>
 
                         <div class="space-y-2 pt-2">
                             <button onclick="despacharGestionSinSalirDeCasa()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-3 px-4 rounded-xl text-xs shadow transition">
-                                📨 Enviar Reclamo 100% Anónimo
+                                📨 Enviar Reclamo Anónimo
                             </button>
                             <button onclick="cambiarTab('tab-rse')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-4 rounded-xl text-xs shadow transition">
                                 🛞 Patrocinar por RSE
@@ -274,16 +250,15 @@
             </article>
         </section>
 
-        <!-- PESTAÑA 2: LO QUE TENÉS QUE SABER -->
+        <!-- PESTAÑA 2 -->
         <section id="tab-hallazgos" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6">
                 <div class="border-b-2 border-slate-200 pb-4 flex flex-wrap justify-between items-end gap-4">
                     <div>
-                        <span class="bg-red-100 text-red-900 border border-red-700 text-xs font-extrabold px-2.5 py-1 rounded uppercase">Auditoría de los 17 Clubes</span>
+                        <span class="bg-red-100 text-red-900 border border-red-700 text-xs font-extrabold px-2.5 py-1 rounded uppercase">Auditoría de los 23 Clubes</span>
                         <h2 class="text-2xl font-black text-slate-900 mt-1">📰 Lo que tenés que saber: Documentos analizados</h2>
-                        <p class="text-xs md:text-sm text-slate-600">Estado de cubiertas, cámaras, ejes, rayos, mantenimiento de chasis a medida, transporte y becas.</p>
                     </div>
-                    <input type="text" onkeyup="renderizarTablaExplicada(this.value)" placeholder="Filtrar club..." class="px-3.5 py-2 border-2 border-slate-300 rounded-xl text-xs w-64">
+                    <input type="text" onkeyup="renderizarTablaExplicada(this.value)" placeholder="Filtrar club o provincia..." class="px-3.5 py-2 border-2 border-slate-300 rounded-xl text-xs w-64">
                 </div>
                 <div class="overflow-x-auto border-2 border-slate-300 rounded-2xl">
                     <table class="w-full text-left text-xs">
@@ -303,29 +278,26 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 3: CÚPULA NACIONAL (CON BOTÓN DE CARGA DE FOTO EN CADA DIRECTIVO) -->
+        <!-- PESTAÑA 3 -->
         <section id="tab-cupula" class="hidden space-y-6">
             <div class="bg-blue-950 text-white p-6 rounded-2xl border-2 border-blue-700 shadow flex flex-wrap justify-between items-center gap-4">
                 <div class="max-w-3xl space-y-1">
                     <span class="bg-amber-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded uppercase">Cúpula Reguladora Nacional</span>
                     <h2 class="text-xl md:text-2xl font-black">🏛️ Cúpula Nacional: FABA, COPAR y ENARD</h2>
-                    <p class="text-xs text-blue-100">Máximas autoridades nacionales. Podés tocar el botón en cada tarjeta para actualizar la foto real de redes sociales.</p>
                 </div>
             </div>
             <div id="contenedor-cupula-nacional" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- PESTAÑA 4: DERECHOS Y RECLAMO ANÓNIMO -->
+        <!-- PESTAÑA 4 -->
         <section id="tab-reclamos" class="hidden space-y-6">
             <div class="bg-emerald-950 text-white p-5 rounded-2xl border-2 border-emerald-400 shadow-lg">
                 <span class="bg-emerald-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded uppercase">Ley 25.326 y Art. 6 Ley 27.275</span>
                 <h2 class="text-lg md:text-xl font-black text-white mt-1">🔒 Todo Reclamo o Firma es 100% ANÓNIMO</h2>
-                <p class="text-xs text-emerald-100 mt-1">Ningún pedido lleva tu nombre para proteger al deportista y su familia contra represalias.</p>
             </div>
-
             <div class="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm space-y-4">
                 <h3 class="text-lg font-black text-slate-900">📨 Generador de Solicitudes Anónimas</h3>
-                <input type="text" id="input-entidad-personalizada" onkeyup="actualizarNombreEnPlantilla()" placeholder="Municipio, Club o Federación destinataria" class="w-full px-3.5 py-2.5 border-2 border-slate-300 rounded-xl text-xs font-bold">
+                <input type="text" id="input-entidad-personalizada" onkeyup="actualizarNombreEnPlantilla()" placeholder="Municipio, Club o Federación" class="w-full px-3.5 py-2.5 border-2 border-slate-300 rounded-xl text-xs font-bold">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <button onclick="generarEscritoLegal('MUNICIPIO_RAFAM')" class="bg-blue-800 text-white text-xs font-bold p-3 rounded-xl text-left">🏛️ 1. Reclamo Anónimo a Municipio</button>
                     <button onclick="generarEscritoLegal('ONG_SOCIO_BALANCE')" class="bg-purple-800 text-white text-xs font-bold p-3 rounded-xl text-left">🤝 2. Reclamo Anónimo a Club ONG</button>
@@ -339,33 +311,31 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 5: LICITACIONES RSE -->
+        <!-- PESTAÑA 5 -->
         <section id="tab-rse" class="hidden space-y-6">
             <div class="bg-slate-900 text-white p-6 rounded-2xl border-2 border-emerald-500 shadow-xl space-y-2">
                 <span class="bg-emerald-400 text-slate-950 text-xs font-black px-3 py-1 rounded-full uppercase">Modelos Italia (seriea.briantea84.it) y Brasil (cbbc.org.br)</span>
                 <h2 class="text-2xl font-black text-white">🛞 Licitaciones Privadas RSE (Pago Directo a Proveedor)</h2>
-                <p class="text-xs text-slate-300">La empresa auspiciante abona la Factura A directamente en la ortopedia, taller mecánico o proveedor nutricional, destinándolo libremente el plantel a lo que más necesita.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="contenedor-pliegos-licitacion"></div>
         </section>
 
     </main>
 
-    <!-- MODAL 1: CARGAR FOTO REAL DE DIRECTIVO O DT -->
+    <!-- MODAL FOTO OSINT -->
     <div id="modal-foto-osint" class="hidden fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-4">
         <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4 border-2 border-slate-400 text-xs">
             <div class="flex justify-between items-center border-b pb-2">
                 <h3 class="font-black text-base text-slate-950">📷 Vincular Foto Real de Directivo / DT</h3>
                 <button onclick="cerrarModal('modal-foto-osint')" class="font-bold text-xl">&times;</button>
             </div>
-            <p class="text-slate-600">Pegá el enlace de la imagen pública de redes sociales:</p>
             <input type="text" id="input-nombre-persona-foto" readonly class="w-full p-2.5 bg-slate-100 border rounded-xl font-bold text-slate-800">
             <input type="url" id="input-url-foto-real" placeholder="Pegar URL de la foto (https://...)" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
             <button onclick="guardarFotoRealPersona()" class="w-full bg-blue-700 text-white font-black py-2.5 rounded-xl">Guardar Retrato</button>
         </div>
     </div>
 
-    <!-- MODAL 2: DESCARGO OFICIAL -->
+    <!-- MODAL DESCARGO -->
     <div id="modal-descargo" class="hidden fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-4">
         <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4 border-2 border-slate-400 text-xs">
             <div class="flex justify-between items-center border-b pb-2">
@@ -373,12 +343,12 @@
                 <button onclick="cerrarModal('modal-descargo')" class="font-bold text-xl">&times;</button>
             </div>
             <input type="text" placeholder="Entidad / Municipio / Club" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
-            <input type="url" placeholder="Enlace al Balance o Resolución" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
-            <button onclick="alert('✅ Documentación registrada con sello SHA-256.'); cerrarModal('modal-descargo');" class="w-full bg-amber-400 font-black py-2.5 rounded-xl">Registrar Descargo</button>
+            <input type="url" placeholder="Enlace al Balance" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
+            <button onclick="alert('✅ Documentación registrada.'); cerrarModal('modal-descargo');" class="w-full bg-amber-400 font-black py-2.5 rounded-xl">Registrar</button>
         </div>
     </div>
 
-    <!-- MODAL 3: SUMAR CLUB -->
+    <!-- MODAL CLUB -->
     <div id="modal-club" class="hidden fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-4">
         <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-3 border-2 border-slate-400 text-xs">
             <div class="flex justify-between items-center border-b pb-2">
@@ -398,9 +368,7 @@
         let mapaLeaflet = null;
         let capaActualTiles = null;
         let marcadoresLayer = null;
-        let filtroProvinciaActual = 'TODAS';
-        let filtroDivisionActual = 'TODAS';
-        let nombreClubActivo = 'Instituto Municipal del Deporte Almirante Brown';
+        let nombreClubActivo = 'Jujuy Básquet';
         let personaFotoSeleccionada = '';
 
         function avatarDirectivo(nombre) {
@@ -409,39 +377,132 @@
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=1e3a8a&color=fff&size=128&bold=true`;
         }
 
-        // CÚPULA NACIONAL (PESTAÑA 3)
         const cupulaNacionalData = [
-            {
-                id_persona: "Ricardo Perdiguero",
-                entidad: "FABA & COPAR",
-                nombre: "Ricardo Perdiguero",
-                cargo: "Presidente de FABA y Tesorero de COPAR",
-                red_social_fuente: "Nómina Oficial COPAR",
-                cuestionamiento_clave: "DOBLE ROL CRÍTICO: Preside la Federación de Básquet Adaptado y es Tesorero del Comité Paralímpico Argentino. Mantiene el padrón web congelado en 2018 y no publica balances del Parcial 517.",
-                codigoPlantilla: "FABA_PERDIGUERO"
-            },
-            {
-                id_persona: "Gustavo Borro",
-                entidad: "COPAR & Municipio Alte. Brown",
-                nombre: "Prof. Gustavo Borro",
-                cargo: "Presidente de COPAR y Dir. Deporte Adaptado Alte. Brown",
-                red_social_fuente: "Redes Oficiales COPAR",
-                cuestionamiento_clave: "SUPERPOSICIÓN DE MOSTRADORES: Preside el Comité Paralímpico Argentino (con Ricardo Perdiguero como su Tesorero) conservando la Dirección en Almirante Brown.",
-                codigoPlantilla: "FABA_PERDIGUERO"
-            },
-            {
-                id_persona: "Directorio ENARD",
-                entidad: "ENARD / SAF 342",
-                nombre: "Directorio Ejecutivo ENARD",
-                cargo: "Asignación de Becas Nacionales",
-                red_social_fuente: "Boletín Oficial / ENARD",
-                cuestionamiento_clave: "OPACIDAD EN BECAS: Inexistencia de un portal nominal público donde los atletas puedan verificar criterios de becas y partidas del Parcial 517.",
-                codigoPlantilla: "FABA_PERDIGUERO"
-            }
+            { id_persona: "Ricardo Perdiguero", entidad: "FABA & COPAR", nombre: "Ricardo Perdiguero", cargo: "Presidente FABA y Tesorero COPAR", cuestionamiento_clave: "DOBLE ROL CRÍTICO: Preside la Federación y es Tesorero del Comité Paralímpico. Padrón web congelado en 2018 y sin balances públicos del Parcial 517." },
+            { id_persona: "Gustavo Borro", entidad: "COPAR & Alte. Brown", nombre: "Prof. Gustavo Borro", cargo: "Presidente COPAR y Dir. Alte. Brown", cuestionamiento_clave: "SUPERPOSICIÓN DE MOSTRADORES: Preside COPAR (con Perdiguero como Tesorero) conservando la Dirección en Almirante Brown." },
+            { id_persona: "Directorio ENARD", entidad: "ENARD / SAF 342", nombre: "Directorio Ejecutivo ENARD", cargo: "Asignación de Becas Nacionales", cuestionamiento_clave: "OPACIDAD EN BECAS: Falta de padrón nominal público de becarios y partidas del Parcial 517." }
         ];
 
-        // 17 CLUBES FEDERADOS
+        // 23 CLUBES FEDERADOS AMPLIADOS (CON JUJUY BÁSQUET, UNCuyo, DIMOT, Fu.Di.Tuc, CEF 17 Y CRIPAL)
         const clubesFabaData = [
+            {
+                nombre_actual: "Jujuy Básquet",
+                lat: -24.185, lng: -65.299, provincia_mapa: "NOA",
+                jurisdiccion: "San Salvador de Jujuy, Jujuy", division: "2da División / Desarrollo",
+                posicion_actual: "Referente Regional NOA FABA (Auditado en Redes)", tipo_entidad: "ASOCIACION_CIVIL_ONG",
+                itg_score: 44, rinde_cuentas: "RENDICIÓN PARCIAL",
+                autoridades_con_cara: [
+                    { rol: "Presidente / Dirección", nombre: "Comisión Directiva Jujuy Básquet", detalle: "San Salvador de Jujuy", foto: avatarDirectivo("CD Jujuy Basquet") },
+                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico Jujuy Básquet", detalle: "Desarrollo NOA", foto: avatarDirectivo("Staff Jujuy Basquet") }
+                ],
+                historia_breve: "Institución auditada en redes sociales por su impulso al básquet sobre silla de ruedas en el norte argentino, consolidando la disciplina en Jujuy.",
+                proyeccion_skills: "Fuerte arraigo regional NOA y desarrollo formativo.",
+                destacados: "Plantel competitivo del norte argentino.",
+                dato_desactualizado_oficial: "Sin desglose público en padrones históricos de FABA.",
+                provee_sillas_repuestos: "PARCIAL (Autogestión de cubiertas, cámaras, ejes y chasis)",
+                provee_transporte: "PARCIAL", provee_becas_viaticos: "SIN BECAS NACIONALES",
+                documento_auditado: "Relevamiento OSINT Redes NOA 2026.",
+                resultado_ciudadano: "El plantel sostiene su participación con esfuerzo propio; requiere respaldo RSE en cubiertas, cámaras y repuestos a medida.",
+                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
+            },
+            {
+                nombre_actual: "Fu.Di.Tuc (Fundación de Discapacitados de Tucumán)",
+                lat: -26.824, lng: -65.217, provincia_mapa: "NOA",
+                jurisdiccion: "San Miguel de Tucumán, Tucumán", division: "2da / 3ra División FABA",
+                posicion_actual: "Bastión Histórico del NOA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
+                itg_score: 42, rinde_cuentas: "RENDICIÓN PARCIAL",
+                autoridades_con_cara: [
+                    { rol: "Dirección Fundacional", nombre: "Comisión Directiva Fu.Di.Tuc", detalle: "San Miguel de Tucumán", foto: avatarDirectivo("FuDiTuc") },
+                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico Tucumán", detalle: "Básquet Adaptado NOA", foto: avatarDirectivo("Staff Tucuman") }
+                ],
+                historia_breve: "Fundación emblemática de Tucumán que impulsa la práctica y competencia del básquet sobre silla de ruedas en el noroeste.",
+                proyeccion_skills: "Tradición competitiva en el norte y articulación regional.",
+                destacados: "Atletas tucumanos de Liga Nacional.",
+                dato_desactualizado_oficial: "Sin registro de subsidios federativos Parcial 517 en portales públicos.",
+                provee_sillas_repuestos: "PARCIAL (Autogestión de cubiertas, cámaras, ejes y chasis)",
+                provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN DATOS",
+                documento_auditado: "Relevamiento OSINT Redes Tucumán 2026.",
+                resultado_ciudadano: "Esfuerzo constante para sostener los viajes al centro del país; requiere patrocinio RSE directo en cubiertas y repuestos.",
+                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
+            },
+            {
+                nombre_actual: "UNCuyo Básquet Adaptado",
+                lat: -32.889, lng: -68.844, provincia_mapa: "CUYO",
+                jurisdiccion: "Mendoza Capital", division: "1ra / 2da División FABA",
+                posicion_actual: "Referente Región Cuyo (Cruce con Brown este año)", tipo_entidad: "UNIVERSITARIO_MUNICIPAL",
+                itg_score: 55, rinde_cuentas: "SÍ RINDE PARCIALMENTE",
+                autoridades_con_cara: [
+                    { rol: "Coordinación Deportiva", nombre: "Dirección de Deportes UNCuyo", detalle: "Mendoza Capital", foto: avatarDirectivo("Deportes UNCuyo") },
+                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico UNCuyo", detalle: "Región Cuyo", foto: avatarDirectivo("Staff UNCuyo") }
+                ],
+                historia_breve: "Equipo representativo de la Universidad Nacional de Cuyo en Mendoza, con cruces competitivos oficiales este año frente a Brown de Alta Gracia.",
+                proyeccion_skills: "Infraestructura universitaria y proyección en Cuyo.",
+                destacados: "Plantel mendocino de alta competencia.",
+                dato_desactualizado_oficial: "Padrón FABA sin actualización de planteles cuyanos.",
+                provee_sillas_repuestos: "PARCIAL (Sostenido por estructura universitaria)",
+                provee_transporte: "CUBIERTO UNIVERSIDAD", provee_becas_viaticos: "BECAS PROVINCIALES",
+                documento_auditado: "Relevamiento Universitario Cuyo y Partidos 2026.",
+                resultado_ciudadano: "Cuenta con respaldo universitario, pero requiere trazabilidad pública de subsidios para cubiertas, cámaras y chasis.",
+                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
+            },
+            {
+                nombre_actual: "DIMOT (Deporte Adaptado Mendoza)",
+                lat: -32.895, lng: -68.828, provincia_mapa: "CUYO",
+                jurisdiccion: "Godoy Cruz / Mendoza Capital", division: "2da División FABA",
+                posicion_actual: "Histórico Cuyo en Liga Nacional", tipo_entidad: "ASOCIACION_CIVIL_ONG",
+                itg_score: 41, rinde_cuentas: "RENDICIÓN PARCIAL",
+                autoridades_con_cara: [
+                    { rol: "Comisión Directiva DIMOT", nombre: "Directivos DIMOT Mendoza", detalle: "Godoy Cruz", foto: avatarDirectivo("DIMOT Mendoza") },
+                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico DIMOT", detalle: "Cuyo", foto: avatarDirectivo("Staff DIMOT") }
+                ],
+                historia_breve: "Entidad pionera de Mendoza en el deporte sobre silla de ruedas, con destacada trayectoria en torneos nacionales y metropolitanos.",
+                proyeccion_skills: "Experiencia competitiva y desarrollo cuyano.",
+                destacados: "Referentes mendocinos de básquet adaptado.",
+                dato_desactualizado_oficial: "Sin publicación de balances contables en web.",
+                provee_sillas_repuestos: "PARCIAL", provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN DATOS",
+                documento_auditado: "Relevamiento OSINT Cuyo 2026.",
+                resultado_ciudadano: "Plantel tradicional que sostiene su actividad con gran esfuerzo; precisa sponsors RSE en cubiertas y mantenimiento de chasis.",
+                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
+            },
+            {
+                nombre_actual: "CEF N° 17 (Corrientes)",
+                lat: -27.469, lng: -58.834, provincia_mapa: "NEA",
+                jurisdiccion: "Corrientes Capital", division: "Desarrollo / NEA FABA",
+                posicion_actual: "Bastión del Litoral Norte", tipo_entidad: "ESTATAL_PROVINCIAL",
+                itg_score: 46, rinde_cuentas: "SÍ RINDE PARCIALMENTE",
+                autoridades_con_cara: [
+                    { rol: "Dirección CEF 17", nombre: "Coordinación CEF Corrientes", detalle: "Corrientes Capital", foto: avatarDirectivo("CEF 17 Corrientes") },
+                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico CEF 17", detalle: "Litoral", foto: avatarDirectivo("Staff CEF 17") }
+                ],
+                historia_breve: "Centro de Educación Física N° 17 de Corrientes, impulsor incansable del básquet adaptado y formador de atletas en el NEA.",
+                proyeccion_skills: "Estructura estatal provincial y fuerte arraigo litoraleño.",
+                destacados: "Juveniles y referentes de Corrientes.",
+                dato_desactualizado_oficial: "Sin desglose de partidas específicas en presupuesto provincial.",
+                provee_sillas_repuestos: "PARCIAL", provee_transporte: "CUBIERTO PROVINCIA", provee_becas_viaticos: "BECAS PROVINCIALES",
+                documento_auditado: "Relevamiento Institucional NEA 2026.",
+                resultado_ciudadano: "El CEF provee espacio y transporte básico, pero es vital el patrocinio privado para cubiertas, cámaras, ejes y chasis a medida.",
+                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
+            },
+            {
+                nombre_actual: "CRIPAL (Cipolletti / Río Negro - Patagonia)",
+                lat: -39.034, lng: -67.591, provincia_mapa: "PATAGONIA",
+                jurisdiccion: "Cipolletti, Río Negro", division: "1ra / 2da División FABA",
+                posicion_actual: "Referente Norpatagónico FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
+                itg_score: 49, rinde_cuentas: "RENDICIÓN PARCIAL",
+                autoridades_con_cara: [
+                    { rol: "Comisión Directiva CRIPAL", nombre: "Directivos CRIPAL Río Negro", detalle: "Cipolletti", foto: avatarDirectivo("CRIPAL Rio Negro") },
+                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico CRIPAL", detalle: "Patagonia Norte", foto: avatarDirectivo("Staff CRIPAL") }
+                ],
+                historia_breve: "Asociación Civil del Alto Valle de Río Negro (Cipolletti) con destacada trayectoria en las competencias federales de la Patagonia.",
+                proyeccion_skills: "Resiliencia patagónica y consolidación regional.",
+                destacados: "Atletas patagónicos de Liga Nacional.",
+                dato_desactualizado_oficial: "Sin publicación de balances abiertos en web oficial.",
+                provee_sillas_repuestos: "SÍ EQUIPADO (Requiere apoyo continuo en cubiertas, cámaras y chasis)",
+                provee_transporte: "AUTOGESTIÓN / APOYO MUNICIPAL", provee_becas_viaticos: "PARCIAL",
+                documento_auditado: "Relevamiento OSINT Patagonia Norte 2026.",
+                resultado_ciudadano: "Sostiene giras extensas hacia Buenos Aires; clave para incorporar al régimen de sponsors RSE directos.",
+                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
+            },
             {
                 nombre_actual: "Instituto Municipal del Deporte Almirante Brown",
                 lat: -34.832, lng: -58.385, provincia_mapa: "BUENOS_AIRES_SUR",
@@ -450,17 +511,16 @@
                 itg_score: 15, rinde_cuentas: "NO RINDE DESGLOSE",
                 autoridades_con_cara: [
                     { rol: "Director", nombre: "Gustavo Borro", detalle: "Presidente COPAR", foto: avatarDirectivo("Gustavo Borro") },
-                    { rol: "Coordinador", nombre: "Fernando Mihovich", detalle: "Gestión Polideportivo", foto: avatarDirectivo("Fernando Mihovich") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff 1ra Div. Brown", detalle: "Entrenadores", foto: avatarDirectivo("Staff 1ra Div. Brown") }
+                    { rol: "Coordinador", nombre: "Fernando Mihovich", detalle: "Gestión Polideportivo", foto: avatarDirectivo("Fernando Mihovich") }
                 ],
                 historia_breve: "Plantel representativo de Almirante Brown en la máxima categoría nacional FABA.",
-                proyeccion_skills: "Defensa intensa y autogestión de contenidos en redes.",
+                proyeccion_skills: "Defensa intensa y autogestión en redes.",
                 destacados: "Plantel Superior y referentes locales.",
                 dato_desactualizado_oficial: "En padrón viejo figuraba Jonathan Frisa.",
-                provee_sillas_repuestos: "PARCIAL (Faltan cubiertas, cámaras, ejes, rayos y mantenimiento de chasis)",
+                provee_sillas_repuestos: "PARCIAL (Faltan cubiertas, cámaras, ejes, rayos y chasis a medida)",
                 provee_transporte: "IRREGULAR", provee_becas_viaticos: "SIN PADRÓN PÚBLICO",
                 documento_auditado: "Boletines Oficiales Alte. Brown (2026) — RAFAM Incisos 2, 3, 4 y 5.",
-                resultado_ciudadano: "Cero licitaciones publicadas de cubiertas, cámaras, ejes, rayos ni chasis a medida para el equipo de 1ra División.",
+                resultado_ciudadano: "Cero licitaciones de cubiertas, cámaras, ejes, rayos ni chasis a medida para el equipo de 1ra División.",
                 enlace_evidencia_url: "https://www.instagram.com/municipiobrown/"
             },
             {
@@ -470,15 +530,13 @@
                 posicion_actual: "Multicampeón Histórico FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 68, rinde_cuentas: "SÍ RINDE MEMORIA ANUAL",
                 autoridades_con_cara: [
-                    { rol: "Presidencia ONG", nombre: "Comisión Directiva CILSA", detalle: "Administración auditada", foto: avatarDirectivo("Comisión Directiva CILSA") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff CILSA Santa Fe", detalle: "Alto rendimiento", foto: avatarDirectivo("Staff CILSA Santa Fe") }
+                    { rol: "Presidencia ONG", nombre: "Comisión Directiva CILSA", detalle: "Administración auditada", foto: avatarDirectivo("Comisión Directiva CILSA") }
                 ],
                 historia_breve: "Cuna histórica del básquet sobre silla de ruedas en el interior del país.",
                 proyeccion_skills: "Alto rendimiento táctico y semillero de Selección.",
                 destacados: "Seleccionados nacionales.",
-                dato_desactualizado_oficial: "FABA no publica becas ENARD de sus atletas.",
-                provee_sillas_repuestos: "SÍ EQUIPADO (Cubiertas, cámaras, ejes, rayos y chasis a medida)",
-                provee_transporte: "SÍ CUBIERTO", provee_becas_viaticos: "VIÁTICOS CUBIERTOS",
+                dato_desactualizado_oficial: "FABA no publica becas ENARD.",
+                provee_sillas_repuestos: "SÍ EQUIPADO", provee_transporte: "SÍ CUBIERTO", provee_becas_viaticos: "VIÁTICOS CUBIERTOS",
                 documento_auditado: "Memoria Anual CILSA ONG.",
                 resultado_ciudadano: "Garantiza mantenimiento de sillas y logística de sus jugadores.",
                 enlace_evidencia_url: "https://www.instagram.com/cilsaong/"
@@ -490,15 +548,13 @@
                 posicion_actual: "Finalista 1ra División FABA", tipo_entidad: "CONVENIO_CLUB",
                 itg_score: 72, rinde_cuentas: "SÍ RINDE (CAJA MIXTA)",
                 autoridades_con_cara: [
-                    { rol: "Dirección", nombre: "Directivos CILSA + Boca", detalle: "Convenio ONG + Club", foto: avatarDirectivo("Directivos CILSA + Boca") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff CILSA Boca", detalle: "Élite FABA", foto: avatarDirectivo("Staff CILSA Boca") }
+                    { rol: "Dirección", nombre: "Directivos CILSA + Boca", detalle: "Convenio ONG + Club", foto: avatarDirectivo("Directivos CILSA + Boca") }
                 ],
                 historia_breve: "Alianza entre CILSA ONG y Boca Juniors que profesionalizó la logística en AMBA.",
                 proyeccion_skills: "Plantel de jerarquía internacional.",
                 destacados: "Seleccionados nacionales.",
                 dato_desactualizado_oficial: "En padrón figuraba como 'CILSA Bs.As.'.",
-                provee_sillas_repuestos: "SÍ EQUIPADO (Chasis, ejes, rayos y cubiertas)",
-                provee_transporte: "SÍ CUBIERTO", provee_becas_viaticos: "VIÁTICOS CUBIERTOS",
+                provee_sillas_repuestos: "SÍ EQUIPADO", provee_transporte: "SÍ CUBIERTO", provee_becas_viaticos: "VIÁTICOS CUBIERTOS",
                 documento_auditado: "Convenio CILSA - Boca Juniors.",
                 resultado_ciudadano: "Resuelve indumentaria, sillas y viajes sin depender de cajas municipales.",
                 enlace_evidencia_url: "https://www.instagram.com/cilsaong/"
@@ -510,15 +566,13 @@
                 posicion_actual: "Competidor Histórico FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 45, rinde_cuentas: "RENDICIÓN CERRADA",
                 autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD CEDIMA", detalle: "Sede San Justo", foto: avatarDirectivo("CD CEDIMA") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff CEDIMA", detalle: "1ra División", foto: avatarDirectivo("Staff CEDIMA") }
+                    { rol: "Comisión Directiva", nombre: "CD CEDIMA", detalle: "Sede San Justo", foto: avatarDirectivo("CD CEDIMA") }
                 ],
                 historia_breve: "Club decano de La Matanza con gimnasio propio.",
                 proyeccion_skills: "Fuerte trabajo de cantera y localía.",
                 destacados: "Referentes históricos de Liga.",
                 dato_desactualizado_oficial: "No publica balances en web.",
-                provee_sillas_repuestos: "PARCIAL (Falta recambio de cubiertas, cámaras, ejes y rayos)",
-                provee_transporte: "PARCIAL", provee_becas_viaticos: "AUTOGESTIÓN",
+                provee_sillas_repuestos: "PARCIAL", provee_transporte: "PARCIAL", provee_becas_viaticos: "AUTOGESTIÓN",
                 documento_auditado: "Registro DPPJ Buenos Aires.",
                 resultado_ciudadano: "Debe abrir sus balances a los jugadores y detallar subsidios de chasis y repuestos.",
                 enlace_evidencia_url: "https://www.instagram.com/cedima.oficial/"
@@ -530,15 +584,13 @@
                 posicion_actual: "Representante Patagónico FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 48, rinde_cuentas: "RENDICIÓN PARCIAL",
                 autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD CRIGAL", detalle: "Río Gallegos", foto: avatarDirectivo("CD CRIGAL") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff CRIGAL", detalle: "Patagonia", foto: avatarDirectivo("Staff CRIGAL") }
+                    { rol: "Comisión Directiva", nombre: "CD CRIGAL", detalle: "Río Gallegos", foto: avatarDirectivo("CD CRIGAL") }
                 ],
                 historia_breve: "Emblema austral que recorre miles de kilómetros para competir.",
                 proyeccion_skills: "Altísima resiliencia y arraigo austral.",
                 destacados: "Referentes patagónicos.",
-                dato_desactualizado_oficial: "FABA no detalla cobertura de pasajes aéreos.",
-                provee_sillas_repuestos: "SÍ EQUIPADO (Requiere sponsors para cubiertas y chasis)",
-                provee_transporte: "DEPENDENCIA AÉREA", provee_becas_viaticos: "PARCIAL",
+                dato_desactualizado_oficial: "FABA no detalla cobertura de pasajes.",
+                provee_sillas_repuestos: "SÍ EQUIPADO", provee_transporte: "DEPENDENCIA AÉREA", provee_becas_viaticos: "PARCIAL",
                 documento_auditado: "Convenios Logísticos Santa Cruz.",
                 resultado_ciudadano: "Afronta enormes distancias; necesita patrocinio RSE directo en repuestos y pasajes.",
                 enlace_evidencia_url: "https://www.facebook.com/crigalbasquetadaptado"
@@ -550,8 +602,7 @@
                 posicion_actual: "Protagonista 1ra División FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 52, rinde_cuentas: "RENDICIÓN PARCIAL",
                 autoridades_con_cara: [
-                    { rol: "Dirección", nombre: "Fundación SICA", detalle: "Córdoba", foto: avatarDirectivo("Fundación SICA") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff SICA", detalle: "Alto Rendimiento", foto: avatarDirectivo("Staff SICA") }
+                    { rol: "Dirección", nombre: "Fundación SICA", detalle: "Córdoba", foto: avatarDirectivo("Fundación SICA") }
                 ],
                 historia_breve: "Potencia cordobesa y cuna de figuras internacionales.",
                 proyeccion_skills: "Velocidad y táctica moderna.",
@@ -569,15 +620,13 @@
                 posicion_actual: "Competidor Liga Nacional", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 38, rinde_cuentas: "AUTOGESTIÓN / RIFAS",
                 autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "Directivos DUBA", detalle: "Bahía Blanca", foto: avatarDirectivo("Directivos DUBA") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff DUBA", detalle: "Entrenadores", foto: avatarDirectivo("Staff DUBA") }
+                    { rol: "Comisión Directiva", nombre: "Directivos DUBA", detalle: "Bahía Blanca", foto: avatarDirectivo("Directivos DUBA") }
                 ],
                 historia_breve: "Sostiene el básquet adaptado en el sur bonaerense a pulmón.",
                 proyeccion_skills: "ADN bahiense y tracción comunitaria.",
                 destacados: "Plantel autogestionado.",
                 dato_desactualizado_oficial: "Sin registro de apoyos federativos.",
-                provee_sillas_repuestos: "PARCIAL CON RECLAMOS (Faltan cubiertas, cámaras, ejes y chasis)",
-                provee_transporte: "AUTOGESTIÓN / RIFAS", provee_becas_viaticos: "SIN BECAS",
+                provee_sillas_repuestos: "PARCIAL CON RECLAMOS", provee_transporte: "AUTOGESTIÓN / RIFAS", provee_becas_viaticos: "SIN BECAS",
                 documento_auditado: "Campañas en Redes y DPPJ.",
                 resultado_ciudadano: "Los jugadores deben hacer rifas para comprar cubiertas, cámaras y viajar.",
                 enlace_evidencia_url: "https://www.instagram.com/dubabahiablanca/"
@@ -589,15 +638,13 @@
                 posicion_actual: "Competidor 2da División FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 44, rinde_cuentas: "RENDICIÓN CERRADA",
                 autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD ADU", detalle: "San Fernando", foto: avatarDirectivo("CD ADU") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff ADU", detalle: "Zona Norte", foto: avatarDirectivo("Staff ADU") }
+                    { rol: "Comisión Directiva", nombre: "CD ADU", detalle: "San Fernando", foto: avatarDirectivo("CD ADU") }
                 ],
                 historia_breve: "Referente histórico de San Fernando y toda la Zona Norte del AMBA.",
                 proyeccion_skills: "Identidad barrial y competencia en metropolitana.",
                 destacados: "Plantel de Liga de Ascenso.",
                 dato_desactualizado_oficial: "Sin balances publicados en web.",
-                provee_sillas_repuestos: "PARCIAL (Requiere cubiertas, cámaras, ejes y chasis)",
-                provee_transporte: "PARCIAL", provee_becas_viaticos: "AUTOGESTIÓN",
+                provee_sillas_repuestos: "PARCIAL", provee_transporte: "PARCIAL", provee_becas_viaticos: "AUTOGESTIÓN",
                 documento_auditado: "Registro DPPJ PBA.",
                 resultado_ciudadano: "Necesita conectar con empresas de Zona Norte vía RSE para renovar sillas y cubiertas.",
                 enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
@@ -609,15 +656,13 @@
                 posicion_actual: "Competidor 2da División FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 40, rinde_cuentas: "RENDICIÓN PARCIAL",
                 autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "Directivos CIDELI", detalle: "Mar del Plata", foto: avatarDirectivo("Directivos CIDELI") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff CIDELI", detalle: "Costa Atlántica", foto: avatarDirectivo("Staff CIDELI") }
+                    { rol: "Comisión Directiva", nombre: "Directivos CIDELI", detalle: "Mar del Plata", foto: avatarDirectivo("Directivos CIDELI") }
                 ],
                 historia_breve: "Club pionero de Mar del Plata en integración deportiva.",
                 proyeccion_skills: "Protagonista de ascenso y Juegos Bonaerenses.",
                 destacados: "Referentes marplatenses.",
                 dato_desactualizado_oficial: "Sin convenios públicos con EMDER.",
-                provee_sillas_repuestos: "PARCIAL (Autogestión de cubiertas, cámaras, ejes y chasis)",
-                provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN DATOS",
+                provee_sillas_repuestos: "PARCIAL", provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN DATOS",
                 documento_auditado: "Relevamiento EMDER.",
                 resultado_ciudadano: "El municipio cede cancha, pero cubiertas, cámaras, ejes y viajes recaen sobre el plantel.",
                 enlace_evidencia_url: "https://www.instagram.com/cidelimdp/"
@@ -629,8 +674,7 @@
                 posicion_actual: "Competidor 1ra División FABA", tipo_entidad: "MUNICIPAL",
                 itg_score: 42, rinde_cuentas: "SIN DESGLOSE WEB",
                 autoridades_con_cara: [
-                    { rol: "Deportes Municipal", nombre: "Deportes Malagueño", detalle: "Córdoba", foto: avatarDirectivo("Deportes Malagueno") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Malagueño", detalle: "1ra División", foto: avatarDirectivo("Staff Malagueño") }
+                    { rol: "Deportes Municipal", nombre: "Deportes Malagueño", detalle: "Córdoba", foto: avatarDirectivo("Deportes Malagueno") }
                 ],
                 historia_breve: "Crecimiento sostenido hasta instalarse en 1ra División.",
                 proyeccion_skills: "Localía y cuadrangulares nacionales.",
@@ -648,8 +692,7 @@
                 posicion_actual: "Competidor 1ra División FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 46, rinde_cuentas: "RENDICIÓN PARCIAL",
                 autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD Brown Alta Gracia", detalle: "Córdoba", foto: avatarDirectivo("CD Brown Alta Gracia") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Alta Gracia", detalle: "1ra División", foto: avatarDirectivo("Staff Alta Gracia") }
+                    { rol: "Comisión Directiva", nombre: "CD Brown Alta Gracia", detalle: "Córdoba", foto: avatarDirectivo("CD Brown Alta Gracia") }
                 ],
                 historia_breve: "Ejemplo de integración de rama adaptada en club tradicional.",
                 proyeccion_skills: "Sólido juego colectivo en Paravachasca.",
@@ -667,15 +710,13 @@
                 posicion_actual: "Competidor Ascenso FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 40, rinde_cuentas: "RENDICIÓN CERRADA",
                 autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD CROL Rosario", detalle: "IGPJ Santa Fe", foto: avatarDirectivo("CD CROL Rosario") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff CROL", detalle: "Rosario", foto: avatarDirectivo("Staff CROL") }
+                    { rol: "Comisión Directiva", nombre: "CD CROL Rosario", detalle: "IGPJ Santa Fe", foto: avatarDirectivo("CD CROL Rosario") }
                 ],
                 historia_breve: "Decano del deporte adaptado en Rosario.",
                 proyeccion_skills: "Tradición táctica rosarina.",
                 destacados: "Referentes históricos.",
                 dato_desactualizado_oficial: "Padrón FABA desactualizado.",
-                provee_sillas_repuestos: "PARCIAL CON RECLAMOS (Faltan cubiertas, cámaras, ejes y chasis)",
-                provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN BECAS",
+                provee_sillas_repuestos: "PARCIAL CON RECLAMOS", provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN BECAS",
                 documento_auditado: "IGPJ Santa Fe.",
                 resultado_ciudadano: "Necesita recambio de cubiertas, cámaras, ejes y mantenimiento de chasis vía empresas de Rosario.",
                 enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
@@ -687,8 +728,7 @@
                 posicion_actual: "Competidor Ascenso FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
                 itg_score: 39, rinde_cuentas: "AUTOGESTIÓN",
                 autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD CRIPLaP La Plata", detalle: "Capital PBA", foto: avatarDirectivo("CD CRIPLaP La Plata") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff CRIPLaP", detalle: "La Plata", foto: avatarDirectivo("Staff CRIPLaP") }
+                    { rol: "Comisión Directiva", nombre: "CD CRIPLaP La Plata", detalle: "Capital PBA", foto: avatarDirectivo("CD CRIPLaP La Plata") }
                 ],
                 historia_breve: "Representante de la capital bonaerense en ascenso.",
                 proyeccion_skills: "Equipo en desarrollo constante.",
@@ -706,8 +746,7 @@
                 posicion_actual: "Competidor Ascenso FABA", tipo_entidad: "MUNICIPAL",
                 itg_score: 35, rinde_cuentas: "NO RINDE DESGLOSE",
                 autoridades_con_cara: [
-                    { rol: "Deportes Municipal", nombre: "Deportes Ensenada", detalle: "RAFAM", foto: avatarDirectivo("Deportes Ensenada") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Ensenada", detalle: "Polideportivo", foto: avatarDirectivo("Staff Ensenada") }
+                    { rol: "Deportes Municipal", nombre: "Deportes Ensenada", detalle: "RAFAM", foto: avatarDirectivo("Deportes Ensenada") }
                 ],
                 historia_breve: "Equipo municipal de la región capital en ascenso.",
                 proyeccion_skills: "Infraestructura local accesible.",
@@ -725,15 +764,13 @@
                 posicion_actual: "Competidor Desarrollo FABA", tipo_entidad: "MUNICIPAL",
                 itg_score: 32, rinde_cuentas: "NO RINDE DESGLOSE",
                 autoridades_con_cara: [
-                    { rol: "Deportes Municipal", nombre: "Deportes Berazategui", detalle: "Zona Sur", foto: avatarDirectivo("Deportes Berazategui") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Berazategui", detalle: "Desarrollo", foto: avatarDirectivo("Staff Berazategui") }
+                    { rol: "Deportes Municipal", nombre: "Deportes Berazategui", detalle: "Zona Sur", foto: avatarDirectivo("Deportes Berazategui") }
                 ],
                 historia_breve: "Programa municipal del sur del conurbano en desarrollo.",
                 proyeccion_skills: "Semillero en Zona Sur.",
                 destacados: "Juveniles y desarrollo.",
                 dato_desactualizado_oficial: "Ausente en padrón histórico 2018.",
-                provee_sillas_repuestos: "PARCIAL (Faltan cubiertas, cámaras, ejes, rayos y chasis)",
-                provee_transporte: "CUBIERTO MUNICIPIO", provee_becas_viaticos: "SIN PADRÓN",
+                provee_sillas_repuestos: "PARCIAL", provee_transporte: "CUBIERTO MUNICIPIO", provee_becas_viaticos: "SIN PADRÓN",
                 documento_auditado: "Boletín Berazategui.",
                 resultado_ciudadano: "Sin licitaciones públicas de sillas a medida ni repuestos específicos.",
                 enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
@@ -745,8 +782,7 @@
                 posicion_actual: "Competidor Desarrollo FABA", tipo_entidad: "MUNICIPAL",
                 itg_score: 36, rinde_cuentas: "NO RINDE DESGLOSE",
                 autoridades_con_cara: [
-                    { rol: "Deportes Municipal", nombre: "Deportes Avellaneda", detalle: "Polideportivos", foto: avatarDirectivo("Deportes Avellaneda") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Avellaneda", detalle: "Formación", foto: avatarDirectivo("Staff Avellaneda") }
+                    { rol: "Deportes Municipal", nombre: "Deportes Avellaneda", detalle: "Polideportivos", foto: avatarDirectivo("Deportes Avellaneda") }
                 ],
                 historia_breve: "Programa municipal con polideportivos en el sur bonaerense.",
                 proyeccion_skills: "Inclusión y proyección federada.",
@@ -777,51 +813,13 @@
             }
         ];
 
-        // PLIEGOS RSE (ITALIA / BRASIL)
         const pliegosRseData = [
-            {
-                codigo_pliego: "LIC-MEC-SILLA-2026-01",
-                modelo_origen: "Technical Partner Serie A Italia & CBBC Brasil",
-                club_destino: "Planteles Activos FABA",
-                titulo: "Módulo Mecánica Integral de Silla a Medida: Cubiertas, Cámaras, Ejes, Rayos y Mantenimiento de Chasis",
-                proveedor_asignado: "Pago Directo a Ortopedia Técnica (Factura A)",
-                monto_estimado_ars: 680000,
-                explicacion_calculo: "Cálculo mayorista directo para reponer cubiertas de alta presión, cámaras, ejes de precisión, rayos y mantenimiento del chasis en general (elemento indispensable a medida).",
-                contraprestacion_privada: "Marca en Cubre-Rayos de 60cm + Branding en protector frontal del chasis a medida ('Adotta una Carrozzina' estilo Briantea84)."
-            },
-            {
-                codigo_pliego: "LIC-PERF-LIBRE-2026-02",
-                modelo_origen: "Performance Partner (Briantea84 Italia / CBBC Brasil)",
-                club_destino: "Libre Elección del Plantel",
-                titulo: "Módulo Rendimiento Físico: Suplementos a Libre Elección, Gimnasio o Espacio Accesible",
-                proveedor_asignado: "Pago Directo a Proveedor / Gimnasio (Factura A)",
-                monto_estimado_ars: 590000,
-                explicacion_calculo: "Libre destino: el plantel destina el presupuesto a los suplementos que considere más necesarios, a elementos de gimnasio o a la contratación externa de un espacio físico accesible.",
-                contraprestacion_privada: "Reconocimiento como 'Official Performance Partner' en redes y remeras de entrenamiento."
-            },
-            {
-                codigo_pliego: "LIC-IND-VIAJE-2026-03",
-                modelo_origen: "Apparel & Travel Partner (CBBC Brasil / España)",
-                club_destino: "Derecho Privado de Imagen (Art. 53 CCCN)",
-                titulo: "Módulo Indumentaria Civil de Concentración: Sudaderas de Viaje + Bolsos Porta-Ruedas",
-                proveedor_asignado: "Pago Directo a Fábrica Textil (Factura A)",
-                monto_estimado_ars: 720000,
-                explicacion_calculo: "Costo directo de fábrica para 12 conjuntos civiles y bolsos acolchados porta-ruedas. Compatible con clubes municipales.",
-                contraprestacion_privada: "Estampa corporativa en pecho y espalda de buzos de viaje y bolsos técnicos."
-            },
-            {
-                codigo_pliego: "LIC-LOG-FEDERAL-2026-04",
-                modelo_origen: "Mobility Partner (Italia / Brasil)",
-                club_destino: "Giras Nacionales FABA",
-                titulo: "Módulo Transporte Adaptado y Alojamiento Accesible (Cero Colectas Virales)",
-                proveedor_asignado: "Pago Directo a Empresa de Micros / Hotel (Factura A)",
-                monto_estimado_ars: 1450000,
-                explicacion_calculo: "Tarifa por kilómetro de combi adaptada y noche de hotel accesible para delegación completa.",
-                contraprestacion_privada: "Naming de gira + Certificación Criptográfica SHA-256 para Balance ESG."
-            }
+            { codigo_pliego: "LIC-MEC-SILLA-2026-01", modelo_origen: "Technical Partner Serie A Italia & CBBC Brasil", club_destino: "Planteles Activos FABA", titulo: "Módulo Mecánica Integral de Silla a Medida: Cubiertas, Cámaras, Ejes, Rayos y Mantenimiento de Chasis", proveedor_asignado: "Pago Directo a Ortopedia (Factura A)", monto_estimado_ars: 680000, explicacion_calculo: "Cálculo mayorista para reponer cubiertas de alta presión, cámaras, ejes de precisión, rayos y mantenimiento general del chasis a medida.", contraprestacion_privada: "Marca en Cubre-Rayos de 60cm + Branding en protector frontal del chasis a medida." },
+            { codigo_pliego: "LIC-PERF-LIBRE-2026-02", modelo_origen: "Performance Partner (Italia / Brasil)", club_destino: "Libre Elección del Plantel", titulo: "Módulo Rendimiento Físico: Suplementos a Libre Elección, Gimnasio o Espacio Accesible", proveedor_asignado: "Pago Directo a Proveedor / Gimnasio (Factura A)", monto_estimado_ars: 590000, explicacion_calculo: "Libre destino: el plantel destina el presupuesto a suplementos necesarios, elementos de gimnasio o contratación de espacio accesible.", contraprestacion_privada: "Reconocimiento como 'Official Performance Partner' en redes." },
+            { codigo_pliego: "LIC-IND-VIAJE-2026-03", modelo_origen: "Apparel & Travel Partner (Brasil / España)", club_destino: "Derecho Privado de Imagen (Art. 53 CCCN)", titulo: "Módulo Indumentaria Civil de Concentración: Sudaderas de Viaje + Bolsos Porta-Ruedas", proveedor_asignado: "Pago Directo a Fábrica Textil (Factura A)", monto_estimado_ars: 720000, explicacion_calculo: "Costo directo para 12 conjuntos civiles y bolsos acolchados porta-ruedas. Compatible con clubes municipales.", contraprestacion_privada: "Estampa corporativa en pecho y espalda de buzos y bolsos." },
+            { codigo_pliego: "LIC-LOG-FEDERAL-2026-04", modelo_origen: "Mobility Partner (Italia / Brasil)", club_destino: "Giras Nacionales FABA", titulo: "Módulo Transporte Adaptado y Alojamiento Accesible (Cero Colectas Virales)", proveedor_asignado: "Pago Directo a Empresa de Micros / Hotel (Factura A)", monto_estimado_ars: 1450000, explicacion_calculo: "Tarifa por kilómetro de combi adaptada y noche de hotel accesible.", contraprestacion_privada: "Naming de gira + Certificación Criptográfica SHA-256 para Balance ESG." }
         ];
 
-        // INICIALIZAR MAPA
         function inicializarMapaInteractivo() {
             if (mapaLeaflet) return;
             mapaLeaflet = L.map('mapa-federal-3d', { center: [-36.5, -62.0], zoom: 5 });
@@ -830,24 +828,13 @@
             actualizarMarcadoresMapa();
         }
 
-       function cambiarCapaMapa(modo) {
+        function cambiarCapaMapa(modo) {
             if (!mapaLeaflet) return;
             if (capaActualTiles) mapaLeaflet.removeLayer(capaActualTiles);
-
-            let urlTiles = '';
-            let atribucion = '';
-
-            if (modo === 'SATELITE') {
-                // Capa satelital de alta resolución (Esri)
-                urlTiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-                atribucion = 'Tiles &copy; Esri World Imagery HD';
-            } else {
-                // Capa de radar/oscura alternativa 100% libre de API Key (OpenStreetMap Standard / Positron)
-                urlTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-                atribucion = '&copy; OpenStreetMap contributors';
-            }
-
-            capaActualTiles = L.tileLayer(urlTiles, { attribution: atribucion, maxZoom: 18 }).addTo(mapaLeaflet);
+            const url = modo === 'SATELITE'
+                ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+            capaActualTiles = L.tileLayer(url, { maxZoom: 18 }).addTo(mapaLeaflet);
         }
 
         function volarARegion(lat, lng, zoom) {
@@ -881,7 +868,6 @@
                     <span class="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded text-[10px] uppercase">${c.division}</span>
                     <h4 class="font-black text-sm text-white mt-1">${c.nombre_actual}</h4>
                     <p class="text-[11px] text-sky-300">📍 ${c.jurisdiccion}</p>
-                    <p class="text-[11px] text-slate-300"><strong>Resp.:</strong> ${c.autoridades_con_cara[0].nombre}</p>
                     <button onclick="abrirFichaClub('${c.nombre_actual}')" class="mt-2 w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-1.5 rounded-lg text-xs">Abrir Ficha Completa →</button>
                 </div>`);
                 m.addTo(marcadoresLayer);
@@ -971,26 +957,19 @@
             document.getElementById('ficha-integral-club').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // MÓDULO DE APORTES ANÓNIMOS MODERADOS POR BOT IA
         function enviarAporteAnonimoModerado() {
             const texto = document.getElementById('input-aporte-anonimo').value.trim();
             if (!texto) { alert("Escribí un aporte válido."); return; }
-
-            // Simulación de filtro del Bot IA (Detecta insultos o irrelevancias)
             const palabrasProhibidas = ['idiota', 'estupido', 'roban', 'chorros', 'mierda', 'puta', 'malparido', 'lacras'];
-            const esInsulto = palabrasProhibidas.some(p => texto.toLowerCase().includes(p));
-
-            if (esInsulto || texto.length < 8) {
-                alert("🤖 Bot Moderador IA: El aporte contiene términos ofensivos o carece de información técnica verificable. Por favor, aportá datos concretos sobre insumos, sillas o trazabilidad.");
+            if (palabrasProhibidas.some(p => texto.toLowerCase().includes(p)) || texto.length < 8) {
+                alert("🤖 Bot Moderador IA: Aporte rechazado por contener términos ofensivos o carecer de datos técnicos.");
                 return;
             }
-
             let aportes = JSON.parse(localStorage.getItem('aportes_' + nombreClubActivo) || '[]');
             aportes.unshift({ texto, fecha: new Date().toLocaleDateString(), hash: Math.random().toString(36).substring(7) });
             localStorage.setItem('aportes_' + nombreClubActivo, JSON.stringify(aportes));
-
             document.getElementById('input-aporte-anonimo').value = '';
-            alert("✅ Bot Moderador IA: Aporte verificado y validado con éxito. Se incorporó de forma anónima al expediente de trazabilidad.");
+            alert("✅ Bot Moderador IA: Aporte verificado e incorporado anónimamente.");
             renderizarAportesClub(nombreClubActivo);
         }
 
@@ -998,18 +977,17 @@
             const cont = document.getElementById('lista-aportes-club');
             const aportes = JSON.parse(localStorage.getItem('aportes_' + nombreClub) || '[]');
             if (aportes.length === 0) {
-                cont.innerHTML = '<p class="text-slate-400 italic">No hay aportes anónimos aún. Sé el primero en aportar un dato técnico.</p>';
+                cont.innerHTML = '<p class="text-slate-400 italic">No hay aportes anónimos aún.</p>';
                 return;
             }
             cont.innerHTML = aportes.map(a => `
                 <div class="p-2 bg-white rounded-lg border border-emerald-200">
                     <p class="text-slate-800">💬 "${a.texto}"</p>
-                    <span class="text-[9px] text-slate-400 font-mono">Verificado por Bot • ${a.fecha} • Sello: ${a.hash}</span>
+                    <span class="text-[9px] text-slate-400 font-mono">Bot IA • ${a.fecha} • Sello: ${a.hash}</span>
                 </div>
             `).join('');
         }
 
-        // CÚPULA NACIONAL (PESTAÑA 3)
         function renderizarCupulaNacional() {
             const cont = document.getElementById('contenedor-cupula-nacional');
             cont.innerHTML = cupulaNacionalData.map(f => `
@@ -1035,7 +1013,6 @@
             `).join('');
         }
 
-        // FOTO OSINT MODAL
         function abrirModalFotoOSINTClub(entidad, nombrePersona) {
             personaFotoSeleccionada = nombrePersona;
             document.getElementById('input-nombre-persona-foto').value = `${entidad} → ${nombrePersona}`;
@@ -1045,32 +1022,18 @@
 
         function abrirModalFotoClubActual() {
             const c = clubesFabaData.find(x => x.nombre_actual === nombreClubActivo);
-            if (c && c.autoridades_con_cara[0]) {
-                abrirModalFotoOSINTClub(c.nombre_actual, c.autoridades_con_cara[0].nombre);
-            }
+            if (c && c.autoridades_con_cara[0]) abrirModalFotoOSINTClub(c.nombre_actual, c.autoridades_con_cara[0].nombre);
         }
 
         function guardarFotoRealPersona() {
             const url = document.getElementById('input-url-foto-real').value.trim();
             if (!url) { alert("Ingresá un link válido."); return; }
             localStorage.setItem('foto_real_' + personaFotoSeleccionada, url);
-            
-            // Actualizar en estructuras
-            clubesFabaData.forEach(c => {
-                c.autoridades_con_cara.forEach(a => {
-                    if (a.nombre === personaFotoSeleccionada) a.foto = url;
-                });
-            });
-
-            renderizarDirectorioClubes();
-            renderizarCupulaNacional();
-            actualizarMarcadoresMapa();
-            abrirFichaClub(nombreClubActivo);
-            cerrarModal('modal-foto-osint');
-            alert("✅ Retrato actualizado en toda la plataforma.");
+            clubesFabaData.forEach(c => c.autoridades_con_cara.forEach(a => { if (a.nombre === personaFotoSeleccionada) a.foto = url; }));
+            renderizarDirectorioClubes(); renderizarCupulaNacional(); actualizarMarcadoresMapa(); abrirFichaClub(nombreClubActivo);
+            cerrarModal('modal-foto-osint'); alert("✅ Retrato actualizado.");
         }
 
-        // PESTAÑA 2, 4 y 5
         function renderizarTablaExplicada(filtro = "") {
             const tbody = document.getElementById('tabla-boletines-explicados');
             const q = filtro.toLowerCase();
@@ -1090,7 +1053,7 @@
 
         function generarEscritoLegal(tipo) {
             const club = document.getElementById('input-entidad-personalizada').value.trim() || nombreClubActivo;
-            document.getElementById('texto-legal-generado').value = `OBJETO: SOLICITUD ANÓNIMA DE INFORMACIÓN PÚBLICA (LEY 27.275 / LEY 25.326)\n\nDestinatario: ${club}\n\nConforme a las garantías de anonimato (Ley 25.326) para proteger al deportista ciudadano, se solicita el detalle de provisión de cubiertas, cámaras, ejes, rayos, mantenimiento del chasis en general a medida, transporte y becas.`;
+            document.getElementById('texto-legal-generado').value = `OBJETO: SOLICITUD ANÓNIMA DE INFORMACIÓN PÚBLICA (LEY 27.275 / LEY 25.326)\n\nDestinatario: ${club}\n\nConforme a las garantías de anonimato (Ley 25.326), se solicita el detalle de provisión de cubiertas, cámaras, ejes, rayos, mantenimiento del chasis en general a medida, transporte y becas.`;
         }
 
         function copiarTextoLegal() {
@@ -1155,16 +1118,13 @@
         window.onload = function() {
             inicializarMapaInteractivo();
             renderizarDirectorioClubes();
-            abrirFichaClub("Instituto Municipal del Deporte Almirante Brown");
+            abrirFichaClub("Jujuy Básquet");
             renderizarTablaExplicada();
             renderizarCupulaNacional();
             generarEscritoLegal('MUNICIPIO_RAFAM');
             renderizarPliegosRSE();
             if (window.lucide) window.lucide.createIcons();
         };
-    </script>
-</body>
-</html>
     </script>
 </body>
 </html>
