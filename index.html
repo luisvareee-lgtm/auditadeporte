@@ -1,1130 +1,723 @@
 <!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuditaDeporte — Mapa Federal, Auditoría Ciudadana y Patrocinio RSE</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Leaflet Cartografía Interactiva CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Cliente Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .tab-active { border-bottom: 4px solid #2563eb; color: #1e40af; font-weight: 900; background-color: #eff6ff; }
-        .mapa-wrapper { background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); overflow: hidden; }
-        #mapa-federal-3d { width: 100%; height: 600px; z-index: 10; }
-        .leaflet-popup-content-wrapper { background: #0f172a !important; color: #f8fafc !important; border: 2px solid #38bdf8; border-radius: 16px !important; }
-        .leaflet-popup-tip { background: #38bdf8 !important; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuditaDeporte — Transparencia en el básquet adaptado</title>
+<meta name="description" content="Mapa federal de clubes de básquet sobre silla de ruedas (FABA), documentos públicos, pedidos de información y patrocinio directo a proveedores.">
+
+<!-- NOTA: el CDN de Tailwind es cómodo para prototipar. Para producción, compilá el CSS (Tailwind CLI) y quitá esta línea. -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+
+<style>
+  :focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; border-radius: 6px; }
+  .tab-btn[aria-selected="true"] { color: #0f172a; border-color: #f59e0b; background: #fffbeb; font-weight: 700; }
+  #map { height: 560px; width: 100%; background: #0b1220; }
+  @media (max-width: 640px) { #map { height: 420px; } }
+  .pin { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px solid #1d4ed8;
+         box-shadow: 0 4px 10px rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center;
+         overflow: hidden; font: 800 14px/1 system-ui, sans-serif; color: #1e3a8a; position: relative; }
+  .pin img { width: 100%; height: 100%; object-fit: cover; }
+  .pin-label { position: absolute; top: 48px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+               background: rgba(15,23,42,.92); color: #fff; font: 700 12px/1 system-ui, sans-serif;
+               padding: 4px 8px; border-radius: 999px; display: none; pointer-events: none; }
+  .zoom-ok .pin-label { display: block; }
+  .leaflet-div-icon { background: transparent; border: 0; }
+  .leaflet-popup-content-wrapper { border-radius: 14px; }
+  .leaflet-container a.btn-popup { color: #fff; }
+  dialog { border: 0; border-radius: 20px; padding: 0; max-width: 760px; width: calc(100% - 24px); box-shadow: 0 25px 60px rgba(0,0,0,.45); }
+  dialog::backdrop { background: rgba(2,6,23,.7); }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+</style>
 </head>
-<body class="bg-slate-100 text-slate-900 font-sans antialiased">
 
-    <!-- CABECERA INSTITUCIONAL Y GARANTÍA DE ANONIMATO -->
-    <header class="bg-slate-950 text-white border-b-2 border-slate-800 sticky top-0 z-50 shadow-2xl">
-        <div class="bg-emerald-950 border-b border-emerald-600/60 px-4 py-1.5 text-[11px] text-emerald-200 flex flex-wrap justify-between items-center gap-2">
-            <span class="font-extrabold">
-                🔒 GARANTÍA DE ANONIMATO TOTAL (LEY 25.326 Y ART. 6 LEY 27.275): Cualquier reclamo, solicitud de informe o aporte es 100% ANÓNIMO para cuidar al deportista ciudadano.
-            </span>
-            <span class="font-mono text-emerald-400 font-bold">Trazabilidad Criptográfica SHA-256 Activa</span>
+<body class="bg-slate-100 text-slate-900 antialiased">
+<a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] bg-amber-400 text-slate-900 px-4 py-2 rounded-lg font-bold">Saltar al contenido</a>
+
+<!-- ENCABEZADO -->
+<header class="bg-slate-900 text-white sticky top-0 z-40 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-3">
+    <div class="flex items-center gap-3">
+      <span class="grid place-items-center w-11 h-11 rounded-xl bg-amber-400 text-slate-900 font-black text-lg" aria-hidden="true">AD</span>
+      <div class="leading-tight">
+        <h1 class="text-lg font-extrabold tracking-tight">AuditaDeporte</h1>
+        <p class="text-xs text-slate-300">Transparencia en el básquet adaptado · FABA</p>
+      </div>
+    </div>
+    <div class="flex-1 min-w-[220px] max-w-lg">
+      <label for="buscador" class="sr-only">Buscar club, ciudad o provincia</label>
+      <div class="relative">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true"></i>
+        <input id="buscador" type="search" autocomplete="off" placeholder="Buscar club, ciudad o provincia…"
+               class="w-full bg-slate-800 border border-slate-600 focus:border-amber-400 rounded-xl pl-9 pr-3 py-2.5 text-sm placeholder-slate-400">
+      </div>
+    </div>
+    <button data-action="abrir" data-dialog="dlg-reglas" class="ml-auto text-sm font-semibold text-amber-300 hover:text-amber-200 underline underline-offset-4">
+      Cómo trabajamos
+    </button>
+  </div>
+
+  <nav class="bg-white text-slate-700 border-b border-slate-200" aria-label="Secciones">
+    <div role="tablist" class="max-w-7xl mx-auto px-2 flex overflow-x-auto text-sm">
+      <button role="tab" id="t-mapa" data-tab="mapa" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="map" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Mapa y clubes</button>
+      <button role="tab" id="t-transp" data-tab="transp" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="file-search" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Documentos públicos</button>
+      <button role="tab" id="t-inst" data-tab="inst" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="landmark" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Instituciones</button>
+      <button role="tab" id="t-pedir" data-tab="pedir" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="mail-open" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Pedir información</button>
+      <button role="tab" id="t-dato" data-tab="dato" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="shield-check" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Enviar un dato</button>
+      <button role="tab" id="t-rse" data-tab="rse" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="handshake" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Patrocinar</button>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido" class="max-w-7xl mx-auto px-4 py-6">
+
+  <!-- ===== MAPA Y CLUBES ===== -->
+  <section id="s-mapa" role="tabpanel" aria-labelledby="t-mapa" class="space-y-6">
+    <div class="rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white p-6 md:p-8 shadow-lg">
+      <div class="grid lg:grid-cols-12 gap-6 items-center">
+        <div class="lg:col-span-8 space-y-3">
+          <p class="inline-block bg-amber-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wide">Observatorio cívico · sin banderas políticas</p>
+          <h2 class="text-2xl md:text-3xl font-black leading-tight">Cada club de básquet adaptado, con sus documentos públicos a la vista.</h2>
+          <p class="text-slate-300 text-sm md:text-base max-w-2xl">Ubicá a los equipos en el mapa, mirá qué información pública existe, pedí la que falta y ayudá a que las sillas, los viajes y las becas sean más claros para todos.</p>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button data-tab="pedir" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-sm">Pedir información</button>
+            <button data-tab="dato" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-4 py-2.5 rounded-xl text-sm">Enviar un dato</button>
+            <button data-tab="rse" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-4 py-2.5 rounded-xl text-sm">Patrocinar a un equipo</button>
+          </div>
         </div>
-
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
-            <div class="flex items-center space-x-3">
-                <span class="bg-blue-600 text-white font-black px-3.5 py-2 rounded-xl text-lg tracking-wider shadow-lg">AD</span>
-                <div>
-                    <h1 class="text-base md:text-xl font-black tracking-tight flex items-center gap-2">
-                        <span>AuditaDeporte Federal</span>
-                        <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded uppercase">Servicio a la Comunidad • Sin Banderas Políticas</span>
-                    </h1>
-                    <p class="text-[11px] text-slate-400">Observatorio de Básquet Adaptado (1ra, 2da y 3ra Div. FABA) • Auditoría Presupuestaria y RSE</p>
-                </div>
-            </div>
-
-            <div class="flex-1 max-w-md mx-auto w-full">
-                <input type="text" id="buscador-global-club" onkeyup="busquedaRapidaClub(this.value)" placeholder="🔍 Buscar club, provincia, directivo o DT (Ej: Jujuy Básquet, DIMOT, CRIPAL, Corrientes)..." class="w-full bg-slate-900 border-2 border-slate-700 focus:border-amber-400 text-white text-xs rounded-xl px-4 py-2.5 focus:outline-none">
-            </div>
-
-            <div class="flex items-center gap-2 text-xs">
-                <button onclick="abrirModal('modal-descargo')" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-3 py-2 rounded-xl transition shadow">
-                    🏛️ Descargo Oficial
-                </button>
-            </div>
-        </div>
-
-        <nav class="bg-white text-slate-700 border-b border-slate-300">
-            <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto text-xs md:text-sm">
-                <button onclick="cambiarTab('tab-mapa-clubes')" id="btn-tab-mapa-clubes" class="tab-active px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700 font-extrabold">
-                    🗺️ 1. Mapa Interactivo y Clubes (23 Federados)
-                </button>
-                <button onclick="cambiarTab('tab-hallazgos')" id="btn-tab-hallazgos" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700 font-bold">
-                    📰 2. Lo que tenés que saber (Auditoría por Club)
-                </button>
-                <button onclick="cambiarTab('tab-cupula')" id="btn-tab-cupula" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700 font-bold">
-                    🏛️ 3. Cúpula Nacional (FABA / COPAR / ENARD)
-                </button>
-                <button onclick="cambiarTab('tab-reclamos')" id="btn-tab-reclamos" class="px-4 py-3.5 whitespace-nowrap transition hover:text-blue-700 font-bold">
-                    ⚖️ 4. Derechos y Reclamo Anónimo
-                </button>
-                <button onclick="cambiarTab('tab-rse')" id="btn-tab-rse" class="px-4 py-3.5 whitespace-nowrap transition hover:text-emerald-700 font-extrabold text-emerald-800">
-                    🛞 5. Licitaciones Privadas RSE
-                </button>
-            </div>
-        </nav>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 py-6 space-y-8">
-
-        <!-- PESTAÑA 1 -->
-        <section id="tab-mapa-clubes" class="space-y-6">
-            <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-6 rounded-2xl border-2 border-blue-600 shadow-lg">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                    <div class="lg:col-span-8 space-y-2">
-                        <span class="bg-emerald-400 text-slate-950 text-[11px] font-black px-2.5 py-0.5 rounded uppercase">
-                            Observatorio Cívico • Padrón Ampliado 2026 (Jujuy Básquet, DIMOT, Fu.Di.Tuc, CEF 17, CRIPAL)
-                        </span>
-                        <h2 class="text-xl md:text-2xl font-black leading-tight">
-                            Navegá el mapa interactivo de todo el país para ver las caras de sus directivos, su presente deportivo, qué pasa con las sillas a medida y cómo aportar datos o reclamos anónimos.
-                        </h2>
-                    </div>
-                    <div class="lg:col-span-4 grid grid-cols-2 gap-3 text-center text-xs">
-                        <div class="bg-slate-800/90 p-3 rounded-xl border border-slate-700">
-                            <span class="text-2xl font-black text-amber-400 block" id="stat-total-clubes">23</span>
-                            <span class="text-slate-300 font-bold text-[11px]">Clubes Federados</span>
-                        </div>
-                        <div class="bg-emerald-950/90 p-3 rounded-xl border border-emerald-500">
-                            <span class="text-2xl font-black text-emerald-400 block">100%</span>
-                            <span class="text-emerald-200 font-bold text-[11px]">Identidad Protegida</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- MAPA + DIRECTORIO -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-7 bg-slate-950 text-white rounded-3xl border-2 border-slate-700 shadow-2xl overflow-hidden flex flex-col justify-between">
-                    <div class="p-4 bg-slate-900 border-b border-slate-800 space-y-3">
-                        <div class="flex flex-wrap justify-between items-center gap-2">
-                            <div>
-                                <span class="text-[10px] uppercase tracking-wider text-sky-400 font-extrabold block">Cartografía Nacional 100% Operativa</span>
-                                <h3 class="text-base md:text-lg font-black">🗺️ Mapa Federal de Clubes (23 Entidades)</h3>
-                            </div>
-                            <div class="flex gap-2 text-xs">
-                                <button onclick="cambiarCapaMapa('OSCURO')" class="bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-600 px-3 py-1.5 rounded-lg font-bold">🌙 Radar</button>
-                                <button onclick="cambiarCapaMapa('SATELITE')" class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-600 px-3 py-1.5 rounded-lg font-bold">🛰️ Satélite</button>
-                            </div>
-                        </div>
-
-                        <!-- Vuelo Rápido por Región -->
-                        <div class="flex flex-wrap gap-1.5 text-[11px] font-extrabold">
-                            <button onclick="volarARegion(-38.4, -63.6, 4)" class="bg-amber-400 text-slate-950 px-2.5 py-1 rounded-lg">🇦🇷 Todo el País</button>
-                            <button onclick="volarARegion(-24.18, -65.29, 9)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Jujuy Básquet</button>
-                            <button onclick="volarARegion(-26.82, -65.21, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Tucumán (Fu.Di.Tuc)</button>
-                            <button onclick="volarARegion(-32.88, -68.84, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Mendoza (UNCuyo / DIMOT)</button>
-                            <button onclick="volarARegion(-27.46, -58.83, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Corrientes (CEF 17)</button>
-                            <button onclick="volarARegion(-39.03, -67.59, 10)" class="bg-slate-800 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg border border-slate-700">📍 Río Negro (CRIPAL)</button>
-                        </div>
-                    </div>
-
-                    <div class="mapa-wrapper relative">
-                        <div id="mapa-federal-3d"></div>
-                    </div>
-
-                    <div class="p-3 bg-slate-900 border-t border-slate-800 flex justify-between items-center text-xs">
-                        <span class="text-slate-300">💡 Hacé zoom o tocá cualquier marcador para abrir su Ficha.</span>
-                        <button onclick="abrirModal('modal-club')" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-3 py-1.5 rounded-xl">
-                            ➕ Sumar Club
-                        </button>
-                    </div>
-                </div>
-
-                <!-- DIRECTORIO -->
-                <div class="lg:col-span-5 space-y-3">
-                    <div class="bg-white p-4 rounded-2xl border-2 border-slate-300">
-                        <h3 class="text-base font-black text-slate-950">🏀 Perfiles de Clubes Federados (23)</h3>
-                        <p class="text-xs text-slate-600">Incluye Jujuy Básquet, Tucumán, Mendoza, Corrientes y Río Negro.</p>
-                    </div>
-                    <div id="grilla-perfiles-clubes" class="grid grid-cols-1 gap-3 max-h-[660px] overflow-y-auto pr-1"></div>
-                </div>
-            </div>
-
-            <!-- FICHA INTEGRAL -->
-            <article id="ficha-integral-club" class="bg-white rounded-3xl border-4 border-blue-700 shadow-2xl overflow-hidden scroll-mt-24">
-                <header class="bg-slate-900 text-white p-6 md:p-8 border-b-2 border-slate-700">
-                    <div class="flex flex-wrap justify-between items-start gap-4">
-                        <div class="space-y-2 max-w-3xl">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span id="ficha-division" class="bg-amber-400 text-slate-950 text-xs font-black px-3 py-1 rounded-full uppercase">1ra División</span>
-                                <span id="ficha-tipo-entidad" class="bg-blue-700 text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase">MUNICIPAL</span>
-                                <span id="ficha-ubicacion" class="text-slate-300 text-xs font-bold">📍 Jujuy</span>
-                            </div>
-                            <h2 id="ficha-nombre-club" class="text-2xl md:text-4xl font-black text-white">Jujuy Básquet</h2>
-                            <p id="ficha-historia-breve" class="text-xs md:text-sm text-slate-300 leading-relaxed"></p>
-                        </div>
-                        <div class="bg-slate-800 border-2 border-slate-600 p-4 rounded-2xl text-center min-w-[215px]">
-                            <span class="text-[10px] uppercase font-extrabold text-slate-300 block">Índice de Transparencia (ITG)</span>
-                            <span id="ficha-itg-numero" class="text-3xl font-black text-red-400 block mt-1">44 / 100</span>
-                            <span id="ficha-rendicion-badge" class="inline-block mt-1 text-[11px] font-black px-2.5 py-0.5 rounded bg-amber-700 text-white">RENDICIÓN PARCIAL</span>
-                        </div>
-                    </div>
-                </header>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-slate-200">
-                    <div class="lg:col-span-4 p-6 space-y-4 bg-slate-50">
-                        <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2">
-                            <h3 class="text-sm font-black text-slate-900">👥 1. Directivos y Cuerpo Técnico</h3>
-                            <button onclick="abrirModalFotoClubActual()" class="text-[11px] text-blue-700 font-extrabold underline">📷 Cargar Foto Directivo/DT</button>
-                        </div>
-                        <div id="ficha-lista-autoridades-caras" class="space-y-3 text-xs"></div>
-                        <div class="p-3 bg-amber-100 border border-amber-500 rounded-xl text-[11px] text-amber-950">
-                            ⚠️ <strong>Contraste de Padrón:</strong> <span id="ficha-desfasaje"></span>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-4 p-6 space-y-4 bg-white">
-                        <h3 class="text-sm font-black text-slate-900 border-b-2 border-slate-200 pb-2">🏀 2. Presente Deportivo y Sillas</h3>
-                        <div class="relative rounded-xl overflow-hidden border-2 border-slate-300 bg-slate-900">
-                            <img id="ficha-foto" src="https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=900&q=80" alt="Plantel" class="w-full h-36 object-cover opacity-90">
-                            <div class="bg-slate-950 text-white px-3 py-1.5 text-[11px] flex justify-between">
-                                <span id="ficha-posicion-actual" class="font-extrabold text-amber-400"></span>
-                                <a id="ficha-link-redes" href="#" target="_blank" class="underline text-emerald-300 font-bold">Redes ↗</a>
-                            </div>
-                        </div>
-                        <div class="space-y-2.5 text-xs">
-                            <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl">
-                                <strong class="text-blue-950 block">📈 Skills y Proyección:</strong>
-                                <p id="ficha-proyeccion" class="text-slate-700 mt-1"></p>
-                            </div>
-                            <div class="p-3 bg-slate-50 border border-slate-300 rounded-xl">
-                                <strong class="text-blue-950 block">⭐ Destacados:</strong>
-                                <p id="ficha-destacados" class="text-slate-700 mt-1"></p>
-                            </div>
-                            <div class="p-3 rounded-xl bg-slate-100 border border-slate-300 space-y-1.5 text-[11px]">
-                                <div class="flex justify-between gap-2">
-                                    <span class="font-bold text-slate-700">🛞 Cubiertas, Cámaras, Ejes, Rayos y Chasis a Medida:</span>
-                                    <strong id="ficha-sem-sillas" class="text-amber-800 text-right"></strong>
-                                </div>
-                                <div class="flex justify-between gap-2">
-                                    <span class="font-bold text-slate-700">🚐 Transporte:</span>
-                                    <strong id="ficha-sem-transporte" class="text-red-700 text-right"></strong>
-                                </div>
-                                <div class="flex justify-between gap-2">
-                                    <span class="font-bold text-slate-700">🎓 Becas:</span>
-                                    <strong id="ficha-sem-becas" class="text-red-700 text-right"></strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-4 p-6 space-y-4 bg-slate-50 flex flex-col justify-between">
-                        <div class="space-y-3">
-                            <h3 class="text-sm font-black text-slate-900 border-b-2 border-slate-200 pb-2">📄 3. Auditoría y Aportes</h3>
-                            <div class="p-3.5 bg-white rounded-xl border-2 border-red-300 space-y-1.5 text-xs">
-                                <span class="bg-red-100 text-red-900 font-extrabold px-2 py-0.5 rounded text-[10px] uppercase">Partidas Auditadas</span>
-                                <p id="ficha-doc-auditado" class="font-bold text-slate-900 mt-1"></p>
-                                <p id="ficha-resultado-ciudadano" class="text-slate-700 leading-relaxed"></p>
-                            </div>
-                            
-                            <div class="p-3.5 bg-emerald-50 rounded-xl border-2 border-emerald-400 space-y-2 text-xs">
-                                <span class="bg-emerald-700 text-white font-black px-2 py-0.5 rounded text-[10px] uppercase">💬 Aporte Anónimo de Trazabilidad</span>
-                                <p class="text-slate-700 text-[11px]">Dato técnico filtrado por bot moderador:</p>
-                                <textarea id="input-aporte-anonimo" rows="2" placeholder="Escribir estado de sillas o insumos..." class="w-full p-2 bg-white border border-emerald-300 rounded-lg text-xs"></textarea>
-                                <button onclick="enviarAporteAnonimoModerado()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2 rounded-lg text-xs">Enviar Aporte Anónimo</button>
-                            </div>
-                            <div id="lista-aportes-club" class="space-y-1.5 max-h-32 overflow-y-auto text-[11px]"></div>
-                        </div>
-
-                        <div class="space-y-2 pt-2">
-                            <button onclick="despacharGestionSinSalirDeCasa()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-3 px-4 rounded-xl text-xs shadow transition">
-                                📨 Enviar Reclamo Anónimo
-                            </button>
-                            <button onclick="cambiarTab('tab-rse')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-4 rounded-xl text-xs shadow transition">
-                                🛞 Patrocinar por RSE
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        </section>
-
-        <!-- PESTAÑA 2 -->
-        <section id="tab-hallazgos" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6">
-                <div class="border-b-2 border-slate-200 pb-4 flex flex-wrap justify-between items-end gap-4">
-                    <div>
-                        <span class="bg-red-100 text-red-900 border border-red-700 text-xs font-extrabold px-2.5 py-1 rounded uppercase">Auditoría de los 23 Clubes</span>
-                        <h2 class="text-2xl font-black text-slate-900 mt-1">📰 Lo que tenés que saber: Documentos analizados</h2>
-                    </div>
-                    <input type="text" onkeyup="renderizarTablaExplicada(this.value)" placeholder="Filtrar club o provincia..." class="px-3.5 py-2 border-2 border-slate-300 rounded-xl text-xs w-64">
-                </div>
-                <div class="overflow-x-auto border-2 border-slate-300 rounded-2xl">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-900 text-white uppercase font-extrabold">
-                            <tr>
-                                <th class="p-3.5">Club / Jurisdicción</th>
-                                <th class="p-3.5">Directivos / DT</th>
-                                <th class="p-3.5">Documento Analizado</th>
-                                <th class="p-3.5">Hallazgo Explicado</th>
-                                <th class="p-3.5">¿Rinde?</th>
-                                <th class="p-3.5">Ficha</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-boletines-explicados" class="divide-y divide-slate-300 bg-white"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- PESTAÑA 3 -->
-        <section id="tab-cupula" class="hidden space-y-6">
-            <div class="bg-blue-950 text-white p-6 rounded-2xl border-2 border-blue-700 shadow flex flex-wrap justify-between items-center gap-4">
-                <div class="max-w-3xl space-y-1">
-                    <span class="bg-amber-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded uppercase">Cúpula Reguladora Nacional</span>
-                    <h2 class="text-xl md:text-2xl font-black">🏛️ Cúpula Nacional: FABA, COPAR y ENARD</h2>
-                </div>
-            </div>
-            <div id="contenedor-cupula-nacional" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
-        </section>
-
-        <!-- PESTAÑA 4 -->
-        <section id="tab-reclamos" class="hidden space-y-6">
-            <div class="bg-emerald-950 text-white p-5 rounded-2xl border-2 border-emerald-400 shadow-lg">
-                <span class="bg-emerald-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded uppercase">Ley 25.326 y Art. 6 Ley 27.275</span>
-                <h2 class="text-lg md:text-xl font-black text-white mt-1">🔒 Todo Reclamo o Firma es 100% ANÓNIMO</h2>
-            </div>
-            <div class="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm space-y-4">
-                <h3 class="text-lg font-black text-slate-900">📨 Generador de Solicitudes Anónimas</h3>
-                <input type="text" id="input-entidad-personalizada" onkeyup="actualizarNombreEnPlantilla()" placeholder="Municipio, Club o Federación" class="w-full px-3.5 py-2.5 border-2 border-slate-300 rounded-xl text-xs font-bold">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <button onclick="generarEscritoLegal('MUNICIPIO_RAFAM')" class="bg-blue-800 text-white text-xs font-bold p-3 rounded-xl text-left">🏛️ 1. Reclamo Anónimo a Municipio</button>
-                    <button onclick="generarEscritoLegal('ONG_SOCIO_BALANCE')" class="bg-purple-800 text-white text-xs font-bold p-3 rounded-xl text-left">🤝 2. Reclamo Anónimo a Club ONG</button>
-                    <button onclick="generarEscritoLegal('FABA_PERDIGUERO')" class="bg-slate-900 text-white text-xs font-bold p-3 rounded-xl text-left">🇦🇷 3. Reclamo Anónimo a FABA/COPAR</button>
-                </div>
-                <textarea id="texto-legal-generado" rows="10" class="w-full p-3.5 bg-slate-950 text-emerald-300 font-mono text-xs rounded-xl border-2 border-slate-700"></textarea>
-                <div class="flex gap-3">
-                    <button onclick="despacharGestionSinSalirDeCasa()" class="flex-1 bg-blue-700 text-white font-black py-3.5 px-4 rounded-xl text-xs shadow">📨 Enviar Solicitud Anónima (SHA-256)</button>
-                    <button onclick="copiarTextoLegal()" class="bg-emerald-700 text-white font-black px-6 py-3.5 rounded-xl text-xs shadow">📋 Copiar</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- PESTAÑA 5 -->
-        <section id="tab-rse" class="hidden space-y-6">
-            <div class="bg-slate-900 text-white p-6 rounded-2xl border-2 border-emerald-500 shadow-xl space-y-2">
-                <span class="bg-emerald-400 text-slate-950 text-xs font-black px-3 py-1 rounded-full uppercase">Modelos Italia (seriea.briantea84.it) y Brasil (cbbc.org.br)</span>
-                <h2 class="text-2xl font-black text-white">🛞 Licitaciones Privadas RSE (Pago Directo a Proveedor)</h2>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="contenedor-pliegos-licitacion"></div>
-        </section>
-
-    </main>
-
-    <!-- MODAL FOTO OSINT -->
-    <div id="modal-foto-osint" class="hidden fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4 border-2 border-slate-400 text-xs">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-black text-base text-slate-950">📷 Vincular Foto Real de Directivo / DT</h3>
-                <button onclick="cerrarModal('modal-foto-osint')" class="font-bold text-xl">&times;</button>
-            </div>
-            <input type="text" id="input-nombre-persona-foto" readonly class="w-full p-2.5 bg-slate-100 border rounded-xl font-bold text-slate-800">
-            <input type="url" id="input-url-foto-real" placeholder="Pegar URL de la foto (https://...)" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
-            <button onclick="guardarFotoRealPersona()" class="w-full bg-blue-700 text-white font-black py-2.5 rounded-xl">Guardar Retrato</button>
-        </div>
+        <dl class="lg:col-span-4 grid grid-cols-2 gap-3 text-center">
+          <div class="bg-white/10 rounded-xl p-4"><dt class="text-xs text-slate-300 font-semibold">Clubes cargados</dt><dd id="stat-clubes" class="text-3xl font-black text-amber-300">—</dd></div>
+          <div class="bg-white/10 rounded-xl p-4"><dt class="text-xs text-slate-300 font-semibold">Con documentos revisados</dt><dd id="stat-rev" class="text-3xl font-black text-emerald-300">—</dd></div>
+        </dl>
+      </div>
     </div>
 
-    <!-- MODAL DESCARGO -->
-    <div id="modal-descargo" class="hidden fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4 border-2 border-slate-400 text-xs">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-black text-base">🏛️ Ventanilla de Descargo Oficial</h3>
-                <button onclick="cerrarModal('modal-descargo')" class="font-bold text-xl">&times;</button>
-            </div>
-            <input type="text" placeholder="Entidad / Municipio / Club" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
-            <input type="url" placeholder="Enlace al Balance" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
-            <button onclick="alert('✅ Documentación registrada.'); cerrarModal('modal-descargo');" class="w-full bg-amber-400 font-black py-2.5 rounded-xl">Registrar</button>
+    <div class="grid lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-8 bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-700">
+        <div class="p-3 flex flex-wrap items-center gap-2 border-b border-slate-700">
+          <div class="flex gap-1.5" role="group" aria-label="Estilo de mapa">
+            <button data-action="capa" data-capa="radar" aria-pressed="true" class="capa-btn px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-800 text-sky-300 border border-slate-600 aria-pressed:bg-sky-400 aria-pressed:text-slate-900">Radar</button>
+            <button data-action="capa" data-capa="calle" aria-pressed="false" class="capa-btn px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-800 text-sky-300 border border-slate-600 aria-pressed:bg-sky-400 aria-pressed:text-slate-900">Calles</button>
+            <button data-action="capa" data-capa="sat" aria-pressed="false" class="capa-btn px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-800 text-sky-300 border border-slate-600 aria-pressed:bg-sky-400 aria-pressed:text-slate-900">Satélite</button>
+          </div>
+          <div class="flex flex-wrap gap-1.5 ml-auto text-sm" role="group" aria-label="Ir a una región">
+            <button data-action="volar" data-lat="-38.4" data-lng="-63.6" data-z="4" class="px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-bold">Todo el país</button>
+            <button data-action="volar" data-lat="-34.7" data-lng="-58.4" data-z="9" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">AMBA</button>
+            <button data-action="volar" data-lat="-25.5" data-lng="-65.3" data-z="6" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">NOA</button>
+            <button data-action="volar" data-lat="-32.5" data-lng="-64.5" data-z="6" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">Centro / Cuyo</button>
+            <button data-action="volar" data-lat="-45" data-lng="-68" data-z="5" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">Patagonia</button>
+          </div>
         </div>
-    </div>
+        <div id="map" role="application" aria-label="Mapa interactivo de clubes"></div>
+        <p id="map-aviso" class="hidden bg-amber-100 text-amber-900 text-sm px-4 py-2">No se pudieron cargar algunas teselas del mapa. Probá otro estilo o revisá tu conexión.</p>
+        <p class="px-4 py-2 text-xs text-slate-400">Tocá un logo para ver la ficha. Los números indican varios clubes cercanos: hacé zoom para separarlos.</p>
+      </div>
 
-    <!-- MODAL CLUB -->
-    <div id="modal-club" class="hidden fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-3 border-2 border-slate-400 text-xs">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-black text-base">🏀 Sumar Club FABA</h3>
-                <button onclick="cerrarModal('modal-club')" class="font-bold text-xl">&times;</button>
-            </div>
-            <input type="text" id="club-nombre" placeholder="Nombre del Club" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
-            <input type="text" id="club-presi" placeholder="Presidente / Director" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
-            <input type="text" id="club-dt" placeholder="Cuerpo Técnico / DT" class="w-full p-2.5 border-2 border-slate-300 rounded-xl">
-            <textarea id="club-detalle" rows="3" placeholder="Estado de cubiertas, cámaras, ejes, rayos, chasis y viajes..." class="w-full p-2.5 border-2 border-slate-300 rounded-xl"></textarea>
-            <button onclick="guardarNuevoClubComunitario()" class="w-full bg-blue-700 text-white font-black py-2.5 rounded-xl">Publicar Anónimamente</button>
+      <aside class="lg:col-span-4 space-y-3" aria-label="Directorio de clubes">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+          <h3 class="font-extrabold">Directorio</h3>
+          <label class="block text-sm font-semibold" for="filtro-div">División</label>
+          <select id="filtro-div" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+            <option value="">Todas</option><option>1ra División</option><option>2da División</option><option>3ra División</option><option>Desarrollo</option>
+          </select>
+          <p id="dir-count" class="text-sm text-slate-600" aria-live="polite"></p>
         </div>
+        <ul id="dir" class="space-y-2.5 max-h-[470px] overflow-y-auto pr-1"></ul>
+      </aside>
     </div>
+  </section>
 
-    <!-- MOTOR SCRIPT -->
-    <script>
-        let mapaLeaflet = null;
-        let capaActualTiles = null;
-        let marcadoresLayer = null;
-        let nombreClubActivo = 'Jujuy Básquet';
-        let personaFotoSeleccionada = '';
+  <!-- ===== DOCUMENTOS PÚBLICOS ===== -->
+  <section id="s-transp" role="tabpanel" aria-labelledby="t-transp" class="hidden space-y-5">
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-2">
+      <h2 class="text-2xl font-black">Documentos públicos por club</h2>
+      <p class="text-slate-700 text-sm max-w-3xl">Registramos si cada club o entidad tiene publicados cuatro documentos básicos. <strong>Cada estado lleva fecha de revisión y enlace a la fuente.</strong> “Sin revisar” significa que todavía no lo miramos; no significa que el documento no exista. Si encontrás uno, enviálo desde “Enviar un dato”.</p>
+      <p id="meta-resumen" class="text-sm font-semibold text-blue-800"></p>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+      <table class="w-full text-sm text-left">
+        <caption class="sr-only">Estado de documentos públicos por club</caption>
+        <thead class="bg-slate-900 text-white">
+          <tr><th scope="col" class="p-3">Club</th><th scope="col" class="p-3">Balance / memoria</th><th scope="col" class="p-3">Autoridades</th><th scope="col" class="p-3">Subsidios / convenios</th><th scope="col" class="p-3">Sillas y repuestos</th><th scope="col" class="p-3"><span class="sr-only">Ficha</span></th></tr>
+        </thead>
+        <tbody id="tbody-transp" class="divide-y divide-slate-200"></tbody>
+      </table>
+    </div>
+  </section>
 
-        function avatarDirectivo(nombre) {
-            const guardada = localStorage.getItem('foto_real_' + nombre);
-            if (guardada) return guardada;
-            return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=1e3a8a&color=fff&size=128&bold=true`;
-        }
+  <!-- ===== INSTITUCIONES ===== -->
+  <section id="s-inst" role="tabpanel" aria-labelledby="t-inst" class="hidden space-y-5">
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-2">
+      <h2 class="text-2xl font-black">Instituciones que organizan y financian</h2>
+      <p class="text-sm text-slate-700 max-w-3xl">Qué hace cada entidad y qué documentos conviene buscar. Los cargos de sus autoridades se publican <strong>solo con fuente oficial y fecha</strong> (acta, resolución, sitio institucional), redactados como hechos verificables y sin adjetivos.</p>
+    </div>
+    <div id="inst-grid" class="grid md:grid-cols-3 gap-5"></div>
+  </section>
 
-        const cupulaNacionalData = [
-            { id_persona: "Ricardo Perdiguero", entidad: "FABA & COPAR", nombre: "Ricardo Perdiguero", cargo: "Presidente FABA y Tesorero COPAR", cuestionamiento_clave: "DOBLE ROL CRÍTICO: Preside la Federación y es Tesorero del Comité Paralímpico. Padrón web congelado en 2018 y sin balances públicos del Parcial 517." },
-            { id_persona: "Gustavo Borro", entidad: "COPAR & Alte. Brown", nombre: "Prof. Gustavo Borro", cargo: "Presidente COPAR y Dir. Alte. Brown", cuestionamiento_clave: "SUPERPOSICIÓN DE MOSTRADORES: Preside COPAR (con Perdiguero como Tesorero) conservando la Dirección en Almirante Brown." },
-            { id_persona: "Directorio ENARD", entidad: "ENARD / SAF 342", nombre: "Directorio Ejecutivo ENARD", cargo: "Asignación de Becas Nacionales", cuestionamiento_clave: "OPACIDAD EN BECAS: Falta de padrón nominal público de becarios y partidas del Parcial 517." }
-        ];
+  <!-- ===== PEDIR INFORMACIÓN ===== -->
+  <section id="s-pedir" role="tabpanel" aria-labelledby="t-pedir" class="hidden">
+    <div class="grid lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-5 space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3">
+          <h2 class="text-2xl font-black">Pedir información</h2>
+          <p class="text-sm text-slate-700">Armá el texto de un pedido formal. Se genera en tu navegador y <strong>no se envía a ningún servidor</strong>: lo presentás vos, con tu nombre.</p>
+          <div class="rounded-xl bg-amber-50 border border-amber-300 p-4 text-sm text-amber-950 space-y-2">
+            <p class="font-bold">Importante sobre la identidad</p>
+            <p>Los pedidos de acceso a la información pública suelen requerir que quien pide se identifique (no hace falta explicar para qué lo querés). Un pedido anónimo puede ser rechazado. Si no querés exponerte, pedile a una persona u organización de confianza que lo presente.</p>
+            <p>La Ley 27.275 rige para organismos nacionales; provincias y municipios tienen sus propias normas. Las asociaciones civiles privadas responden en lo que se relaciona con fondos públicos recibidos, según su caso; si sos socio, revisá también tu estatuto.</p>
+          </div>
+        </div>
+      </div>
 
-        // 23 CLUBES FEDERADOS AMPLIADOS (CON JUJUY BÁSQUET, UNCuyo, DIMOT, Fu.Di.Tuc, CEF 17 Y CRIPAL)
-        const clubesFabaData = [
-            {
-                nombre_actual: "Jujuy Básquet",
-                lat: -24.185, lng: -65.299, provincia_mapa: "NOA",
-                jurisdiccion: "San Salvador de Jujuy, Jujuy", division: "2da División / Desarrollo",
-                posicion_actual: "Referente Regional NOA FABA (Auditado en Redes)", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 44, rinde_cuentas: "RENDICIÓN PARCIAL",
-                autoridades_con_cara: [
-                    { rol: "Presidente / Dirección", nombre: "Comisión Directiva Jujuy Básquet", detalle: "San Salvador de Jujuy", foto: avatarDirectivo("CD Jujuy Basquet") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico Jujuy Básquet", detalle: "Desarrollo NOA", foto: avatarDirectivo("Staff Jujuy Basquet") }
-                ],
-                historia_breve: "Institución auditada en redes sociales por su impulso al básquet sobre silla de ruedas en el norte argentino, consolidando la disciplina en Jujuy.",
-                proyeccion_skills: "Fuerte arraigo regional NOA y desarrollo formativo.",
-                destacados: "Plantel competitivo del norte argentino.",
-                dato_desactualizado_oficial: "Sin desglose público en padrones históricos de FABA.",
-                provee_sillas_repuestos: "PARCIAL (Autogestión de cubiertas, cámaras, ejes y chasis)",
-                provee_transporte: "PARCIAL", provee_becas_viaticos: "SIN BECAS NACIONALES",
-                documento_auditado: "Relevamiento OSINT Redes NOA 2026.",
-                resultado_ciudadano: "El plantel sostiene su participación con esfuerzo propio; requiere respaldo RSE en cubiertas, cámaras y repuestos a medida.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "Fu.Di.Tuc (Fundación de Discapacitados de Tucumán)",
-                lat: -26.824, lng: -65.217, provincia_mapa: "NOA",
-                jurisdiccion: "San Miguel de Tucumán, Tucumán", division: "2da / 3ra División FABA",
-                posicion_actual: "Bastión Histórico del NOA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 42, rinde_cuentas: "RENDICIÓN PARCIAL",
-                autoridades_con_cara: [
-                    { rol: "Dirección Fundacional", nombre: "Comisión Directiva Fu.Di.Tuc", detalle: "San Miguel de Tucumán", foto: avatarDirectivo("FuDiTuc") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico Tucumán", detalle: "Básquet Adaptado NOA", foto: avatarDirectivo("Staff Tucuman") }
-                ],
-                historia_breve: "Fundación emblemática de Tucumán que impulsa la práctica y competencia del básquet sobre silla de ruedas en el noroeste.",
-                proyeccion_skills: "Tradición competitiva en el norte y articulación regional.",
-                destacados: "Atletas tucumanos de Liga Nacional.",
-                dato_desactualizado_oficial: "Sin registro de subsidios federativos Parcial 517 en portales públicos.",
-                provee_sillas_repuestos: "PARCIAL (Autogestión de cubiertas, cámaras, ejes y chasis)",
-                provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN DATOS",
-                documento_auditado: "Relevamiento OSINT Redes Tucumán 2026.",
-                resultado_ciudadano: "Esfuerzo constante para sostener los viajes al centro del país; requiere patrocinio RSE directo en cubiertas y repuestos.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "UNCuyo Básquet Adaptado",
-                lat: -32.889, lng: -68.844, provincia_mapa: "CUYO",
-                jurisdiccion: "Mendoza Capital", division: "1ra / 2da División FABA",
-                posicion_actual: "Referente Región Cuyo (Cruce con Brown este año)", tipo_entidad: "UNIVERSITARIO_MUNICIPAL",
-                itg_score: 55, rinde_cuentas: "SÍ RINDE PARCIALMENTE",
-                autoridades_con_cara: [
-                    { rol: "Coordinación Deportiva", nombre: "Dirección de Deportes UNCuyo", detalle: "Mendoza Capital", foto: avatarDirectivo("Deportes UNCuyo") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico UNCuyo", detalle: "Región Cuyo", foto: avatarDirectivo("Staff UNCuyo") }
-                ],
-                historia_breve: "Equipo representativo de la Universidad Nacional de Cuyo en Mendoza, con cruces competitivos oficiales este año frente a Brown de Alta Gracia.",
-                proyeccion_skills: "Infraestructura universitaria y proyección en Cuyo.",
-                destacados: "Plantel mendocino de alta competencia.",
-                dato_desactualizado_oficial: "Padrón FABA sin actualización de planteles cuyanos.",
-                provee_sillas_repuestos: "PARCIAL (Sostenido por estructura universitaria)",
-                provee_transporte: "CUBIERTO UNIVERSIDAD", provee_becas_viaticos: "BECAS PROVINCIALES",
-                documento_auditado: "Relevamiento Universitario Cuyo y Partidos 2026.",
-                resultado_ciudadano: "Cuenta con respaldo universitario, pero requiere trazabilidad pública de subsidios para cubiertas, cámaras y chasis.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "DIMOT (Deporte Adaptado Mendoza)",
-                lat: -32.895, lng: -68.828, provincia_mapa: "CUYO",
-                jurisdiccion: "Godoy Cruz / Mendoza Capital", division: "2da División FABA",
-                posicion_actual: "Histórico Cuyo en Liga Nacional", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 41, rinde_cuentas: "RENDICIÓN PARCIAL",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva DIMOT", nombre: "Directivos DIMOT Mendoza", detalle: "Godoy Cruz", foto: avatarDirectivo("DIMOT Mendoza") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico DIMOT", detalle: "Cuyo", foto: avatarDirectivo("Staff DIMOT") }
-                ],
-                historia_breve: "Entidad pionera de Mendoza en el deporte sobre silla de ruedas, con destacada trayectoria en torneos nacionales y metropolitanos.",
-                proyeccion_skills: "Experiencia competitiva y desarrollo cuyano.",
-                destacados: "Referentes mendocinos de básquet adaptado.",
-                dato_desactualizado_oficial: "Sin publicación de balances contables en web.",
-                provee_sillas_repuestos: "PARCIAL", provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN DATOS",
-                documento_auditado: "Relevamiento OSINT Cuyo 2026.",
-                resultado_ciudadano: "Plantel tradicional que sostiene su actividad con gran esfuerzo; precisa sponsors RSE en cubiertas y mantenimiento de chasis.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "CEF N° 17 (Corrientes)",
-                lat: -27.469, lng: -58.834, provincia_mapa: "NEA",
-                jurisdiccion: "Corrientes Capital", division: "Desarrollo / NEA FABA",
-                posicion_actual: "Bastión del Litoral Norte", tipo_entidad: "ESTATAL_PROVINCIAL",
-                itg_score: 46, rinde_cuentas: "SÍ RINDE PARCIALMENTE",
-                autoridades_con_cara: [
-                    { rol: "Dirección CEF 17", nombre: "Coordinación CEF Corrientes", detalle: "Corrientes Capital", foto: avatarDirectivo("CEF 17 Corrientes") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico CEF 17", detalle: "Litoral", foto: avatarDirectivo("Staff CEF 17") }
-                ],
-                historia_breve: "Centro de Educación Física N° 17 de Corrientes, impulsor incansable del básquet adaptado y formador de atletas en el NEA.",
-                proyeccion_skills: "Estructura estatal provincial y fuerte arraigo litoraleño.",
-                destacados: "Juveniles y referentes de Corrientes.",
-                dato_desactualizado_oficial: "Sin desglose de partidas específicas en presupuesto provincial.",
-                provee_sillas_repuestos: "PARCIAL", provee_transporte: "CUBIERTO PROVINCIA", provee_becas_viaticos: "BECAS PROVINCIALES",
-                documento_auditado: "Relevamiento Institucional NEA 2026.",
-                resultado_ciudadano: "El CEF provee espacio y transporte básico, pero es vital el patrocinio privado para cubiertas, cámaras, ejes y chasis a medida.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "CRIPAL (Cipolletti / Río Negro - Patagonia)",
-                lat: -39.034, lng: -67.591, provincia_mapa: "PATAGONIA",
-                jurisdiccion: "Cipolletti, Río Negro", division: "1ra / 2da División FABA",
-                posicion_actual: "Referente Norpatagónico FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 49, rinde_cuentas: "RENDICIÓN PARCIAL",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva CRIPAL", nombre: "Directivos CRIPAL Río Negro", detalle: "Cipolletti", foto: avatarDirectivo("CRIPAL Rio Negro") },
-                    { rol: "Cuerpo Técnico", nombre: "Staff Técnico CRIPAL", detalle: "Patagonia Norte", foto: avatarDirectivo("Staff CRIPAL") }
-                ],
-                historia_breve: "Asociación Civil del Alto Valle de Río Negro (Cipolletti) con destacada trayectoria en las competencias federales de la Patagonia.",
-                proyeccion_skills: "Resiliencia patagónica y consolidación regional.",
-                destacados: "Atletas patagónicos de Liga Nacional.",
-                dato_desactualizado_oficial: "Sin publicación de balances abiertos en web oficial.",
-                provee_sillas_repuestos: "SÍ EQUIPADO (Requiere apoyo continuo en cubiertas, cámaras y chasis)",
-                provee_transporte: "AUTOGESTIÓN / APOYO MUNICIPAL", provee_becas_viaticos: "PARCIAL",
-                documento_auditado: "Relevamiento OSINT Patagonia Norte 2026.",
-                resultado_ciudadano: "Sostiene giras extensas hacia Buenos Aires; clave para incorporar al régimen de sponsors RSE directos.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "Instituto Municipal del Deporte Almirante Brown",
-                lat: -34.832, lng: -58.385, provincia_mapa: "BUENOS_AIRES_SUR",
-                jurisdiccion: "Almirante Brown, PBA", division: "1ra División",
-                posicion_actual: "Competidor 1ra División FABA", tipo_entidad: "MUNICIPAL",
-                itg_score: 15, rinde_cuentas: "NO RINDE DESGLOSE",
-                autoridades_con_cara: [
-                    { rol: "Director", nombre: "Gustavo Borro", detalle: "Presidente COPAR", foto: avatarDirectivo("Gustavo Borro") },
-                    { rol: "Coordinador", nombre: "Fernando Mihovich", detalle: "Gestión Polideportivo", foto: avatarDirectivo("Fernando Mihovich") }
-                ],
-                historia_breve: "Plantel representativo de Almirante Brown en la máxima categoría nacional FABA.",
-                proyeccion_skills: "Defensa intensa y autogestión en redes.",
-                destacados: "Plantel Superior y referentes locales.",
-                dato_desactualizado_oficial: "En padrón viejo figuraba Jonathan Frisa.",
-                provee_sillas_repuestos: "PARCIAL (Faltan cubiertas, cámaras, ejes, rayos y chasis a medida)",
-                provee_transporte: "IRREGULAR", provee_becas_viaticos: "SIN PADRÓN PÚBLICO",
-                documento_auditado: "Boletines Oficiales Alte. Brown (2026) — RAFAM Incisos 2, 3, 4 y 5.",
-                resultado_ciudadano: "Cero licitaciones de cubiertas, cámaras, ejes, rayos ni chasis a medida para el equipo de 1ra División.",
-                enlace_evidencia_url: "https://www.instagram.com/municipiobrown/"
-            },
-            {
-                nombre_actual: "CILSA Santa Fe",
-                lat: -31.648, lng: -60.708, provincia_mapa: "SANTA_FE_LITORAL",
-                jurisdiccion: "Santa Fe Capital", division: "1ra División",
-                posicion_actual: "Multicampeón Histórico FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 68, rinde_cuentas: "SÍ RINDE MEMORIA ANUAL",
-                autoridades_con_cara: [
-                    { rol: "Presidencia ONG", nombre: "Comisión Directiva CILSA", detalle: "Administración auditada", foto: avatarDirectivo("Comisión Directiva CILSA") }
-                ],
-                historia_breve: "Cuna histórica del básquet sobre silla de ruedas en el interior del país.",
-                proyeccion_skills: "Alto rendimiento táctico y semillero de Selección.",
-                destacados: "Seleccionados nacionales.",
-                dato_desactualizado_oficial: "FABA no publica becas ENARD.",
-                provee_sillas_repuestos: "SÍ EQUIPADO", provee_transporte: "SÍ CUBIERTO", provee_becas_viaticos: "VIÁTICOS CUBIERTOS",
-                documento_auditado: "Memoria Anual CILSA ONG.",
-                resultado_ciudadano: "Garantiza mantenimiento de sillas y logística de sus jugadores.",
-                enlace_evidencia_url: "https://www.instagram.com/cilsaong/"
-            },
-            {
-                nombre_actual: "CILSA Boca Juniors",
-                lat: -34.635, lng: -58.364, provincia_mapa: "CABA",
-                jurisdiccion: "La Boca, CABA", division: "1ra División",
-                posicion_actual: "Finalista 1ra División FABA", tipo_entidad: "CONVENIO_CLUB",
-                itg_score: 72, rinde_cuentas: "SÍ RINDE (CAJA MIXTA)",
-                autoridades_con_cara: [
-                    { rol: "Dirección", nombre: "Directivos CILSA + Boca", detalle: "Convenio ONG + Club", foto: avatarDirectivo("Directivos CILSA + Boca") }
-                ],
-                historia_breve: "Alianza entre CILSA ONG y Boca Juniors que profesionalizó la logística en AMBA.",
-                proyeccion_skills: "Plantel de jerarquía internacional.",
-                destacados: "Seleccionados nacionales.",
-                dato_desactualizado_oficial: "En padrón figuraba como 'CILSA Bs.As.'.",
-                provee_sillas_repuestos: "SÍ EQUIPADO", provee_transporte: "SÍ CUBIERTO", provee_becas_viaticos: "VIÁTICOS CUBIERTOS",
-                documento_auditado: "Convenio CILSA - Boca Juniors.",
-                resultado_ciudadano: "Resuelve indumentaria, sillas y viajes sin depender de cajas municipales.",
-                enlace_evidencia_url: "https://www.instagram.com/cilsaong/"
-            },
-            {
-                nombre_actual: "CEDIMA",
-                lat: -34.678, lng: -58.561, provincia_mapa: "BUENOS_AIRES_NORTE_OESTE",
-                jurisdiccion: "San Justo, La Matanza, PBA", division: "1ra División",
-                posicion_actual: "Competidor Histórico FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 45, rinde_cuentas: "RENDICIÓN CERRADA",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD CEDIMA", detalle: "Sede San Justo", foto: avatarDirectivo("CD CEDIMA") }
-                ],
-                historia_breve: "Club decano de La Matanza con gimnasio propio.",
-                proyeccion_skills: "Fuerte trabajo de cantera y localía.",
-                destacados: "Referentes históricos de Liga.",
-                dato_desactualizado_oficial: "No publica balances en web.",
-                provee_sillas_repuestos: "PARCIAL", provee_transporte: "PARCIAL", provee_becas_viaticos: "AUTOGESTIÓN",
-                documento_auditado: "Registro DPPJ Buenos Aires.",
-                resultado_ciudadano: "Debe abrir sus balances a los jugadores y detallar subsidios de chasis y repuestos.",
-                enlace_evidencia_url: "https://www.instagram.com/cedima.oficial/"
-            },
-            {
-                nombre_actual: "CRIGAL",
-                lat: -51.623, lng: -69.216, provincia_mapa: "PATAGONIA",
-                jurisdiccion: "Río Gallegos, Santa Cruz", division: "1ra División",
-                posicion_actual: "Representante Patagónico FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 48, rinde_cuentas: "RENDICIÓN PARCIAL",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD CRIGAL", detalle: "Río Gallegos", foto: avatarDirectivo("CD CRIGAL") }
-                ],
-                historia_breve: "Emblema austral que recorre miles de kilómetros para competir.",
-                proyeccion_skills: "Altísima resiliencia y arraigo austral.",
-                destacados: "Referentes patagónicos.",
-                dato_desactualizado_oficial: "FABA no detalla cobertura de pasajes.",
-                provee_sillas_repuestos: "SÍ EQUIPADO", provee_transporte: "DEPENDENCIA AÉREA", provee_becas_viaticos: "PARCIAL",
-                documento_auditado: "Convenios Logísticos Santa Cruz.",
-                resultado_ciudadano: "Afronta enormes distancias; necesita patrocinio RSE directo en repuestos y pasajes.",
-                enlace_evidencia_url: "https://www.facebook.com/crigalbasquetadaptado"
-            },
-            {
-                nombre_actual: "SICA / Poeta Lugones",
-                lat: -31.368, lng: -64.212, provincia_mapa: "CORDOBA",
-                jurisdiccion: "Córdoba Capital", division: "1ra División",
-                posicion_actual: "Protagonista 1ra División FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 52, rinde_cuentas: "RENDICIÓN PARCIAL",
-                autoridades_con_cara: [
-                    { rol: "Dirección", nombre: "Fundación SICA", detalle: "Córdoba", foto: avatarDirectivo("Fundación SICA") }
-                ],
-                historia_breve: "Potencia cordobesa y cuna de figuras internacionales.",
-                proyeccion_skills: "Velocidad y táctica moderna.",
-                destacados: "Convocados a Selección.",
-                dato_desactualizado_oficial: "Padrón FABA sin becarios actualizados.",
-                provee_sillas_repuestos: "SÍ EQUIPADO", provee_transporte: "PARCIAL", provee_becas_viaticos: "BECAS PROVINCIALES",
-                documento_auditado: "Agencia Córdoba Deportes.",
-                resultado_ciudadano: "Excelente nivel; requiere apertura web de estados contables.",
-                enlace_evidencia_url: "https://www.instagram.com/sicabasquetadaptado/"
-            },
-            {
-                nombre_actual: "DUBA (Discapacitados Unidos Bahienses)",
-                lat: -38.718, lng: -62.266, provincia_mapa: "BUENOS_AIRES_NORTE_OESTE",
-                jurisdiccion: "Bahía Blanca, PBA", division: "1ra División",
-                posicion_actual: "Competidor Liga Nacional", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 38, rinde_cuentas: "AUTOGESTIÓN / RIFAS",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "Directivos DUBA", detalle: "Bahía Blanca", foto: avatarDirectivo("Directivos DUBA") }
-                ],
-                historia_breve: "Sostiene el básquet adaptado en el sur bonaerense a pulmón.",
-                proyeccion_skills: "ADN bahiense y tracción comunitaria.",
-                destacados: "Plantel autogestionado.",
-                dato_desactualizado_oficial: "Sin registro de apoyos federativos.",
-                provee_sillas_repuestos: "PARCIAL CON RECLAMOS", provee_transporte: "AUTOGESTIÓN / RIFAS", provee_becas_viaticos: "SIN BECAS",
-                documento_auditado: "Campañas en Redes y DPPJ.",
-                resultado_ciudadano: "Los jugadores deben hacer rifas para comprar cubiertas, cámaras y viajar.",
-                enlace_evidencia_url: "https://www.instagram.com/dubabahiablanca/"
-            },
-            {
-                nombre_actual: "ADU (Amigos Discapacitados Unidos)",
-                lat: -34.442, lng: -58.558, provincia_mapa: "BUENOS_AIRES_NORTE_OESTE",
-                jurisdiccion: "San Fernando, Zona Norte, PBA", division: "2da División",
-                posicion_actual: "Competidor 2da División FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 44, rinde_cuentas: "RENDICIÓN CERRADA",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD ADU", detalle: "San Fernando", foto: avatarDirectivo("CD ADU") }
-                ],
-                historia_breve: "Referente histórico de San Fernando y toda la Zona Norte del AMBA.",
-                proyeccion_skills: "Identidad barrial y competencia en metropolitana.",
-                destacados: "Plantel de Liga de Ascenso.",
-                dato_desactualizado_oficial: "Sin balances publicados en web.",
-                provee_sillas_repuestos: "PARCIAL", provee_transporte: "PARCIAL", provee_becas_viaticos: "AUTOGESTIÓN",
-                documento_auditado: "Registro DPPJ PBA.",
-                resultado_ciudadano: "Necesita conectar con empresas de Zona Norte vía RSE para renovar sillas y cubiertas.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "CIDELI",
-                lat: -38.005, lng: -57.542, provincia_mapa: "BUENOS_AIRES_NORTE_OESTE",
-                jurisdiccion: "Mar del Plata, PBA", division: "2da División",
-                posicion_actual: "Competidor 2da División FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 40, rinde_cuentas: "RENDICIÓN PARCIAL",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "Directivos CIDELI", detalle: "Mar del Plata", foto: avatarDirectivo("Directivos CIDELI") }
-                ],
-                historia_breve: "Club pionero de Mar del Plata en integración deportiva.",
-                proyeccion_skills: "Protagonista de ascenso y Juegos Bonaerenses.",
-                destacados: "Referentes marplatenses.",
-                dato_desactualizado_oficial: "Sin convenios públicos con EMDER.",
-                provee_sillas_repuestos: "PARCIAL", provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN DATOS",
-                documento_auditado: "Relevamiento EMDER.",
-                resultado_ciudadano: "El municipio cede cancha, pero cubiertas, cámaras, ejes y viajes recaen sobre el plantel.",
-                enlace_evidencia_url: "https://www.instagram.com/cidelimdp/"
-            },
-            {
-                nombre_actual: "Deportivo Malagueño (Básquet Adaptado)",
-                lat: -31.465, lng: -64.355, provincia_mapa: "CORDOBA",
-                jurisdiccion: "Malagueño, Córdoba", division: "1ra División",
-                posicion_actual: "Competidor 1ra División FABA", tipo_entidad: "MUNICIPAL",
-                itg_score: 42, rinde_cuentas: "SIN DESGLOSE WEB",
-                autoridades_con_cara: [
-                    { rol: "Deportes Municipal", nombre: "Deportes Malagueño", detalle: "Córdoba", foto: avatarDirectivo("Deportes Malagueno") }
-                ],
-                historia_breve: "Crecimiento sostenido hasta instalarse en 1ra División.",
-                proyeccion_skills: "Localía y cuadrangulares nacionales.",
-                destacados: "Plantel de Primera.",
-                dato_desactualizado_oficial: "Omitido en padrón histórico FABA.",
-                provee_sillas_repuestos: "PARCIAL", provee_transporte: "CUBIERTO MUNICIPIO", provee_becas_viaticos: "SIN PADRÓN",
-                documento_auditado: "Publicaciones Municipio Malagueño.",
-                resultado_ciudadano: "Sin portal que desglose gasto en sillas, cubiertas, ejes ni becas.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "Brown de Alta Gracia",
-                lat: -31.658, lng: -64.432, provincia_mapa: "CORDOBA",
-                jurisdiccion: "Alta Gracia, Córdoba", division: "1ra División",
-                posicion_actual: "Competidor 1ra División FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 46, rinde_cuentas: "RENDICIÓN PARCIAL",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD Brown Alta Gracia", detalle: "Córdoba", foto: avatarDirectivo("CD Brown Alta Gracia") }
-                ],
-                historia_breve: "Ejemplo de integración de rama adaptada en club tradicional.",
-                proyeccion_skills: "Sólido juego colectivo en Paravachasca.",
-                destacados: "Referentes cordobeses.",
-                dato_desactualizado_oficial: "Sin detalle de apoyos federativos.",
-                provee_sillas_repuestos: "PARCIAL", provee_transporte: "PARCIAL", provee_becas_viaticos: "BECAS PROVINCIALES",
-                documento_auditado: "Relevamiento OSINT Córdoba.",
-                resultado_ciudadano: "Combina esfuerzo de club con apoyo local; ideal para sumar RSE en cubiertas y chasis.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "CROL (Club Rosarino de Lisiados)",
-                lat: -32.948, lng: -60.652, provincia_mapa: "SANTA_FE_LITORAL",
-                jurisdiccion: "Rosario, Santa Fe", division: "2da División",
-                posicion_actual: "Competidor Ascenso FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 40, rinde_cuentas: "RENDICIÓN CERRADA",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD CROL Rosario", detalle: "IGPJ Santa Fe", foto: avatarDirectivo("CD CROL Rosario") }
-                ],
-                historia_breve: "Decano del deporte adaptado en Rosario.",
-                proyeccion_skills: "Tradición táctica rosarina.",
-                destacados: "Referentes históricos.",
-                dato_desactualizado_oficial: "Padrón FABA desactualizado.",
-                provee_sillas_repuestos: "PARCIAL CON RECLAMOS", provee_transporte: "AUTOGESTIÓN", provee_becas_viaticos: "SIN BECAS",
-                documento_auditado: "IGPJ Santa Fe.",
-                resultado_ciudadano: "Necesita recambio de cubiertas, cámaras, ejes y mantenimiento de chasis vía empresas de Rosario.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "CRIPLaP",
-                lat: -34.921, lng: -57.954, provincia_mapa: "BUENOS_AIRES_SUR",
-                jurisdiccion: "La Plata, PBA", division: "3ra División",
-                posicion_actual: "Competidor Ascenso FABA", tipo_entidad: "ASOCIACION_CIVIL_ONG",
-                itg_score: 39, rinde_cuentas: "AUTOGESTIÓN",
-                autoridades_con_cara: [
-                    { rol: "Comisión Directiva", nombre: "CD CRIPLaP La Plata", detalle: "Capital PBA", foto: avatarDirectivo("CD CRIPLaP La Plata") }
-                ],
-                historia_breve: "Representante de la capital bonaerense en ascenso.",
-                proyeccion_skills: "Equipo en desarrollo constante.",
-                destacados: "Deportistas platenses.",
-                dato_desactualizado_oficial: "Sin subsidios provinciales visibles.",
-                provee_sillas_repuestos: "PARCIAL CON RECLAMOS", provee_transporte: "AUTOGESTIÓN / RIFAS", provee_becas_viaticos: "SIN DATOS",
-                documento_auditado: "Registro DPPJ La Plata.",
-                resultado_ciudadano: "Estando en la capital provincial, igual deben hacer rifas para mantener sillas y viajar.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "Municipalidad de Ensenada",
-                lat: -34.867, lng: -57.912, provincia_mapa: "BUENOS_AIRES_SUR",
-                jurisdiccion: "Ensenada, PBA", division: "2da División",
-                posicion_actual: "Competidor Ascenso FABA", tipo_entidad: "MUNICIPAL",
-                itg_score: 35, rinde_cuentas: "NO RINDE DESGLOSE",
-                autoridades_con_cara: [
-                    { rol: "Deportes Municipal", nombre: "Deportes Ensenada", detalle: "RAFAM", foto: avatarDirectivo("Deportes Ensenada") }
-                ],
-                historia_breve: "Equipo municipal de la región capital en ascenso.",
-                proyeccion_skills: "Infraestructura local accesible.",
-                destacados: "Plantel municipal.",
-                dato_desactualizado_oficial: "Sin desglose RAFAM publicado.",
-                provee_sillas_repuestos: "CUBIERTO PARCIALMENTE", provee_transporte: "CUBIERTO MUNICIPIO", provee_becas_viaticos: "SIN PADRÓN",
-                documento_auditado: "Boletín Ensenada.",
-                resultado_ciudadano: "Cubre traslados y cancha, pero no publica gasto en cubiertas, cámaras, ejes ni becas.",
-                enlace_evidencia_url: "https://www.instagram.com/prensaensenada/"
-            },
-            {
-                nombre_actual: "Municipalidad de Berazategui (Básquet Adaptado)",
-                lat: -34.763, lng: -58.211, provincia_mapa: "BUENOS_AIRES_SUR",
-                jurisdiccion: "Berazategui, PBA", division: "3ra División",
-                posicion_actual: "Competidor Desarrollo FABA", tipo_entidad: "MUNICIPAL",
-                itg_score: 32, rinde_cuentas: "NO RINDE DESGLOSE",
-                autoridades_con_cara: [
-                    { rol: "Deportes Municipal", nombre: "Deportes Berazategui", detalle: "Zona Sur", foto: avatarDirectivo("Deportes Berazategui") }
-                ],
-                historia_breve: "Programa municipal del sur del conurbano en desarrollo.",
-                proyeccion_skills: "Semillero en Zona Sur.",
-                destacados: "Juveniles y desarrollo.",
-                dato_desactualizado_oficial: "Ausente en padrón histórico 2018.",
-                provee_sillas_repuestos: "PARCIAL", provee_transporte: "CUBIERTO MUNICIPIO", provee_becas_viaticos: "SIN PADRÓN",
-                documento_auditado: "Boletín Berazategui.",
-                resultado_ciudadano: "Sin licitaciones públicas de sillas a medida ni repuestos específicos.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "Municipalidad de Avellaneda (Deporte Adaptado)",
-                lat: -34.662, lng: -58.365, provincia_mapa: "BUENOS_AIRES_SUR",
-                jurisdiccion: "Avellaneda, PBA", division: "3ra División",
-                posicion_actual: "Competidor Desarrollo FABA", tipo_entidad: "MUNICIPAL",
-                itg_score: 36, rinde_cuentas: "NO RINDE DESGLOSE",
-                autoridades_con_cara: [
-                    { rol: "Deportes Municipal", nombre: "Deportes Avellaneda", detalle: "Polideportivos", foto: avatarDirectivo("Deportes Avellaneda") }
-                ],
-                historia_breve: "Programa municipal con polideportivos en el sur bonaerense.",
-                proyeccion_skills: "Inclusión y proyección federada.",
-                destacados: "Plantel formativo.",
-                dato_desactualizado_oficial: "Sin inventario público de sillas.",
-                provee_sillas_repuestos: "PARCIAL", provee_transporte: "CUBIERTO MUNICIPIO", provee_becas_viaticos: "SIN PADRÓN",
-                documento_auditado: "Boletines Avellaneda.",
-                resultado_ciudadano: "Buena infraestructura, pero sin rendición sobre cubiertas, cámaras, ejes, rayos ni becas.",
-                enlace_evidencia_url: "https://www.facebook.com/fababasquetadaptado"
-            },
-            {
-                nombre_actual: "Club Atlético River Plate (Básquet Adaptado)",
-                lat: -34.545, lng: -58.449, provincia_mapa: "CABA",
-                jurisdiccion: "Núñez, CABA", division: "1ra División",
-                posicion_actual: "⚠️ DESAFILIADO / BAJA (2019)", tipo_entidad: "CONVENIO_CLUB",
-                itg_score: 10, rinde_cuentas: "BAJA NO DEPURADA EN FABA",
-                autoridades_con_cara: [
-                    { rol: "Estado", nombre: "Disciplina Disuelta", detalle: "Baja 2019", foto: avatarDirectivo("Baja 2019") }
-                ],
-                historia_breve: "Ex campeón de Liga Nacional FABA hasta su disolución a fines de 2019.",
-                proyeccion_skills: "Caso testigo de abandono de padrón web.",
-                destacados: "Ex jugadores en otros clubes.",
-                dato_desactualizado_oficial: "Sigue figurando activo en web de FABA.",
-                provee_sillas_repuestos: "BAJA 2019", provee_transporte: "BAJA 2019", provee_becas_viaticos: "BAJA 2019",
-                documento_auditado: "Padrón FABA vs. Torneos.",
-                resultado_ciudadano: "Prueba de que la Federación lleva más de 6 años sin actualizar su registro.",
-                enlace_evidencia_url: "https://www.cariverplate.com.ar/"
-            }
-        ];
+      <form id="form-pedido" class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 space-y-4" novalidate>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="p-tipo" class="block text-sm font-bold mb-1">Tipo de destinatario</label>
+            <select id="p-tipo" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
+              <option value="municipio">Municipio / organismo estatal</option>
+              <option value="club">Club o asociación civil</option>
+              <option value="federacion">Federación / comité / ente</option>
+            </select>
+          </div>
+          <div>
+            <label for="p-entidad" class="block text-sm font-bold mb-1">Nombre de la entidad</label>
+            <input id="p-entidad" list="lista-entidades" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm" placeholder="Ej.: Municipalidad de…">
+            <datalist id="lista-entidades"></datalist>
+          </div>
+        </div>
+        <fieldset>
+          <legend class="text-sm font-bold mb-2">¿Qué información querés pedir?</legend>
+          <div class="grid sm:grid-cols-2 gap-2 text-sm">
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Balances y memorias anuales de los últimos 3 ejercicios" checked> Balances y memorias</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Subsidios, convenios o transferencias recibidas para el equipo de básquet adaptado" checked> Subsidios y convenios</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y registros de asignación de sillas deportivas, cubiertas, cámaras, ejes, rayos y repuestos"> Sillas y repuestos</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Gastos de transporte y alojamiento para competencias y su forma de contratación"> Transporte y alojamiento</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y listado de becas o viáticos otorgados, sin datos personales sensibles"> Becas y viáticos</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Nómina vigente de autoridades y acta de designación"> Autoridades vigentes</label>
+          </div>
+        </fieldset>
+        <fieldset class="grid sm:grid-cols-3 gap-3">
+          <legend class="text-sm font-bold mb-2">Tus datos (quedan solo en el texto que copiás)</legend>
+          <div><label for="p-nom" class="sr-only">Nombre completo</label><input id="p-nom" autocomplete="name" placeholder="Nombre y apellido" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm"></div>
+          <div><label for="p-dni" class="sr-only">DNI</label><input id="p-dni" inputmode="numeric" placeholder="DNI" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm"></div>
+          <div><label for="p-mail" class="sr-only">Correo</label><input id="p-mail" type="email" autocomplete="email" placeholder="Correo para la respuesta" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm"></div>
+        </fieldset>
+        <div>
+          <label for="p-texto" class="block text-sm font-bold mb-1">Texto del pedido</label>
+          <textarea id="p-texto" rows="12" class="w-full bg-slate-950 text-emerald-200 font-mono text-sm rounded-xl p-3 border border-slate-700"></textarea>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button type="button" data-action="copiar" data-target="p-texto" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-5 py-3 rounded-xl text-sm">Copiar texto</button>
+          <button type="button" id="p-mailto" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-3 rounded-xl text-sm">Abrir en mi correo</button>
+        </div>
+        <p class="text-xs text-slate-500">Modelo orientativo, no es asesoramiento legal. Ajustalo a la norma que corresponda a cada organismo.</p>
+      </form>
+    </div>
+  </section>
 
-        const pliegosRseData = [
-            { codigo_pliego: "LIC-MEC-SILLA-2026-01", modelo_origen: "Technical Partner Serie A Italia & CBBC Brasil", club_destino: "Planteles Activos FABA", titulo: "Módulo Mecánica Integral de Silla a Medida: Cubiertas, Cámaras, Ejes, Rayos y Mantenimiento de Chasis", proveedor_asignado: "Pago Directo a Ortopedia (Factura A)", monto_estimado_ars: 680000, explicacion_calculo: "Cálculo mayorista para reponer cubiertas de alta presión, cámaras, ejes de precisión, rayos y mantenimiento general del chasis a medida.", contraprestacion_privada: "Marca en Cubre-Rayos de 60cm + Branding en protector frontal del chasis a medida." },
-            { codigo_pliego: "LIC-PERF-LIBRE-2026-02", modelo_origen: "Performance Partner (Italia / Brasil)", club_destino: "Libre Elección del Plantel", titulo: "Módulo Rendimiento Físico: Suplementos a Libre Elección, Gimnasio o Espacio Accesible", proveedor_asignado: "Pago Directo a Proveedor / Gimnasio (Factura A)", monto_estimado_ars: 590000, explicacion_calculo: "Libre destino: el plantel destina el presupuesto a suplementos necesarios, elementos de gimnasio o contratación de espacio accesible.", contraprestacion_privada: "Reconocimiento como 'Official Performance Partner' en redes." },
-            { codigo_pliego: "LIC-IND-VIAJE-2026-03", modelo_origen: "Apparel & Travel Partner (Brasil / España)", club_destino: "Derecho Privado de Imagen (Art. 53 CCCN)", titulo: "Módulo Indumentaria Civil de Concentración: Sudaderas de Viaje + Bolsos Porta-Ruedas", proveedor_asignado: "Pago Directo a Fábrica Textil (Factura A)", monto_estimado_ars: 720000, explicacion_calculo: "Costo directo para 12 conjuntos civiles y bolsos acolchados porta-ruedas. Compatible con clubes municipales.", contraprestacion_privada: "Estampa corporativa en pecho y espalda de buzos y bolsos." },
-            { codigo_pliego: "LIC-LOG-FEDERAL-2026-04", modelo_origen: "Mobility Partner (Italia / Brasil)", club_destino: "Giras Nacionales FABA", titulo: "Módulo Transporte Adaptado y Alojamiento Accesible (Cero Colectas Virales)", proveedor_asignado: "Pago Directo a Empresa de Micros / Hotel (Factura A)", monto_estimado_ars: 1450000, explicacion_calculo: "Tarifa por kilómetro de combi adaptada y noche de hotel accesible.", contraprestacion_privada: "Naming de gira + Certificación Criptográfica SHA-256 para Balance ESG." }
-        ];
+  <!-- ===== ENVIAR UN DATO ===== -->
+  <section id="s-dato" role="tabpanel" aria-labelledby="t-dato" class="hidden">
+    <div class="grid lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-5 space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3">
+          <h2 class="text-2xl font-black">Enviar un dato de forma privada</h2>
+          <p class="text-sm text-slate-700">Si sabés algo que ayude a entender mejor un club o una institución, podés contarlo acá. <strong>El mensaje llega solo al equipo, no se publica.</strong></p>
+          <ul class="text-sm text-slate-700 space-y-2 list-disc pl-5">
+            <li>Una persona del equipo lo revisa y lo contrasta con documentos antes de usarlo.</li>
+            <li>Solo se publica lo que se pueda respaldar con una fuente pública. Un dato suelto nunca se publica como acusación.</li>
+            <li>Lo más útil es un <strong>enlace o documento público</strong>: un balance, una resolución, una publicación oficial.</li>
+          </ul>
+        </div>
+        <div class="rounded-2xl bg-amber-50 border border-amber-300 p-5 text-sm text-amber-950 space-y-2">
+          <p class="font-bold">Lo que podemos y no podemos prometer</p>
+          <p>Esta página no te pide nombre, correo ni teléfono, y no guardamos tu dirección IP en la base de datos. Pero el hosting y el proveedor de la base pueden registrar datos técnicos de conexión, y una orden judicial podría exigir su entrega. <strong>No podemos garantizar anonimato absoluto.</strong> Si tu situación es delicada, usá una red que no sea la de tu trabajo o club, y evitá incluir detalles que te identifiquen.</p>
+        </div>
+        <div class="rounded-2xl bg-rose-50 border border-rose-300 p-5 text-sm text-rose-950 space-y-1">
+          <p class="font-bold">Por favor, no incluyas</p>
+          <p>Datos de salud, documentos de identidad, domicilios o teléfonos de terceros, ni acusaciones sobre personas sin un documento que las respalde.</p>
+        </div>
+      </div>
 
-        function inicializarMapaInteractivo() {
-            if (mapaLeaflet) return;
-            mapaLeaflet = L.map('mapa-federal-3d', { center: [-36.5, -62.0], zoom: 5 });
-            cambiarCapaMapa('OSCURO');
-            marcadoresLayer = L.layerGroup().addTo(mapaLeaflet);
-            actualizarMarcadoresMapa();
-        }
+      <form id="form-dato" class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 space-y-4" novalidate>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="d-tipo" class="block text-sm font-bold mb-1">¿Qué querés enviar?</label>
+            <select id="d-tipo" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
+              <option value="documento">Un documento o enlace público</option>
+              <option value="dato">Un dato para que verifiquemos</option>
+              <option value="correccion">Una corrección de algo publicado acá</option>
+              <option value="replica">Derecho a réplica (soy parte de la entidad)</option>
+            </select>
+          </div>
+          <div>
+            <label for="d-club" class="block text-sm font-bold mb-1">Club o institución</label>
+            <select id="d-club" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm"></select>
+          </div>
+        </div>
+        <div>
+          <label for="d-url" class="block text-sm font-bold mb-1">Enlace a un documento público <span class="font-normal text-slate-500">(opcional pero muy útil)</span></label>
+          <input id="d-url" type="url" placeholder="https://…" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
+        </div>
+        <div>
+          <label for="d-texto" class="block text-sm font-bold mb-1">Contanos qué sabés <span class="font-normal text-slate-500">(40 a 2000 caracteres)</span></label>
+          <textarea id="d-texto" rows="7" maxlength="2000" class="w-full border border-slate-300 rounded-xl p-3 text-sm" placeholder="Qué pasa, desde cuándo y dónde se puede comprobar."></textarea>
+          <p id="d-count" class="text-xs text-slate-500 mt-1">0 / 2000</p>
+        </div>
+        <div id="d-contacto-wrap" class="hidden">
+          <label for="d-contacto" class="block text-sm font-bold mb-1">Contacto para la réplica</label>
+          <input id="d-contacto" type="text" autocomplete="off" placeholder="Correo o teléfono de la entidad" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
+        </div>
+        <input type="text" id="d-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute -left-[9999px]">
+        <label class="flex gap-2 items-start text-sm"><input id="d-ok" type="checkbox" class="mt-1"> Entiendo que no se garantiza anonimato absoluto y que lo que envío puede ser verificado antes de usarse.</label>
+        <div class="flex flex-wrap items-center gap-3">
+          <button id="d-enviar" type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-6 py-3 rounded-xl text-sm">Enviar de forma privada</button>
+          <span id="d-estado" class="text-sm" role="status" aria-live="polite"></span>
+        </div>
+        <p id="d-recibo" class="hidden text-xs font-mono text-slate-600 bg-slate-100 rounded-lg p-3 break-all"></p>
+      </form>
+    </div>
+  </section>
 
-        function cambiarCapaMapa(modo) {
-            if (!mapaLeaflet) return;
-            if (capaActualTiles) mapaLeaflet.removeLayer(capaActualTiles);
-            const url = modo === 'SATELITE'
-                ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-                : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-            capaActualTiles = L.tileLayer(url, { maxZoom: 18 }).addTo(mapaLeaflet);
-        }
+  <!-- ===== PATROCINAR ===== -->
+  <section id="s-rse" role="tabpanel" aria-labelledby="t-rse" class="hidden space-y-5">
+    <div class="bg-slate-900 text-white rounded-2xl p-6 md:p-8 space-y-2">
+      <p class="inline-block bg-emerald-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase">Inspirado en esquemas de la Serie A de Italia y de Brasil</p>
+      <h2 class="text-2xl md:text-3xl font-black">Patrocinio por rubro, con pago directo al proveedor</h2>
+      <p class="text-slate-300 text-sm max-w-3xl">Una empresa financia un módulo concreto y paga directamente al proveedor contra factura. El equipo recibe el bien o el servicio, y la empresa recibe visibilidad. Sin intermediarios y con comprobantes a la vista.</p>
+    </div>
+    <div class="rounded-xl bg-amber-50 border border-amber-300 p-4 text-sm text-amber-950">
+      Los montos son <strong>estimaciones referenciales</strong> para armar un presupuesto. Cada operación se cotiza con el proveedor y se formaliza por escrito entre las partes.
+    </div>
+    <div id="rse-grid" class="grid md:grid-cols-2 gap-5"></div>
+  </section>
+</main>
 
-        function volarARegion(lat, lng, zoom) {
-            if (mapaLeaflet) mapaLeaflet.flyTo([lat, lng], zoom, { duration: 1.2 });
-        }
+<footer class="bg-slate-900 text-slate-300 mt-10">
+  <div class="max-w-7xl mx-auto px-4 py-8 text-sm space-y-3">
+    <p>AuditaDeporte reúne información de fuentes públicas con enlace y fecha. No afirma hechos sobre personas sin respaldo documental. Si algo es inexacto o incompleto, escribinos desde <button data-tab="dato" class="underline text-amber-300">“Enviar un dato” → Derecho a réplica</button> y lo revisamos.</p>
+    <p class="text-xs text-slate-400">Proyecto sin fines de lucro. Los logos pertenecen a cada club y se muestran con su autorización.</p>
+  </div>
+</footer>
 
-        function actualizarMarcadoresMapa() {
-            if (!marcadoresLayer) return;
-            marcadoresLayer.clearLayers();
-            const q = (document.getElementById('buscador-global-club').value || '').toLowerCase();
+<!-- FICHA DE CLUB -->
+<dialog id="dlg-club" aria-labelledby="club-titulo">
+  <div class="bg-white">
+    <div class="bg-slate-900 text-white p-5 flex gap-4 items-start">
+      <div id="club-logo" class="w-16 h-16 rounded-full bg-white overflow-hidden grid place-items-center text-blue-900 font-black text-xl border-4 border-blue-600 shrink-0"></div>
+      <div class="flex-1 min-w-0">
+        <p id="club-sub" class="text-xs text-amber-300 font-bold uppercase tracking-wide"></p>
+        <h3 id="club-titulo" class="text-xl md:text-2xl font-black leading-tight"></h3>
+        <p id="club-ciudad" class="text-sm text-slate-300"></p>
+      </div>
+      <button data-action="cerrar" aria-label="Cerrar ficha" class="text-3xl leading-none px-2 hover:text-amber-300">&times;</button>
+    </div>
+    <div class="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
+      <p id="club-nota" class="hidden rounded-xl bg-amber-50 border border-amber-300 p-3 text-sm text-amber-950"></p>
+      <div>
+        <h4 class="font-extrabold mb-2">Documentos públicos</h4>
+        <ul id="club-docs" class="space-y-2 text-sm"></ul>
+      </div>
+      <div id="club-links" class="flex flex-wrap gap-2 text-sm"></div>
+      <div class="grid sm:grid-cols-3 gap-2 pt-2 border-t border-slate-200">
+        <button id="club-pedir" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-3 rounded-xl text-sm">Pedir información</button>
+        <button id="club-dato" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-3 py-3 rounded-xl text-sm">Enviar un dato</button>
+        <button id="club-rse" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3 py-3 rounded-xl text-sm">Patrocinar</button>
+      </div>
+    </div>
+  </div>
+</dialog>
 
-            clubesFabaData.forEach(c => {
-                const textoAut = (c.autoridades_con_cara || []).map(a => a.nombre + " " + a.rol).join(" ").toLowerCase();
-                const okTexto = !q || c.nombre_actual.toLowerCase().includes(q) || c.jurisdiccion.toLowerCase().includes(q) || textoAut.includes(q);
-                if (!okTexto) return;
+<!-- CÓMO TRABAJAMOS -->
+<dialog id="dlg-reglas" aria-labelledby="reglas-t">
+  <div class="bg-white p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+    <div class="flex justify-between items-start gap-4">
+      <h3 id="reglas-t" class="text-xl font-black">Cómo trabajamos</h3>
+      <button data-action="cerrar" aria-label="Cerrar" class="text-3xl leading-none px-2">&times;</button>
+    </div>
+    <ol class="list-decimal pl-5 space-y-2 text-sm text-slate-800">
+      <li><strong>Fuente y fecha en todo.</strong> Cada estado de la tabla de documentos lleva enlace y fecha de revisión.</li>
+      <li><strong>Lenguaje neutral.</strong> Decimos “publicado”, “no encontrado al [fecha]” o “sin revisar”. No calificamos a personas.</li>
+      <li><strong>Los datos privados no se publican tal cual.</strong> Se verifican contra documentos y solo se usa lo que se pueda respaldar.</li>
+      <li><strong>Derecho a réplica.</strong> Cualquier entidad puede pedir una corrección o agregar su descargo, y lo incorporamos junto a la información.</li>
+      <li><strong>Datos personales.</strong> No publicamos fotos, domicilios ni datos de salud de personas. Las autoridades se citan solo por su cargo, con fuente oficial.</li>
+      <li><strong>Limitaciones.</strong> Esta plataforma no reemplaza el asesoramiento legal y no puede garantizar anonimato absoluto.</li>
+    </ol>
+  </div>
+</dialog>
 
-                const colorBorde = c.itg_score <= 35 ? '#ef4444' : (c.itg_score <= 60 ? '#fbbf24' : '#10b981');
-                const cara = c.autoridades_con_cara[0] ? c.autoridades_con_cara[0].foto : avatarDirectivo(c.nombre_actual);
+<div id="toasts" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[90] space-y-2" aria-live="polite"></div>
 
-                const icon = L.divIcon({
-                    className: 'custom-pin',
-                    html: `<div style="display:flex;align-items:center;gap:6px;background:#0f172a;color:#fff;padding:3px 8px 3px 3px;border-radius:999px;border:2px solid ${colorBorde};box-shadow:0 8px 16px rgba(0,0,0,0.7);white-space:nowrap;">
-                        <img src="${cara}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid #fff;">
-                        <span style="font-size:10px;font-weight:900;">${c.nombre_actual.substring(0, 18)}</span>
-                    </div>`,
-                    iconSize: [150, 34], iconAnchor: [75, 17]
-                });
+<script>
+/* ============ CONFIGURACIÓN ============ */
+const CONFIG = {
+  SUPABASE_URL: "",        // Ej.: https://xxxx.supabase.co
+  SUPABASE_ANON_KEY: "",   // clave pública "anon" (nunca la service_role)
+  CONTACT_EMAIL: ""        // Correo del proyecto, para el botón de patrocinio
+};
 
-                const m = L.marker([c.lat, c.lng], { icon });
-                m.bindPopup(`<div class="p-2 space-y-1 text-xs min-w-[220px]">
-                    <span class="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded text-[10px] uppercase">${c.division}</span>
-                    <h4 class="font-black text-sm text-white mt-1">${c.nombre_actual}</h4>
-                    <p class="text-[11px] text-sky-300">📍 ${c.jurisdiccion}</p>
-                    <button onclick="abrirFichaClub('${c.nombre_actual}')" class="mt-2 w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-1.5 rounded-lg text-xs">Abrir Ficha Completa →</button>
-                </div>`);
-                m.addTo(marcadoresLayer);
-            });
-        }
+/* ============ UTILIDADES ============ */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const slug = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const iniciales = n => n.replace(/\(.*?\)/g, '').split(/\s+/).filter(w => /^[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(w) && w.length > 2 || /^[A-Z]{2,}/.test(w)).slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'AD';
+function toast(msg) {
+  const d = document.createElement('div');
+  d.className = 'bg-slate-900 text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-lg border border-slate-600';
+  d.textContent = msg; $('#toasts').appendChild(d); setTimeout(() => d.remove(), 3500);
+}
 
-        function renderizarDirectorioClubes() {
-            const cont = document.getElementById('grilla-perfiles-clubes');
-            const q = (document.getElementById('buscador-global-club').value || '').toLowerCase();
-            const filtrados = clubesFabaData.filter(c => !q || c.nombre_actual.toLowerCase().includes(q) || c.jurisdiccion.toLowerCase().includes(q));
+/* ============ DATOS ============
+   Datos básicos cargados por el equipo; pendientes de verificación con cada club.
+   - logo: URL de un logo cuyo uso autorizó el club (idealmente subido a Supabase Storage). Si está vacío, se muestran iniciales.
+   - instagram: usuario sin @ (opcional).
+   - rev: estado por documento -> { estado: 'si' | 'no' | 'sv', fuente: URL, fecha: 'AAAA-MM-DD' }.
+          Solo usar 'si' / 'no' con fuente y fecha. Por defecto todo es 'sv' (sin revisar). */
+const CLUBES = [
+  { nombre:"Jujuy Básquet", ciudad:"San Salvador de Jujuy", prov:"Jujuy", lat:-24.185, lng:-65.299, division:"2da División", tipo:"Asociación civil" },
+  { nombre:"Fu.Di.Tuc", ciudad:"San Miguel de Tucumán", prov:"Tucumán", lat:-26.824, lng:-65.217, division:"2da División", tipo:"Fundación" },
+  { nombre:"UNCuyo Básquet Adaptado", ciudad:"Mendoza", prov:"Mendoza", lat:-32.889, lng:-68.844, division:"1ra División", tipo:"Universitario" },
+  { nombre:"DIMOT", ciudad:"Godoy Cruz", prov:"Mendoza", lat:-32.895, lng:-68.828, division:"2da División", tipo:"Asociación civil" },
+  { nombre:"CEF N° 17", ciudad:"Corrientes", prov:"Corrientes", lat:-27.469, lng:-58.834, division:"Desarrollo", tipo:"Estatal provincial" },
+  { nombre:"CRIPAL", ciudad:"Cipolletti", prov:"Río Negro", lat:-39.034, lng:-67.591, division:"2da División", tipo:"Asociación civil" },
+  { nombre:"Instituto Municipal del Deporte Almirante Brown", ciudad:"Almirante Brown", prov:"Buenos Aires", lat:-34.832, lng:-58.385, division:"1ra División", tipo:"Municipal" },
+  { nombre:"CILSA Santa Fe", ciudad:"Santa Fe", prov:"Santa Fe", lat:-31.648, lng:-60.708, division:"1ra División", tipo:"Asociación civil", instagram:"cilsaong" },
+  { nombre:"CILSA Boca Juniors", ciudad:"CABA", prov:"CABA", lat:-34.635, lng:-58.364, division:"1ra División", tipo:"Convenio con club", instagram:"cilsaong" },
+  { nombre:"CEDIMA", ciudad:"San Justo", prov:"Buenos Aires", lat:-34.678, lng:-58.561, division:"1ra División", tipo:"Asociación civil", instagram:"cedima.oficial" },
+  { nombre:"CRIGAL", ciudad:"Río Gallegos", prov:"Santa Cruz", lat:-51.623, lng:-69.216, division:"1ra División", tipo:"Asociación civil", facebook:"crigalbasquetadaptado" },
+  { nombre:"SICA / Poeta Lugones", ciudad:"Córdoba", prov:"Córdoba", lat:-31.368, lng:-64.212, division:"1ra División", tipo:"Asociación civil", instagram:"sicabasquetadaptado" },
+  { nombre:"DUBA", ciudad:"Bahía Blanca", prov:"Buenos Aires", lat:-38.718, lng:-62.266, division:"1ra División", tipo:"Asociación civil", instagram:"dubabahiablanca" },
+  { nombre:"ADU", ciudad:"San Fernando", prov:"Buenos Aires", lat:-34.442, lng:-58.558, division:"2da División", tipo:"Asociación civil" },
+  { nombre:"CIDELI", ciudad:"Mar del Plata", prov:"Buenos Aires", lat:-38.005, lng:-57.542, division:"2da División", tipo:"Asociación civil", instagram:"cidelimdp" },
+  { nombre:"Deportivo Malagueño", ciudad:"Malagueño", prov:"Córdoba", lat:-31.465, lng:-64.355, division:"1ra División", tipo:"Municipal" },
+  { nombre:"Brown de Alta Gracia", ciudad:"Alta Gracia", prov:"Córdoba", lat:-31.658, lng:-64.432, division:"1ra División", tipo:"Asociación civil" },
+  { nombre:"CROL", ciudad:"Rosario", prov:"Santa Fe", lat:-32.948, lng:-60.652, division:"2da División", tipo:"Asociación civil" },
+  { nombre:"CRIPLaP", ciudad:"La Plata", prov:"Buenos Aires", lat:-34.921, lng:-57.954, division:"3ra División", tipo:"Asociación civil" },
+  { nombre:"Municipalidad de Ensenada", ciudad:"Ensenada", prov:"Buenos Aires", lat:-34.867, lng:-57.912, division:"2da División", tipo:"Municipal", instagram:"prensaensenada" },
+  { nombre:"Municipalidad de Berazategui", ciudad:"Berazategui", prov:"Buenos Aires", lat:-34.763, lng:-58.211, division:"3ra División", tipo:"Municipal" },
+  { nombre:"Municipalidad de Avellaneda", ciudad:"Avellaneda", prov:"Buenos Aires", lat:-34.662, lng:-58.365, division:"3ra División", tipo:"Municipal" },
+  { nombre:"Club Atlético River Plate", ciudad:"CABA", prov:"CABA", lat:-34.545, lng:-58.449, division:"1ra División", tipo:"Convenio con club",
+    nota:"Su estado de afiliación a la federación figura de forma distinta según la fuente consultada. Pendiente de confirmar con FABA." }
+].map(c => ({ id: slug(c.nombre), logo: "", rev: {}, ...c }));
 
-            cont.innerHTML = filtrados.map(c => {
-                const colorITG = c.itg_score <= 35 ? 'bg-red-100 text-red-900 border-red-700' : 'bg-emerald-100 text-emerald-950 border-emerald-700';
-                const caras = c.autoridades_con_cara.map(a => `
-                    <div class="flex items-center gap-2 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200">
-                        <img src="${a.foto}" alt="${a.nombre}" class="w-8 h-8 rounded-full object-cover border-2 border-blue-600 shrink-0">
-                        <div class="leading-tight">
-                            <span class="text-[9px] text-slate-500 font-bold block">${a.rol}</span>
-                            <strong class="text-[11px] text-slate-900 font-black">${a.nombre}</strong>
-                        </div>
-                    </div>
-                `).join('');
+const CRITERIOS = [
+  { k:'balance', t:'Balance o memoria anual' },
+  { k:'autoridades', t:'Autoridades vigentes' },
+  { k:'subsidios', t:'Subsidios o convenios' },
+  { k:'inventario', t:'Sillas y repuestos' }
+];
 
-                return `
-                <div onclick="seleccionarYCentrarClub('${c.nombre_actual}')" class="bg-white hover:bg-blue-50/50 p-4 rounded-2xl border-2 border-slate-300 hover:border-blue-600 shadow-sm cursor-pointer transition space-y-2.5">
-                    <div class="flex justify-between items-start gap-2">
-                        <div>
-                            <span class="bg-slate-900 text-amber-400 text-[10px] font-black px-2 py-0.5 rounded uppercase">${c.division}</span>
-                            <span class="text-[11px] font-bold text-blue-800 ml-1">📍 ${c.jurisdiccion}</span>
-                            <h4 class="text-sm font-black text-slate-950 mt-1">${c.nombre_actual}</h4>
-                        </div>
-                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded border ${colorITG}">${c.rinde_cuentas}</span>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">${caras}</div>
-                    <div class="pt-1.5 border-t border-slate-200 flex justify-between items-center text-[11px]">
-                        <span class="text-slate-600 font-semibold truncate max-w-[210px]">🛞 Sillas: ${c.provee_sillas_repuestos}</span>
-                        <span class="font-black text-blue-700">Ver Ficha →</span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
+const INSTITUCIONES = [
+  { sigla:"FABA", nombre:"Federación de básquet adaptado", rol:"Organiza las ligas nacionales de básquet sobre silla de ruedas (1ra, 2da y 3ra División) y lleva el registro de clubes afiliados.",
+    buscar:["Padrón actualizado de clubes afiliados","Reglamentos y calendario de competencias","Balances y memorias de la federación","Criterios de cobertura de viajes y pasajes"] },
+  { sigla:"COPAR", nombre:"Comité Paralímpico Argentino", rol:"Representa al deporte paralímpico argentino y articula con federaciones y organismos de financiamiento.",
+    buscar:["Autoridades vigentes y mandatos","Balances y memorias anuales","Convenios con federaciones y con el ENARD","Criterios de selección y apoyo a deportistas"] },
+  { sigla:"ENARD", nombre:"Ente Nacional de Alto Rendimiento Deportivo", rol:"Financia el alto rendimiento mediante becas, programas y apoyos a federaciones.",
+    buscar:["Padrón público de becas (sin datos sensibles)","Rendiciones por federación","Convenios y programas vigentes","Criterios de asignación de recursos"] }
+];
 
-        function seleccionarYCentrarClub(nombre) {
-            const c = clubesFabaData.find(x => x.nombre_actual === nombre);
-            if (c && mapaLeaflet) mapaLeaflet.flyTo([c.lat, c.lng], 12, { duration: 1.2 });
-            abrirFichaClub(nombre);
-        }
+const PLIEGOS = [
+  { cod:"MOD-SILLA", titulo:"Mecánica de sillas deportivas", desc:"Cubiertas de alta presión, cámaras, ejes de precisión, rayos y mantenimiento general del chasis a medida.", monto:680000, retorno:"Marca en cubre-rayos y protector frontal del chasis." },
+  { cod:"MOD-FISICO", titulo:"Preparación física", desc:"Libre destino del plantel: suplementos indicados por profesionales, elementos de gimnasio o alquiler de un espacio accesible.", monto:590000, retorno:"Reconocimiento como socio de rendimiento en redes del equipo." },
+  { cod:"MOD-INDUM", titulo:"Indumentaria de concentración", desc:"12 conjuntos civiles de viaje y bolsos acolchados para ruedas. Compatible con clubes municipales.", monto:720000, retorno:"Logo en buzos y bolsos." },
+  { cod:"MOD-GIRA", titulo:"Transporte adaptado y alojamiento", desc:"Combi adaptada por kilómetro y noches de hotel accesible para giras nacionales.", monto:1450000, retorno:"Nombre de la gira y comprobantes de pago para el informe ESG de la empresa." }
+];
 
-        function abrirFichaClub(nombre) {
-            const c = clubesFabaData.find(x => x.nombre_actual === nombre) || clubesFabaData[0];
-            nombreClubActivo = c.nombre_actual;
+/* ============ ESTADO UI ============ */
+const estadoDoc = r => {
+  if (!r || r.estado === 'sv' || !r.estado) return { txt:'Sin revisar', cls:'bg-slate-100 text-slate-700 border-slate-300' };
+  if (r.estado === 'si') return { txt:'Publicado', cls:'bg-emerald-100 text-emerald-900 border-emerald-400' };
+  return { txt: 'No encontrado' + (r.fecha ? ' al ' + r.fecha : ''), cls:'bg-amber-100 text-amber-900 border-amber-400' };
+};
+const revisado = c => CRITERIOS.some(k => c.rev[k.k] && c.rev[k.k].estado && c.rev[k.k].estado !== 'sv');
 
-            document.getElementById('ficha-division').innerText = c.division;
-            document.getElementById('ficha-tipo-entidad').innerText = c.tipo_entidad;
-            document.getElementById('ficha-ubicacion').innerText = "📍 " + c.jurisdiccion;
-            document.getElementById('ficha-nombre-club').innerText = c.nombre_actual;
-            document.getElementById('ficha-historia-breve').innerText = c.historia_breve;
-            document.getElementById('ficha-itg-numero').innerText = `${c.itg_score} / 100`;
-            document.getElementById('ficha-rendicion-badge').innerText = c.rinde_cuentas;
+/* ============ TABS ============ */
+const TABS = ['mapa','transp','inst','pedir','dato','rse'];
+function showTab(t, push = true) {
+  if (!TABS.includes(t)) t = 'mapa';
+  TABS.forEach(x => {
+    $('#s-' + x).classList.toggle('hidden', x !== t);
+    $('#t-' + x).setAttribute('aria-selected', x === t);
+  });
+  if (push) history.replaceState(null, '', '#' + t);
+  if (t === 'mapa' && map) setTimeout(() => map.invalidateSize(), 150);
+  window.scrollTo({ top: 0 });
+}
 
-            document.getElementById('ficha-lista-autoridades-caras').innerHTML = c.autoridades_con_cara.map(a => `
-                <div class="p-3 bg-white rounded-2xl border-2 border-slate-300 flex items-center justify-between gap-3 shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <img src="${a.foto}" alt="${a.nombre}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-700 shrink-0">
-                        <div>
-                            <span class="text-[10px] font-extrabold uppercase text-blue-800 block">${a.rol}</span>
-                            <strong class="text-sm font-black text-slate-950 block">${a.nombre}</strong>
-                            <span class="text-[11px] text-slate-600 block">${a.detalle}</span>
-                        </div>
-                    </div>
-                    <button onclick="abrirModalFotoOSINTClub('${c.nombre_actual}', '${a.nombre}')" class="bg-slate-100 hover:bg-slate-200 text-blue-800 p-2 rounded-xl text-[10px] font-bold border">📷 Foto</button>
-                </div>
-            `).join('');
+/* ============ MAPA ============ */
+let map, cluster, capaActual;
+const ATTR_OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const CAPAS = {
+  radar: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains:'abcd', maxZoom:19, attribution: ATTR_OSM }),
+  calle: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { subdomains:'abcd', maxZoom:19, attribution: ATTR_OSM }),
+  sat:   () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom:18, attribution:'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics' })
+};
+function setCapa(nombre) {
+  if (!map) return;
+  if (capaActual) map.removeLayer(capaActual);
+  capaActual = CAPAS[nombre]().addTo(map);
+  let fallos = 0;
+  capaActual.on('tileerror', () => { if (++fallos > 6) $('#map-aviso').classList.remove('hidden'); });
+  capaActual.on('load', () => { fallos = 0; $('#map-aviso').classList.add('hidden'); });
+  $$('.capa-btn').forEach(b => b.setAttribute('aria-pressed', b.dataset.capa === nombre));
+}
+function pinEl(c) {
+  const wrap = document.createElement('div'); wrap.className = 'pin';
+  if (c.logo) {
+    const img = document.createElement('img'); img.src = c.logo; img.alt = '';
+    img.onerror = () => { img.remove(); wrap.prepend(document.createTextNode(iniciales(c.nombre))); };
+    wrap.appendChild(img);
+  } else { wrap.textContent = iniciales(c.nombre); }
+  const lab = document.createElement('span'); lab.className = 'pin-label'; lab.textContent = c.nombre.length > 24 ? c.nombre.slice(0, 22) + '…' : c.nombre;
+  wrap.appendChild(lab);
+  return wrap;
+}
+function popupEl(c) {
+  const d = document.createElement('div'); d.style.minWidth = '200px';
+  const p = document.createElement('p'); p.style.cssText = 'font-weight:800;margin:0 0 2px'; p.textContent = c.nombre;
+  const s = document.createElement('p'); s.style.cssText = 'margin:0 0 8px;color:#475569;font-size:13px'; s.textContent = c.ciudad + ' · ' + c.division;
+  const b = document.createElement('a'); b.href = '#'; b.className = 'btn-popup'; b.textContent = 'Ver ficha';
+  b.style.cssText = 'display:block;text-align:center;background:#1d4ed8;padding:8px;border-radius:10px;font-weight:700;text-decoration:none';
+  b.addEventListener('click', e => { e.preventDefault(); abrirClub(c.id); });
+  d.append(p, s, b); return d;
+}
+function pintarMarcadores() {
+  if (!cluster) return;
+  cluster.clearLayers();
+  filtrados().forEach(c => {
+    const m = L.marker([c.lat, c.lng], {
+      icon: L.divIcon({ html: pinEl(c), className: '', iconSize: [44, 44], iconAnchor: [22, 22] }),
+      title: c.nombre, keyboard: true
+    });
+    m.bindPopup(popupEl(c));
+    cluster.addLayer(m);
+  });
+}
+function iniciarMapa() {
+  map = L.map('map', { center:[-38.4,-63.6], zoom:4, minZoom:3 });
+  setCapa('radar');
+  cluster = L.markerClusterGroup({ maxClusterRadius: 45, showCoverageOnHover: false });
+  map.addLayer(cluster);
+  const zoomLabels = () => $('#map').classList.toggle('zoom-ok', map.getZoom() >= 9);
+  map.on('zoomend', zoomLabels); zoomLabels();
+  pintarMarcadores();
+}
 
-            document.getElementById('ficha-desfasaje').innerText = c.dato_desactualizado_oficial;
-            document.getElementById('ficha-posicion-actual').innerText = c.posicion_actual;
-            document.getElementById('ficha-link-redes').href = c.enlace_evidencia_url;
-            document.getElementById('ficha-proyeccion').innerText = c.proyeccion_skills;
-            document.getElementById('ficha-destacados').innerText = c.destacados;
-            document.getElementById('ficha-sem-sillas').innerText = c.provee_sillas_repuestos;
-            document.getElementById('ficha-sem-transporte').innerText = c.provee_transporte;
-            document.getElementById('ficha-sem-becas').innerText = c.provee_becas_viaticos;
-            document.getElementById('ficha-doc-auditado').innerText = c.documento_auditado;
-            document.getElementById('ficha-resultado-ciudadano').innerHTML = `<strong>Hallazgo:</strong> ${c.resultado_ciudadano}`;
+/* ============ FILTROS / DIRECTORIO ============ */
+function filtrados() {
+  const q = slug($('#buscador').value || '').replace(/-/g, ' ');
+  const div = $('#filtro-div').value;
+  return CLUBES.filter(c => (!div || c.division === div) &&
+    (!q || slug([c.nombre, c.ciudad, c.prov].join(' ')).replace(/-/g, ' ').includes(q)));
+}
+function renderDirectorio() {
+  const l = filtrados();
+  $('#dir-count').textContent = l.length + (l.length === 1 ? ' club' : ' clubes');
+  $('#dir').innerHTML = l.map(c => `
+    <li>
+      <button data-action="club" data-id="${esc(c.id)}" class="w-full text-left bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-500 rounded-2xl p-3 flex gap-3 items-center transition">
+        <span class="w-12 h-12 rounded-full bg-blue-50 border-2 border-blue-600 grid place-items-center font-black text-blue-900 overflow-hidden shrink-0">${c.logo ? `<img src="${esc(c.logo)}" alt="" class="w-full h-full object-cover">` : esc(iniciales(c.nombre))}</span>
+        <span class="min-w-0">
+          <span class="block font-extrabold text-sm truncate">${esc(c.nombre)}</span>
+          <span class="block text-xs text-slate-600">${esc(c.ciudad)}, ${esc(c.prov)}</span>
+          <span class="inline-block mt-1 text-xs font-bold bg-slate-900 text-amber-300 px-2 py-0.5 rounded">${esc(c.division)}</span>
+        </span>
+      </button>
+    </li>`).join('') || '<li class="text-sm text-slate-600 bg-white rounded-2xl p-4 border border-slate-200">No hay clubes con ese filtro.</li>';
+}
+function renderTransp() {
+  const l = filtrados();
+  $('#tbody-transp').innerHTML = l.map(c => `
+    <tr class="hover:bg-slate-50">
+      <th scope="row" class="p-3 font-bold">${esc(c.nombre)}<span class="block text-xs font-normal text-slate-600">${esc(c.ciudad)}</span></th>
+      ${CRITERIOS.map(k => {
+        const r = c.rev[k.k], e = estadoDoc(r);
+        const fuente = r && r.fuente && /^https?:\/\//.test(r.fuente) ? ` <a class="underline text-blue-700 text-xs" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">fuente</a>` : '';
+        return `<td class="p-3"><span class="inline-block text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${fuente}</td>`;
+      }).join('')}
+      <td class="p-3"><button data-action="club" data-id="${esc(c.id)}" class="text-blue-800 font-bold underline text-sm">Ficha</button></td>
+    </tr>`).join('');
+  const rev = CLUBES.filter(revisado).length;
+  $('#meta-resumen').textContent = `${rev} de ${CLUBES.length} clubes con al menos un documento revisado.`;
+  $('#stat-clubes').textContent = CLUBES.length;
+  $('#stat-rev').textContent = rev;
+}
+function refrescar() { renderDirectorio(); renderTransp(); pintarMarcadores(); }
 
-            renderizarAportesClub(c.nombre_actual);
-            document.getElementById('ficha-integral-club').scrollIntoView({ behavior: 'smooth' });
-        }
+/* ============ FICHA ============ */
+let clubActivo = null;
+function abrirClub(id) {
+  const c = CLUBES.find(x => x.id === id); if (!c) return;
+  clubActivo = c;
+  const logo = $('#club-logo'); logo.textContent = '';
+  if (c.logo) { const i = document.createElement('img'); i.src = c.logo; i.alt = ''; i.className = 'w-full h-full object-cover'; i.onerror = () => { i.remove(); logo.textContent = iniciales(c.nombre); }; logo.appendChild(i); }
+  else logo.textContent = iniciales(c.nombre);
+  $('#club-sub').textContent = c.division + ' · ' + c.tipo;
+  $('#club-titulo').textContent = c.nombre;
+  $('#club-ciudad').textContent = c.ciudad + ', ' + c.prov;
+  const nota = $('#club-nota'); nota.classList.toggle('hidden', !c.nota); nota.textContent = c.nota || '';
+  $('#club-docs').innerHTML = CRITERIOS.map(k => {
+    const r = c.rev[k.k], e = estadoDoc(r);
+    const f = r && r.fuente && /^https?:\/\//.test(r.fuente) ? ` <a class="underline text-blue-700" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">ver fuente</a>` : '';
+    return `<li class="flex justify-between items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><span class="font-semibold">${esc(k.t)}</span><span><span class="text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${f}</span></li>`;
+  }).join('');
+  const links = [];
+  if (c.instagram) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.instagram.com/${encodeURIComponent(c.instagram)}/" target="_blank" rel="noopener noreferrer">Instagram @${esc(c.instagram)}</a>`);
+  if (c.facebook) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.facebook.com/${encodeURIComponent(c.facebook)}" target="_blank" rel="noopener noreferrer">Facebook</a>`);
+  $('#club-links').innerHTML = links.join('') || '<p class="text-sm text-slate-500">Todavía no cargamos redes oficiales de este club.</p>';
+  $('#dlg-club').showModal();
+}
 
-        function enviarAporteAnonimoModerado() {
-            const texto = document.getElementById('input-aporte-anonimo').value.trim();
-            if (!texto) { alert("Escribí un aporte válido."); return; }
-            const palabrasProhibidas = ['idiota', 'estupido', 'roban', 'chorros', 'mierda', 'puta', 'malparido', 'lacras'];
-            if (palabrasProhibidas.some(p => texto.toLowerCase().includes(p)) || texto.length < 8) {
-                alert("🤖 Bot Moderador IA: Aporte rechazado por contener términos ofensivos o carecer de datos técnicos.");
-                return;
-            }
-            let aportes = JSON.parse(localStorage.getItem('aportes_' + nombreClubActivo) || '[]');
-            aportes.unshift({ texto, fecha: new Date().toLocaleDateString(), hash: Math.random().toString(36).substring(7) });
-            localStorage.setItem('aportes_' + nombreClubActivo, JSON.stringify(aportes));
-            document.getElementById('input-aporte-anonimo').value = '';
-            alert("✅ Bot Moderador IA: Aporte verificado e incorporado anónimamente.");
-            renderizarAportesClub(nombreClubActivo);
-        }
+/* ============ PEDIDO DE INFORMACIÓN ============ */
+function armarPedido() {
+  const tipo = $('#p-tipo').value;
+  const ent = $('#p-entidad').value.trim() || '[Entidad destinataria]';
+  const items = $$('.p-item:checked').map(i => '  - ' + i.value);
+  const nom = $('#p-nom').value.trim() || '[Nombre y apellido]';
+  const dni = $('#p-dni').value.trim() || '[DNI]';
+  const mail = $('#p-mail').value.trim() || '[Correo electrónico]';
+  const marco = tipo === 'municipio'
+    ? 'en ejercicio del derecho de acceso a la información pública reconocido por la normativa aplicable en mi jurisdicción'
+    : tipo === 'club'
+      ? 'en mi carácter de persona interesada, y en lo que se relacione con fondos públicos recibidos por la entidad o, si soy socio/a, conforme a su estatuto'
+      : 'en ejercicio del derecho de acceso a la información pública y en lo relativo a fondos públicos recibidos por la entidad';
+  $('#p-texto').value =
+`Asunto: Solicitud de acceso a información
 
-        function renderizarAportesClub(nombreClub) {
-            const cont = document.getElementById('lista-aportes-club');
-            const aportes = JSON.parse(localStorage.getItem('aportes_' + nombreClub) || '[]');
-            if (aportes.length === 0) {
-                cont.innerHTML = '<p class="text-slate-400 italic">No hay aportes anónimos aún.</p>';
-                return;
-            }
-            cont.innerHTML = aportes.map(a => `
-                <div class="p-2 bg-white rounded-lg border border-emerald-200">
-                    <p class="text-slate-800">💬 "${a.texto}"</p>
-                    <span class="text-[9px] text-slate-400 font-mono">Bot IA • ${a.fecha} • Sello: ${a.hash}</span>
-                </div>
-            `).join('');
-        }
+A: ${ent}
 
-        function renderizarCupulaNacional() {
-            const cont = document.getElementById('contenedor-cupula-nacional');
-            cont.innerHTML = cupulaNacionalData.map(f => `
-                <div class="bg-white p-6 rounded-3xl border-2 border-slate-300 shadow-md flex flex-col justify-between space-y-4">
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <img src="${avatarDirectivo(f.nombre)}" alt="${f.nombre}" class="w-14 h-14 rounded-full object-cover border-4 border-red-700 shadow shrink-0">
-                                <div>
-                                    <span class="text-[9px] font-black uppercase bg-red-100 text-red-900 px-2 py-0.5 rounded">${f.entidad}</span>
-                                    <h3 class="text-base font-black text-slate-950 mt-0.5">${f.nombre}</h3>
-                                    <p class="text-[11px] font-extrabold text-blue-900">${f.cargo}</p>
-                                </div>
-                            </div>
-                            <button onclick="abrirModalFotoOSINTClub('Cúpula Nacional', '${f.nombre}')" class="bg-slate-100 hover:bg-slate-200 text-blue-800 p-2 rounded-xl text-[11px] font-bold border">📷 Foto</button>
-                        </div>
-                        <div class="p-3.5 bg-red-50 rounded-2xl border-2 border-red-200 text-xs text-red-950 leading-relaxed">
-                            <strong>🚨 Cuestionamiento:</strong><br>${f.cuestionamiento_clave}
-                        </div>
-                    </div>
-                    <button onclick="cambiarTab('tab-reclamos'); generarEscritoLegal('FABA_PERDIGUERO');" class="w-full bg-slate-900 text-white font-black py-2.5 rounded-xl text-xs shadow">✍️ Enviar Solicitud Anónima</button>
-                </div>
-            `).join('');
-        }
+Por la presente, ${marco}, solicito se me brinde la siguiente información, preferentemente en formato digital abierto:
 
-        function abrirModalFotoOSINTClub(entidad, nombrePersona) {
-            personaFotoSeleccionada = nombrePersona;
-            document.getElementById('input-nombre-persona-foto').value = `${entidad} → ${nombrePersona}`;
-            document.getElementById('input-url-foto-real').value = '';
-            abrirModal('modal-foto-osint');
-        }
+${items.length ? items.join('\n') : '  - [Indicar la información solicitada]'}
 
-        function abrirModalFotoClubActual() {
-            const c = clubesFabaData.find(x => x.nombre_actual === nombreClubActivo);
-            if (c && c.autoridades_con_cara[0]) abrirModalFotoOSINTClub(c.nombre_actual, c.autoridades_con_cara[0].nombre);
-        }
+Período: últimos tres años o el que corresponda.
 
-        function guardarFotoRealPersona() {
-            const url = document.getElementById('input-url-foto-real').value.trim();
-            if (!url) { alert("Ingresá un link válido."); return; }
-            localStorage.setItem('foto_real_' + personaFotoSeleccionada, url);
-            clubesFabaData.forEach(c => c.autoridades_con_cara.forEach(a => { if (a.nombre === personaFotoSeleccionada) a.foto = url; }));
-            renderizarDirectorioClubes(); renderizarCupulaNacional(); actualizarMarcadoresMapa(); abrirFichaClub(nombreClubActivo);
-            cerrarModal('modal-foto-osint'); alert("✅ Retrato actualizado.");
-        }
+No se requiere información personal sensible de terceros; si algún dato debiera reservarse, solicito que se entregue el resto de la documentación con la parte reservada tachada y se indique el fundamento.
 
-        function renderizarTablaExplicada(filtro = "") {
-            const tbody = document.getElementById('tabla-boletines-explicados');
-            const q = filtro.toLowerCase();
-            const lista = clubesFabaData.filter(c => !q || c.nombre_actual.toLowerCase().includes(q) || c.jurisdiccion.toLowerCase().includes(q));
+Datos del solicitante:
+Nombre: ${nom}
+DNI: ${dni}
+Correo para la respuesta: ${mail}
 
-            tbody.innerHTML = lista.map(c => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-3.5 font-black text-slate-950">${c.nombre_actual}<br><span class="text-[11px] text-slate-600">📍 ${c.jurisdiccion}</span></td>
-                    <td class="p-3.5 text-[11px] text-slate-700">${c.autoridades_con_cara.map(a => `<strong>${a.nombre}</strong>`).join(', ')}</td>
-                    <td class="p-3.5 font-bold text-blue-900">📄 ${c.documento_auditado}</td>
-                    <td class="p-3.5 text-slate-700 leading-relaxed max-w-sm">${c.resultado_ciudadano}</td>
-                    <td class="p-3.5 font-extrabold ${c.itg_score <= 35 ? 'text-red-700' : 'text-emerald-800'}">${c.rinde_cuentas}</td>
-                    <td class="p-3.5"><button onclick="cambiarTab('tab-mapa-clubes'); seleccionarYCentrarClub('${c.nombre_actual}');" class="bg-slate-900 text-white font-bold px-3 py-1.5 rounded-xl text-[11px]">Ver Ficha</button></td>
-                </tr>
-            `).join('');
-        }
+Quedo a disposición. Saludo atentamente.`;
+}
 
-        function generarEscritoLegal(tipo) {
-            const club = document.getElementById('input-entidad-personalizada').value.trim() || nombreClubActivo;
-            document.getElementById('texto-legal-generado').value = `OBJETO: SOLICITUD ANÓNIMA DE INFORMACIÓN PÚBLICA (LEY 27.275 / LEY 25.326)\n\nDestinatario: ${club}\n\nConforme a las garantías de anonimato (Ley 25.326), se solicita el detalle de provisión de cubiertas, cámaras, ejes, rayos, mantenimiento del chasis en general a medida, transporte y becas.`;
-        }
+/* ============ ENVIAR UN DATO ============ */
+let sb = null;
+if (CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY && window.supabase) {
+  sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+}
+async function sha256(txt) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function enviarDato(ev) {
+  ev.preventDefault();
+  const est = $('#d-estado'); est.className = 'text-sm font-semibold text-slate-700';
+  const texto = $('#d-texto').value.trim();
+  const url = $('#d-url').value.trim();
+  const tipo = $('#d-tipo').value;
+  if ($('#d-web').value) return;                                   // honeypot
+  if (!$('#d-ok').checked) { est.textContent = 'Marcá la casilla de conformidad para continuar.'; est.classList.add('text-rose-700'); return; }
+  if (texto.length < 40) { est.textContent = 'Contanos un poco más (mínimo 40 caracteres).'; est.classList.add('text-rose-700'); return; }
+  if (url && !/^https?:\/\//i.test(url)) { est.textContent = 'El enlace debe empezar con http:// o https://'; est.classList.add('text-rose-700'); return; }
+  if (tipo === 'replica' && !$('#d-contacto').value.trim()) { est.textContent = 'Para la réplica necesitamos un contacto.'; est.classList.add('text-rose-700'); return; }
+  const ultimo = Number(localStorage.getItem('ad_ultimo_envio') || 0);
+  if (Date.now() - ultimo < 60000) { est.textContent = 'Esperá un minuto antes de enviar otro mensaje.'; est.classList.add('text-rose-700'); return; }
+  if (!sb) { est.textContent = 'El canal todavía no está activado en esta versión. Configurá Supabase para habilitarlo.'; est.classList.add('text-amber-800'); return; }
+  $('#d-enviar').disabled = true; est.textContent = 'Enviando…';
+  const fila = {
+    tipo, club_id: $('#d-club').value || null, texto, url: url || null,
+    contacto: tipo === 'replica' ? $('#d-contacto').value.trim() : null
+  };
+  const { error } = await sb.from('tips').insert(fila, { returning: 'minimal' });
+  $('#d-enviar').disabled = false;
+  if (error) { est.textContent = 'No pudimos enviarlo. Probá más tarde.'; est.classList.add('text-rose-700'); return; }
+  localStorage.setItem('ad_ultimo_envio', String(Date.now()));
+  const h = await sha256(texto);
+  est.textContent = 'Recibido. Gracias.'; est.classList.add('text-emerald-800');
+  const r = $('#d-recibo'); r.classList.remove('hidden');
+  r.textContent = 'Huella de integridad (SHA-256) del texto enviado: ' + h + ' — sirve para comprobar que no fue modificado; no identifica a quien lo envía.';
+  $('#d-texto').value = ''; $('#d-url').value = ''; $('#d-ok').checked = false; $('#d-count').textContent = '0 / 2000';
+}
 
-        function copiarTextoLegal() {
-            document.getElementById('texto-legal-generado').select();
-            document.execCommand('copy');
-            alert("✅ Escrito anónimo copiado.");
-        }
+/* ============ INSTITUCIONES / RSE ============ */
+function renderInst() {
+  $('#inst-grid').innerHTML = INSTITUCIONES.map(i => `
+    <article class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
+      <span class="inline-block bg-blue-900 text-white text-xs font-extrabold px-3 py-1 rounded-full">${esc(i.sigla)}</span>
+      <h3 class="font-extrabold text-lg leading-tight">${esc(i.nombre)}</h3>
+      <p class="text-sm text-slate-700">${esc(i.rol)}</p>
+      <div><p class="text-sm font-bold mb-1">Documentos para buscar</p>
+      <ul class="text-sm text-slate-700 list-disc pl-5 space-y-1">${i.buscar.map(b => `<li>${esc(b)}</li>`).join('')}</ul></div>
+      <button data-action="pedir-inst" data-nombre="${esc(i.sigla)}" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm">Preparar pedido de información</button>
+    </article>`).join('');
+}
+function renderRSE() {
+  $('#rse-grid').innerHTML = PLIEGOS.map(p => `
+    <article class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3 flex flex-col">
+      <span class="self-start font-mono text-xs bg-slate-900 text-emerald-300 px-2.5 py-1 rounded-lg font-bold">${esc(p.cod)}</span>
+      <h3 class="font-extrabold text-lg">${esc(p.titulo)}</h3>
+      <p class="text-sm text-slate-700">${esc(p.desc)}</p>
+      <p class="text-sm bg-slate-50 border border-slate-200 rounded-xl p-3"><strong>Visibilidad para la empresa:</strong> ${esc(p.retorno)}</p>
+      <div class="mt-auto flex items-center justify-between gap-3 pt-2">
+        <div><p class="text-xs text-slate-500">Estimación referencial</p><p class="text-xl font-black text-emerald-800">$ ${p.monto.toLocaleString('es-AR')}</p></div>
+        <button data-action="postular" data-cod="${esc(p.cod)}" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Quiero cotizar</button>
+      </div>
+    </article>`).join('');
+}
 
-        function despacharGestionSinSalirDeCasa() {
-            const club = nombreClubActivo;
-            generarEscritoLegal('MUNICIPIO_RAFAM');
-            const texto = document.getElementById('texto-legal-generado').value;
-            const correo = club.toLowerCase().includes("brown") ? "mesadeentradas@brown.gob.ar" : "info@faba.org.ar";
-            alert(`🔒 Solicitud 100% Anónima lista para ${club}. Se abrirá tu correo web.`);
-            window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${correo}&su=${encodeURIComponent("REQUERIMIENTO ANÓNIMO LEY 27.275 - " + club)}&body=${encodeURIComponent(texto)}`, '_blank');
-        }
+/* ============ EVENTOS ============ */
+document.addEventListener('click', e => {
+  const tab = e.target.closest('[data-tab]');
+  if (tab) { $$('dialog[open]').forEach(d => d.close()); showTab(tab.dataset.tab); return; }
+  const a = e.target.closest('[data-action]'); if (!a) return;
+  const act = a.dataset.action;
+  if (act === 'capa') setCapa(a.dataset.capa);
+  else if (act === 'volar') map && map.flyTo([+a.dataset.lat, +a.dataset.lng], +a.dataset.z, { duration: 1.1 });
+  else if (act === 'club') { const c = CLUBES.find(x => x.id === a.dataset.id); if (c && map && !$('#s-mapa').classList.contains('hidden')) map.flyTo([c.lat, c.lng], 11, { duration: 1 }); abrirClub(a.dataset.id); }
+  else if (act === 'abrir') $('#' + a.dataset.dialog).showModal();
+  else if (act === 'cerrar') a.closest('dialog').close();
+  else if (act === 'copiar') { const t = $('#' + a.dataset.target); t.select(); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.resolve(document.execCommand('copy'))).then(() => toast('Texto copiado')); }
+  else if (act === 'pedir-inst') { $('#p-tipo').value = 'federacion'; $('#p-entidad').value = a.dataset.nombre; armarPedido(); showTab('pedir'); }
+  else if (act === 'postular') {
+    if (!CONFIG.CONTACT_EMAIL) { toast('Configurá CONTACT_EMAIL para habilitar este botón'); return; }
+    location.href = `mailto:${CONFIG.CONTACT_EMAIL}?subject=${encodeURIComponent('Patrocinio ' + a.dataset.cod)}&body=${encodeURIComponent('Hola, quisiera cotizar el módulo ' + a.dataset.cod + '.')}`;
+  }
+});
+$$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+$('#club-pedir').onclick = () => { $('#dlg-club').close(); const c = clubActivo; $('#p-tipo').value = /Municipal|Estatal/.test(c.tipo) ? 'municipio' : 'club'; $('#p-entidad').value = c.nombre; armarPedido(); showTab('pedir'); };
+$('#club-dato').onclick = () => { $('#dlg-club').close(); $('#d-club').value = clubActivo.id; showTab('dato'); };
+$('#club-rse').onclick = () => { $('#dlg-club').close(); showTab('rse'); };
+$('#buscador').addEventListener('input', () => { refrescar(); });
+$('#filtro-div').addEventListener('change', refrescar);
+$('#form-pedido').addEventListener('input', armarPedido);
+$('#p-mailto').onclick = () => { armarPedido(); location.href = `mailto:?subject=${encodeURIComponent('Solicitud de acceso a información')}&body=${encodeURIComponent($('#p-texto').value)}`; };
+$('#form-dato').addEventListener('submit', enviarDato);
+$('#d-texto').addEventListener('input', e => { $('#d-count').textContent = e.target.value.length + ' / 2000'; });
+$('#d-tipo').addEventListener('change', e => $('#d-contacto-wrap').classList.toggle('hidden', e.target.value !== 'replica'));
 
-        function renderizarPliegosRSE() {
-            document.getElementById('contenedor-pliegos-licitacion').innerHTML = pliegosRseData.map(p => `
-                <div class="bg-white p-6 rounded-3xl border-2 border-slate-300 space-y-4 shadow-sm">
-                    <span class="font-mono text-xs bg-slate-900 text-emerald-400 px-2.5 py-1 rounded-lg font-bold">${p.codigo_pliego}</span>
-                    <h3 class="text-base font-black text-slate-950">${p.titulo}</h3>
-                    <p class="text-xs text-slate-700 bg-amber-50 p-3 rounded-xl border">${p.explicacion_calculo}</p>
-                    <p class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border"><strong>Contraprestación:</strong> ${p.contraprestacion_privada}</p>
-                    <div class="flex justify-between items-center pt-2">
-                        <span class="text-lg font-black text-emerald-800">$ ${p.monto_estimado_ars.toLocaleString('es-AR')} ARS</span>
-                        <button onclick="alert('✅ Postulación registrada. Pago directo contra Factura A.')" class="bg-emerald-600 text-white font-black px-4 py-2 rounded-xl text-xs">🤝 Postular Empresa</button>
-                    </div>
-                </div>
-            `).join('');
-        }
+/* ============ ARRANQUE ============ */
+window.addEventListener('DOMContentLoaded', () => {
+  const opts = '<option value="">— General / varias entidades —</option>' + CLUBES.map(c => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join('') + INSTITUCIONES.map(i => `<option value="${esc(slug(i.sigla))}">${esc(i.sigla)}</option>`).join('');
+  $('#d-club').innerHTML = opts;
+  $('#lista-entidades').innerHTML = CLUBES.map(c => `<option value="${esc(c.nombre)}">`).join('') + INSTITUCIONES.map(i => `<option value="${esc(i.sigla)}">`).join('');
+  renderInst(); renderRSE(); renderDirectorio(); renderTransp(); armarPedido();
+  iniciarMapa();
+  showTab((location.hash || '#mapa').slice(1), false);
+  if (window.lucide) lucide.createIcons();
+});
+</script>
+</body>
+</html>
 
-        function guardarNuevoClubComunitario() {
-            const nom = document.getElementById('club-nombre').value;
-            if (!nom) return;
-            clubesFabaData.unshift({
-                nombre_actual: nom, lat: -34.65, lng: -58.45, provincia_mapa: "BUENOS_AIRES_SUR",
-                jurisdiccion: "Aporte Ciudadano", division: "1ra División", posicion_actual: "Activo",
-                tipo_entidad: "ASOCIACION_CIVIL_ONG", itg_score: 50, rinde_cuentas: "EN VALIDACIÓN",
-                autoridades_con_cara: [{ rol: "Presidente", nombre: document.getElementById('club-presi').value || "Dir.", detalle: "Reportado", foto: avatarDirectivo("Dir.") }],
-                historia_breve: document.getElementById('club-detalle').value, proyeccion_skills: "Activo", destacados: "Plantel",
-                dato_desactualizado_oficial: "Aporte comunitario anónimo.", provee_sillas_repuestos: "PARCIAL",
-                provee_transporte: "PARCIAL", provee_becas_viaticos: "PARCIAL", documento_auditado: "Aporte Anónimo", resultado_ciudadano: "En validación"
-            });
-            renderizarDirectorioClubes(); actualizarMarcadoresMapa(); cerrarModal('modal-club');
-            abrirFichaClub(nom);
-        }
-
-        function cambiarTab(tabId) {
-            ['tab-mapa-clubes', 'tab-hallazgos', 'tab-cupula', 'tab-reclamos', 'tab-rse'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-                document.getElementById('btn-' + id).classList.remove('tab-active');
-            });
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById('btn-' + tabId).classList.add('tab-active');
-            if (tabId === 'tab-mapa-clubes' && mapaLeaflet) setTimeout(() => mapaLeaflet.invalidateSize(), 200);
-        }
-
-        function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        window.onload = function() {
-            inicializarMapaInteractivo();
-            renderizarDirectorioClubes();
-            abrirFichaClub("Jujuy Básquet");
-            renderizarTablaExplicada();
-            renderizarCupulaNacional();
-            generarEscritoLegal('MUNICIPIO_RAFAM');
-            renderizarPliegosRSE();
-            if (window.lucide) window.lucide.createIcons();
-        };
     </script>
 </body>
 </html>
