@@ -290,7 +290,7 @@
   <!-- ===== PATROCINAR ===== -->
   <section id="s-rse" role="tabpanel" aria-labelledby="t-rse" class="hidden space-y-5">
     <div class="bg-slate-900 text-white rounded-2xl p-6 md:p-8 space-y-2">
-      <p class="inline-block bg-emerald-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase">Inspirado en esquemas de la Serie A de Italia y de Brasil</p>
+      <p class="inline-block bg-emerald-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase">Inspirado en esquemas de liga de España, Serie A de Italia y de Brasil</p>
       <h2 class="text-2xl md:text-3xl font-black">Patrocinio por rubro, con pago directo al proveedor</h2>
       <p class="text-slate-300 text-sm max-w-3xl">Una empresa financia un módulo concreto y paga directamente al proveedor contra factura. El equipo recibe el bien o el servicio, y la empresa recibe visibilidad. Sin intermediarios y con comprobantes a la vista.</p>
     </div>
@@ -326,6 +326,19 @@
         <h4 class="font-extrabold mb-2">Documentos públicos</h4>
         <ul id="club-docs" class="space-y-2 text-sm"></ul>
       </div>
+      <div>
+        <h4 class="font-extrabold mb-2">Autoridades publicadas</h4>
+        <ul id="club-aut" class="space-y-2 text-sm"></ul>
+      </div>
+      <div>
+        <h4 class="font-extrabold mb-1">Documentos analizados</h4>
+        <p class="text-xs text-slate-600 mb-2">Cada resumen fue redactado por una persona del equipo después de leer el documento. La huella SHA-256 permite comprobar que el archivo no cambió.</p>
+        <ul id="club-analizados" class="space-y-2 text-sm"></ul>
+      </div>
+      <div>
+        <h4 class="font-extrabold mb-1">Novedades en redes oficiales</h4>
+        <ul id="club-novedades" class="space-y-2 text-sm"></ul>
+      </div>
       <div id="club-links" class="flex flex-wrap gap-2 text-sm"></div>
       <div class="grid sm:grid-cols-3 gap-2 pt-2 border-t border-slate-200">
         <button id="club-pedir" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-3 rounded-xl text-sm">Pedir información</button>
@@ -356,6 +369,21 @@
 
 <div id="toasts" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[90] space-y-2" aria-live="polite"></div>
 
+<dialog id="dlg-post" class="rounded-2xl p-0 w-[min(32rem,94vw)] backdrop:bg-slate-900/60">
+  <form id="form-post" class="p-5 space-y-3">
+    <div class="flex justify-between items-start gap-3">
+      <h3 class="text-lg font-black">Quiero cotizar <span id="post-cod" class="font-mono text-emerald-800"></span></h3>
+      <button type="button" data-action="cerrar" aria-label="Cerrar" class="text-3xl leading-none">&times;</button>
+    </div>
+    <p class="text-xs text-slate-600">El aporte se paga <strong>directo al proveedor</strong>; el dinero no pasa por AuditaDeporte. Dejanos un contacto y te escribimos para coordinar. Las cotizaciones son referenciales.</p>
+    <label class="block text-sm font-semibold">Empresa u organización<input id="post-empresa" required minlength="2" maxlength="150" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+    <label class="block text-sm font-semibold">Contacto (correo o teléfono)<input id="post-contacto" required minlength="5" maxlength="200" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+    <label class="block text-sm font-semibold">Mensaje (opcional)<textarea id="post-mensaje" maxlength="1000" rows="3" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></textarea></label>
+    <input id="post-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden">
+    <p id="post-estado" class="text-sm font-semibold" role="status"></p>
+    <button id="post-enviar" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl">Enviar postulación</button>
+  </form>
+</dialog>
 <script>
 /* ============ CONFIGURACIÓN ============ */
 // Pegá acá tu Project URL y tu clave pública "anon" de Supabase (Project Settings -> API)
@@ -428,7 +456,8 @@ const INSTITUCIONES = [
     buscar:["Padrón público de becas (sin datos sensibles)","Rendiciones por federación","Convenios y programas vigentes","Criterios de asignación de recursos"] }
 ];
 
-const PLIEGOS = [
+const ESTADO_PLIEGO = { abierto:"Abierto a empresas", empresa_postulada:"Con empresa postulada", pago_a_proveedor:"Pago realizado al proveedor", entregado:"Entregado al club", auditado:"Entrega verificada y publicada" };
+let PLIEGOS = [
   { cod:"MOD-SILLA", titulo:"Mecánica de sillas deportivas", desc:"Cubiertas de alta presión, cámaras, ejes de precisión, rayos y mantenimiento general del chasis a medida.", monto:680000, retorno:"Marca en cubre-rayos y protector frontal del chasis." },
   { cod:"MOD-FISICO", titulo:"Preparación física", desc:"Libre destino del plantel: suplementos indicados por profesionales, elementos de gimnasio o alquiler de un espacio accesible.", monto:590000, retorno:"Reconocimiento como socio de rendimiento en redes del equipo." },
   { cod:"MOD-INDUM", titulo:"Indumentaria de concentración", desc:"12 conjuntos civiles de viaje y bolsos acolchados para ruedas. Compatible con clubes municipales.", monto:720000, retorno:"Logo en buzos y bolsos." },
@@ -574,11 +603,27 @@ function abrirClub(id) {
     const f = r && r.fuente && /^https?:\/\//.test(r.fuente) ? ` <a class="underline text-blue-700" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">ver fuente</a>` : '';
     return `<li class="flex justify-between items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><span class="font-semibold">${esc(k.t)}</span><span><span class="text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${f}</span></li>`;
   }).join('');
+  $('#club-aut').innerHTML = (c.autoridades || []).map(autLi).join('') || '<li class="text-slate-500">Todavía no hay autoridades cargadas con fuente.</li>';
+  $('#club-analizados').innerHTML = (c.analizados || []).map(docLi).join('') || '<li class="text-slate-500">Todavía no hay documentos analizados con resumen publicado para este club.</li>';
+  $('#club-novedades').innerHTML = '<li class="text-slate-500">Cargando…</li>';
+  cargarNovedades(c);
   const links = [];
   if (c.instagram) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.instagram.com/${encodeURIComponent(c.instagram)}/" target="_blank" rel="noopener noreferrer">Instagram @${esc(c.instagram)}</a>`);
   if (c.facebook) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.facebook.com/${encodeURIComponent(c.facebook)}" target="_blank" rel="noopener noreferrer">Facebook</a>`);
   $('#club-links').innerHTML = links.join('') || '<p class="text-sm text-slate-500">Todavía no cargamos redes oficiales de este club.</p>';
   $('#dlg-club').showModal();
+}
+
+async function cargarNovedades(c) {
+  const ul = $('#club-novedades');
+  if (!sb) { ul.innerHTML = '<li class="text-slate-500">Sin conexión a la base de datos.</li>'; return; }
+  const { data, error } = await sb.rpc('obtener_ficha_club', { p_slug: c.id });
+  if (clubActivo !== c) return;
+  if (error) { console.warn('obtener_ficha_club:', error.message); ul.innerHTML = '<li class="text-slate-500">No se pudieron cargar las novedades.</li>'; return; }
+  const nov = (data && data.novedades) || [];
+  ul.innerHTML = nov.map(n => `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><p>${esc(n.extracto)}</p><p class="text-xs text-slate-500 mt-1">${esc(n.plataforma)} · ${esc(n.fecha)} · <a class="underline text-blue-700" href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">ver publicación</a>${n.menciona_colecta ? ' · menciona rifa/colecta' : ''}</p></li>`).join('') || '<li class="text-slate-500">Sin novedades verificadas todavía.</li>';
+  const an = (data && data.documentos_analizados) || [];
+  if (an.length) $('#club-analizados').innerHTML = an.map(docLi).join('');
 }
 
 /* ============ PEDIDO DE INFORMACIÓN ============ */
@@ -658,6 +703,8 @@ async function enviarDato(ev) {
 }
 
 /* ============ INSTITUCIONES / RSE ============ */
+const autLi = a => `<li class="text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><span class="font-bold">${esc(a.cargo)}:</span> ${esc(a.nombre)}${a.fuente && /^https?:\/\//.test(a.fuente) ? ` <a class="underline text-blue-700 text-xs" href="${esc(a.fuente)}" target="_blank" rel="noopener noreferrer">fuente</a>` : ''}${a.fecha ? `<span class="block text-xs text-slate-500">Dato consultado el ${esc(a.fecha)}</span>` : ''}</li>`;
+const docLi = d => `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><p class="font-semibold">${esc(d.titulo)}</p>${d.norma ? `<p class="text-xs text-slate-600">${esc(d.norma)}</p>` : ''}${d.resumen ? `<p class="mt-1">${esc(d.resumen)}</p>` : ''}<p class="text-xs text-slate-500 mt-1">${d.url && /^https?:\/\//.test(d.url) ? `<a class="underline text-blue-700" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">ver documento</a> · ` : ''}${d.fecha ? esc(String(d.fecha).slice(0,10)) + ' · ' : ''}SHA-256 <span class="font-mono break-all">${esc((d.sha256 || '').slice(0,16))}…</span></p></li>`;
 function renderInst() {
   $('#inst-grid').innerHTML = INSTITUCIONES.map(i => `
     <article class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
@@ -666,6 +713,9 @@ function renderInst() {
       <p class="text-sm text-slate-700">${esc(i.rol)}</p>
       <div><p class="text-sm font-bold mb-1">Documentos para buscar</p>
       <ul class="text-sm text-slate-700 list-disc pl-5 space-y-1">${i.buscar.map(b => `<li>${esc(b)}</li>`).join('')}</ul></div>
+      <div><p class="text-sm font-bold mb-1">Autoridades publicadas</p>
+      <ul class="space-y-1">${(i.autoridades || []).map(autLi).join('') || '<li class="text-sm text-slate-500">Todavía no hay autoridades cargadas con fuente.</li>'}</ul></div>
+      ${(i.analizados || []).length ? `<div><p class="text-sm font-bold mb-1">Documentos analizados</p><ul class="space-y-1">${i.analizados.map(docLi).join('')}</ul></div>` : ''}
       <button data-action="pedir-inst" data-nombre="${esc(i.sigla)}" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm">Preparar pedido de información</button>
     </article>`).join('');
 }
@@ -676,6 +726,7 @@ function renderRSE() {
       <h3 class="font-extrabold text-lg">${esc(p.titulo)}</h3>
       <p class="text-sm text-slate-700">${esc(p.desc)}</p>
       <p class="text-sm bg-slate-50 border border-slate-200 rounded-xl p-3"><strong>Visibilidad para la empresa:</strong> ${esc(p.retorno)}</p>
+      <p class="text-xs text-slate-600"><strong>Seguimiento:</strong> ${esc(ESTADO_PLIEGO[p.estado] || ESTADO_PLIEGO.abierto)}${p.club ? ' · Club: ' + esc(p.club) : ''}</p>
       <div class="mt-auto flex items-center justify-between gap-3 pt-2">
         <div><p class="text-xs text-slate-500">Estimación referencial</p><p class="text-xl font-black text-emerald-800">$ ${p.monto.toLocaleString('es-AR')}</p></div>
         <button data-action="postular" data-cod="${esc(p.cod)}" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Quiero cotizar</button>
@@ -696,10 +747,7 @@ document.addEventListener('click', e => {
   else if (act === 'cerrar') a.closest('dialog').close();
   else if (act === 'copiar') { const t = $('#' + a.dataset.target); t.select(); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.resolve(document.execCommand('copy'))).then(() => toast('Texto copiado')); }
   else if (act === 'pedir-inst') { $('#p-tipo').value = 'federacion'; $('#p-entidad').value = a.dataset.nombre; armarPedido(); showTab('pedir'); }
-  else if (act === 'postular') {
-    if (!CONFIG.CONTACT_EMAIL) { toast('Configurá CONTACT_EMAIL para habilitar este botón'); return; }
-    location.href = `mailto:${CONFIG.CONTACT_EMAIL}?subject=${encodeURIComponent('Patrocinio ' + a.dataset.cod)}&body=${encodeURIComponent('Hola, quisiera cotizar el módulo ' + a.dataset.cod + '.')}`;
-  }
+  else if (act === 'postular') { $('#post-cod').textContent = a.dataset.cod; $('#post-estado').textContent = ''; $('#dlg-post').showModal(); }
 });
 $$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
 $('#club-pedir').onclick = () => { $('#dlg-club').close(); const c = clubActivo; $('#p-tipo').value = /Municipal|Estatal/i.test(c.tipo) ? 'municipio' : 'club'; $('#p-entidad').value = c.nombre; armarPedido(); showTab('pedir'); };
@@ -710,6 +758,18 @@ $('#filtro-div').addEventListener('change', refrescar);
 $('#form-pedido').addEventListener('input', armarPedido);
 $('#p-mailto').onclick = () => { armarPedido(); location.href = `mailto:?subject=${encodeURIComponent('Solicitud de acceso a información')}&body=${encodeURIComponent($('#p-texto').value)}`; };
 $('#form-dato').addEventListener('submit', enviarDato);
+$('#form-post').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const est = $('#post-estado'); est.className = 'text-sm font-semibold';
+  if ($('#post-web').value) return;
+  if (!sb) { est.textContent = 'El canal no está activo todavía (falta conectar la base de datos).'; est.classList.add('text-amber-800'); return; }
+  $('#post-enviar').disabled = true; est.textContent = 'Enviando…';
+  const { error } = await sb.from('postulaciones_rse').insert({ pliego_codigo: $('#post-cod').textContent, empresa: $('#post-empresa').value.trim(), contacto: $('#post-contacto').value.trim(), mensaje: $('#post-mensaje').value.trim() || null });
+  $('#post-enviar').disabled = false;
+  if (error) { console.warn('postulaciones_rse:', error.message); est.textContent = 'No pudimos enviarla. Probá más tarde.'; est.classList.add('text-rose-700'); return; }
+  est.textContent = 'Recibida. Te contactamos para coordinar.'; est.classList.add('text-emerald-800');
+  $('#form-post').reset();
+});
 $('#d-texto').addEventListener('input', e => { $('#d-count').textContent = e.target.value.length + ' / 2000'; });
 $('#d-tipo').addEventListener('change', e => $('#d-contacto-wrap').classList.toggle('hidden', e.target.value !== 'replica'));
 
@@ -724,63 +784,48 @@ const MAPA_TIPO = {
   'convenio_club':'Convenio con club'
 };
 
-window.addEventListener('DOMContentLoaded', async () => {
-  // Si hay credenciales de Supabase configuradas, traemos todo el esquema v2 en vivo
-  if (sb) {
-    try {
-      const [{ data: clubesDb }, { data: revDb }, { data: autDb }] = await Promise.all([
-        sb.from('clubes').select('*'),
-        sb.from('revisiones_documentales').select('*'),
-        sb.from('autoridades').select('*')
-      ]);
+function aviso(msg) {
+  let d = $('#aviso-datos');
+  if (!d) { d = document.createElement('div'); d.id = 'aviso-datos'; d.setAttribute('role', 'status'); d.className = 'bg-amber-100 border-b border-amber-400 text-amber-950 text-sm font-semibold px-4 py-2 text-center'; document.body.prepend(d); }
+  d.textContent = msg;
+}
+async function cargarDatos() {
+  if (!sb) { console.warn('[AuditaDeporte] Supabase NO configurado: completá SUPABASE_URL y SUPABASE_ANON_KEY en CONFIG.'); aviso('Mostrando datos de respaldo: la conexión a la base de datos no está configurada.'); return; }
+  try {
+    const q = t => sb.from(t).select('*');
+    const [cl, rv, au, ins, doc, pl] = await Promise.all([q('clubes'), q('revisiones_documentales'), q('autoridades'), q('instituciones'), q('documentos_fuente'), q('pliegos_rse')]);
+    [['clubes', cl], ['revisiones_documentales', rv], ['autoridades', au], ['instituciones', ins], ['documentos_fuente', doc], ['pliegos_rse', pl]]
+      .forEach(([n, r]) => { if (r.error) console.warn(`[AuditaDeporte] ${n}:`, r.error.message); else console.info(`[AuditaDeporte] ${n}: ${r.data.length} filas`); });
+    if (cl.error || !cl.data || !cl.data.length) { aviso('No se pudieron leer los clubes de la base: mostrando datos de respaldo.'); return; }
 
-      if (clubesDb && clubesDb.length > 0) {
-        // Mapear revisiones documentales por club_id
-        const revPorClub = {};
-        (revDb || []).forEach(r => {
-          if (!r.club_id) return;
-          if (!revPorClub[r.club_id]) revPorClub[r.club_id] = {};
-          revPorClub[r.club_id][r.criterio] = {
-            estado: r.estado === 'publicado' ? 'si' : (r.estado === 'no_encontrado' ? 'no' : 'sv'),
-            fuente: r.fuente_url,
-            fecha: r.fecha_revision,
-            nota: r.nota
-          };
-        });
-
-        // Mapear autoridades por club_id
-        const autPorClub = {};
-        (autDb || []).forEach(a => {
-          if (!a.club_id) return;
-          if (!autPorClub[a.club_id]) autPorClub[a.club_id] = [];
-          autPorClub[a.club_id].push({ cargo: a.cargo, nombre: a.nombre, fuente: a.fuente_url, fecha: a.fecha_fuente });
-        });
-
-        // Construir el array global CLUBES con datos reales de la BD
-        CLUBES = clubesDb.map(d => {
-          const localMatch = CLUBES_LOCALES.find(l => l.id === d.slug) || {};
-          return {
-            id: d.slug,
-            nombre: d.nombre,
-            ciudad: d.ciudad,
-            prov: d.provincia,
-            lat: Number(d.lat),
-            lng: Number(d.lng),
-            division: MAPA_DIVISION[d.division] || d.division || 'Desarrollo',
-            tipo: MAPA_TIPO[d.tipo_entidad] || d.tipo_entidad || 'Asociación civil',
-            logo: d.logo_url || "",
-            instagram: d.instagram || localMatch.instagram || "",
-            facebook: d.facebook || localMatch.facebook || "",
-            nota: d.estado_nota || localMatch.nota || "",
-            rev: revPorClub[d.id] || localMatch.rev || {},
-            autoridades: autPorClub[d.id] || localMatch.autoridades || []
-          };
-        });
-      }
-    } catch (err) {
-      console.warn("Error al consultar Supabase, usando respaldo local:", err);
+    const porClub = (rows, fn) => { const o = {}; (rows || []).forEach(r => { if (!r.club_id) return; (o[r.club_id] = o[r.club_id] || []).push(fn(r)); }); return o; };
+    const rev = {};
+    (rv.data || []).forEach(r => { if (!r.club_id) return; (rev[r.club_id] = rev[r.club_id] || {})[r.criterio] = { estado: r.estado === 'publicado' ? 'si' : (r.estado === 'no_encontrado' ? 'no' : 'sv'), fuente: r.fuente_url, fecha: r.fecha_revision, nota: r.nota }; });
+    const aut = porClub(au.data, a => ({ cargo: a.cargo, nombre: a.nombre, fuente: a.fuente_url, fecha: a.fecha_fuente }));
+    const docs = porClub(doc.data, d => ({ titulo: d.titulo, norma: d.expediente_o_norma, url: d.url_fuente, sha256: d.hash_sha256, fecha: d.fecha_captura, resumen: d.resumen }));
+    CLUBES = cl.data.map(d => {
+      const l = CLUBES_LOCALES.find(x => x.id === d.slug) || {};
+      return { id: d.slug, dbid: d.id, nombre: d.nombre, ciudad: d.ciudad, prov: d.provincia, lat: Number(d.lat), lng: Number(d.lng),
+        division: MAPA_DIVISION[d.division] || d.division || 'Desarrollo', tipo: MAPA_TIPO[d.tipo_entidad] || d.tipo_entidad || 'Asociación civil',
+        logo: d.logo_url || '', instagram: d.instagram || l.instagram || '', facebook: d.facebook || l.facebook || '', nota: d.estado_nota || l.nota || '',
+        rev: rev[d.id] || {}, autoridades: aut[d.id] || [], analizados: docs[d.id] || [] };
+    });
+    // Instituciones: autoridades y documentos desde la base (se unen por slug = sigla en minúsculas)
+    (ins.data || []).forEach(row => {
+      const loc = INSTITUCIONES.find(i => slug(i.sigla) === row.slug); if (!loc) return;
+      loc.autoridades = (au.data || []).filter(a => a.institucion_id === row.id).map(a => ({ cargo: a.cargo, nombre: a.nombre, fuente: a.fuente_url, fecha: a.fecha_fuente }));
+      loc.analizados = (doc.data || []).filter(d => d.institucion_id === row.id).map(d => ({ titulo: d.titulo, norma: d.expediente_o_norma, url: d.url_fuente, sha256: d.hash_sha256, fecha: d.fecha_captura, resumen: d.resumen }));
+    });
+    if (pl.data && pl.data.length) {
+      const nombre = {}; cl.data.forEach(c => nombre[c.id] = c.nombre);
+      PLIEGOS = pl.data.map(p => ({ cod: p.codigo, titulo: p.titulo, desc: p.descripcion || '', monto: Number(p.monto_referencial_ars), retorno: p.contraprestacion, estado: p.estado, club: p.club_id ? nombre[p.club_id] : '' }));
     }
-  }
+    const d = $('#aviso-datos'); if (d) d.remove();
+  } catch (err) { console.warn('[AuditaDeporte] Error al consultar Supabase, uso respaldo local:', err); aviso('Error de conexión con la base: mostrando datos de respaldo.'); }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  await cargarDatos();
 
   // Poblar selectores, textos actualizados y renderizar componentes
   const opts = '<option value="">— General / varias entidades —</option>' +
