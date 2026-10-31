@@ -20,6 +20,8 @@
   :focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; border-radius: 6px; }
   .tab-btn[aria-selected="true"] { color: #0f172a; border-color: #f59e0b; background: #fffbeb; font-weight: 700; }
   #map { height: 560px; width: 100%; background: #0b1220; }
+  /* Filtro Radar Oscuro sobre OpenStreetMap (100% libre de API Key y bloqueos) */
+  #map.modo-radar .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   @media (max-width: 640px) { #map { height: 420px; } }
   .pin { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px solid #1d4ed8;
          box-shadow: 0 4px 10px rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center;
@@ -456,15 +458,16 @@ function showTab(t, push = true) {
 
 /* ============ MAPA ============ */
 let map, cluster, capaActual;
-const ATTR_OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const ATTR_OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 const CAPAS = {
-  radar: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains:'abcd', maxZoom:19, attribution: ATTR_OSM }),
-  calle: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { subdomains:'abcd', maxZoom:19, attribution: ATTR_OSM }),
+  radar: () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution: ATTR_OSM }),
+  calle: () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution: ATTR_OSM }),
   sat:   () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom:18, attribution:'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics' })
 };
 function setCapa(nombre) {
   if (!map) return;
   if (capaActual) map.removeLayer(capaActual);
+  $('#map').classList.toggle('modo-radar', nombre === 'radar');
   capaActual = CAPAS[nombre]().addTo(map);
   let fallos = 0;
   capaActual.on('tileerror', () => { if (++fallos > 6) $('#map-aviso').classList.remove('hidden'); });
