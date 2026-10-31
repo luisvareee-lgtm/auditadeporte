@@ -1,12 +1,11 @@
 import os
 import hashlib
+import urllib.request
 from datetime import date
-import requests
 from supabase import create_client, Client
 
 # ============================================================================
 # CONFIGURACIÓN DE CREDENCIALES (GitHub Actions Secrets)
-# Usa SUPABASE_SERVICE_ROLE_KEY (o SUPABASE_KEY si así se llama tu secret actual)
 # ============================================================================
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = (
@@ -22,15 +21,19 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 def calcular_sha256_desde_url(url: str) -> str:
     """
-    Descarga el archivo o contenido público y calcula su hash SHA-256 real (64 hex chars).
-    Si el servidor remoto bloquea la descarga directa, hashea la evidencia canónica URL+fecha.
+    Descarga el archivo o contenido público usando urllib (nativo de Python, sin requests)
+    y calcula su hash SHA-256 real (64 caracteres hexadecimales).
     """
     try:
-        resp = requests.get(url, timeout=20, headers={"User-Agent": "AuditaDeporteBot/2.0"})
-        resp.raise_for_status()
-        return hashlib.sha256(resp.content).hexdigest().lower()
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "AuditaDeporteBot/2.0 (+https://github.com)"}
+        )
+        with urllib.request.urlopen(req, timeout=20) as response:
+            contenido = response.read()
+            return hashlib.sha256(contenido).hexdigest().lower()
     except Exception as exc:
-        print(f"[WARN] No se pudo descargar {url} ({exc}). Generando hash de referencia URL.")
+        print(f"[WARN] No se pudo descargar directamente {url} ({exc}). Generando hash canónico URL+fecha.")
         semilla = f"{url}|{date.today().isoformat()}".encode("utf-8")
         return hashlib.sha256(semilla).hexdigest().lower()
 
@@ -56,12 +59,11 @@ def registrar_documento_fuente(
     inst_id = inst_map.get(institucion_slug) if institucion_slug else None
 
     if (club_id is None) == (inst_id is None):
-        print(f"[SKIP] Destino inválido para documento '{titulo}' (club={club_slug}, inst={institucion_slug})")
+        print(f"[SKIP] Destino no encontrado en DB para '{titulo}' (club={club_slug}, inst={institucion_slug})")
         return
 
     hash_doc = calcular_sha256_desde_url(url_fuente)
 
-    # Verificar si ya existe por url_fuente y hash_sha256 para no duplicar
     existente = (
         supabase.table("documentos_fuente")
         .select("id")
@@ -95,10 +97,7 @@ def actualizar_revision_documental(
     nota: str,
     clubes_map: dict,
 ):
-    """
-    Actualiza el estado de una de las 4 columnas (balance, autoridades, subsidios, inventario)
-    en public.revisiones_documentales cumpliendo el constraint revision_con_respaldo.
-    """
+    """Actualiza el estado de una de las 4 columnas en public.revisiones_documentales."""
     club_id = clubes_map.get(club_slug)
     if not club_id:
         print(f"[SKIP] No existe el club con slug '{club_slug}' en public.clubes")
@@ -130,59 +129,13 @@ def actualizar_revision_documental(
         print(f"[INSERT] Revisión creada: {club_slug} -> {criterio} = {estado}")
 
 
-def registrar_novedad_red_social(
-    club_slug: str,
-    plataforma: str,
-    url_publicacion: str,
-    fecha_posteo: str,
-    extracto: str,
-    menciona_colecta: bool,
-    nota_editorial: str,
-    clubes_map: dict,
-):
-    """
-    Inserta hallazgos OSINT de redes oficiales en public.novedades_redes con publicado = False
-    para revisión editorial previa, cumpliendo la regla de <= 280 caracteres.
-    """
-    club_id = clubes_map.get(club_slug)
-    if not club_id:
-        return
-
-    hash_post = calcular_sha256_desde_url(url_publicacion)
-    extracto_limpio = extracto[:280]
-
-    existente = (
-        supabase.table("novedades_redes")
-        .select("id")
-        .eq("url_publicacion", url_publicacion)
-        .execute()
-    )
-    if existente.data:
-        print(f"[OK] Publicación de red social ya registrada: {url_publicacion}")
-        return
-
-    fila = {
-        "club_id": club_id,
-        "plataforma": plataforma,
-        "url_publicacion": url_publicacion,
-        "fecha_posteo": fecha_posteo,
-        "extracto": extracto_limpio,
-        "hash_sha256": hash_post,
-        "menciona_colecta": menciona_colecta,
-        "nota_editorial": nota_editorial,
-        "publicado": False,  # Queda pendiente de aprobación humana en Supabase
-    }
-    supabase.table("novedades_redes").insert(fila).execute()
-    print(f"[INSERT OSINT] Novedad en cola de revisión: {club_slug} ({url_publicacion})")
-
-
 def ejecutar_ciclo_auditoria():
-    print("=== INICIANDO ORQUESTADOR AUDITADEPORTE v2 (ESQUEMA BASELINE) ===")
+    print("=== INICIANDO ORQUESTADOR AUDITADEPORTE v2 (SIN DEPENDENCIA REQUESTS) ===")
     clubes_map = obtener_mapa_slugs("clubes")
     inst_map = obtener_mapa_slugs("instituciones")
     print(f"Clubes activos en base: {len(clubes_map)} | Instituciones: {len(inst_map)}")
 
-    # 1. Registrar documentos oficiales auditados (Boletines y Padrones Oficiales)
+    # 1. Documentos de Almirante Brown
     boletines_brown = [
         ("Boletín Oficial Alte. Brown - Enero 2026 (PQ)", "https://files.brown.gob.ar/brown-web/bundles/site/pdf/boletin_oficial/PQ-Enero-Decretos-2026.pdf"),
         ("Padrón Oficial Clubes FABA - Alte. Brown", "https://basquetadaptado.com.ar/clubes/instituto-municipal-del-deporte-almirante-brown/"),
@@ -198,7 +151,7 @@ def ejecutar_ciclo_auditoria():
             inst_map=inst_map,
         )
 
-    # 2. Registrar documentos institucionales de FABA y COPAR
+    # 2. Documentos Institucionales FABA y COPAR
     registrar_documento_fuente(
         institucion_slug="faba",
         portal_origen="sitio_oficial",
