@@ -11,7 +11,7 @@ raw_url = os.getenv("SUPABASE_URL")
 SUPABASE_URL = str(raw_url).strip().strip('"').strip("'") if raw_url else "https://tjlejedfjypntsylqpeq.supabase.co"
 
 raw_key = os.getenv("SUPABASE_KEY")
-SUPABASE_KEY = str(raw_key).strip().strip('"').strip("'") if raw_key else "LOCAL_TEST_KEY"
+SUPABASE_KEY = str(raw_key).strip().strip('"').strip("'") if raw_key else "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqbGVqZWRmanlwbnRzeWxxcGVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4OTk4MDQsImV4cCI6MjEwODQ3NTgwNH0.gvs_WTMr8m_DkM1TUbf3CXFBBjQRBJpNTwv6nPYY1bw"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
