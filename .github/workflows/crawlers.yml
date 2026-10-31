@@ -24,7 +24,7 @@ jobs:
 
       - name: Ejecutar orquestador de bots
         env:
-          SUPABASE_URL: ${{ https://tjlejedfjypntsylqpeq.supabase.co/rest/v1/ }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQtYBR }}
+          SUPABASE_URL: "https://tjlejedfjypntsylqpeq.supabase.co"
+          SUPABASE_SERVICE_ROLE_KEY: "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQtYBR"
         run: |
           python orquestador_bots_audita.py
