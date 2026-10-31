@@ -713,7 +713,7 @@ $('#form-dato').addEventListener('submit', enviarDato);
 $('#d-texto').addEventListener('input', e => { $('#d-count').textContent = e.target.value.length + ' / 2000'; });
 $('#d-tipo').addEventListener('change', e => $('#d-contacto-wrap').classList.toggle('hidden', e.target.value !== 'replica'));
 
-/* ============ ARRANQUE Y CONEXIÓN A SUPABASE ============ */
+/* ============ ARRANQUE Y CONEXIÓN DINÁMICA A SUPABASE ============ */
 const MAPA_DIVISION = { '1ra':'1ra División', '2da':'2da División', '3ra':'3ra División', 'desarrollo':'Desarrollo' };
 const MAPA_TIPO = {
   'asociacion_civil':'Asociación civil',
@@ -725,38 +725,70 @@ const MAPA_TIPO = {
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
-  // 1. Si configuraste SUPABASE_URL y SUPABASE_ANON_KEY, actualiza desde Supabase; si no, usa los 27 clubes locales
+  // Si hay credenciales de Supabase configuradas, traemos todo el esquema v2 en vivo
   if (sb) {
     try {
-      const { data, error } = await sb.from('v_clubes_resumen').select('*');
-      if (!error && data && data.length > 0) {
-        CLUBES = data.map(d => ({
-          id: d.slug,
-          nombre: d.nombre,
-          ciudad: d.ciudad,
-          prov: d.provincia,
-          lat: Number(d.lat),
-          lng: Number(d.lng),
-          division: MAPA_DIVISION[d.division] || d.division || 'Desarrollo',
-          tipo: MAPA_TIPO[d.tipo_entidad] || d.tipo_entidad || 'Asociación civil',
-          logo: d.logo_url || "",
-          instagram: d.instagram || "",
-          facebook: d.facebook || "",
-          nota: d.estado_nota || "",
-          rev: {}
-        }));
+      const [{ data: clubesDb }, { data: revDb }, { data: autDb }] = await Promise.all([
+        sb.from('clubes').select('*'),
+        sb.from('revisiones_documentales').select('*'),
+        sb.from('autoridades').select('*')
+      ]);
+
+      if (clubesDb && clubesDb.length > 0) {
+        // Mapear revisiones documentales por club_id
+        const revPorClub = {};
+        (revDb || []).forEach(r => {
+          if (!r.club_id) return;
+          if (!revPorClub[r.club_id]) revPorClub[r.club_id] = {};
+          revPorClub[r.club_id][r.criterio] = {
+            estado: r.estado === 'publicado' ? 'si' : (r.estado === 'no_encontrado' ? 'no' : 'sv'),
+            fuente: r.fuente_url,
+            fecha: r.fecha_revision,
+            nota: r.nota
+          };
+        });
+
+        // Mapear autoridades por club_id
+        const autPorClub = {};
+        (autDb || []).forEach(a => {
+          if (!a.club_id) return;
+          if (!autPorClub[a.club_id]) autPorClub[a.club_id] = [];
+          autPorClub[a.club_id].push({ cargo: a.cargo, nombre: a.nombre, fuente: a.fuente_url, fecha: a.fecha_fuente });
+        });
+
+        // Construir el array global CLUBES con datos reales de la BD
+        CLUBES = clubesDb.map(d => {
+          const localMatch = CLUBES_LOCALES.find(l => l.id === d.slug) || {};
+          return {
+            id: d.slug,
+            nombre: d.nombre,
+            ciudad: d.ciudad,
+            prov: d.provincia,
+            lat: Number(d.lat),
+            lng: Number(d.lng),
+            division: MAPA_DIVISION[d.division] || d.division || 'Desarrollo',
+            tipo: MAPA_TIPO[d.tipo_entidad] || d.tipo_entidad || 'Asociación civil',
+            logo: d.logo_url || "",
+            instagram: d.instagram || localMatch.instagram || "",
+            facebook: d.facebook || localMatch.facebook || "",
+            nota: d.estado_nota || localMatch.nota || "",
+            rev: revPorClub[d.id] || localMatch.rev || {},
+            autoridades: autPorClub[d.id] || localMatch.autoridades || []
+          };
+        });
       }
     } catch (err) {
-      console.warn("Usando padrón local de respaldo:", err);
+      console.warn("Error al consultar Supabase, usando respaldo local:", err);
     }
   }
 
-  // 2. Poblar selectores y renderizar toda la interfaz
+  // Poblar selectores, textos actualizados y renderizar componentes
   const opts = '<option value="">— General / varias entidades —</option>' +
     CLUBES.map(c => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join('') +
     INSTITUCIONES.map(i => `<option value="${esc(slug(i.sigla))}">${esc(i.sigla)}</option>`).join('');
-  $('#d-club').innerHTML = opts;
-  $('#lista-entidades').innerHTML = CLUBES.map(c => `<option value="${esc(c.nombre)}">`).join('') +
+  
+  if($('#d-club')) $('#d-club').innerHTML = opts;
+  if($('#lista-entidades')) $('#lista-entidades').innerHTML = CLUBES.map(c => `<option value="${esc(c.nombre)}">`).join('') +
     INSTITUCIONES.map(i => `<option value="${esc(i.sigla)}">`).join('');
 
   renderInst();
