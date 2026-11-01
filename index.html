@@ -6,7 +6,6 @@
 <title>AuditaDeporte — Transparencia en el básquet adaptado</title>
 <meta name="description" content="Mapa federal de clubes de básquet sobre silla de ruedas (FABA), documentos públicos, pedidos de información y patrocinio directo a proveedores.">
 
-<!-- NOTA: el CDN de Tailwind es cómodo para prototipar. Para producción, compilá el CSS (Tailwind CLI) y quitá esta línea. -->
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
@@ -20,7 +19,6 @@
   :focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; border-radius: 6px; }
   .tab-btn[aria-selected="true"] { color: #0f172a; border-color: #f59e0b; background: #fffbeb; font-weight: 700; }
   #map { height: 560px; width: 100%; background: #0b1220; }
-  /* Filtro Radar Oscuro sobre OpenStreetMap (100% libre de API Key y bloqueos) */
   #map.modo-radar .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   @media (max-width: 640px) { #map { height: 420px; } }
   .pin { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px solid #1d4ed8;
@@ -173,7 +171,7 @@
           <div class="rounded-xl bg-amber-50 border border-amber-300 p-4 text-sm text-amber-950 space-y-2">
             <p class="font-bold">Importante sobre la identidad</p>
             <p>Los pedidos de acceso a la información pública suelen requerir que quien pide se identifique (no hace falta explicar para qué lo querés). Un pedido anónimo puede ser rechazado. Si no querés exponerte, pedile a una persona u organización de confianza que lo presente.</p>
-            <p>La Ley 27.275 rige para organismos nacionales; provincias y municipios tienen sus propias normas. Las asociaciones civiles privadas responden en lo que se relaciona con fondos públicos recibidos, según su caso; si sos socio, revisá también tu estatuto.</p>
+            <p>La Ley 27.275 rige para organismos nacionales; provincias y municipios tienen sus propias normas. Las asociaciones civiles privadas responden en lo que se relacione con fondos públicos recibidos, según su caso; si sos socio, revisá también tu estatuto.</p>
           </div>
         </div>
       </div>
@@ -398,14 +396,12 @@
     <button id="post-enviar" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl">Enviar postulación</button>
   </form>
 </dialog>
+
 <script>
-  
-<script>
-  
 /* ============ CONFIGURACIÓN ============ */
 const CONFIG = {
   SUPABASE_URL: "https://tjlejedfjypntsylqpeq.supabase.co", 
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqbGVqZWRmanlwbnRzeWxxcGVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4OTk4MDQsImV4cCI6MjEwODQ3NTgwNH0.gvs_WTMr8m_DkM1TUbf3CXFBBjQRBJpNTwv6nPYY1bw",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqbGVqZWRmanlwbnRzeWxxcGVxIkw6ImFub24iLCJpYXQiOjE3OTI4OTk4MDQsImV4cCI6MjEwODQ3NTgwNH0.gvs_WTMr8m_DkM1TUbf3CXFBBjQRBJpNTwv6nPYY1bw",
   CONTACT_EMAIL: "" 
 };
 
@@ -910,6 +906,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   showTab((location.hash || '#mapa').slice(1), false);
   if (window.lucide) lucide.createIcons();
 });
+</script>
+</body>
+</html>
 <script>
     </body>
 </html>
