@@ -18,8 +18,8 @@ jobs:
       - name: Rastreador de documentos
         run: python orquestador_bots_audita.py
         working-directory: bot
-        env: { SUPABASE_URL: "${{ secrets.SUPABASE_URL }}", SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" }
+        env: { SUPABASE_URL: "${{ secrets.SUPABASE_URL }}", SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.service_role }}" }
       - name: Ingesta de novedades (feeds oficiales)
         run: python ingesta_redes.py
         working-directory: bot
-        env: { SUPABASE_URL: "${{ secrets.SUPABASE_URL }}", SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" }
+        env: { SUPABASE_URL: "${{ secrets.SUPABASE_URL }}", SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.service_role }}" }
