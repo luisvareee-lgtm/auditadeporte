@@ -27,4 +27,4 @@ jobs:
           SUPABASE_URL: "https://tjlejedfjypntsylqpeq.supabase.co"
           SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqbGVqZWRmanlwbnRzeWxxcGVxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5Mjg5OTgwNCwiZXhwIjoyMTA4NDc1ODA0fQ.UNfDIf4DuklGAzKytFLCH5FOiTOHFEj-JD2jj_nGHAY"
         run: |
-          python orquestador_bots_audita.py
+          python bot/orquestador_bots_audita.py
