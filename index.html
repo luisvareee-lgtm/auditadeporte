@@ -289,10 +289,24 @@
 
   <!-- ===== PATROCINAR ===== -->
   <section id="s-rse" role="tabpanel" aria-labelledby="t-rse" class="hidden space-y-5">
-    <div class="bg-slate-900 text-white rounded-2xl p-6 md:p-8 space-y-2">
+    <div class="bg-slate-900 text-white rounded-2xl p-6 md:p-8 space-y-3">
       <p class="inline-block bg-emerald-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase">Inspirado en esquemas de liga de España, Serie A de Italia y de Brasil</p>
       <h2 class="text-2xl md:text-3xl font-black">Patrocinio por rubro, con pago directo al proveedor</h2>
-      <p class="text-slate-300 text-sm max-w-3xl">Una empresa financia un módulo concreto y paga directamente al proveedor contra factura. El equipo recibe el bien o el servicio, y la empresa recibe visibilidad. Sin intermediarios y con comprobantes a la vista.</p>
+      <p class="text-slate-300 text-sm max-w-3xl">Una empresa financia un módulo concreto y paga directamente al proveedor contra factura. El equipo recibe el bien o el servicio, y la empresa recibe visibilidad y trazabilidad contable. Sin intermediarios y con comprobantes a la vista.</p>
+      <div class="grid md:grid-cols-3 gap-3 pt-2 text-xs text-slate-200">
+        <div class="bg-white/10 rounded-xl p-3 border border-white/15">
+          <p class="font-extrabold text-amber-300 mb-1">🇪🇸 Liga de España (BSR / FEDDF)</p>
+          <p>Salió del estancamiento exigiendo auditoría pública de cuentas (CSD) y patrocinio técnico específico de neumáticos, ejes y sillas certificadas por plantel.</p>
+        </div>
+        <div class="bg-white/10 rounded-xl p-3 border border-white/15">
+          <p class="font-extrabold text-emerald-300 mb-1">🇮🇹 Serie A de Italia (FIPIC)</p>
+          <p>Consorcios de patrocinio regional donde las empresas cubren directamente la logística de giras, hotelería accesible y mecánica con deducción fiscal directa.</p>
+        </div>
+        <div class="bg-white/10 rounded-xl p-3 border border-white/15">
+          <p class="font-extrabold text-sky-300 mb-1">🇧🇷 Brasil (CBBC / Lei de Incentivo)</p>
+          <p>Financiamiento por proyecto técnico auditado: el patrocinador abona directo al fabricante o transportista y la rendición de facturas es pública.</p>
+        </div>
+      </div>
     </div>
     <div class="rounded-xl bg-amber-50 border border-amber-300 p-4 text-sm text-amber-950">
       Los montos son <strong>estimaciones referenciales</strong> para armar un presupuesto. Cada operación se cotiza con el proveedor y se formaliza por escrito entre las partes.
@@ -470,6 +484,70 @@ const estadoDoc = r => {
   return { txt: 'No encontrado' + (r.fecha ? ' al ' + r.fecha : ''), cls:'bg-amber-100 text-amber-900 border-amber-400' };
 };
 const revisado = c => CRITERIOS.some(k => c.rev[k.k] && c.rev[k.k].estado && c.rev[k.k].estado !== 'sv');
+  /* ============ RENDER DE TABLA CON RESUMEN EXPLICADO ============ */
+function renderTransp() {
+  const l = filtrados();
+  $('#tbody-transp').innerHTML = l.map(c => `
+    <tr class="hover:bg-slate-50 align-top">
+      <th scope="row" class="p-3 font-bold">
+        ${esc(c.nombre)}
+        <span class="block text-xs font-normal text-slate-600">${esc(c.ciudad)} · ${esc(c.division)}</span>
+      </th>
+      ${CRITERIOS.map(k => {
+        const r = c.rev[k.k], e = estadoDoc(r);
+        const fuente = r && r.fuente && /^https?:\/\//.test(r.fuente)
+          ? ` <a class="underline text-blue-700 text-xs font-semibold ml-1" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">fuente ↗</a>`
+          : '';
+        const notaExplicada = r && r.nota
+          ? `<p class="text-xs text-slate-600 mt-1 leading-snug max-w-[230px]">${esc(r.nota)}</p>`
+          : '';
+        return `<td class="p-3"><span class="inline-block text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${fuente}${notaExplicada}</td>`;
+      }).join('')}
+      <td class="p-3"><button data-action="club" data-id="${esc(c.id)}" class="text-blue-800 font-bold underline text-sm">Ver resumen</button></td>
+    </tr>`).join('');
+  const rev = CLUBES.filter(revisado).length;
+  $('#meta-resumen').textContent = `${rev} de ${CLUBES.length} clubes con auditoría documental verificada por el sistema multi-agente.`;
+  $('#stat-clubes').textContent = CLUBES.length;
+  $('#stat-rev').textContent = rev;
+}
+
+/* ============ FICHA DE CLUB CON "LO QUE DEBÉS SABER" Y DOCUMENTOS ANALIZADOS ============ */
+let clubActivo = null;
+function abrirClub(id) {
+  const c = CLUBES.find(x => x.id === id); if (!c) return;
+  clubActivo = c;
+  const logo = $('#club-logo'); logo.textContent = '';
+  if (c.logo) { const i = document.createElement('img'); i.src = c.logo; i.alt = ''; i.className = 'w-full h-full object-cover'; i.onerror = () => { i.remove(); logo.textContent = iniciales(c.nombre); }; logo.appendChild(i); }
+  else logo.textContent = iniciales(c.nombre);
+  $('#club-sub').textContent = c.division + ' · ' + c.tipo;
+  $('#club-titulo').textContent = c.nombre;
+  $('#club-ciudad').textContent = c.ciudad + ', ' + c.prov;
+
+  const nota = $('#club-nota');
+  nota.classList.toggle('hidden', !c.nota);
+  nota.innerHTML = c.nota ? `<strong class="block text-xs uppercase tracking-wide text-amber-900 mb-1">Lo que debés saber / Resumen institucional:</strong>${esc(c.nota)}` : '';
+
+  const autHtml = (c.autoridades && c.autoridades.length)
+    ? `<div class="mb-4"><h4 class="font-extrabold mb-2 text-slate-900">Autoridades / Representación registrada</h4><ul class="space-y-1.5 text-sm">${c.autoridades.map(a => `<li class="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 flex justify-between items-center gap-2"><span><strong>${esc(a.cargo)}:</strong> ${esc(a.nombre)}</span>${a.fuente ? `<a href="${esc(a.fuente)}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-blue-800 underline shrink-0">Fuente oficial ↗</a>` : ''}</li>`).join('')}</ul></div>`
+    : '';
+
+  const docsAnalizadosHtml = (c.docs && c.docs.length)
+    ? `<div class="mt-4"><h4 class="font-extrabold mb-2 text-slate-900">Documentos analizados por los bots</h4><ul class="space-y-1.5 text-xs">${c.docs.map(d => `<li class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 flex justify-between items-center gap-2"><span><strong>${esc(d.titulo)}</strong> (${esc(d.expediente_o_norma || 'Fuente pública')})</span><a href="${esc(d.url_fuente)}" target="_blank" rel="noopener noreferrer" class="text-blue-800 font-bold underline shrink-0">Ver documento ↗</a></li>`).join('')}</ul></div>`
+    : '';
+
+  $('#club-docs').innerHTML = autHtml + CRITERIOS.map(k => {
+    const r = c.rev[k.k], e = estadoDoc(r);
+    const f = r && r.fuente && /^https?:\/\//.test(r.fuente) ? ` <a class="underline text-blue-700 text-xs font-bold ml-1" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">ver fuente ↗</a>` : '';
+    const explicacion = r && r.nota ? `<p class="text-xs text-slate-600 mt-1">${esc(r.nota)}</p>` : '';
+    return `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><div class="flex justify-between items-center gap-3"><span class="font-semibold">${esc(k.t)}</span><span><span class="text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${f}</span></div>${explicacion}</li>`;
+  }).join('') + docsAnalizadosHtml;
+
+  const links = [];
+  if (c.instagram) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.instagram.com/${encodeURIComponent(c.instagram)}/" target="_blank" rel="noopener noreferrer">Instagram @${esc(c.instagram)}</a>`);
+  if (c.facebook) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.facebook.com/${encodeURIComponent(c.facebook)}" target="_blank" rel="noopener noreferrer">Facebook</a>`);
+  $('#club-links').innerHTML = links.join('') || '<p class="text-sm text-slate-500">Todavía no cargamos redes oficiales verificadas de este club.</p>';
+  $('#dlg-club').showModal();
+}
 
 /* ============ TABS ============ */
 const TABS = ['mapa','transp','inst','pedir','dato','rse'];
@@ -823,16 +901,91 @@ async function cargarDatos() {
   } catch (err) { console.warn('[AuditaDeporte] Error al consultar Supabase, uso respaldo local:', err); aviso('Error de conexión con la base: mostrando datos de respaldo.'); }
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
-  await cargarDatos();
+/* ============ ARRANQUE Y CONEXIÓN DINÁMICA SIN DUPLICADOS ============ */
+const MAPA_DIVISION = { '1ra':'1ra División', '2da':'2da División', '3ra':'3ra División', 'desarrollo':'Desarrollo' };
+const MAPA_TIPO = {
+  'asociacion_civil':'Asociación civil',
+  'fundacion':'Fundación',
+  'municipal':'Municipal',
+  'estatal_provincial':'Estatal provincial',
+  'universitario':'Universitario',
+  'convenio_club':'Convenio con club'
+};
 
-  // Poblar selectores, textos actualizados y renderizar componentes
+window.addEventListener('DOMContentLoaded', async () => {
+  if (sb) {
+    try {
+      const [{ data: clubesDb }, { data: revDb }, { data: autDb }, { data: docsDb }] = await Promise.all([
+        sb.from('clubes').select('*'),
+        sb.from('revisiones_documentales').select('*'),
+        sb.from('autoridades').select('*'),
+        sb.from('documentos_fuente').select('*')
+      ]);
+
+      if (clubesDb && clubesDb.length > 0) {
+        const revPorClub = {};
+        (revDb || []).forEach(r => {
+          if (!r.club_id) return;
+          if (!revPorClub[r.club_id]) revPorClub[r.club_id] = {};
+          revPorClub[r.club_id][r.criterio] = {
+            estado: r.estado === 'publicado' ? 'si' : (r.estado === 'no_encontrado' ? 'no' : 'sv'),
+            fuente: r.fuente_url,
+            fecha: r.fecha_revision,
+            nota: r.nota || ""
+          };
+        });
+
+        const autPorClub = {};
+        (autDb || []).forEach(a => {
+          if (!a.club_id) return;
+          if (!autPorClub[a.club_id]) autPorClub[a.club_id] = [];
+          autPorClub[a.club_id].push({ cargo: a.cargo, nombre: a.nombre, fuente: a.fuente_url, fecha: a.fecha_fuente });
+        });
+
+        const docsPorClub = {};
+        (docsDb || []).forEach(doc => {
+          if (!doc.club_id) return;
+          if (!docsPorClub[doc.club_id]) docsPorClub[doc.club_id] = [];
+          docsPorClub[doc.club_id].push(doc);
+        });
+
+        // Deduplicar contra los 27 clubes oficiales de CLUBES_LOCALES
+        const slugsCanonic = new Set(CLUBES_LOCALES.map(c => c.id));
+        const filtradosDb = clubesDb.filter(d => slugsCanonic.has(d.slug));
+
+        if (filtradosDb.length > 0) {
+          CLUBES = filtradosDb.map(d => {
+            const localMatch = CLUBES_LOCALES.find(l => l.id === d.slug) || {};
+            return {
+              id: d.slug,
+              nombre: localMatch.nombre || d.nombre,
+              ciudad: d.ciudad,
+              prov: d.provincia,
+              lat: Number(d.lat),
+              lng: Number(d.lng),
+              division: MAPA_DIVISION[d.division] || d.division || 'Desarrollo',
+              tipo: MAPA_TIPO[d.tipo_entidad] || d.tipo_entidad || 'Asociación civil',
+              logo: d.logo_url || "",
+              instagram: d.instagram || localMatch.instagram || "",
+              facebook: d.facebook || localMatch.facebook || "",
+              nota: localMatch.nota || d.estado_nota || "",
+              rev: Object.keys(revPorClub[d.id] || {}).length ? revPorClub[d.id] : (localMatch.rev || {}),
+              autoridades: (autPorClub[d.id] && autPorClub[d.id].length) ? autPorClub[d.id] : (localMatch.autoridades || []),
+              docs: docsPorClub[d.id] || []
+            };
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Usando padrón local de respaldo:", err);
+    }
+  }
+
   const opts = '<option value="">— General / varias entidades —</option>' +
     CLUBES.map(c => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join('') +
     INSTITUCIONES.map(i => `<option value="${esc(slug(i.sigla))}">${esc(i.sigla)}</option>`).join('');
-  
-  if($('#d-club')) $('#d-club').innerHTML = opts;
-  if($('#lista-entidades')) $('#lista-entidades').innerHTML = CLUBES.map(c => `<option value="${esc(c.nombre)}">`).join('') +
+  $('#d-club').innerHTML = opts;
+  $('#lista-entidades').innerHTML = CLUBES.map(c => `<option value="${esc(c.nombre)}">`).join('') +
     INSTITUCIONES.map(i => `<option value="${esc(i.sigla)}">`).join('');
 
   renderInst();
@@ -844,6 +997,4 @@ window.addEventListener('DOMContentLoaded', async () => {
   showTab((location.hash || '#mapa').slice(1), false);
   if (window.lucide) lucide.createIcons();
 });
-</script>
-</body>
 </html>
