@@ -227,7 +227,7 @@ def ejecutar_orquestador_resiliente():
     for h in hallazgos:
         procesar_hallazgo(h, clubes_map, inst_map)
 
-    # Autocompletar registros faltantes para eliminar celdas vacías
+   # Autocompletar registros faltantes para eliminar celdas vacías
     autocompletar_celdas_faltantes(clubes_map)
 
     print("=== CICLO RESILIENTE FINALIZADO CON ÉXITO ===")
@@ -235,7 +235,3 @@ def ejecutar_orquestador_resiliente():
 
 if __name__ == "__main__":
     ejecutar_orquestador_resiliente()
-
-
-if __name__ == "__main__":
-    ejecutar_enjambre()
