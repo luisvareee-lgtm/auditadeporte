@@ -1,0 +1,25 @@
+name: Agentes AuditaDeporte
+on:
+  schedule: [{ cron: "0 11 * * *" }]     # diario, 08:00 hora Argentina
+  workflow_dispatch: {}
+permissions: { contents: read }
+jobs:
+  agentes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install supabase==2.*
+      - name: Tests (si fallan, no se ejecuta ningún agente)
+        run: python -m unittest discover -s . -p "test_*.py"
+        working-directory: bot
+      - name: Rastreador de documentos
+        run: python orquestador_bots_audita.py
+        working-directory: bot
+        env: { SUPABASE_URL: "${{ secrets.SUPABASE_URL }}", SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" }
+      - name: Ingesta de novedades (feeds oficiales)
+        run: python ingesta_redes.py
+        working-directory: bot
+        env: { SUPABASE_URL: "${{ secrets.SUPABASE_URL }}", SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" }
