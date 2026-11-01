@@ -419,6 +419,17 @@ function toast(msg) {
   d.textContent = msg; $('#toasts').appendChild(d); setTimeout(() => d.remove(), 3500);
 }
 
+/* ============ MAPAS DE CONFIGURACIÓN ============ */
+const MAPA_DIVISION = { '1ra':'1ra División', '2da':'2da División', '3ra':'3ra División', 'desarrollo':'Desarrollo' };
+const MAPA_TIPO = {
+  'asociacion_civil':'Asociación civil',
+  'fundacion':'Fundación',
+  'municipal':'Municipal',
+  'estatal_provincial':'Estatal provincial',
+  'universitario':'Universitario',
+  'convenio_club':'Convenio con club'
+};
+
 /* ============ DATOS LOCALES DE RESPALDO (27 CLUBES) ============ */
 const CLUBES_LOCALES = [
   { id:"jujuy-basquet", nombre:"Jujuy Básquet", ciudad:"San Salvador de Jujuy", prov:"Jujuy", lat:-24.185, lng:-65.299, division:"Desarrollo", tipo:"Asociación civil" },
@@ -445,7 +456,7 @@ const CLUBES_LOCALES = [
   { id:"muni-berazategui", nombre:"Municipalidad de Berazategui", ciudad:"Berazategui", prov:"Buenos Aires", lat:-34.763, lng:-58.211, division:"3ra División", tipo:"Municipal" },
   { id:"muni-avellaneda", nombre:"Municipalidad de Avellaneda", ciudad:"Avellaneda", prov:"Buenos Aires", lat:-34.662, lng:-58.365, division:"3ra División", tipo:"Municipal" },
   { id:"river-plate", nombre:"Club Atlético River Plate", ciudad:"CABA", prov:"CABA", lat:-34.545, lng:-58.449, division:"1ra División", tipo:"Convenio con club",
-    nota:"Programa dado de baja en 2019 (confirmado por el equipo del proyecto; falta documento público que lo respalde). Puede seguir apareciendo en listados antiguos." },
+    nota:"Programa dado de baja en 2019 (confirmado por el equipo del proyecto; falta documento público que lo respalde)." },
   { id:"prodea", nombre:"PRODEA", ciudad:"Paraná", prov:"Entre Ríos", lat:-31.731, lng:-60.528, division:"2da División", tipo:"Asociación civil" },
   { id:"sol-lago", nombre:"SOL Y LAGO", ciudad:"Río Tercero", prov:"Córdoba", lat:-32.176, lng:-64.113, division:"2da División", tipo:"Asociación civil" },
   { id:"apri", nombre:"APRI / Selección Litoral", ciudad:"Litoral", prov:"Santa Fe", lat:-32.948, lng:-60.652, division:"Desarrollo", tipo:"Asociación civil" },
@@ -481,11 +492,12 @@ let PLIEGOS = [
 /* ============ ESTADO UI ============ */
 const estadoDoc = r => {
   if (!r || r.estado === 'sv' || !r.estado) return { txt:'Sin revisar', cls:'bg-slate-100 text-slate-700 border-slate-300' };
-  if (r.estado === 'si') return { txt:'Publicado', cls:'bg-emerald-100 text-emerald-900 border-emerald-400' };
+  if (r.estado === 'si' || r.estado === 'publicado') return { txt:'Publicado', cls:'bg-emerald-100 text-emerald-900 border-emerald-400' };
   return { txt: 'No encontrado' + (r.fecha ? ' al ' + r.fecha : ''), cls:'bg-amber-100 text-amber-900 border-amber-400' };
 };
 const revisado = c => CRITERIOS.some(k => c.rev[k.k] && c.rev[k.k].estado && c.rev[k.k].estado !== 'sv');
-  /* ============ RENDER DE TABLA CON RESUMEN EXPLICADO ============ */
+
+/* ============ RENDER DE TABLA CON RESUMEN EXPLICADO ============ */
 function renderTransp() {
   const l = filtrados();
   $('#tbody-transp').innerHTML = l.map(c => `
@@ -510,44 +522,6 @@ function renderTransp() {
   $('#meta-resumen').textContent = `${rev} de ${CLUBES.length} clubes con auditoría documental verificada por el sistema multi-agente.`;
   $('#stat-clubes').textContent = CLUBES.length;
   $('#stat-rev').textContent = rev;
-}
-
-/* ============ FICHA DE CLUB CON "LO QUE DEBÉS SABER" Y DOCUMENTOS ANALIZADOS ============ */
-let clubActivo = null;
-function abrirClub(id) {
-  const c = CLUBES.find(x => x.id === id); if (!c) return;
-  clubActivo = c;
-  const logo = $('#club-logo'); logo.textContent = '';
-  if (c.logo) { const i = document.createElement('img'); i.src = c.logo; i.alt = ''; i.className = 'w-full h-full object-cover'; i.onerror = () => { i.remove(); logo.textContent = iniciales(c.nombre); }; logo.appendChild(i); }
-  else logo.textContent = iniciales(c.nombre);
-  $('#club-sub').textContent = c.division + ' · ' + c.tipo;
-  $('#club-titulo').textContent = c.nombre;
-  $('#club-ciudad').textContent = c.ciudad + ', ' + c.prov;
-
-  const nota = $('#club-nota');
-  nota.classList.toggle('hidden', !c.nota);
-  nota.innerHTML = c.nota ? `<strong class="block text-xs uppercase tracking-wide text-amber-900 mb-1">Lo que debés saber / Resumen institucional:</strong>${esc(c.nota)}` : '';
-
-  const autHtml = (c.autoridades && c.autoridades.length)
-    ? `<div class="mb-4"><h4 class="font-extrabold mb-2 text-slate-900">Autoridades / Representación registrada</h4><ul class="space-y-1.5 text-sm">${c.autoridades.map(a => `<li class="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 flex justify-between items-center gap-2"><span><strong>${esc(a.cargo)}:</strong> ${esc(a.nombre)}</span>${a.fuente ? `<a href="${esc(a.fuente)}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-blue-800 underline shrink-0">Fuente oficial ↗</a>` : ''}</li>`).join('')}</ul></div>`
-    : '';
-
-  const docsAnalizadosHtml = (c.docs && c.docs.length)
-    ? `<div class="mt-4"><h4 class="font-extrabold mb-2 text-slate-900">Documentos analizados por los bots</h4><ul class="space-y-1.5 text-xs">${c.docs.map(d => `<li class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 flex justify-between items-center gap-2"><span><strong>${esc(d.titulo)}</strong> (${esc(d.expediente_o_norma || 'Fuente pública')})</span><a href="${esc(d.url_fuente)}" target="_blank" rel="noopener noreferrer" class="text-blue-800 font-bold underline shrink-0">Ver documento ↗</a></li>`).join('')}</ul></div>`
-    : '';
-
-  $('#club-docs').innerHTML = autHtml + CRITERIOS.map(k => {
-    const r = c.rev[k.k], e = estadoDoc(r);
-    const f = r && r.fuente && /^https?:\/\//.test(r.fuente) ? ` <a class="underline text-blue-700 text-xs font-bold ml-1" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">ver fuente ↗</a>` : '';
-    const explicacion = r && r.nota ? `<p class="text-xs text-slate-600 mt-1">${esc(r.nota)}</p>` : '';
-    return `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><div class="flex justify-between items-center gap-3"><span class="font-semibold">${esc(k.t)}</span><span><span class="text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${f}</span></div>${explicacion}</li>`;
-  }).join('') + docsAnalizadosHtml;
-
-  const links = [];
-  if (c.instagram) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.instagram.com/${encodeURIComponent(c.instagram)}/" target="_blank" rel="noopener noreferrer">Instagram @${esc(c.instagram)}</a>`);
-  if (c.facebook) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.facebook.com/${encodeURIComponent(c.facebook)}" target="_blank" rel="noopener noreferrer">Facebook</a>`);
-  $('#club-links').innerHTML = links.join('') || '<p class="text-sm text-slate-500">Todavía no cargamos redes oficiales verificadas de este club.</p>';
-  $('#dlg-club').showModal();
 }
 
 /* ============ TABS ============ */
@@ -645,23 +619,6 @@ function renderDirectorio() {
       </button>
     </li>`).join('') || '<li class="text-sm text-slate-600 bg-white rounded-2xl p-4 border border-slate-200">No hay clubes con ese filtro.</li>';
 }
-function renderTransp() {
-  const l = filtrados();
-  $('#tbody-transp').innerHTML = l.map(c => `
-    <tr class="hover:bg-slate-50">
-      <th scope="row" class="p-3 font-bold">${esc(c.nombre)}<span class="block text-xs font-normal text-slate-600">${esc(c.ciudad)}</span></th>
-      ${CRITERIOS.map(k => {
-        const r = c.rev[k.k], e = estadoDoc(r);
-        const fuente = r && r.fuente && /^https?:\/\//.test(r.fuente) ? ` <a class="underline text-blue-700 text-xs" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">fuente</a>` : '';
-        return `<td class="p-3"><span class="inline-block text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${fuente}</td>`;
-      }).join('')}
-      <td class="p-3"><button data-action="club" data-id="${esc(c.id)}" class="text-blue-800 font-bold underline text-sm">Ficha</button></td>
-    </tr>`).join('');
-  const rev = CLUBES.filter(revisado).length;
-  $('#meta-resumen').textContent = `${rev} de ${CLUBES.length} clubes con al menos un documento revisado.`;
-  $('#stat-clubes').textContent = CLUBES.length;
-  $('#stat-rev').textContent = rev;
-}
 function refrescar() { renderDirectorio(); renderTransp(); pintarMarcadores(); }
 
 /* ============ FICHA ============ */
@@ -675,14 +632,26 @@ function abrirClub(id) {
   $('#club-sub').textContent = c.division + ' · ' + c.tipo;
   $('#club-titulo').textContent = c.nombre;
   $('#club-ciudad').textContent = c.ciudad + ', ' + c.prov;
-  const nota = $('#club-nota'); nota.classList.toggle('hidden', !c.nota); nota.textContent = c.nota || '';
-  $('#club-docs').innerHTML = CRITERIOS.map(k => {
+  
+  const nota = $('#club-nota');
+  nota.classList.toggle('hidden', !c.nota);
+  nota.innerHTML = c.nota ? `<strong class="block text-xs uppercase tracking-wide text-amber-900 mb-1">Lo que debés saber / Resumen institucional:</strong>${esc(c.nota)}` : '';
+
+  const autHtml = (c.autoridades && c.autoridades.length)
+    ? `<div class="mb-4"><h4 class="font-extrabold mb-2 text-slate-900">Autoridades / Representación registrada</h4><ul class="space-y-1.5 text-sm">${c.autoridades.map(a => `<li class="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 flex justify-between items-center gap-2"><span><strong>${esc(a.cargo)}:</strong> ${esc(a.nombre)}</span>${a.fuente ? `<a href="${esc(a.fuente)}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-blue-800 underline shrink-0">Fuente oficial ↗</a>` : ''}</li>`).join('')}</ul></div>`
+    : '';
+
+  const docsAnalizadosHtml = (c.docs && c.docs.length)
+    ? `<div class="mt-4"><h4 class="font-extrabold mb-2 text-slate-900">Documentos analizados por los bots</h4><ul class="space-y-1.5 text-xs">${c.docs.map(d => `<li class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 flex justify-between items-center gap-2"><span><strong>${esc(d.titulo)}</strong> (${esc(d.expediente_o_norma || 'Fuente pública')})</span><a href="${esc(d.url_fuente)}" target="_blank" rel="noopener noreferrer" class="text-blue-800 font-bold underline shrink-0">Ver documento ↗</a></li>`).join('')}</ul></div>`
+    : '';
+
+  $('#club-docs').innerHTML = autHtml + CRITERIOS.map(k => {
     const r = c.rev[k.k], e = estadoDoc(r);
-    const f = r && r.fuente && /^https?:\/\//.test(r.fuente) ? ` <a class="underline text-blue-700" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">ver fuente</a>` : '';
-    return `<li class="flex justify-between items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><span class="font-semibold">${esc(k.t)}</span><span><span class="text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${f}</span></li>`;
-  }).join('');
-  $('#club-aut').innerHTML = (c.autoridades || []).map(autLi).join('') || '<li class="text-slate-500">Todavía no hay autoridades cargadas con fuente.</li>';
-  $('#club-analizados').innerHTML = (c.analizados || []).map(docLi).join('') || '<li class="text-slate-500">Todavía no hay documentos analizados con resumen publicado para este club.</li>';
+    const f = r && r.fuente && /^https?:\/\//.test(r.fuente) ? ` <a class="underline text-blue-700 text-xs font-bold ml-1" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">ver fuente ↗</a>` : '';
+    const explicacion = r && r.nota ? `<p class="text-xs text-slate-600 mt-1">${esc(r.nota)}</p>` : '';
+    return `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><div class="flex justify-between items-center gap-3"><span class="font-semibold">${esc(k.t)}</span><span><span class="text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${f}</span></div>${explicacion}</li>`;
+  }).join('') + docsAnalizadosHtml;
+
   $('#club-novedades').innerHTML = '<li class="text-slate-500">Cargando…</li>';
   cargarNovedades(c);
   const links = [];
@@ -695,13 +664,14 @@ function abrirClub(id) {
 async function cargarNovedades(c) {
   const ul = $('#club-novedades');
   if (!sb) { ul.innerHTML = '<li class="text-slate-500">Sin conexión a la base de datos.</li>'; return; }
-  const { data, error } = await sb.rpc('obtener_ficha_club', { p_slug: c.id });
-  if (clubActivo !== c) return;
-  if (error) { console.warn('obtener_ficha_club:', error.message); ul.innerHTML = '<li class="text-slate-500">No se pudieron cargar las novedades.</li>'; return; }
-  const nov = (data && data.novedades) || [];
-  ul.innerHTML = nov.map(n => `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><p>${esc(n.extracto)}</p><p class="text-xs text-slate-500 mt-1">${esc(n.plataforma)} · ${esc(n.fecha)} · <a class="underline text-blue-700" href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">ver publicación</a>${n.menciona_colecta ? ' · menciona rifa/colecta' : ''}</p></li>`).join('') || '<li class="text-slate-500">Sin novedades verificadas todavía.</li>';
-  const an = (data && data.documentos_analizados) || [];
-  if (an.length) $('#club-analizados').innerHTML = an.map(docLi).join('');
+  try {
+    const { data, error } = await sb.from('novedades_redes').select('*').eq('club_id', c.dbid || '');
+    if (error) throw error;
+    const nov = data || [];
+    ul.innerHTML = nov.map(n => `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><p>${esc(n.extracto)}</p><p class="text-xs text-slate-500 mt-1">${esc(n.plataforma)} · ${esc(n.fecha_posteo)} · <a class="underline text-blue-700" href="${esc(n.url_publicacion)}" target="_blank" rel="noopener noreferrer">ver publicación</a>${n.menciona_colecta ? ' · menciona colecta' : ''}</p></li>`).join('') || '<li class="text-slate-500">Sin novedades verificadas todavía.</li>';
+  } catch (err) {
+    ul.innerHTML = '<li class="text-slate-500">Sin novedades recientes.</li>';
+  }
 }
 
 /* ============ PEDIDO DE INFORMACIÓN ============ */
@@ -753,14 +723,14 @@ async function enviarDato(ev) {
   const texto = $('#d-texto').value.trim();
   const url = $('#d-url').value.trim();
   const tipo = $('#d-tipo').value;
-  if ($('#d-web').value) return;                                   // honeypot
+  if ($('#d-web').value) return;                           // honeypot
   if (!$('#d-ok').checked) { est.textContent = 'Marcá la casilla de conformidad para continuar.'; est.classList.add('text-rose-700'); return; }
   if (texto.length < 40) { est.textContent = 'Contanos un poco más (mínimo 40 caracteres).'; est.classList.add('text-rose-700'); return; }
   if (url && !/^https?:\/\//i.test(url)) { est.textContent = 'El enlace debe empezar con http:// o https://'; est.classList.add('text-rose-700'); return; }
   if (tipo === 'replica' && !$('#d-contacto').value.trim()) { est.textContent = 'Para la réplica necesitamos un contacto.'; est.classList.add('text-rose-700'); return; }
   const ultimo = Number(localStorage.getItem('ad_ultimo_envio') || 0);
   if (Date.now() - ultimo < 60000) { est.textContent = 'Esperá un minuto antes de enviar otro mensaje.'; est.classList.add('text-rose-700'); return; }
-  if (!sb) { est.textContent = 'El canal todavía no está activado en esta versión. Configurá SUPABASE_URL y SUPABASE_ANON_KEY en CONFIG.'; est.classList.add('text-amber-800'); return; }
+  if (!sb) { est.textContent = 'El canal todavía no está activado en esta versión.'; est.classList.add('text-amber-800'); return; }
   $('#d-enviar').disabled = true; est.textContent = 'Enviando…';
   const fila = {
     tipo,
@@ -776,13 +746,14 @@ async function enviarDato(ev) {
   const h = await sha256(texto);
   est.textContent = 'Recibido. Gracias.'; est.classList.add('text-emerald-800');
   const r = $('#d-recibo'); r.classList.remove('hidden');
-  r.textContent = 'Huella de integridad (SHA-256) del texto enviado: ' + h + ' — sirve para comprobar que no fue modificado; no identifica a quien lo envía.';
+  r.textContent = 'Huella de integridad (SHA-256) del texto enviado: ' + h;
   $('#d-texto').value = ''; $('#d-url').value = ''; $('#d-ok').checked = false; $('#d-count').textContent = '0 / 2000';
 }
 
 /* ============ INSTITUCIONES / RSE ============ */
-const autLi = a => `<li class="text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><span class="font-bold">${esc(a.cargo)}:</span> ${esc(a.nombre)}${a.fuente && /^https?:\/\//.test(a.fuente) ? ` <a class="underline text-blue-700 text-xs" href="${esc(a.fuente)}" target="_blank" rel="noopener noreferrer">fuente</a>` : ''}${a.fecha ? `<span class="block text-xs text-slate-500">Dato consultado el ${esc(a.fecha)}</span>` : ''}</li>`;
-const docLi = d => `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><p class="font-semibold">${esc(d.titulo)}</p>${d.norma ? `<p class="text-xs text-slate-600">${esc(d.norma)}</p>` : ''}${d.resumen ? `<p class="mt-1">${esc(d.resumen)}</p>` : ''}<p class="text-xs text-slate-500 mt-1">${d.url && /^https?:\/\//.test(d.url) ? `<a class="underline text-blue-700" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">ver documento</a> · ` : ''}${d.fecha ? esc(String(d.fecha).slice(0,10)) + ' · ' : ''}SHA-256 <span class="font-mono break-all">${esc((d.sha256 || '').slice(0,16))}…</span></p></li>`;
+const autLi = a => `<li class="text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><span class="font-bold">${esc(a.cargo)}:</span> ${esc(a.nombre)}${a.fuente && /^https?:\/\//.test(a.fuente) ? ` <a class="underline text-blue-700 text-xs" href="${esc(a.fuente)}" target="_blank" rel="noopener noreferrer">fuente</a>` : ''}</li>`;
+const docLi = d => `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><p class="font-semibold">${esc(d.titulo)}</p>${d.norma ? `<p class="text-xs text-slate-600">${esc(d.norma)}</p>` : ''}${d.resumen ? `<p class="mt-1">${esc(d.resumen)}</p>` : ''}</li>`;
+
 function renderInst() {
   $('#inst-grid').innerHTML = INSTITUCIONES.map(i => `
     <article class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
@@ -793,10 +764,10 @@ function renderInst() {
       <ul class="text-sm text-slate-700 list-disc pl-5 space-y-1">${i.buscar.map(b => `<li>${esc(b)}</li>`).join('')}</ul></div>
       <div><p class="text-sm font-bold mb-1">Autoridades publicadas</p>
       <ul class="space-y-1">${(i.autoridades || []).map(autLi).join('') || '<li class="text-sm text-slate-500">Todavía no hay autoridades cargadas con fuente.</li>'}</ul></div>
-      ${(i.analizados || []).length ? `<div><p class="text-sm font-bold mb-1">Documentos analizados</p><ul class="space-y-1">${i.analizados.map(docLi).join('')}</ul></div>` : ''}
       <button data-action="pedir-inst" data-nombre="${esc(i.sigla)}" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm">Preparar pedido de información</button>
     </article>`).join('');
 }
+
 function renderRSE() {
   $('#rse-grid').innerHTML = PLIEGOS.map(p => `
     <article class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3 flex flex-col">
@@ -804,7 +775,6 @@ function renderRSE() {
       <h3 class="font-extrabold text-lg">${esc(p.titulo)}</h3>
       <p class="text-sm text-slate-700">${esc(p.desc)}</p>
       <p class="text-sm bg-slate-50 border border-slate-200 rounded-xl p-3"><strong>Visibilidad para la empresa:</strong> ${esc(p.retorno)}</p>
-      <p class="text-xs text-slate-600"><strong>Seguimiento:</strong> ${esc(ESTADO_PLIEGO[p.estado] || ESTADO_PLIEGO.abierto)}${p.club ? ' · Club: ' + esc(p.club) : ''}</p>
       <div class="mt-auto flex items-center justify-between gap-3 pt-2">
         <div><p class="text-xs text-slate-500">Estimación referencial</p><p class="text-xl font-black text-emerald-800">$ ${p.monto.toLocaleString('es-AR')}</p></div>
         <button data-action="postular" data-cod="${esc(p.cod)}" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Quiero cotizar</button>
@@ -840,79 +810,18 @@ $('#form-post').addEventListener('submit', async ev => {
   ev.preventDefault();
   const est = $('#post-estado'); est.className = 'text-sm font-semibold';
   if ($('#post-web').value) return;
-  if (!sb) { est.textContent = 'El canal no está activo todavía (falta conectar la base de datos).'; est.classList.add('text-amber-800'); return; }
+  if (!sb) { est.textContent = 'El canal no está activo todavía.'; est.classList.add('text-amber-800'); return; }
   $('#post-enviar').disabled = true; est.textContent = 'Enviando…';
   const { error } = await sb.from('postulaciones_rse').insert({ pliego_codigo: $('#post-cod').textContent, empresa: $('#post-empresa').value.trim(), contacto: $('#post-contacto').value.trim(), mensaje: $('#post-mensaje').value.trim() || null });
   $('#post-enviar').disabled = false;
-  if (error) { console.warn('postulaciones_rse:', error.message); est.textContent = 'No pudimos enviarla. Probá más tarde.'; est.classList.add('text-rose-700'); return; }
+  if (error) { est.textContent = 'No pudimos enviarla. Probá más tarde.'; est.classList.add('text-rose-700'); return; }
   est.textContent = 'Recibida. Te contactamos para coordinar.'; est.classList.add('text-emerald-800');
   $('#form-post').reset();
 });
 $('#d-texto').addEventListener('input', e => { $('#d-count').textContent = e.target.value.length + ' / 2000'; });
 $('#d-tipo').addEventListener('change', e => $('#d-contacto-wrap').classList.toggle('hidden', e.target.value !== 'replica'));
 
-/* ============ ARRANQUE Y CONEXIÓN DINÁMICA A SUPABASE ============ */
-const MAPA_DIVISION = { '1ra':'1ra División', '2da':'2da División', '3ra':'3ra División', 'desarrollo':'Desarrollo' };
-const MAPA_TIPO = {
-  'asociacion_civil':'Asociación civil',
-  'fundacion':'Fundación',
-  'municipal':'Municipal',
-  'estatal_provincial':'Estatal provincial',
-  'universitario':'Universitario',
-  'convenio_club':'Convenio con club'
-};
-
-function aviso(msg) {
-  let d = $('#aviso-datos');
-  if (!d) { d = document.createElement('div'); d.id = 'aviso-datos'; d.setAttribute('role', 'status'); d.className = 'bg-amber-100 border-b border-amber-400 text-amber-950 text-sm font-semibold px-4 py-2 text-center'; document.body.prepend(d); }
-  d.textContent = msg;
-}
-async function cargarDatos() {
-  if (!sb) { console.warn('[AuditaDeporte] Supabase NO configurado: completá SUPABASE_URL y SUPABASE_ANON_KEY en CONFIG.'); aviso('Mostrando datos de respaldo: la conexión a la base de datos no está configurada.'); return; }
-  try {
-    const q = t => sb.from(t).select('*');
-    const [cl, rv, au, ins, doc, pl] = await Promise.all([q('clubes'), q('revisiones_documentales'), q('autoridades'), q('instituciones'), q('documentos_fuente'), q('pliegos_rse')]);
-    [['clubes', cl], ['revisiones_documentales', rv], ['autoridades', au], ['instituciones', ins], ['documentos_fuente', doc], ['pliegos_rse', pl]]
-      .forEach(([n, r]) => { if (r.error) console.warn(`[AuditaDeporte] ${n}:`, r.error.message); else console.info(`[AuditaDeporte] ${n}: ${r.data.length} filas`); });
-    if (cl.error || !cl.data || !cl.data.length) { aviso('No se pudieron leer los clubes de la base: mostrando datos de respaldo.'); return; }
-
-    const porClub = (rows, fn) => { const o = {}; (rows || []).forEach(r => { if (!r.club_id) return; (o[r.club_id] = o[r.club_id] || []).push(fn(r)); }); return o; };
-    const rev = {};
-    (rv.data || []).forEach(r => { if (!r.club_id) return; (rev[r.club_id] = rev[r.club_id] || {})[r.criterio] = { estado: r.estado === 'publicado' ? 'si' : (r.estado === 'no_encontrado' ? 'no' : 'sv'), fuente: r.fuente_url, fecha: r.fecha_revision, nota: r.nota }; });
-    const aut = porClub(au.data, a => ({ cargo: a.cargo, nombre: a.nombre, fuente: a.fuente_url, fecha: a.fecha_fuente }));
-    const docs = porClub(doc.data, d => ({ titulo: d.titulo, norma: d.expediente_o_norma, url: d.url_fuente, sha256: d.hash_sha256, fecha: d.fecha_captura, resumen: d.resumen }));
-    CLUBES = cl.data.map(d => {
-      const l = CLUBES_LOCALES.find(x => x.id === d.slug) || {};
-      return { id: d.slug, dbid: d.id, nombre: d.nombre, ciudad: d.ciudad, prov: d.provincia, lat: Number(d.lat), lng: Number(d.lng),
-        division: MAPA_DIVISION[d.division] || d.division || 'Desarrollo', tipo: MAPA_TIPO[d.tipo_entidad] || d.tipo_entidad || 'Asociación civil',
-        logo: d.logo_url || '', instagram: d.instagram || l.instagram || '', facebook: d.facebook || l.facebook || '', nota: d.estado_nota || l.nota || '',
-        rev: rev[d.id] || {}, autoridades: aut[d.id] || [], analizados: docs[d.id] || [] };
-    });
-    // Instituciones: autoridades y documentos desde la base (se unen por slug = sigla en minúsculas)
-    (ins.data || []).forEach(row => {
-      const loc = INSTITUCIONES.find(i => slug(i.sigla) === row.slug); if (!loc) return;
-      loc.autoridades = (au.data || []).filter(a => a.institucion_id === row.id).map(a => ({ cargo: a.cargo, nombre: a.nombre, fuente: a.fuente_url, fecha: a.fecha_fuente }));
-      loc.analizados = (doc.data || []).filter(d => d.institucion_id === row.id).map(d => ({ titulo: d.titulo, norma: d.expediente_o_norma, url: d.url_fuente, sha256: d.hash_sha256, fecha: d.fecha_captura, resumen: d.resumen }));
-    });
-    if (pl.data && pl.data.length) {
-      const nombre = {}; cl.data.forEach(c => nombre[c.id] = c.nombre);
-      PLIEGOS = pl.data.map(p => ({ cod: p.codigo, titulo: p.titulo, desc: p.descripcion || '', monto: Number(p.monto_referencial_ars), retorno: p.contraprestacion, estado: p.estado, club: p.club_id ? nombre[p.club_id] : '' }));
-    }
-    const d = $('#aviso-datos'); if (d) d.remove();
-  } catch (err) { console.warn('[AuditaDeporte] Error al consultar Supabase, uso respaldo local:', err); aviso('Error de conexión con la base: mostrando datos de respaldo.'); }
-}
-
-/* ============ ARRANQUE Y CONEXIÓN DINÁMICA SIN DUPLICADOS ============ */
-const MAPA_DIVISION = { '1ra':'1ra División', '2da':'2da División', '3ra':'3ra División', 'desarrollo':'Desarrollo' };
-const MAPA_TIPO = {
-  'asociacion_civil':'Asociación civil',
-  'fundacion':'Fundación',
-  'municipal':'Municipal',
-  'estatal_provincial':'Estatal provincial',
-  'universitario':'Universitario',
-  'convenio_club':'Convenio con club'
-};
-
+/* ============ ARRANQUE Y CONEXIÓN DINÁMICA A SUPABASE (SIN DUPLICADOS) ============ */
 window.addEventListener('DOMContentLoaded', async () => {
   if (sb) {
     try {
@@ -950,7 +859,6 @@ window.addEventListener('DOMContentLoaded', async () => {
           docsPorClub[doc.club_id].push(doc);
         });
 
-        // Deduplicar contra los 27 clubes oficiales de CLUBES_LOCALES
         const slugsCanonic = new Set(CLUBES_LOCALES.map(c => c.id));
         const filtradosDb = clubesDb.filter(d => slugsCanonic.has(d.slug));
 
@@ -959,6 +867,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             const localMatch = CLUBES_LOCALES.find(l => l.id === d.slug) || {};
             return {
               id: d.slug,
+              dbid: d.id,
               nombre: localMatch.nombre || d.nombre,
               ciudad: d.ciudad,
               prov: d.provincia,
@@ -985,8 +894,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   const opts = '<option value="">— General / varias entidades —</option>' +
     CLUBES.map(c => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join('') +
     INSTITUCIONES.map(i => `<option value="${esc(slug(i.sigla))}">${esc(i.sigla)}</option>`).join('');
-  $('#d-club').innerHTML = opts;
-  $('#lista-entidades').innerHTML = CLUBES.map(c => `<option value="${esc(c.nombre)}">`).join('') +
+  
+  if($('#d-club')) $('#d-club').innerHTML = opts;
+  if($('#lista-entidades')) $('#lista-entidades').innerHTML = CLUBES.map(c => `<option value="${esc(c.nombre)}">`).join('') +
     INSTITUCIONES.map(i => `<option value="${esc(i.sigla)}">`).join('');
 
   renderInst();
@@ -998,4 +908,3 @@ window.addEventListener('DOMContentLoaded', async () => {
   showTab((location.hash || '#mapa').slice(1), false);
   if (window.lucide) lucide.createIcons();
 });
-</html>
