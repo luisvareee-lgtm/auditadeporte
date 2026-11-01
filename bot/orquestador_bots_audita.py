@@ -106,19 +106,45 @@ def mapa_slugs(tabla: str) -> dict:
 
 
 def proponer(agente, tipo, titulo, cap: Captura, club_id=None, inst_id=None, propuesta=None, texto_para_filtro=""):
-    """Inserta en cola_revision (privada). Devuelve 'nuevo' | 'duplicado' | 'bloqueado_legal'."""
+    """Inserta en cola_revision (privada) y registra los votos de los agentes en agente_votos. 
+    Devuelve 'nuevo' | 'duplicado' | 'bloqueado_legal'."""
     previo = db().table("cola_revision").select("id") \
         .eq("url_fuente", cap.url).eq("hash_sha256", cap.sha256).execute()
     if previo.data:
         return "duplicado"
+    
     veto = pre_filtro_juridico(f"{titulo} {texto_para_filtro}", cap.url)
-    fila = {"agente": agente, "tipo": tipo, "club_id": club_id, "institucion_id": inst_id, "titulo": titulo,
-            "url_fuente": cap.url, "hash_sha256": cap.sha256, "http_status": cap.http,
-            "propuesta": propuesta or {}, "veto_juridico": "; ".join(veto) or None,
-            "estado": "bloqueada_legal" if veto else "pendiente"}
-    db().table("cola_revision").insert(fila).execute()
-    return "bloqueado_legal" if veto else "nuevo"
+    fila = {
+        "agente": agente, "tipo": tipo, "club_id": club_id, "institucion_id": inst_id, "titulo": titulo,
+        "url_fuente": cap.url, "hash_sha256": cap.sha256, "http_status": cap.http,
+        "propuesta": propuesta or {}, "veto_juridico": "; ".join(veto) or None,
+        "estado": "bloqueada_legal" if veto else "pendiente"
+    }
+    
+    res = db().table("cola_revision").insert(fila).execute()
+    cola_id = res.data[0]["id"] if res.data else None
 
+    # Registrar los votos individuales de la mesa de agentes (requerido por los tests unitarios)
+    if cola_id:
+        import mesa
+        item_eval = {
+            "texto": texto_para_filtro,
+            "titulo": titulo,
+            "url_fuente": cap.url,
+            "hash_sha256": cap.sha256,
+            "http_status": cap.http,
+            "propuesta": propuesta or {}
+        }
+        votos = mesa.evaluar(item_eval)
+        for v in votos:
+            db().table("agente_votos").insert({
+                "cola_id": cola_id,
+                "agente": v["agente"],
+                "voto": v["voto"],
+                "motivo": v["motivo"]
+            }).execute()
+
+    return "bloqueado_legal" if veto else "nuevo"
 
 # Objetivos: solo fuentes oficiales/públicas. Cada una apunta a UNA página concreta.
 OBJETIVOS = [
