@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://*.supabase.co wss://*.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>AuditaDeporte · Panel de administración</title>
+<link rel="stylesheet" href="admin.css">
+<script src="supabase-js.min.js" defer></script>
+<script src="admin.js" defer></script>
+</head>
+<body>
+<a href="#principal" class="saltar">Saltar al contenido</a>
+
+<header class="barra">
+  <div class="marca"><span class="logo" aria-hidden="true">AD</span>
+    <div><strong>AuditaDeporte</strong><small>Panel de administración · filtro humano final</small></div>
+  </div>
+  <div id="sesion" class="sesion" hidden>
+    <span id="yo-email"></span>
+    <button id="btn-salir" class="btn chico">Cerrar sesión</button>
+  </div>
+</header>
+
+<main id="principal">
+  <!-- ===== INGRESO ===== -->
+  <section id="v-login" class="tarjeta login" aria-labelledby="t-login">
+    <h1 id="t-login">Ingresar</h1>
+    <p class="nota">Solo la cuenta registrada como administradora puede aprobar, publicar o retirar contenido. Todo lo que hagas queda registrado.</p>
+    <form id="f-login" novalidate>
+      <label for="l-email">Correo</label>
+      <input id="l-email" type="email" autocomplete="username" required>
+      <label for="l-pass">Contraseña</label>
+      <input id="l-pass" type="password" autocomplete="current-password" required>
+      <button class="btn primario" type="submit">Ingresar</button>
+    </form>
+    <form id="f-mfa" hidden novalidate>
+      <label for="l-codigo">Código de tu app de autenticación (6 dígitos)</label>
+      <input id="l-codigo" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+      <button class="btn primario" type="submit">Verificar</button>
+    </form>
+    <p id="login-estado" class="estado" role="status" aria-live="polite"></p>
+    <p id="aviso-config" class="aviso" hidden>Falta completar <code>SUPABASE_URL</code> y la clave publicable en <code>admin.js</code> (bloque CONFIG).</p>
+  </section>
+
+  <!-- ===== PANEL ===== -->
+  <section id="v-panel" hidden>
+    <nav class="pestanas" role="tablist" aria-label="Secciones del panel">
+      <button role="tab" data-tab="bandeja" aria-selected="true">Bandeja <span class="cuenta" id="c-bandeja"></span></button>
+      <button role="tab" data-tab="borradores" aria-selected="false">Borradores <span class="cuenta" id="c-borradores"></span></button>
+      <button role="tab" data-tab="publicados" aria-selected="false">Publicado</button>
+      <button role="tab" data-tab="fuentes" aria-selected="false">Fuentes</button>
+      <button role="tab" data-tab="estado" aria-selected="false">Estado y métricas <span class="cuenta alerta" id="c-alertas"></span></button>
+      <button role="tab" data-tab="historial" aria-selected="false">Historial</button>
+      <button role="tab" data-tab="cuenta" aria-selected="false">Cuenta</button>
+    </nav>
+
+    <!-- Bandeja: lista + detalle -->
+    <div id="p-bandeja" class="pestana" role="tabpanel">
+      <div class="filtros" role="group" aria-label="Filtrar bandeja">
+        <label>Origen
+          <select id="f-origen">
+            <option value="">Todo</option>
+            <option value="cola">Agentes (documentos, redes, propuestas)</option>
+            <option value="tip">Mensajes y réplicas</option>
+            <option value="presentacion">Presentaciones de clubes</option>
+            <option value="postulacion">Postulaciones de empresas</option>
+          </select></label>
+        <label>Estado de la mesa
+          <select id="f-semaforo">
+            <option value="">Todos</option>
+            <option value="limpia">Sin observaciones</option>
+            <option value="observada">Con observaciones</option>
+            <option value="bloqueada">Bloqueados por la mesa</option>
+          </select></label>
+        <button id="btn-recargar" class="btn chico">Actualizar</button>
+      </div>
+      <div class="dividido">
+        <ul id="lista" class="lista" aria-label="Ítems pendientes"></ul>
+        <article id="detalle" class="tarjeta detalle" aria-live="polite">
+          <p class="vacio">Elegí un ítem de la lista para revisarlo.</p>
+        </article>
+      </div>
+    </div>
+
+    <div id="p-borradores" class="pestana" role="tabpanel" hidden>
+      <p class="nota">Registros que ya están en la base pero no se ven en el sitio. Publicá solo lo que hayas comprobado contra su fuente.</p>
+      <div id="t-borradores"></div>
+    </div>
+
+    <div id="p-publicados" class="pestana" role="tabpanel" hidden>
+      <p class="nota">Lo que hoy se ve en el sitio. Si algo es inexacto o llega una réplica que lo corrige, retiralo dejando el motivo.</p>
+      <div id="t-publicados"></div>
+    </div>
+
+    <div id="p-fuentes" class="pestana" role="tabpanel" hidden>
+      <p class="nota">Las páginas que revisan los agentes. Agregá solo fuentes oficiales o públicas. Una fuente "bloqueada" pidió no ser rastreada: no se fuerza.</p>
+      <details class="tarjeta" id="d-fuente">
+        <summary>Agregar o editar una fuente</summary>
+        <form id="f-fuente" class="grilla" novalidate>
+          <input type="hidden" id="ff-id">
+          <label>Nombre<input id="ff-nombre" required maxlength="200"></label>
+          <label>URL<input id="ff-url" type="url" required placeholder="https://…"></label>
+          <label>Club o institución (slug)<input id="ff-slug" required placeholder="faba, copar, instituto-municipal-…"></label>
+          <label>Tipo
+            <select id="ff-tipo">
+              <option value="boletin_oficial">Boletín oficial</option><option value="portal_transparencia">Portal de transparencia</option>
+              <option value="igj">IGJ / registro de entidades</option><option value="compras">Compras públicas</option>
+              <option value="concejo_deliberante">Concejo deliberante</option><option value="sitio_oficial">Sitio oficial</option>
+              <option value="red_oficial">Feed de red oficial (RSS / YouTube)</option><option value="otro">Otro</option>
+            </select></label>
+          <label>Portal de origen
+            <select id="ff-portal">
+              <option value="sitio_oficial">Sitio oficial</option><option value="boletin_municipal">Boletín municipal</option>
+              <option value="boletin_oficial_nacional">Boletín Oficial nacional</option><option value="presupuesto_abierto">Presupuesto Abierto</option>
+              <option value="comprar">COMPR.AR</option><option value="red_social_oficial">Red social oficial</option><option value="otro">Otro</option>
+            </select></label>
+          <label>Cada cuántos días<input id="ff-frec" type="number" min="1" max="90" value="7"></label>
+          <label class="check"><input id="ff-sitemap" type="checkbox"> Descubrir páginas nuevas por sitemap</label>
+          <label>URL del sitemap (opcional)<input id="ff-smurl" type="url" placeholder="https://…/sitemap.xml"></label>
+          <label>Patrón de URL (opcional)<input id="ff-patron" placeholder="resolucion|balance|ordenanza"></label>
+          <label>Responsable<input id="ff-resp" maxlength="120"></label>
+          <label class="ancho">Nota<input id="ff-nota" maxlength="300"></label>
+          <div class="ancho acciones"><button class="btn primario" type="submit">Guardar fuente</button>
+            <button class="btn" type="reset" id="ff-limpiar">Limpiar</button></div>
+        </form>
+      </details>
+      <div id="t-fuentes"></div>
+    </div>
+
+    <div id="p-estado" class="pestana" role="tabpanel" hidden>
+      <div id="estado-cobertura" class="kpis"></div>
+      <h2>Alertas</h2><div id="estado-alertas"></div>
+      <h2>Mesa: ¿cuánto coinciden los votantes con tus decisiones?</h2>
+      <p class="nota">"Aprobó y vos rechazaste" son falsos positivos: esa regla hay que ajustarla. "Frenó y vos aprobaste" es exceso de celo.</p>
+      <div id="estado-metricas"></div>
+      <h2>Proponentes: ¿cuánto de lo que propone cada agente terminás aprobando?</h2>
+      <div id="estado-proponentes"></div>
+      <h2>Últimas ejecuciones de los agentes</h2><div id="estado-ejecuciones"></div>
+      <h2>Tus últimas acciones</h2><div id="estado-acciones"></div>
+    </div>
+
+    <div id="p-historial" class="pestana" role="tabpanel" hidden>
+      <p class="nota">Lo ya resuelto, con quién y cuándo. Sirve para rendir cuentas.</p>
+      <div id="t-historial"></div>
+    </div>
+
+    <div id="p-cuenta" class="pestana" role="tabpanel" hidden>
+      <div class="tarjeta">
+        <h2>Segundo factor (recomendado)</h2>
+        <p class="nota">Con una app de autenticación (por ejemplo, la de tu celular), nadie puede entrar al panel solo con tu contraseña.</p>
+        <p id="mfa-estado"></p>
+        <button id="btn-mfa-alta" class="btn">Activar segundo factor</button>
+        <div id="mfa-alta" hidden>
+          <p>Escaneá este código con tu app y escribí el código de 6 dígitos que te muestra.</p>
+          <img id="mfa-qr" alt="Código QR para la app de autenticación" width="200" height="200">
+          <p class="nota">Si no podés escanear, cargá esta clave a mano: <code id="mfa-secreto"></code></p>
+          <form id="f-mfa-alta" novalidate>
+            <label for="mfa-codigo">Código</label>
+            <input id="mfa-codigo" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required>
+            <button class="btn primario" type="submit">Confirmar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog id="dlg-confirmar" aria-labelledby="dc-titulo">
+  <form method="dialog" class="dlg">
+    <h2 id="dc-titulo">Confirmar</h2>
+    <p id="dc-texto"></p>
+    <div class="acciones">
+      <button value="no" class="btn">Cancelar</button>
+      <button value="si" class="btn primario" id="dc-si">Confirmar</button>
+    </div>
+  </form>
+</dialog>
+<div id="aviso" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
