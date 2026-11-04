@@ -254,28 +254,53 @@ def recorrer_listado(registro: list):
 
 
 # ---------------------------------------------------------------- Cruce con la base
+VACIAS = {"club", "asociacion", "civil", "deportiva", "deportivo", "deportes", "deporte", "basquet", "adaptado", "sobre",
+          "silla", "sillas", "ruedas", "del", "los", "las", "municipalidad", "municipal", "fundacion", "centro", "social",
+          "cultural", "sede", "argentina", "atletico", "personas", "para"}
+
+
 def _tokens(s):
-    return {t for t in re.split(r"[^a-z0-9]+", _norm(s)) if len(t) > 2 and t not in
-            {"club", "asociacion", "civil", "deportiva", "deportivo", "basquet", "adaptado", "sobre", "silla", "ruedas", "del", "los", "las"}}
+    """Palabras distintivas. Las siglas escritas con guiones o puntos (c-ri-pa-l, s.i.c.a) se vuelven a unir (cripal, sica)."""
+    crudos = [t for t in re.split(r"[^a-z0-9]+", _norm(s)) if t]
+    out, sigla = [], []
+    for t in crudos + [""]:
+        if t and len(t) <= 2 and not t.isdigit():
+            sigla.append(t); continue
+        if len(sigla) >= 3:
+            out.append("".join(sigla))
+        sigla = []
+        if t:
+            out.append(t)
+    return {t for t in out if (len(t) > 2 or t.isdigit()) and t not in VACIAS}
 
 
 def emparejar(slug_faba: str, nombre: str, clubes: list):
-    """Devuelve (club, 'slug'|'nombre'|'aproximada', puntaje) o (None, None, 0)."""
+    """Devuelve (club, 'slug'|'nombre'|'contenido'|'aproximada', puntaje) o (None, None, 0).
+    Si dos clubes empatan, no elige ninguno: lo resuelve una persona."""
     for c in clubes:
         if c["slug"] == slug_faba:
             return c, "slug", 1.0
     for c in clubes:
         if _norm(c["nombre"]) == _norm(nombre):
             return c, "nombre", 1.0
-    mejor, pm = None, 0.0
     a = _tokens(nombre) | _tokens(slug_faba.replace("-", " "))
+    contenidos, mejor, pm, empate = [], None, 0.0, False
     for c in clubes:
         b = _tokens(c["nombre"]) | _tokens(c["slug"].replace("-", " "))
-        if a and b:
-            p = len(a & b) / len(a | b)
-            if p > pm:
-                mejor, pm = c, p
-    return (mejor, "aproximada", round(pm, 2)) if pm >= 0.6 else (None, None, 0)
+        if not (a and b):
+            continue
+        if b <= a or a <= b:                       # "prodea" está contenido en "prodea las aguilas"
+            contenidos.append(c)
+        p = len(a & b) / len(a | b)
+        if p > pm:
+            mejor, pm, empate = c, p, False
+        elif p == pm and p > 0:
+            empate = True
+    if len(contenidos) == 1:
+        return contenidos[0], "contenido", 1.0
+    if pm >= 0.6 and not empate and not contenidos:
+        return mejor, "aproximada", round(pm, 2)
+    return None, None, 0
 
 
 def leer(tabla, cols):

@@ -67,6 +67,17 @@ class T(unittest.TestCase):
         clubes = [{"id": "1", "slug": "cedima", "nombre": "CEDIMA"}, {"id": "2", "slug": "crol", "nombre": "Club Rosarino CROL"}]
         self.assertEqual(r.emparejar("cedima", "x", clubes)[1], "slug")
         self.assertIsNone(r.emparejar("club-nuevo-sur", "Club Nuevo Sur", clubes)[0])
+        base = [{"id": s, "slug": s, "nombre": n} for s, n in [
+            ("cripal", "CRIPAL"), ("cef-n-17", "CEF N° 17"), ("prodea", "PRODEA"), ("cilsa-santa-fe", "CILSA Santa Fe"),
+            ("cilsa-boca-juniors", "CILSA Boca Juniors"), ("municipalidad-de-ensenada", "Municipalidad de Ensenada"),
+            ("municipalidad-de-berazategui", "Municipalidad de Berazategui"), ("sica-poeta-lugones", "SICA / Poeta Lugones")]]
+        casos = {"c-ri-pa-l-centro-rionegrino-para-lisiados-deportistas": "cripal",
+                 "asociacion-cooperadora-cef-17": "cef-n-17", "prodea-las-aguilas": "prodea",
+                 "c-i-l-s-a-centro-integracion-libre-y-solidaria-de-argentina-sede-santa": "cilsa-santa-fe",
+                 "cilsa-buenos-aires": None, "municipalidad-de-escobar": None,
+                 "club-social-y-deportivo-poeta-lugones": None}
+        for faba, esperado in casos.items():
+            self.assertEqual((r.emparejar(faba, faba.replace("-", " "), base)[0] or {}).get("slug"), esperado, faba)
 
     def test_ciclo_completo_propone_sin_publicar(self):
         paginas = {r.LISTADO: LISTADO_1, "https://basquetadaptado.com.ar/clubes/page/2/": LISTADO_2,
