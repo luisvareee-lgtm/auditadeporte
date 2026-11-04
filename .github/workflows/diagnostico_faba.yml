@@ -1,0 +1,16 @@
+name: Diagnóstico sitio FABA (solo lectura)
+on:
+  workflow_dispatch:
+    inputs:
+      fichas: { description: "slugs de fichas separados por espacio", default: "instituto-municipal-del-deporte-almirante-brown cedima crol" }
+permissions: { contents: read }
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - run: python diagnostico_faba.py ${{ inputs.fichas }}
+        working-directory: bot
