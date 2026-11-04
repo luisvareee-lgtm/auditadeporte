@@ -6,7 +6,7 @@
 
 const CONFIG = {
   SUPABASE_URL: "https://tjlejedfjypntsylqpeq.supabase.co", // https://tjlejedfjypntsylqpeq.supabase.co
-  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_GgY-lQeRax-6-FeLb8RaaA_CxVQtYBR" //  (o la clave anon legacy). NUNCA la secret/service_role.
+  SUPABASE_PUBLISHABLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqbGVqZWRmanlwbnRzeWxxcGVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4OTk4MDQsImV4cCI6MjEwODQ3NTgwNH0.gvs_WTMr8m_DkM1TUbf3CXFBBjQRBJpNTwv6nPYY1bw" //  (o la clave anon legacy). NUNCA la secret/service_role.
 };
 
 // ---------------------------------------------------------------- utilidades seguras
