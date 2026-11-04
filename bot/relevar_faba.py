@@ -444,8 +444,10 @@ def guardar_archivos(clubes, carpeta="salida"):
 def descartar_pendientes(club_id, c) -> int:
     """Retira las sugerencias de autoridades que ESTE agente dejó pendientes para un club cuya ficha está vencida.
     No toca nada aprobado ni nada propuesto por otros agentes. Queda registrado quién y por qué."""
-    pend = db().table("cola_revision").select("id").eq("agente", AGENTE).eq("tipo", "autoridad_posible") \
+    pend = db().table("cola_revision").select("id,tipo,propuesta").eq("agente", AGENTE) \
         .eq("estado", "pendiente").eq("club_id", club_id).execute().data or []
+    pend = [p for p in pend if p.get("tipo") == "autoridad_posible"
+            or (p.get("propuesta") or {}).get("accion") == "marcar_no_vigente"]     # "ya no figura" tampoco vale
     for p in pend:
         db().table("cola_revision").update({
             "estado": "rechazada", "motivo_codigo": "desactualizado", "revisada_por": f"{AGENTE} (automático)",

@@ -137,6 +137,8 @@ class T(unittest.TestCase):
                       "instituciones": [{"id": "i1", "slug": "faba"}], "autoridades": [], "agente_votos": [],
                       "cola_revision": [{"id": "viejo", "agente": r.AGENTE, "tipo": "autoridad_posible", "estado": "pendiente",
                                          "club_id": "b1", "url_fuente": u + "#x", "hash_sha256": "f" * 64},
+                                        {"id": "nofig", "agente": r.AGENTE, "tipo": "propuesta_cambio", "estado": "pendiente",
+                                         "club_id": "b1", "propuesta": {"accion": "marcar_no_vigente"}},
                                         {"id": "redmal", "agente": r.AGENTE, "tipo": "propuesta_cambio", "estado": "pendiente",
                                          "club_id": "b1", "propuesta": {"accion": "actualizar_redes_club",
                                                                          "parametros": {"facebook": "https://www.facebook.com/sharer/sharer.php"}}}]})
@@ -146,7 +148,7 @@ class T(unittest.TestCase):
             cont = r.proponer_en_cola(clubes)
         self.assertFalse(clubes[0]["vigente"]); self.assertEqual(clubes[0]["anios_planillas"], [2019])
         self.assertEqual(cont["autoridad_posible"], 0)
-        self.assertEqual(cont["descartadas_por_antiguedad"], 1)
+        self.assertEqual(cont["descartadas_por_antiguedad"], 2)
         viejo = next(c for c in fdb.tablas["cola_revision"] if c["id"] == "viejo")
         self.assertEqual((viejo["estado"], viejo["motivo_codigo"]), ("rechazada", "desactualizado"))
         redes = [c for c in fdb.tablas["cola_revision"] if c.get("propuesta", {}).get("accion") == "actualizar_redes_club" and c["estado"] == "pendiente"]
