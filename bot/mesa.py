@@ -15,7 +15,7 @@ RE_TEL = re.compile(r"\b(?:\+?54)?\s?(?:9\s?)?(?:11|\d{3,4})[\s-]?\d{4}[\s-]?\d{
 TERMINOS_SALUD_MENORES = ["menor de edad", "diagnostico", "historia clinica", "certificado medico", "tratamiento medico", "nino ", "nina "]
 # Única lista de acciones que un especialista puede proponer (la base vuelve a controlarla al aprobar).
 ACCIONES_PERMITIDAS = {"borrador_pliego_rse", "marcar_no_vigente", "reclamar_pedido", "pausar_fuente",
-                       "purgar_contactos", "solo_informativa"}
+                       "purgar_contactos", "solo_informativa", "actualizar_redes_club"}
 JERGA = ["devengado", "erogacion", "imputacion presupuestaria", "partida presupuestaria", "considerando",
          "visto el expediente", "a saber", "en virtud de", "conforme lo normado"]
 

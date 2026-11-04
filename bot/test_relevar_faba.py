@@ -14,7 +14,9 @@ LISTADO_1 = b"""<html><body><main>
 LISTADO_2 = b"""<html><body><a href="https://basquetadaptado.com.ar/clubes/club-nuevo-sur/">Nuevo</a>
 <a href="https://basquetadaptado.com.ar/clubes/">1</a></body></html>"""
 
-FICHA_A = """<html><head><meta property="og:title" content="CEDIMA &#8211; FABA"></head><body>
+HOY = r.ahora().date().isoformat()
+FICHA_A = ("""<html><head><meta property="og:title" content="CEDIMA &#8211; FABA">
+<meta property="article:modified_time" content="%sT10:00:00+00:00" /></head><body>""" % HOY + """
 <header><a>Menú</a> Presidente: Persona Del Menu</header><main>
 <h1>CEDIMA</h1>
 <p><strong>Localidad:</strong> Caseros</p><p>Provincia: Buenos Aires</p>
@@ -25,7 +27,13 @@ FICHA_A = """<html><head><meta property="og:title" content="CEDIMA &#8211; FABA"
 <p>Mandato 2021-2023</p>
 <table><tr><td>Vocal 1°</td><td>Luis Fernández</td></tr></table>
 <p>Contacto: 011 4444-5555</p>
-</main></body></html>""".encode()
+<p>Instagram</p><p>@club_ce.di.ma</p><p>Facebook</p><p>CEDIMA Oficial</p>
+<a href="https://www.instagram.com/basquetadaptadofaba/">FABA</a>
+<p>Jugadores de Selección</p><p>Presidente: Nombre Que No Va</p><p>Fecha de Nacimiento</p><p>20/08/2010</p>
+</main></body></html>""").encode()
+FICHA_VIEJA = b"""<html><head><meta property="article:modified_time" content="2022-04-29T12:07:34+00:00" /></head><body><main>
+<h1>Almirante Brown</h1><p>Presidente</p><p>FRISA JONATHAN</p><p>Instagram</p><p>@deporteinclusivobrown</p>
+<p>Planillas de juego</p><p>MUNIC.ALTE. BROWN 2019 CONTROL</p></main></body></html>"""
 FICHA_B = b"<html><body><main><h1>Club Nuevo Sur</h1><p>Presidente: Pedro Sosa</p></main></body></html>"
 FICHA_C = b"<html><body><main><h1>CROL</h1><p>Sin datos</p></main></body></html>"
 
@@ -52,6 +60,12 @@ class T(unittest.TestCase):
         self.assertIn(("Delegado", "Raúl Díaz"), aut)                    # se queda el nombre, el contacto no
         self.assertEqual(r.extraer_datos(ls).get("localidad"), "Caseros")
         self.assertEqual(r.titulo_pagina(FICHA_A), "CEDIMA")
+        self.assertNotIn("Nombre Que No Va", {n for _, n in aut})       # sección de jugadores: no se procesa
+        self.assertFalse(any("2010" in l for l in ls))
+        redes = r.extraer_redes(ls, FICHA_A)
+        self.assertEqual(redes.get("instagram"), "club_ce.di.ma")          # la cuenta de FABA no cuenta
+        self.assertNotIn("facebook", redes)                                 # "CEDIMA Oficial" no es un enlace
+        self.assertEqual(redes["texto_publicado"]["facebook"], "CEDIMA Oficial")
 
     def test_nombre_valido_rechaza_basura(self):
         for malo in ("Comisión Directiva", "Ver más", "Juan", "Calle 123 Nro 4", "[correo omitido] Juan Pérez"):
@@ -114,6 +128,26 @@ class T(unittest.TestCase):
         self.assertFalse(fdb.escrituras() & {"autoridades", "clubes", "instituciones"})
         # ningún contacto llegó a la cola
         self.assertNotIn("4444", str(cola)); self.assertNotIn("@mail", str(cola))
+
+    def test_ficha_vencida_no_propone_autoridades_y_retira_pendientes(self):
+        u = "https://basquetadaptado.com.ar/clubes/almirante-brown/"
+        paginas = {r.LISTADO: b'<a href="/clubes/almirante-brown/">x</a>', u: FICHA_VIEJA}
+        fdb = FakeDB({"clubes": [{"id": "b1", "slug": "almirante-brown", "nombre": "Almirante Brown", "instagram": None}],
+                      "instituciones": [{"id": "i1", "slug": "faba"}], "autoridades": [], "agente_votos": [],
+                      "cola_revision": [{"id": "viejo", "agente": r.AGENTE, "tipo": "autoridad_posible", "estado": "pendiente",
+                                         "club_id": "b1", "url_fuente": u + "#x", "hash_sha256": "f" * 64}]})
+        with mock.patch.object(r, "capturar", side_effect=lambda x, timeout=25: cap(x, paginas[x])), \
+             mock.patch.object(r.time, "sleep"), mock.patch.object(o, "db", return_value=fdb), mock.patch.object(r, "db", return_value=fdb):
+            clubes, _ = r.relevar()
+            cont = r.proponer_en_cola(clubes)
+        self.assertFalse(clubes[0]["vigente"]); self.assertEqual(clubes[0]["anios_planillas"], [2019])
+        self.assertEqual(cont["autoridad_posible"], 0)
+        self.assertEqual(cont["descartadas_por_antiguedad"], 1)
+        viejo = next(c for c in fdb.tablas["cola_revision"] if c["id"] == "viejo")
+        self.assertEqual((viejo["estado"], viejo["motivo_codigo"]), ("rechazada", "desactualizado"))
+        redes = [c for c in fdb.tablas["cola_revision"] if c.get("propuesta", {}).get("accion") == "actualizar_redes_club"]
+        self.assertEqual(redes[0]["propuesta"]["parametros"], {"instagram": "deporteinclusivobrown"})
+        self.assertEqual(cont.get("padron"), 1)                             # hallazgo: padrón sin actualizar
 
     def test_bloqueo_detiene(self):
         with mock.patch.object(r, "capturar", return_value=(o.Captura(r.LISTADO, 403, motivo="http_403"), {})), \

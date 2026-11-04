@@ -175,7 +175,8 @@ const ACCIONES = {
   reclamar_pedido: ['Marcar pedido como reclamado', 'Aprobá después de enviar el reclamo desde tu correo. El pedido pasa a "apelado".'],
   pausar_fuente: ['Pausar fuente', 'Los agentes dejan de revisar esa fuente hasta que la reactives.'],
   purgar_contactos: ['Borrar contactos de casos cerrados', 'Se borran correos y teléfonos de mensajes, presentaciones y postulaciones ya cerrados. No se puede deshacer.'],
-  solo_informativa: ['Marcar como tomado', 'No cambia nada en la base: queda registrado que lo viste.']
+  solo_informativa: ['Marcar como tomado', 'No cambia nada en la base: queda registrado que lo viste.'],
+  actualizar_redes_club: ['Guardar redes del club', 'Se guardan en la ficha del club. Abrí cada cuenta antes y confirmá que es del club y que sigue activa.']
 };
 const CHIP_SEMAFORO = { limpia: ['ok', 'Sin observaciones'], observada: ['obs', 'Con observaciones'], bloqueada: ['mal', 'Bloqueado por la mesa'] };
 

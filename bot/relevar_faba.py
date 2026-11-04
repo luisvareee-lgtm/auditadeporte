@@ -36,6 +36,8 @@ from orquestador_bots_audita import (UA, PAUSA_SEG, MAX_BYTES, Captura, _robots_
                                      parsear_sitemap, proponer, ahora)
 
 AGENTE = "relevador_faba"
+MAX_ANTIGUEDAD_DIAS = 730        # ficha editada hace más de 2 años: sus autoridades NO se proponen (dato vencido)
+CUENTAS_FABA = {"basquetadaptadofaba", "basquetfaba", "bxc3xa1squet-adaptado-faba-102847028997588"}
 BASE = "https://basquetadaptado.com.ar"
 LISTADO = BASE + "/clubes/"
 MAX_PAGINAS_LISTADO = 40
@@ -100,8 +102,12 @@ def lineas(data: bytes) -> list:
     out = []
     for ln in t.split("\n"):
         ln = re.sub(r"\s+", " ", ln).strip(" \t|•·")
-        if ln:
-            out.append(ln)
+        if not ln:
+            continue
+        # Desde acá la ficha lista jugadores: hay menores de edad y clasificación funcional (dato de salud). No se procesa.
+        if re.match(r"(?i)^(jugador(a|es|as)? de selecci|plantel|jugadores)\b", ln):
+            break
+        out.append(ln)
     return out
 
 
@@ -198,6 +204,65 @@ def extraer_datos(ls: list) -> dict:
     return out
 
 
+def fecha_ficha(data: bytes):
+    """Última edición declarada por la propia página (article:modified_time). La cabecera Last-Modified no sirve:
+    el servidor la regenera aunque el contenido no cambie."""
+    m = re.search(r'article:modified_time["\']\s+content=["\'](\d{4}-\d\d-\d\d)', data.decode("utf-8", "ignore"))
+    return m.group(1) if m else None
+
+
+def anios_planillas(ls: list) -> list:
+    return sorted({int(a) for l in ls if "control" in l.lower() for a in re.findall(r"\b(20[0-4]\d)\b", l)})
+
+
+RE_IG = re.compile(r"^[A-Za-z0-9._]{1,30}$")
+
+
+def _ig(v: str):
+    v = (v or "").strip()
+    m = re.search(r"instagram\.com/([A-Za-z0-9._]{1,30})", v)
+    h = m.group(1) if m else v.strip("@/ ").split("?")[0]
+    return h if RE_IG.match(h) and h.lower() not in CUENTAS_FABA and not h.replace(".", "").isdigit() else None
+
+
+def _fb(v: str):
+    v = (v or "").strip()
+    m = re.search(r"facebook\.com/([^\s?#]+)", v)
+    if m:
+        h = m.group(1).strip("/")
+    elif re.match(r"^/?[A-Za-z0-9.\-]{3,80}/?$", v):
+        h = v.strip("/")
+    else:
+        return None
+    return None if _norm(h).replace("%c3%a1", "a") in CUENTAS_FABA or "faba" in h.lower() else f"https://www.facebook.com/{h}"
+
+
+def extraer_redes(ls: list, data: bytes) -> dict:
+    """Redes que la ficha publica para el club (no las de FABA). 'texto' guarda lo escrito cuando no es un enlace usable."""
+    out, texto = {}, {}
+    for i, l in enumerate(ls[:-1]):
+        k = _norm(l).strip(" :")
+        v = ls[i + 1]
+        if k == "instagram":
+            texto["instagram"] = v[:80]
+            if _ig(v):
+                out.setdefault("instagram", _ig(v))
+        elif k == "facebook":
+            texto["facebook"] = v[:80]
+            if _fb(v):
+                out.setdefault("facebook", _fb(v))
+        elif k in ("sitio web", "web", "pagina web") and re.match(r"^https?://", v):
+            out.setdefault("web", v.split()[0][:200])
+    for h in RE_HREF.findall(data.decode("utf-8", "ignore")):
+        if "instagram.com/" in h and _ig(h):
+            out.setdefault("instagram", _ig(h))
+        elif "facebook.com/" in h and _fb(h):
+            out.setdefault("facebook", _fb(h))
+    if texto:
+        out["texto_publicado"] = texto
+    return out
+
+
 # ---------------------------------------------------------------- Listado de clubes
 def urls_fichas(html_bytes: bytes, base: str):
     fichas, paginas = [], []
@@ -211,6 +276,9 @@ def urls_fichas(html_bytes: bytes, base: str):
         elif RE_PAGINA.match(u) and u not in paginas:
             paginas.append(u)
     return fichas, paginas
+
+
+LISTADO_CAP = [None]
 
 
 def recorrer_listado(registro: list):
@@ -227,6 +295,8 @@ def recorrer_listado(registro: list):
             raise SystemExit(f"El sitio no permite el acceso ({cap.http or cap.motivo}) en {u}. Se respeta y se detiene.")
         if not cap.utilizable:
             continue
+        if u == LISTADO:
+            LISTADO_CAP[0] = cap
         f, p = urls_fichas(cap.contenido, u)
         fichas += [x for x in f if x not in fichas]
         pendientes += [x for x in p if x not in vistas and x not in pendientes]
@@ -331,8 +401,12 @@ def relevar(max_clubes=None):
             print(f"bloqueo en {u}: se detiene el relevamiento"); break
         if cap.utilizable:
             ls = [tachar(x) for x in lineas(cap.contenido)]
+            f = fecha_ficha(cap.contenido)
+            dias = (ahora().date() - datetime.strptime(f, "%Y-%m-%d").date()).days if f else None
             fila.update(nombre=titulo_pagina(cap.contenido) or fila["slug_faba"], datos=extraer_datos(ls),
-                        autoridades=extraer_autoridades(ls), resultado="ok",
+                        autoridades=extraer_autoridades(ls), redes=extraer_redes(ls, cap.contenido),
+                        fecha_ficha=f, antiguedad_dias=dias, anios_planillas=anios_planillas(ls),
+                        vigente=dias is not None and dias <= MAX_ANTIGUEDAD_DIAS, resultado="ok",
                         legibilidad="texto_nativo" if sum(map(len, ls)) >= 200 else "sin_texto_legible")
         else:
             fila["resultado"] = "error"
@@ -346,7 +420,8 @@ def guardar_archivos(clubes, carpeta="salida"):
     pub = [{k: v for k, v in c.items() if not k.startswith("_")} for c in clubes]
     Path(carpeta, f"padron_faba_{hoy}.json").write_text(json.dumps(pub, ensure_ascii=False, indent=1), encoding="utf-8")
     campos = ["club_faba", "url_ficha", "slug_faba", "club_auditadeporte", "coincidencia", "localidad", "provincia",
-              "cargo", "nombre", "relevado_en", "http", "sha256", "etag", "last_modified", "legibilidad"]
+              "cargo", "nombre", "fecha_ficha", "antiguedad_dias", "dato_vigente", "instagram", "facebook", "web",
+              "relevado_en", "http", "sha256", "etag", "last_modified", "legibilidad"]
     with open(Path(carpeta, f"padron_faba_{hoy}.csv"), "w", newline="", encoding="utf-8-sig") as fh:
         w = csv.DictWriter(fh, fieldnames=campos)
         w.writeheader()
@@ -355,10 +430,27 @@ def guardar_archivos(clubes, carpeta="salida"):
                     "club_auditadeporte": c.get("club_slug"), "coincidencia": c.get("coincidencia"),
                     "localidad": (c.get("datos") or {}).get("localidad"), "provincia": (c.get("datos") or {}).get("provincia"),
                     "relevado_en": c["relevado_en"], "http": c["http"], "sha256": c["sha256"], "etag": c.get("etag"),
-                    "last_modified": c.get("last_modified"), "legibilidad": c.get("legibilidad")}
+                    "last_modified": c.get("last_modified"), "legibilidad": c.get("legibilidad"),
+                    "fecha_ficha": c.get("fecha_ficha"), "antiguedad_dias": c.get("antiguedad_dias"),
+                    "dato_vigente": "si" if c.get("vigente") else "no",
+                    **{k: (c.get("redes") or {}).get(k) for k in ("instagram", "facebook", "web")}}
             for a in c.get("autoridades") or [{}]:
                 w.writerow({**base, "cargo": a.get("cargo"), "nombre": a.get("nombre")})
     return carpeta
+
+
+def descartar_pendientes(club_id, c) -> int:
+    """Retira las sugerencias de autoridades que ESTE agente dejó pendientes para un club cuya ficha está vencida.
+    No toca nada aprobado ni nada propuesto por otros agentes. Queda registrado quién y por qué."""
+    pend = db().table("cola_revision").select("id").eq("agente", AGENTE).eq("tipo", "autoridad_posible") \
+        .eq("estado", "pendiente").eq("club_id", club_id).execute().data or []
+    for p in pend:
+        db().table("cola_revision").update({
+            "estado": "rechazada", "motivo_codigo": "desactualizado", "revisada_por": f"{AGENTE} (automático)",
+            "revisada_en": ahora().isoformat(),
+            "nota_revision": f"La ficha FABA se editó por última vez el {c.get('fecha_ficha') or '(sin fecha)'}: "
+                             f"más de {MAX_ANTIGUEDAD_DIAS // 365} años. No sirve como fuente de autoridades actuales."}).eq("id", p["id"]).execute()
+    return len(pend)
 
 
 def _cap_ancla(cap: Captura, ancla: str) -> Captura:
@@ -371,11 +463,12 @@ def _slug(s):
 
 
 def proponer_en_cola(clubes):
-    lista_clubes = leer("clubes", "id,slug,nombre")
+    lista_clubes = leer("clubes", "id,slug,nombre,instagram,facebook,web")
     autoridades = leer("autoridades", "id,club_id,institucion_id,nombre,cargo,vigente")
     insts = {i["slug"]: i for i in leer("instituciones", "id,slug,sigla")}
     faba_id = (insts.get("faba") or {}).get("id")
-    cont = {"autoridad_posible": 0, "no_figura": 0, "club_no_registrado": 0, "cruce": 0, "duplicado": 0, "bloqueado_legal": 0}
+    cont = {"autoridad_posible": 0, "no_figura": 0, "club_no_registrado": 0, "cruce": 0, "redes": 0,
+            "ficha_desactualizada": 0, "descartadas_por_antiguedad": 0, "duplicado": 0, "bloqueado_legal": 0}
 
     def contar(r, clave):
         cont[clave if r == "nuevo" else r] = cont.get(clave if r == "nuevo" else r, 0) + 1
@@ -393,7 +486,11 @@ def proponer_en_cola(clubes):
         club, como, puntaje = emparejar(c["slug_faba"], c["nombre"], lista_clubes)
         c["club_slug"], c["coincidencia"] = (club or {}).get("slug"), (f"{como} ({puntaje})" if club else "sin_coincidencia")
         entidad = club["id"] if club else "faba:" + c["slug_faba"]
-        for a in c["autoridades"]:
+        if not c.get("vigente"):
+            cont["ficha_desactualizada"] += 1
+            if club:
+                cont["descartadas_por_antiguedad"] += descartar_pendientes(club["id"], c)
+        for a in (c["autoridades"] if c.get("vigente") else []):
             por_nombre.setdefault(_norm(a["nombre"]), []).append(("faba", entidad, {**a, "club": c["nombre"], "url": c["url"]}))
 
         if not club:
@@ -402,12 +499,26 @@ def proponer_en_cola(clubes):
                              cap, inst_id=faba_id,
                              propuesta={"accion": "solo_informativa", "fuente": "padron_faba",
                                         "parametros": {"nombre": c["nombre"], "url_ficha": c["url"], "datos": c["datos"],
+                                                       "redes": c.get("redes"), "fecha_ficha": c.get("fecha_ficha"),
                                                        "autoridades": [{k: a[k] for k in ("cargo", "nombre")} for a in c["autoridades"]],
                                                        "fecha_relevamiento": hoy}},
                              texto_para_filtro=c["nombre"])
                 contar(r, "club_no_registrado")
             continue
 
+        redes = {k: v for k, v in (c.get("redes") or {}).items() if k in ("instagram", "facebook", "web")}
+        nuevas = {k: v for k, v in redes.items() if (club.get(k) or "").rstrip("/").lower() != v.rstrip("/").lower()}
+        if nuevas:
+            r = proponer(AGENTE, "propuesta_cambio", f"{club['nombre']}: redes publicadas en la ficha FABA ({', '.join(nuevas)})",
+                         _cap_ancla(cap, "redes"), club_id=club["id"],
+                         propuesta={"accion": "actualizar_redes_club", "parametros": nuevas, "fuente": "padron_faba",
+                                    "url_ficha": c["url"], "fecha_posteo": c.get("fecha_ficha"),
+                                    "actuales": {k: club.get(k) for k in nuevas},
+                                    "nota": "Abrí cada cuenta y confirmá que es del club y que sigue activa antes de aprobar."},
+                         texto_para_filtro=" ".join(nuevas.values()))
+            contar(r, "redes")
+        if not c.get("vigente"):
+            continue
         cargadas = [a for a in autoridades if a.get("club_id") == club["id"]]
         claves_base = {(_norm(a["nombre"]), _norm(a["cargo"])) for a in cargadas}
         for a in c["autoridades"]:
@@ -451,6 +562,23 @@ def proponer_en_cola(clubes):
                                                            "oficiales (DPPJ/IGJ/IPJ) antes de cualquier uso."}},
                          texto_para_filtro=nombre)
             contar(r, "cruce")
+
+    # El estado del padrón en sí es un hallazgo de transparencia activa (dato objetivo, sin calificativos).
+    leidas = [c for c in clubes if c.get("resultado") == "ok"]
+    vencidas = [c for c in leidas if not c.get("vigente")]
+    if faba_id and vencidas and LISTADO_CAP[0]:
+        ult = max((c.get("fecha_ficha") or "") for c in leidas) or "(sin fecha)"
+        r = proponer(AGENTE, "propuesta_cambio",
+                     f"Padrón web de FABA: {len(vencidas)} de {len(leidas)} fichas de clubes sin editar hace más de "
+                     f"{MAX_ANTIGUEDAD_DIAS // 365} años (edición más reciente: {ult})",
+                     _cap_ancla(LISTADO_CAP[0], "antiguedad-" + ult), inst_id=faba_id,
+                     propuesta={"accion": "solo_informativa", "fuente": "padron_faba",
+                                "parametros": {"fichas_leidas": len(leidas), "fichas_vencidas": len(vencidas),
+                                               "edicion_mas_reciente": ult, "fecha_corte": hoy,
+                                               "nota": "Insumo para un pedido de acceso a la información (Ley 27.275, art. 32: "
+                                                       "transparencia activa) sobre el padrón vigente de clubes y autoridades."}},
+                     texto_para_filtro="padron")
+        contar(r, "padron")
     return cont
 
 
@@ -485,8 +613,9 @@ def main():
     print("--- resumen por club (slug FABA -> club AuditaDeporte | localidad | autoridades) ---")
     for c in clubes:
         aut = "; ".join(f"{a['cargo']}: {a['nombre']}" for a in c.get("autoridades") or []) or "(sin nómina reconocida)"
-        print(f"{c['slug_faba']} -> {c.get('club_slug') or 'SIN COINCIDENCIA'} | "
-              f"{(c.get('datos') or {}).get('localidad', '-')} | {aut}")
+        rd = {k: v for k, v in (c.get("redes") or {}).items() if k != "texto_publicado"}
+        print(f"{c['slug_faba']} -> {c.get('club_slug') or 'SIN COINCIDENCIA'} | ficha {c.get('fecha_ficha') or '?'}"
+              f"{'' if c.get('vigente') else ' (VENCIDA)'} | {aut} | redes {rd or '-'}")
     sin = [c["url"] for c in clubes if c.get("resultado") == "ok" and not c.get("autoridades")]
     if sin:
         print(f"{len(sin)} ficha(s) sin nómina reconocible (revisarlas a mano): " + ", ".join(sin[:10]))
