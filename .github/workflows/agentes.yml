@@ -3,23 +3,37 @@ on:
   schedule: [{ cron: "0 11 * * *" }]     # diario, 08:00 hora Argentina
   workflow_dispatch: {}
 permissions: { contents: read }
+concurrency: { group: agentes, cancel-in-progress: false }
 jobs:
   agentes:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
-      - run: pip install supabase==2.*
+      - run: pip install "pypdf>=4,<7"          # leer texto de PDFs; los bots no necesitan otra librería
       - name: Tests (si fallan, no se ejecuta ningún agente)
-        run: python -m unittest discover -s . -p "test_*.py"
+        run: python -m unittest test_supa test_orquestador test_mesa_ingesta test_especialistas
         working-directory: bot
-      - name: Rastreador de documentos
+      - name: Rastreador de documentos (fuentes del panel + sitemaps)
         run: python orquestador_bots_audita.py
         working-directory: bot
-        env: { SUPABASE_URL: "${{ secrets.SUPABASE_URL }}", SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.service_role }}" }
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
       - name: Ingesta de novedades (feeds oficiales)
         run: python ingesta_redes.py
         working-directory: bot
-        env: { SUPABASE_URL: "${{ secrets.SUPABASE_URL }}", SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.service_role }}" }
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
+      - name: Especialistas y guardián de seguridad (termina en rojo si hay un hallazgo crítico)
+        if: always()
+        run: python especialistas.py
+        working-directory: bot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          SITIO_URL: ${{ vars.SITIO_URL }}

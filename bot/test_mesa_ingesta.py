@@ -55,4 +55,22 @@ class T(unittest.TestCase):
     def test_feed_bloqueado_se_registra_sin_evadir(self):
         with mock.patch.object(o, "capturar", return_value=o.Captura("u", 403, motivo="http_403")):
             self.assertEqual(ing.procesar_feed({"url": "u", "club": "a", "plataforma": "web"}, {"a": 1}, {})["resultado"], "bloqueado")
+    def test_alcance_veta_acciones_fuera_de_lista(self):
+        v = mesa.evaluar(item(tipo="propuesta_cambio", propuesta={"accion": "borrar_todo"}))
+        self.assertEqual(mesa.decidir(v)[0], "bloqueada_legal")
+        v = mesa.evaluar(item(tipo="propuesta_cambio", propuesta={"accion": "solo_informativa"}))
+        self.assertEqual(mesa.decidir(v)[0], "pendiente")
+    def test_lectura_facil(self):
+        largo = " ".join(["palabra"] * 40) + "."
+        self.assertEqual(mesa.v_lectura(item(propuesta={"borrador_texto": largo}))["voto"], "observar")
+        self.assertIn("jerga", mesa.v_lectura(item(propuesta={"borrador_texto": "El monto devengado fue informado."}))["motivo"])
+        self.assertEqual(mesa.v_lectura(item(propuesta={"borrador_texto": "Pedimos la respuesta. Gracias."}))["voto"], "aprobar")
+        self.assertEqual(mesa.v_lectura(item())["voto"], "abstener")
+    def test_fuente_registrada_y_sin_texto(self):
+        self.assertEqual(mesa.v_fuente(item(url_fuente="https://club.com.ar/a", propuesta={"fuente_id": "f1"}))["voto"], "aprobar")
+        r = mesa.v_fuente(item(propuesta={"requiere_ocr_o_revision_humana": True, "motivo_revision": "pdf_sin_capa_de_texto"}))
+        self.assertEqual(r["voto"], "observar")
+    def test_documento_con_dni_observa_no_bloquea(self):
+        v = mesa.evaluar(item(propuesta={"indicadores": {"contiene_posibles_dni": True}}))
+        estado, obs = mesa.decidir(v); self.assertEqual(estado, "pendiente"); self.assertTrue(any("DNI" in x for x in obs))
 if __name__ == "__main__": unittest.main()

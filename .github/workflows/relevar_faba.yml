@@ -1,0 +1,36 @@
+name: Relevar padrón de clubes FABA
+on:
+  workflow_dispatch:
+    inputs:
+      solo_archivos:
+        description: "Solo generar CSV/JSON (no cargar nada en la cola de revisión)"
+        type: boolean
+        default: false
+  schedule: [{ cron: "0 12 1 * *" }]      # día 1 de cada mes, 09:00 hora Argentina
+permissions: { contents: read }
+concurrency: { group: relevar-faba, cancel-in-progress: false }
+jobs:
+  relevar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Tests (si fallan, no se releva nada)
+        run: python -m unittest test_supa test_relevar_faba
+        working-directory: bot
+      - name: Relevar clubes y autoridades (todo queda para revisión humana)
+        run: python relevar_faba.py ${{ inputs.solo_archivos && '--solo-archivos' || '' }}
+        working-directory: bot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
+      - name: Guardar CSV y JSON para descargar
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: padron-faba
+          path: bot/salida/
+          retention-days: 30
+          if-no-files-found: ignore

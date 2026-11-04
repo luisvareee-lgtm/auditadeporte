@@ -303,8 +303,12 @@ function formAprobar(d) {
       el('label', { for: 'a-norma' }, 'Expediente o norma (opcional)'), norma);
     leer = () => ({ resumen: ta.value, norma: norma.value });
   } else if (d.tipo === 'autoridad_posible') {
-    const n = el('input', { id: 'a-nombre' }), c = el('input', { id: 'a-cargo' }), f = el('input', { id: 'a-fecha', type: 'date' });
-    partes.push(el('p', { class: 'nota' }, 'Escribí nombre y cargo tal como figuran en la fuente, y la fecha de la fuente.'),
+    const n = el('input', { id: 'a-nombre', value: p.nombre || '' }), c = el('input', { id: 'a-cargo', value: p.cargo || '' }),
+      f = el('input', { id: 'a-fecha', type: 'date', value: p.fecha_fuente || '' });
+    partes.push(el('p', { class: 'nota' }, p.nombre
+        ? 'El agente precargó lo que leyó. Abrí la fuente y corregí nombre, cargo o fecha si no coinciden exactamente.'
+        : 'Escribí nombre y cargo tal como figuran en la fuente, y la fecha de la fuente.'),
+      p.linea_fuente ? campo('Texto en la fuente', p.linea_fuente) : null,
       el('label', { for: 'a-nombre' }, 'Nombre'), n, el('label', { for: 'a-cargo' }, 'Cargo'), c, el('label', { for: 'a-fecha' }, 'Fecha de la fuente'), f);
     leer = () => ({ nombre: n.value, cargo: c.value, fecha_fuente: f.value });
   } else if (d.tipo === 'revision_sugerida') {

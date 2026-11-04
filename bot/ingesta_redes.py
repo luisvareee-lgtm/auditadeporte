@@ -2,7 +2,7 @@
  1) feeds RSS/Atom oficiales (sitios web, canales de YouTube);
  2) carga asistida por voluntarios (CSV con enlace a la publicación + captura de pantalla).
 No se automatiza Instagram/Facebook/X con scraping: sus términos lo prohíben y los bloqueos rompen el servicio.
-Todo va a cola_revision; una persona publica con db/08 aprobar_novedad()."""
+Todo va a cola_revision; una persona publica desde el panel (db/09)."""
 import csv
 import hashlib
 import html
@@ -114,15 +114,36 @@ def cargar_csv(path: str, clubes: dict, insts: dict) -> list:
     return salida
 
 
+def feeds_de_tabla():
+    """Feeds cargados desde el panel: fuentes_monitoreadas con tipo 'red_oficial' (RSS/Atom o YouTube)."""
+    from supa import SupaError
+    try:
+        filas = o.db().table("fuentes_monitoreadas").select("*").eq("tipo", "red_oficial").eq("estado", "activa").execute().data or []
+    except SupaError:
+        return []
+    out = []
+    for f in filas:
+        plat = "youtube" if "youtube.com" in f["url"] else "web"
+        out.append({"id": f["id"], "club_id": f.get("club_id"), "institucion_id": f.get("institucion_id"),
+                    "plataforma": plat, "url": f["url"], "fallos_consecutivos": f.get("fallos_consecutivos"), "estado": f.get("estado")})
+    return out
+
+
 def main():
     clubes, insts = o.mapa_slugs("clubes"), o.mapa_slugs("instituciones")
+    por_id_c, por_id_i = {v: k for k, v in clubes.items()}, {v: k for k, v in insts.items()}
+    for f in feeds_de_tabla():
+        cfg = {"club": por_id_c.get(f["club_id"]), "inst": por_id_i.get(f["institucion_id"]), "plataforma": f["plataforma"], "url": f["url"]}
+        r = procesar_feed(cfg, clubes, insts)
+        o.registrar_estado_fuente(f, r["resultado"] == "ok", r["resultado"] == "bloqueado", 200 if r["resultado"] == "ok" else 0)
+        print(r)
     for cfg in FEEDS:
         print(procesar_feed(cfg, clubes, insts))
     if len(sys.argv) > 1:
         for url, r in cargar_csv(sys.argv[1], clubes, insts):
             print(url, "->", r)
     if not FEEDS and len(sys.argv) < 2:
-        print("Sin feeds configurados ni CSV. Ver cabecera de ingesta_redes.py.")
+        print("Feeds del código: ninguno (se cargan desde el panel como fuente 'red_oficial'). CSV: ninguno.")
 
 
 if __name__ == "__main__":

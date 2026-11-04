@@ -1,34 +1,53 @@
+"""AuditaDeporte - rastreador de documentos públicos v6.0
+REGLA DE ORO: los agentes PROPONEN (tabla privada cola_revision); una persona APRUEBA desde el panel.
+Ningún agente escribe en tablas públicas, ni afirma "no encontrado", ni evade bloqueos.
+Novedades v6:
+  * Lee las fuentes de la tabla fuentes_monitoreadas (se cargan desde el panel, sin tocar código).
+  * Descubre páginas nuevas por sitemap.xml (con filtro por patrón y por dominio).
+  * Detecta cambios por hash: documento_nuevo vs documento_cambio (guarda el hash anterior).
+  * Extrae texto de PDF/HTML: expedientes, CUIT de entidades y marca requiere_ocr_o_revision_humana.
+  * Registra el estado de cada fuente (activa / caida / bloqueada_robots) para medir cobertura.
+Secrets (GitHub Actions): SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (secret key). Nunca en el sitio ni en el repo."""
+import gzip
 import hashlib
+import html
+import io
 import os
 import re
 import time
-from datetime import datetime, timezone
 import unicodedata
 import urllib.error
 import urllib.request
 import urllib.robotparser
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from urllib.parse import urlparse
+from xml.etree import ElementTree as ET
 
-UA = "AuditaDeporteBot/5.0 (observatorio civico sin fines de lucro; contacto en el sitio)"
-PAUSA_SEG = 2.0           # cortesía entre pedidos al mismo sitio
+UA = "AuditaDeporteBot/6.0 (observatorio civico sin fines de lucro; contacto en el sitio)"
+PAUSA_SEG = 2.0                 # cortesía entre pedidos
+MAX_BYTES = 25 * 1024 * 1024    # no se descargan archivos más grandes
+MAX_FUENTES_POR_CICLO = 40
+MAX_CAPTURAS_POR_CICLO = 150    # tope total para no exceder el tiempo del workflow
+MAX_DESCUBIERTAS_POR_FUENTE = 15
+MAX_PAGINAS_PDF = 40
 _cliente = None
 
 
 def db():
     global _cliente
     if _cliente is None:
-        from supabase import create_client
-        url = os.environ.get("SUPABASE_URL")
-        key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-        if not url or not key:
-            raise RuntimeError("Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY.")
-        _cliente = create_client(url, key)
+        from supa import Cliente
+        _cliente = Cliente(os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_SERVICE_ROLE_KEY"))
     return _cliente
 
 
-# ---------------------------------------------------------------- Agente Rastreador
+def ahora():
+    return datetime.now(timezone.utc)
+
+
+# ---------------------------------------------------------------- Captura honesta
 @dataclass
 class Captura:
     url: str
@@ -39,11 +58,11 @@ class Captura:
 
     @property
     def bloqueada(self):
-        return self.http in (401, 403, 429)
+        return self.http in (401, 403, 429) or self.motivo == "robots_no_permite"
 
     @property
     def utilizable(self):
-        return self.http == 200 and bool(self.contenido)
+        return self.http == 200 and bool(self.contenido) and bool(self.sha256)
 
 
 def _robots_permite(url: str) -> bool:
@@ -57,16 +76,18 @@ def _robots_permite(url: str) -> bool:
         return True  # si robots.txt no responde, seguimos con ritmo cortés
 
 
-def capturar(url: str, timeout: int = 20) -> Captura:
-    """Descarga honesta: se identifica, respeta robots.txt, no rota identidades ni reintenta bloqueos."""
-    if not url.lower().startswith(("http://", "https://")):
+def capturar(url: str, timeout: int = 25) -> Captura:
+    """Se identifica, respeta robots.txt, no rota identidades, no reintenta bloqueos y no hashea descargas incompletas."""
+    if not (url or "").lower().startswith(("http://", "https://")):
         return Captura(url, 0, motivo="url_invalida")
     if not _robots_permite(url):
         return Captura(url, 0, motivo="robots_no_permite")
     try:
         req = urllib.request.Request(url, headers={"User-Agent": UA})
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            data = r.read()
+            data = r.read(MAX_BYTES + 1)
+            if len(data) > MAX_BYTES:
+                return Captura(url, r.getcode(), motivo="archivo_demasiado_grande")
             return Captura(url, r.getcode(), data, hashlib.sha256(data).hexdigest())
     except urllib.error.HTTPError as e:
         return Captura(url, e.code, motivo=f"http_{e.code}")
@@ -76,7 +97,7 @@ def capturar(url: str, timeout: int = 20) -> Captura:
 
 # ---------------------------------------------------------------- Agente Jurídico (pre-filtro)
 def _norm(t: str) -> str:
-    return unicodedata.normalize("NFD", t.lower()).encode("ascii", "ignore").decode()
+    return unicodedata.normalize("NFD", (t or "").lower()).encode("ascii", "ignore").decode()
 
 
 TERMINOS_VETADOS = ["corrupcion", "corrupto", "robo", "robaron", "estafa", "malversacion", "delito",
@@ -99,86 +120,333 @@ def pre_filtro_juridico(texto: str, url: str) -> list:
     return motivos
 
 
+# ---------------------------------------------------------------- Agente Analista documental
+RE_EXP_GDE = re.compile(r"\bEX-\d{4}-\d{5,9}-\s*-?\s*[A-Z]{2,6}(?:-[A-Z0-9#]{2,15})*")
+RE_EXP_LOCAL = re.compile(r"\b(?:expte?\.?|expediente)\s*(?:n[°ºo]\.?\s*)?(\d{1,6}[-/]\d{1,8}(?:[-/]\d{2,4})?)", re.I)
+RE_CUIT = re.compile(r"\b(30|33|34)-?(\d{8})-?(\d)\b")          # solo personas jurídicas
+RE_TAGS = re.compile(r"<(script|style|noscript)[^>]*>.*?</\1>|<[^>]+>", re.S | re.I)
+
+
+def cuit_valido(c: str) -> bool:
+    d = re.sub(r"\D", "", c or "")
+    if len(d) != 11:
+        return False
+    s = sum(int(a) * b for a, b in zip(d[:10], [5, 4, 3, 2, 7, 6, 5, 4, 3, 2]))
+    v = 11 - s % 11
+    v = 0 if v == 11 else v
+    return v != 10 and v == int(d[10])
+
+
+def extraer_expedientes(texto: str) -> list:
+    vistos = []
+    for m in RE_EXP_GDE.finditer(texto or ""):
+        e = re.sub(r"\s+", "", m.group(0).upper())
+        if e not in vistos:
+            vistos.append(e)
+    for m in RE_EXP_LOCAL.finditer(texto or ""):
+        e = "EXP " + m.group(1)
+        if e not in vistos:
+            vistos.append(e)
+    return vistos[:15]
+
+
+def extraer_cuits_entidades(texto: str) -> list:
+    out = []
+    for m in RE_CUIT.finditer(texto or ""):
+        c = f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+        if cuit_valido(c) and c not in out:
+            out.append(c)
+    return out[:10]
+
+
+def texto_html(data: bytes) -> str:
+    t = data.decode("utf-8", "ignore")
+    return re.sub(r"\s+", " ", html.unescape(RE_TAGS.sub(" ", t))).strip()
+
+
+def texto_pdf(data: bytes):
+    """Devuelve el texto o None si no hay librería para leer PDF."""
+    try:
+        from pypdf import PdfReader
+    except ImportError:
+        return None
+    try:
+        lector = PdfReader(io.BytesIO(data))
+        partes = []
+        for i, pag in enumerate(lector.pages):
+            if i >= MAX_PAGINAS_PDF:
+                break
+            partes.append(pag.extract_text() or "")
+        return re.sub(r"\s+", " ", " ".join(partes)).strip()
+    except Exception:
+        return ""
+
+
+def analizar_contenido(cap: Captura):
+    """Indicadores OBJETIVOS del documento (no se publica el texto; solo ayuda a la persona que revisa)."""
+    es_pdf = cap.contenido[:5] == b"%PDF-"
+    texto = texto_pdf(cap.contenido) if es_pdf else texto_html(cap.contenido)
+    if texto is None:
+        return ({"es_pdf": True, "caracteres": 0, "expedientes": [], "cuits_entidades": [], "contiene_posibles_dni": False},
+                True, "pdf_no_procesado_falta_pypdf")
+    ind = {"es_pdf": es_pdf, "caracteres": len(texto), "expedientes": extraer_expedientes(texto),
+           "cuits_entidades": extraer_cuits_entidades(texto),
+           "contiene_posibles_dni": bool(RE_DNI.search(texto) or RE_CUIL.search(texto))}
+    requiere = len(texto) < 200
+    motivo = ("pdf_sin_capa_de_texto" if es_pdf else "pagina_sin_texto_legible") if requiere else None
+    return ind, requiere, motivo
+
+
+# ---------------------------------------------------------------- Descubrimiento por sitemap
+def parsear_sitemap(data: bytes):
+    """Devuelve (es_indice, [(loc, lastmod)]). Rechaza XML con DOCTYPE/ENTITY."""
+    if data[:2] == b"\x1f\x8b":
+        data = gzip.GzipFile(fileobj=io.BytesIO(data)).read(MAX_BYTES)
+    if b"<!DOCTYPE" in data.upper() or b"<!ENTITY" in data.upper():
+        raise ValueError("sitemap rechazado: contiene DOCTYPE/ENTITY")
+    root = ET.fromstring(data)
+    es_indice = root.tag.endswith("sitemapindex")
+    salida = []
+    for nodo in root:
+        loc = lastmod = None
+        for h in nodo:
+            if h.tag.endswith("loc"):
+                loc = (h.text or "").strip()
+            elif h.tag.endswith("lastmod"):
+                lastmod = (h.text or "").strip()[:10]
+        if loc:
+            salida.append((loc, lastmod))
+    return es_indice, salida
+
+
+def descubrir_sitemap(f: dict, presupuesto: list) -> list:
+    """URLs nuevas o modificadas de la fuente, mismo dominio, que cumplen el patrón. presupuesto=[capturas restantes]."""
+    base = urlparse(f["url"])
+    sm_url = f.get("sitemap_url") or f"{base.scheme}://{base.netloc}/sitemap.xml"
+    desde = (f.get("ultima_revision") or "")[:10]
+    try:
+        patron = re.compile(f["patron_url"], re.I) if f.get("patron_url") else None
+    except re.error:
+        return []
+
+    def bajar(u):
+        if presupuesto[0] <= 0:
+            return None
+        presupuesto[0] -= 1
+        c = capturar(u)
+        time.sleep(PAUSA_SEG)
+        return c if c.utilizable else None
+
+    c = bajar(sm_url)
+    if not c:
+        return []
+    try:
+        es_indice, items = parsear_sitemap(c.contenido)
+        if es_indice:
+            hijos = sorted(items, key=lambda x: x[1] or "", reverse=True)[:5]
+            items = []
+            for loc, _ in hijos:
+                ch = bajar(loc)
+                if ch:
+                    items += parsear_sitemap(ch.contenido)[1]
+    except Exception:
+        return []
+    elegidas = []
+    for loc, lastmod in sorted(items, key=lambda x: x[1] or "", reverse=True):
+        if urlparse(loc).netloc.lower() != base.netloc.lower():
+            continue
+        if patron and not patron.search(loc):
+            continue
+        if desde and lastmod and lastmod < desde:
+            continue
+        if loc != f["url"] and loc not in elegidas:
+            elegidas.append(loc)
+        if len(elegidas) >= MAX_DESCUBIERTAS_POR_FUENTE:
+            break
+    return elegidas
+
+
+def nombre_desde_url(u: str) -> str:
+    seg = [s for s in urlparse(u).path.split("/") if s]
+    return (seg[-1] if seg else urlparse(u).netloc)[:120]
+
+
 # ---------------------------------------------------------------- Cola de revisión y registro
 def mapa_slugs(tabla: str) -> dict:
-    res = db().table(tabla).select("id, slug").execute()
+    res = db().table(tabla).select("id,slug").execute()
     return {f["slug"]: f["id"] for f in (res.data or [])}
 
 
 def proponer(agente, tipo, titulo, cap: Captura, club_id=None, inst_id=None, propuesta=None, texto_para_filtro=""):
-    """Inserta en cola_revision (privada) y registra los votos de los agentes en agente_votos. 
+    """Pasa el ítem por la mesa de agentes y lo inserta en cola_revision (privada) con sus votos.
     Devuelve 'nuevo' | 'duplicado' | 'bloqueado_legal'."""
+    from mesa import evaluar, decidir   # import tardío: mesa importa este módulo
     previo = db().table("cola_revision").select("id") \
         .eq("url_fuente", cap.url).eq("hash_sha256", cap.sha256).execute()
     if previo.data:
         return "duplicado"
-    
-    veto = pre_filtro_juridico(f"{titulo} {texto_para_filtro}", cap.url)
-    fila = {
-        "agente": agente, "tipo": tipo, "club_id": club_id, "institucion_id": inst_id, "titulo": titulo,
-        "url_fuente": cap.url, "hash_sha256": cap.sha256, "http_status": cap.http,
-        "propuesta": propuesta or {}, "veto_juridico": "; ".join(veto) or None,
-        "estado": "bloqueada_legal" if veto else "pendiente"
-    }
-    
+    item = {"tipo": tipo, "titulo": titulo, "url_fuente": cap.url, "hash_sha256": cap.sha256,
+            "http_status": cap.http, "propuesta": propuesta or {}, "texto": texto_para_filtro}
+    votos = evaluar(item)
+    estado, obs = decidir(votos)
+    fila = {"agente": agente, "tipo": tipo, "club_id": club_id, "institucion_id": inst_id, "titulo": titulo[:300],
+            "url_fuente": cap.url, "hash_sha256": cap.sha256, "http_status": cap.http,
+            "propuesta": {**(propuesta or {}), "_mesa": {"observaciones": obs}},
+            "veto_juridico": "; ".join(obs) if estado == "bloqueada_legal" else None, "estado": estado}
     res = db().table("cola_revision").insert(fila).execute()
-    cola_id = res.data[0]["id"] if res.data else None
+    if res.data:
+        cola_id = res.data[0]["id"]
+        db().table("agente_votos").insert([{"cola_id": cola_id, "agente": v["agente"], "voto": v["voto"],
+                                            "motivo": v["motivo"] or None} for v in votos]).execute()
+    return "bloqueado_legal" if estado == "bloqueada_legal" else "nuevo"
 
-    # Registrar los votos individuales de la mesa de agentes (requerido por los tests unitarios)
-    if cola_id:
-        import mesa
-        item_eval = {
-            "texto": texto_para_filtro,
-            "titulo": titulo,
-            "url_fuente": cap.url,
-            "hash_sha256": cap.sha256,
-            "http_status": cap.http,
-            "propuesta": propuesta or {}
-        }
-        votos = mesa.evaluar(item_eval)
-        for v in votos:
-            db().table("agente_votos").insert({
-                "cola_id": cola_id,
-                "agente": v["agente"],
-                "voto": v["voto"],
-                "motivo": v["motivo"]
-            }).execute()
 
-    return "bloqueado_legal" if veto else "nuevo"
-
-# Objetivos: solo fuentes oficiales/públicas. Cada una apunta a UNA página concreta.
-OBJETIVOS = [
-    {"club": "brown", "titulo": "Boletín Oficial Alte. Brown - Enero 2026 (decretos)",
+# ---------------------------------------------------------------- Fuentes
+SLUG_BROWN = "instituto-municipal-del-deporte-almirante-brown"
+# Solo se usan si todavía no corriste db/09 (tabla fuentes_monitoreadas inexistente).
+FUENTES_RESPALDO = [
+    {"club": SLUG_BROWN, "nombre": "Boletín Oficial Alte. Brown - Enero 2026 (decretos)", "portal_origen": "boletin_municipal",
      "url": "https://files.brown.gob.ar/brown-web/bundles/site/pdf/boletin_oficial/PQ-Enero-Decretos-2026.pdf"},
-    {"club": "brown", "titulo": "Ficha del club en el padrón web de FABA",
+    {"club": SLUG_BROWN, "nombre": "Ficha del club en el padrón web de FABA", "portal_origen": "sitio_oficial",
      "url": "https://basquetadaptado.com.ar/clubes/instituto-municipal-del-deporte-almirante-brown/"},
-    {"inst": "faba", "titulo": "Autoridades FABA (web oficial)", "url": "https://basquetadaptado.com.ar/autoridades/"},
-    {"inst": "copar", "titulo": "Autoridades COPAR (web oficial)", "url": "https://www.coparg.org.ar/nosotros/"},
+    {"inst": "faba", "nombre": "Autoridades FABA (web oficial)", "portal_origen": "sitio_oficial",
+     "url": "https://basquetadaptado.com.ar/autoridades/"},
+    {"inst": "copar", "nombre": "Autoridades COPAR (web oficial)", "portal_origen": "sitio_oficial",
+     "url": "https://www.coparg.org.ar/nosotros/"},
 ]
 
 
-def ciclo():
+def _fecha(s):
+    try:
+        return datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def vencida(f: dict, momento=None) -> bool:
+    ult = _fecha(f.get("ultima_revision")) if f.get("ultima_revision") else None
+    if ult is None:
+        return True
+    return (momento or ahora()) - ult >= timedelta(days=int(f.get("frecuencia_dias") or 7)) - timedelta(hours=2)
+
+
+def cargar_fuentes(momento=None):
+    """Fuentes activas o caídas (se reintentan) cuya revisión venció. None = la tabla no existe todavía."""
+    from supa import SupaError
+    try:
+        filas = db().table("fuentes_monitoreadas").select("*").in_("estado", ["activa", "caida"]).execute().data or []
+    except SupaError as e:
+        if e.status in (404,) or e.codigo in ("42P01", "PGRST205"):
+            return None
+        raise
+    filas = [f for f in filas if f.get("tipo") != "red_oficial" and vencida(f, momento)]   # redes: ingesta_redes.py
+    return sorted(filas, key=lambda f: f.get("ultima_revision") or "")[:MAX_FUENTES_POR_CICLO]
+
+
+def fuentes_de_respaldo():
     clubes, insts = mapa_slugs("clubes"), mapa_slugs("instituciones")
-    ej = db().table("agente_ejecuciones").insert({"agente": "rastreador", "objetivos": len(OBJETIVOS)}).execute()
+    out = []
+    for o in FUENTES_RESPALDO:
+        out.append({**o, "id": None, "club_id": clubes.get(o.get("club")), "institucion_id": insts.get(o.get("inst"))})
+    return out
+
+
+def registrar_estado_fuente(f: dict, utilizable: bool, bloqueada: bool, http: int):
+    if not f.get("id"):
+        return
+    fallos = int(f.get("fallos_consecutivos") or 0)
+    if utilizable:
+        estado, fallos = "activa", 0
+    elif bloqueada:
+        estado = "bloqueada_robots"      # se respeta: una persona decide si se reactiva
+    else:
+        fallos += 1
+        estado = "caida" if fallos >= 3 else f.get("estado", "activa")
+    db().table("fuentes_monitoreadas").update({
+        "estado": estado, "fallos_consecutivos": fallos, "ultimo_status": http,
+        "ultima_revision": ahora().isoformat()}).eq("id", f["id"]).execute()
+
+
+def actualizar_fuente(f: dict, cap: Captura):
+    registrar_estado_fuente(f, cap.utilizable, cap.bloqueada, cap.http)
+
+
+def urls_vistas(fuente_id) -> dict:
+    if not fuente_id:
+        return {}
+    res = db().table("fuente_urls_vistas").select("url,hash_sha256").eq("fuente_id", fuente_id).execute()
+    return {r["url"]: r["hash_sha256"] for r in (res.data or [])}
+
+
+def registrar_vista(fuente_id, url, sha, requiere):
+    if not fuente_id:
+        return
+    db().table("fuente_urls_vistas").upsert({"fuente_id": fuente_id, "url": url, "hash_sha256": sha,
+                                            "requiere_revision_humana": requiere, "ultima_vez": ahora().isoformat()},
+                                           on_conflict="fuente_id,url").execute()
+
+
+def procesar_url(f: dict, url: str, cap: Captura, titulo: str, vistas: dict) -> str:
+    anterior = vistas.get(url)
+    if anterior == cap.sha256:
+        return "sin_cambios"
+    ind, requiere, motivo = analizar_contenido(cap)
+    prop = {"portal_origen": f.get("portal_origen") or "sitio_oficial", "fuente_id": f.get("id"),
+            "indicadores": ind, "requiere_ocr_o_revision_humana": requiere, "motivo_revision": motivo,
+            "hash_anterior": anterior}
+    tipo = "documento_cambio" if anterior else "documento_nuevo"
+    r = proponer("rastreador", tipo, titulo, cap, f.get("club_id"), f.get("institucion_id"), prop)
+    registrar_vista(f.get("id"), url, cap.sha256, requiere)
+    vistas[url] = cap.sha256
+    return r
+
+
+def ciclo():
+    fuentes = cargar_fuentes()
+    modo = "tabla"
+    if fuentes is None:
+        modo, fuentes = "respaldo", fuentes_de_respaldo()
+    ej = db().table("agente_ejecuciones").insert({"agente": "rastreador", "objetivos": len(fuentes)}).execute()
     ej_id = ej.data[0]["id"] if ej.data else None
+    presupuesto = [MAX_CAPTURAS_POR_CICLO]
     ok = bloq = err = 0
     detalle = []
-    for o in OBJETIVOS:
-        cid, iid = clubes.get(o.get("club")), insts.get(o.get("inst"))
-        if (cid is None) == (iid is None):
-            err += 1; detalle.append({"url": o["url"], "resultado": "destino_inexistente"}); continue
-        cap = capturar(o["url"])
+    for f in fuentes:
+        if (f.get("club_id") is None) == (f.get("institucion_id") is None):
+            err += 1; detalle.append({"url": f["url"], "resultado": "destino_inexistente"}); continue
+        if presupuesto[0] <= 0:
+            detalle.append({"url": f["url"], "resultado": "pospuesta_por_tope"}); continue
+        presupuesto[0] -= 1
+        cap = capturar(f["url"])
         time.sleep(PAUSA_SEG)
+        actualizar_fuente(f, cap)
         if cap.bloqueada:
-            bloq += 1; detalle.append({"url": o["url"], "resultado": f"bloqueado_{cap.http}"}); continue
+            bloq += 1; detalle.append({"url": f["url"], "resultado": f"bloqueado_{cap.http or cap.motivo}"}); continue
         if not cap.utilizable:
-            err += 1; detalle.append({"url": o["url"], "resultado": cap.motivo or f"http_{cap.http}"}); continue
-        r = proponer("rastreador", "documento_nuevo", o["titulo"], cap, cid, iid)
-        ok += 1; detalle.append({"url": o["url"], "resultado": r})
+            err += 1; detalle.append({"url": f["url"], "resultado": cap.motivo or f"http_{cap.http}"}); continue
+        vistas = urls_vistas(f.get("id"))
+        resultados = []
+        if not f.get("usa_sitemap"):          # con sitemap, la portada es solo el punto de partida
+            resultados.append(procesar_url(f, f["url"], cap, f["nombre"], vistas))
+        else:
+            for u in descubrir_sitemap(f, presupuesto):
+                if presupuesto[0] <= 0:
+                    break
+                presupuesto[0] -= 1
+                c2 = capturar(u)
+                time.sleep(PAUSA_SEG)
+                if c2.utilizable:
+                    resultados.append(procesar_url(f, u, c2, f"{f['nombre']}: {nombre_desde_url(u)}", vistas))
+                elif c2.bloqueada:
+                    resultados.append("bloqueado")
+        ok += 1
+        detalle.append({"url": f["url"], "resultado": "ok", "nuevos": resultados.count("nuevo"),
+                        "sin_cambios": resultados.count("sin_cambios"), "bloqueados_mesa": resultados.count("bloqueado_legal")})
     if ej_id:
-        db().table("agente_ejecuciones").update({"fin": datetime.now(timezone.utc).isoformat(), "ok": ok, "bloqueados": bloq, "errores": err,
-                                                 "detalle": {"objetivos": detalle}}).eq("id", ej_id).execute()
-    print(f"ok={ok} bloqueados={bloq} errores={err}  (todo queda en cola_revision para revisión humana)")
+        db().table("agente_ejecuciones").update({"fin": ahora().isoformat(), "ok": ok, "bloqueados": bloq, "errores": err,
+                                                 "detalle": {"modo": modo, "fuentes": detalle}}).eq("id", ej_id).execute()
+    print(f"modo={modo} fuentes={len(fuentes)} ok={ok} bloqueados={bloq} errores={err} "
+          f"(todo queda en cola_revision para revisión humana)")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,465 @@
+"""AuditaDeporte - Relevador del padrón de clubes de FABA (basquetadaptado.com.ar/clubes/).
+
+Qué hace (y qué NO hace):
+  * Recorre el listado de clubes de la web oficial de FABA (con todas sus páginas) y la ficha de cada club.
+  * Extrae, tal como figuran: nombre del club, localidad/provincia y autoridades (cargo + nombre).
+  * Guarda la evidencia forense de cada ficha: URL, fecha y hora, HTTP, SHA-256, ETag y Last-Modified.
+  * NO guarda teléfonos ni correos (se tachan antes de procesar), ni DNI/CUIL.
+  * NO publica nada: todo entra a la cola de revisión privada; una persona aprueba desde el panel.
+  * Respeta robots.txt, se identifica y espera entre pedidos. Si el sitio bloquea, se detiene.
+
+Salidas:
+  * salida/padron_faba_AAAAMMDD.csv y .json  (se descargan desde GitHub Actions como "artifact")
+  * cola_revision (si hay credenciales y no se usa --solo-archivos):
+      - autoridad_posible ......... autoridad que figura en FABA y todavía no está cargada
+      - propuesta_cambio/marcar_no_vigente ... autoridad cargada que ya no figura en la ficha (verificar)
+      - propuesta_cambio/solo_informativa .... club del padrón FABA que no está en AuditaDeporte,
+                                               y coincidencias de nombre entre nóminas (posible homonimia)
+
+Uso:  python relevar_faba.py [--solo-archivos] [--max-clubes N]
+Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (secret key nueva sb_secret_…)."""
+import argparse
+import csv
+import hashlib
+import html
+import json
+import os
+import re
+import time
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urljoin, urlparse
+
+from orquestador_bots_audita import (UA, PAUSA_SEG, MAX_BYTES, Captura, _robots_permite, _norm, db,
+                                     parsear_sitemap, proponer, ahora)
+
+AGENTE = "relevador_faba"
+BASE = "https://basquetadaptado.com.ar"
+LISTADO = BASE + "/clubes/"
+MAX_PAGINAS_LISTADO = 40
+RE_FICHA = re.compile(r"^https?://(?:www\.)?basquetadaptado\.com\.ar/clubes/([a-z0-9][a-z0-9-]*)/?$", re.I)
+RE_PAGINA = re.compile(r"^https?://(?:www\.)?basquetadaptado\.com\.ar/clubes/(?:page/\d+/?|\?.*paged?=\d+.*)$", re.I)
+RE_HREF = re.compile(r"""<a\b[^>]*?href\s*=\s*["']([^"'#]+)["']""", re.I)
+
+# ---------------------------------------------------------------- Datos personales que NO se guardan
+RE_MAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+RE_TEL = re.compile(r"(?:\+?54\s*)?(?:\(?0?\d{2,4}\)?[\s.-]*)?(?:15[\s.-]*)?\d{3,4}[\s.-]?\d{4}\b")
+RE_DOC = re.compile(r"\b(?:\d{1,2}\.?\d{3}\.?\d{3}|(?:20|23|24|27)-?\d{8}-?\d)\b")
+
+
+RE_ANIOS = re.compile(r"^(?:19|20)\d\d\s*[-/–]\s*(?:19|20)\d\d$")
+
+
+def _tel(m):
+    txt = m.group(0)
+    if len(re.sub(r"\D", "", txt)) < 8 or RE_ANIOS.match(txt.strip()):   # "2021-2023" es un mandato, no un teléfono
+        return txt
+    return "[teléfono omitido]"
+
+
+def tachar(t: str) -> str:
+    t = RE_MAIL.sub("[correo omitido]", t or "")
+    t = RE_DOC.sub("[nro omitido]", t)
+    return RE_TEL.sub(_tel, t)
+
+
+# ---------------------------------------------------------------- Captura con cabeceras (integridad forense)
+def capturar(url: str, timeout: int = 25):
+    """Como orquestador.capturar, pero además devuelve ETag / Last-Modified / Content-Type."""
+    if not _robots_permite(url):
+        return Captura(url, 0, motivo="robots_no_permite"), {}
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "es-AR,es"})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            data = r.read(MAX_BYTES + 1)
+            cab = {k: r.headers.get(k) for k in ("ETag", "Last-Modified", "Content-Type", "Server") if r.headers.get(k)}
+            if len(data) > MAX_BYTES:
+                return Captura(url, r.getcode(), motivo="archivo_demasiado_grande"), cab
+            return Captura(url, r.getcode(), data, hashlib.sha256(data).hexdigest()), cab
+    except urllib.error.HTTPError as e:
+        return Captura(url, e.code, motivo=f"http_{e.code}"), {}
+    except Exception as exc:
+        return Captura(url, 0, motivo=f"red:{exc}"), {}
+
+
+# ---------------------------------------------------------------- HTML -> líneas de texto
+RE_FUERA = re.compile(r"<(script|style|noscript|svg|nav|footer|header|form)\b[^>]*>.*?</\1>", re.S | re.I)
+RE_BLOQUE = re.compile(r"<\s*/?\s*(br|p|div|li|ul|ol|h[1-6]|tr|td|th|dt|dd|table|section|article|strong|b)\b[^>]*>", re.I)
+RE_ETIQ = re.compile(r"<[^>]+>")
+
+
+def lineas(data: bytes) -> list:
+    t = data.decode("utf-8", "ignore")
+    m = re.search(r"<(main|article)\b[^>]*>(.*)</\1>", t, re.S | re.I)   # priorizar el contenido principal
+    t = m.group(2) if m else t
+    t = RE_FUERA.sub(" ", t)
+    t = RE_BLOQUE.sub("\n", t)
+    t = html.unescape(RE_ETIQ.sub(" ", t)).replace("\xa0", " ")
+    out = []
+    for ln in t.split("\n"):
+        ln = re.sub(r"\s+", " ", ln).strip(" \t|•·")
+        if ln:
+            out.append(ln)
+    return out
+
+
+def titulo_pagina(data: bytes) -> str:
+    t = data.decode("utf-8", "ignore")
+    for pat in (r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)', r"<h1\b[^>]*>(.*?)</h1>", r"<title>(.*?)</title>"):
+        m = re.search(pat, t, re.S | re.I)
+        if m:
+            s = re.sub(r"\s+", " ", html.unescape(RE_ETIQ.sub(" ", m.group(1)))).strip()
+            s = re.split(r"\s+[|–—-]\s+(?:FABA|Federaci[oó]n|B[aá]squet Adaptado)", s, flags=re.I)[0].strip()
+            if s:
+                return s[:200]
+    return ""
+
+
+# ---------------------------------------------------------------- Autoridades
+CARGO = (r"(?:vice\s*-?\s*presidente(?:\s*(?:1|2|primero|segundo)[°º]?)?|presidente|"
+         r"pro\s*-?\s*secretari[oa]|secretari[oa](?:\s+(?:general|de\s+actas|deportiv[oa]))?|"
+         r"pro\s*-?\s*tesorer[oa]|tesorer[oa]|"
+         r"vocal(?:es)?(?:\s+(?:titular|suplente)(?:es)?)?(?:\s*\d+\s*[°º]?)?|"
+         r"revisor(?:a|es)?\s+de\s+cuentas(?:\s+(?:titular|suplente))?|"
+         r"delegad[oa](?:\s+(?:titular|suplente))?(?:\s+ante\s+(?:la\s+)?faba)?|"
+         r"coordinador(?:a)?(?:\s+deportiv[oa])?|director(?:a)?\s+t[eé]cnic[oa]|entrenador(?:a)?|"
+         r"ayudante\s+de\s+campo|asistente\s+t[eé]cnic[oa])")
+RE_CARGO_SOLO = re.compile(rf"^{CARGO}\s*:?$", re.I)
+RE_CARGO_NOMBRE = re.compile(rf"^(?P<cargo>{CARGO})\s*[:\-–—]\s*(?P<nombre>.+)$", re.I)
+RE_NOMBRE_CARGO = re.compile(rf"^(?P<nombre>[^:()\-–—]+?)\s*(?:[:\-–—,]|\()\s*(?P<cargo>{CARGO})\)?\.?$", re.I)
+RE_PREFIJO = re.compile(r"^(?:sr|sra|srta|dr|dra|lic|prof|ing|cdor|cdora)\.?\s+", re.I)
+PALABRA = re.compile(r"^(?:[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü'’]+(?:-[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü'’]+)?|[A-ZÁÉÍÓÚÑÜ]{2,}|[A-ZÁÉÍÓÚÑ]\.|de|del|la|las|los|y|da|di|van|von)$")
+
+
+def nombre_valido(s: str):
+    """Devuelve el nombre limpio o None. Solo acepta nombres de persona escritos como tales (2 a 6 palabras)."""
+    s = RE_PREFIJO.sub("", re.sub(r"\s+", " ", (s or "")).strip(" .,;:"))
+    if not 5 <= len(s) <= 80 or re.search(r"[\d@/\\[\]{}<>|=_]", s) or "omitido" in s:
+        return None
+    pal = s.split(" ")
+    if not 2 <= len(pal) <= 6 or not all(PALABRA.match(p) for p in pal):
+        return None
+    if sum(p[0].isupper() for p in pal) < 2:
+        return None
+    if RE_CARGO_SOLO.match(s) or _norm(s) in ("comision directiva", "cuerpo tecnico", "datos del club"):
+        return None
+    if s.isupper():                                   # "JUAN PEREZ" -> "Juan Perez"
+        s = " ".join(p if len(p) <= 2 and p.endswith(".") else p.capitalize() for p in pal)
+    return s
+
+
+def cargo_normalizado(c: str) -> str:
+    c = re.sub(r"\s+", " ", c).strip(" :")
+    c = re.sub(r"(?i)^vice\s*-?\s*", "Vice", c)
+    c = re.sub(r"(?i)^pro\s*-?\s*", "Pro", c)
+    return c[:1].upper() + c[1:].lower().replace("faba", "FABA")
+
+
+def extraer_autoridades(ls: list) -> list:
+    """[{cargo, nombre, linea}] con el texto ya tachado. Conservador: si duda, no extrae."""
+    res, vistos = [], set()
+
+    def agregar(cargo, nombre, linea):
+        nombre = re.split(r"\s+(?:tel\.?|tel[eé]fono|cel\.?|celular|whatsapp|mail|e-?mail|correo|contacto)\b|\s*\[", nombre, flags=re.I)[0]
+        n = nombre_valido(nombre)
+        if not n:
+            return
+        clave = (_norm(cargo_normalizado(cargo)), _norm(n))
+        if clave not in vistos:
+            vistos.add(clave)
+            res.append({"cargo": cargo_normalizado(cargo), "nombre": n, "linea": linea[:200]})
+
+    for i, ln in enumerate(ls):
+        m = RE_CARGO_NOMBRE.match(ln)
+        if m:
+            agregar(m["cargo"], m["nombre"], ln); continue
+        m = RE_NOMBRE_CARGO.match(ln)
+        if m:
+            agregar(m["cargo"], m["nombre"], ln); continue
+        if RE_CARGO_SOLO.match(ln) and i + 1 < len(ls):            # "Presidente" / "Juan Pérez" en líneas separadas
+            agregar(ln.rstrip(" :"), ls[i + 1], f"{ln} {ls[i + 1]}")
+    return res
+
+
+ETIQUETAS = {"localidad": r"(?:localidad|ciudad|partido)", "provincia": r"provincia", "sede": r"(?:sede|direcci[oó]n|domicilio|estadio|cancha)",
+             "division": r"(?:divisi[oó]n|categor[ií]a)"}
+
+
+def extraer_datos(ls: list) -> dict:
+    out = {}
+    for clave, et in ETIQUETAS.items():
+        for i, ln in enumerate(ls):
+            m = re.match(rf"^{et}\s*:\s*(.+)$", ln, re.I)
+            v = m.group(1) if m else (ls[i + 1] if re.match(rf"^{et}\s*:?$", ln, re.I) and i + 1 < len(ls) else None)
+            if v and len(v) <= 150:
+                out[clave] = v.strip(); break
+    return out
+
+
+# ---------------------------------------------------------------- Listado de clubes
+def urls_fichas(html_bytes: bytes, base: str):
+    fichas, paginas = [], []
+    for href in RE_HREF.findall(html_bytes.decode("utf-8", "ignore")):
+        u = urljoin(base, html.unescape(href.strip()))
+        m = RE_FICHA.match(u)
+        if m and m.group(1).lower() not in ("page", "feed"):
+            u = u.rstrip("/") + "/"
+            if u not in fichas:
+                fichas.append(u)
+        elif RE_PAGINA.match(u) and u not in paginas:
+            paginas.append(u)
+    return fichas, paginas
+
+
+def recorrer_listado(registro: list):
+    pendientes, vistas, fichas = [LISTADO], set(), []
+    while pendientes and len(vistas) < MAX_PAGINAS_LISTADO:
+        u = pendientes.pop(0)
+        if u in vistas:
+            continue
+        vistas.add(u)
+        cap, _ = capturar(u)
+        time.sleep(PAUSA_SEG)
+        registro.append({"url": u, "http": cap.http, "motivo": cap.motivo})
+        if cap.bloqueada:
+            raise SystemExit(f"El sitio no permite el acceso ({cap.http or cap.motivo}) en {u}. Se respeta y se detiene.")
+        if not cap.utilizable:
+            continue
+        f, p = urls_fichas(cap.contenido, u)
+        fichas += [x for x in f if x not in fichas]
+        pendientes += [x for x in p if x not in vistas and x not in pendientes]
+    if not fichas:                                       # plan B: sitemap del sitio
+        for sm in (BASE + "/sitemap_index.xml", BASE + "/wp-sitemap.xml", BASE + "/sitemap.xml"):
+            cap, _ = capturar(sm)
+            time.sleep(PAUSA_SEG)
+            if not cap.utilizable:
+                continue
+            try:
+                es_indice, items = parsear_sitemap(cap.contenido)
+                if es_indice:
+                    hijos = [loc for loc, _ in items if "club" in loc.lower()][:5]
+                    items = []
+                    for h in hijos:
+                        c2, _ = capturar(h); time.sleep(PAUSA_SEG)
+                        if c2.utilizable:
+                            items += parsear_sitemap(c2.contenido)[1]
+            except Exception:
+                continue
+            fichas = [loc.rstrip("/") + "/" for loc, _ in items if RE_FICHA.match(loc)]
+            if fichas:
+                break
+    return fichas
+
+
+# ---------------------------------------------------------------- Cruce con la base
+def _tokens(s):
+    return {t for t in re.split(r"[^a-z0-9]+", _norm(s)) if len(t) > 2 and t not in
+            {"club", "asociacion", "civil", "deportiva", "deportivo", "basquet", "adaptado", "sobre", "silla", "ruedas", "del", "los", "las"}}
+
+
+def emparejar(slug_faba: str, nombre: str, clubes: list):
+    """Devuelve (club, 'slug'|'nombre'|'aproximada', puntaje) o (None, None, 0)."""
+    for c in clubes:
+        if c["slug"] == slug_faba:
+            return c, "slug", 1.0
+    for c in clubes:
+        if _norm(c["nombre"]) == _norm(nombre):
+            return c, "nombre", 1.0
+    mejor, pm = None, 0.0
+    a = _tokens(nombre) | _tokens(slug_faba.replace("-", " "))
+    for c in clubes:
+        b = _tokens(c["nombre"]) | _tokens(c["slug"].replace("-", " "))
+        if a and b:
+            p = len(a & b) / len(a | b)
+            if p > pm:
+                mejor, pm = c, p
+    return (mejor, "aproximada", round(pm, 2)) if pm >= 0.6 else (None, None, 0)
+
+
+def leer(tabla, cols):
+    try:
+        return db().table(tabla).select(cols).execute().data or []
+    except Exception as exc:
+        print(f"aviso: no se pudo leer {tabla}: {exc}")
+        return []
+
+
+# ---------------------------------------------------------------- Ciclo
+def relevar(max_clubes=None):
+    registro = []
+    fichas = recorrer_listado(registro)
+    if max_clubes:
+        fichas = fichas[:max_clubes]
+    print(f"fichas encontradas: {len(fichas)}")
+    clubes = []
+    for u in fichas:
+        cap, cab = capturar(u)
+        time.sleep(PAUSA_SEG)
+        fila = {"url": u, "slug_faba": RE_FICHA.match(u).group(1), "http": cap.http, "sha256": cap.sha256,
+                "etag": cab.get("ETag"), "last_modified": cab.get("Last-Modified"), "content_type": cab.get("Content-Type"),
+                "relevado_en": ahora().isoformat(timespec="seconds"), "motivo": cap.motivo, "_cap": cap}
+        if cap.bloqueada:
+            fila["resultado"] = "bloqueada"; clubes.append(fila)
+            print(f"bloqueo en {u}: se detiene el relevamiento"); break
+        if cap.utilizable:
+            ls = [tachar(x) for x in lineas(cap.contenido)]
+            fila.update(nombre=titulo_pagina(cap.contenido) or fila["slug_faba"], datos=extraer_datos(ls),
+                        autoridades=extraer_autoridades(ls), resultado="ok",
+                        legibilidad="texto_nativo" if sum(map(len, ls)) >= 200 else "sin_texto_legible")
+        else:
+            fila["resultado"] = "error"
+        clubes.append(fila)
+    return clubes, registro
+
+
+def guardar_archivos(clubes, carpeta="salida"):
+    Path(carpeta).mkdir(exist_ok=True)
+    hoy = datetime.now(timezone.utc).strftime("%Y%m%d")
+    pub = [{k: v for k, v in c.items() if not k.startswith("_")} for c in clubes]
+    Path(carpeta, f"padron_faba_{hoy}.json").write_text(json.dumps(pub, ensure_ascii=False, indent=1), encoding="utf-8")
+    campos = ["club_faba", "url_ficha", "slug_faba", "club_auditadeporte", "coincidencia", "localidad", "provincia",
+              "cargo", "nombre", "relevado_en", "http", "sha256", "etag", "last_modified", "legibilidad"]
+    with open(Path(carpeta, f"padron_faba_{hoy}.csv"), "w", newline="", encoding="utf-8-sig") as fh:
+        w = csv.DictWriter(fh, fieldnames=campos)
+        w.writeheader()
+        for c in pub:
+            base = {"club_faba": c.get("nombre"), "url_ficha": c["url"], "slug_faba": c["slug_faba"],
+                    "club_auditadeporte": c.get("club_slug"), "coincidencia": c.get("coincidencia"),
+                    "localidad": (c.get("datos") or {}).get("localidad"), "provincia": (c.get("datos") or {}).get("provincia"),
+                    "relevado_en": c["relevado_en"], "http": c["http"], "sha256": c["sha256"], "etag": c.get("etag"),
+                    "last_modified": c.get("last_modified"), "legibilidad": c.get("legibilidad")}
+            for a in c.get("autoridades") or [{}]:
+                w.writerow({**base, "cargo": a.get("cargo"), "nombre": a.get("nombre")})
+    return carpeta
+
+
+def _cap_ancla(cap: Captura, ancla: str) -> Captura:
+    """Un ítem de cola por autoridad: misma página y mismo hash, con un ancla que lo distingue."""
+    return Captura(f"{cap.url}#{ancla}", cap.http, b"", cap.sha256)
+
+
+def _slug(s):
+    return re.sub(r"[^a-z0-9]+", "-", _norm(s)).strip("-")[:60]
+
+
+def proponer_en_cola(clubes):
+    lista_clubes = leer("clubes", "id,slug,nombre")
+    autoridades = leer("autoridades", "id,club_id,institucion_id,nombre,cargo,vigente")
+    insts = {i["slug"]: i for i in leer("instituciones", "id,slug,sigla")}
+    faba_id = (insts.get("faba") or {}).get("id")
+    cont = {"autoridad_posible": 0, "no_figura": 0, "club_no_registrado": 0, "cruce": 0, "duplicado": 0, "bloqueado_legal": 0}
+
+    def contar(r, clave):
+        cont[clave if r == "nuevo" else r] = cont.get(clave if r == "nuevo" else r, 0) + 1
+
+    hoy = datetime.now(timezone.utc).date().isoformat()
+    por_nombre = {}                                         # para el cruce de nóminas: nombre -> [(origen, entidad, datos)]
+    for a in autoridades:
+        if a.get("vigente"):
+            por_nombre.setdefault(_norm(a["nombre"]), []).append(("base", a.get("club_id") or a.get("institucion_id"), a))
+
+    for c in clubes:
+        if c.get("resultado") != "ok":
+            continue
+        cap = c["_cap"]
+        club, como, puntaje = emparejar(c["slug_faba"], c["nombre"], lista_clubes)
+        c["club_slug"], c["coincidencia"] = (club or {}).get("slug"), (f"{como} ({puntaje})" if club else "sin_coincidencia")
+        entidad = club["id"] if club else "faba:" + c["slug_faba"]
+        for a in c["autoridades"]:
+            por_nombre.setdefault(_norm(a["nombre"]), []).append(("faba", entidad, {**a, "club": c["nombre"], "url": c["url"]}))
+
+        if not club:
+            if faba_id:
+                r = proponer(AGENTE, "propuesta_cambio", f"Club del padrón FABA no registrado en AuditaDeporte: {c['nombre']}",
+                             cap, inst_id=faba_id,
+                             propuesta={"accion": "solo_informativa", "fuente": "padron_faba",
+                                        "parametros": {"nombre": c["nombre"], "url_ficha": c["url"], "datos": c["datos"],
+                                                       "autoridades": [{k: a[k] for k in ("cargo", "nombre")} for a in c["autoridades"]],
+                                                       "fecha_relevamiento": hoy}},
+                             texto_para_filtro=c["nombre"])
+                contar(r, "club_no_registrado")
+            continue
+
+        cargadas = [a for a in autoridades if a.get("club_id") == club["id"]]
+        claves_base = {(_norm(a["nombre"]), _norm(a["cargo"])) for a in cargadas}
+        for a in c["autoridades"]:
+            if (_norm(a["nombre"]), _norm(a["cargo"])) in claves_base:
+                continue
+            r = proponer(AGENTE, "autoridad_posible", f"{club['nombre']}: {a['cargo']} — {a['nombre']} (padrón FABA)",
+                         _cap_ancla(cap, "autoridad-" + _slug(a["cargo"] + "-" + a["nombre"])), club_id=club["id"],
+                         propuesta={"nombre": a["nombre"], "cargo": a["cargo"], "fecha_fuente": hoy,
+                                    "linea_fuente": a["linea"], "fuente": "padron_faba", "url_ficha": c["url"],
+                                    "etag": c.get("etag"), "last_modified": c.get("last_modified")},
+                         texto_para_filtro=f"{a['cargo']} {a['nombre']}")
+            contar(r, "autoridad_posible")
+        if c["autoridades"]:                                  # solo si la ficha trae nómina: si no, no se infiere nada
+            en_faba = {_norm(a["nombre"]) for a in c["autoridades"]}
+            for a in cargadas:
+                if a.get("vigente") and _norm(a["nombre"]) not in en_faba:
+                    r = proponer(AGENTE, "propuesta_cambio",
+                                 f"Verificar: {a['cargo']} {a['nombre']} no figura en la ficha FABA de {club['nombre']} ({hoy})",
+                                 _cap_ancla(cap, "no-figura-" + a["id"]), club_id=club["id"],
+                                 propuesta={"accion": "marcar_no_vigente", "parametros": {"autoridad_id": a["id"]},
+                                            "fuente": "padron_faba", "url_ficha": c["url"],
+                                            "nota": "Aprobar solo si confirmás en la fuente que la persona ya no ocupa el cargo."},
+                                 texto_para_filtro=a["nombre"])
+                    contar(r, "no_figura")
+
+    # Cruce de nóminas: mismo nombre en más de una entidad. Es una coincidencia de texto, no una conclusión.
+    if faba_id:
+        for clave, apar in por_nombre.items():
+            entidades = {e for _, e, _ in apar}
+            faba_apar = [x for x in apar if x[0] == "faba"]
+            if len(entidades) < 2 or not faba_apar:
+                continue
+            cap = next(c["_cap"] for c in clubes if c["url"] == faba_apar[0][2]["url"])
+            nombre = faba_apar[0][2]["nombre"]
+            detalle = [{"origen": o, "cargo": x["cargo"], "entidad": x.get("club") or e, "url": x.get("url")} for o, e, x in apar]
+            r = proponer(AGENTE, "propuesta_cambio", f"Coincidencia de nombre en nóminas: {nombre} figura en {len(entidades)} entidades",
+                         _cap_ancla(cap, "cruce-" + _slug(nombre)), inst_id=faba_id,
+                         propuesta={"accion": "solo_informativa", "fuente": "padron_faba",
+                                    "parametros": {"nombre": nombre, "apariciones": detalle,
+                                                   "nota": "Coincidencia de texto: puede tratarse de homónimos. Verificar en registros "
+                                                           "oficiales (DPPJ/IGJ/IPJ) antes de cualquier uso."}},
+                         texto_para_filtro=nombre)
+            contar(r, "cruce")
+    return cont
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--solo-archivos", action="store_true", help="no escribe en la base, solo genera CSV/JSON")
+    ap.add_argument("--max-clubes", type=int, default=None)
+    args = ap.parse_args()
+    usar_base = not args.solo_archivos and os.environ.get("SUPABASE_URL") and os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+    ej_id = None
+    if usar_base:
+        ej = db().table("agente_ejecuciones").insert({"agente": AGENTE, "objetivos": 1}).execute()
+        ej_id = ej.data[0]["id"] if ej.data else None
+    try:
+        clubes, registro = relevar(args.max_clubes)
+    except SystemExit as fin:
+        if ej_id:
+            db().table("agente_ejecuciones").update({"fin": ahora().isoformat(), "ok": 0, "bloqueados": 1, "errores": 0,
+                                                     "detalle": {"motivo": str(fin)}}).eq("id", ej_id).execute()
+        raise
+    cont = proponer_en_cola(clubes) if usar_base else {}
+    carpeta = guardar_archivos(clubes)
+    ok = sum(c.get("resultado") == "ok" for c in clubes)
+    n_aut = sum(len(c.get("autoridades") or []) for c in clubes)
+    resumen = {"fichas": len(clubes), "ok": ok, "autoridades_extraidas": n_aut, "cola": cont, "listado": registro[:50]}
+    if ej_id:
+        db().table("agente_ejecuciones").update({"fin": ahora().isoformat(), "ok": ok,
+                                                 "bloqueados": sum(c.get("resultado") == "bloqueada" for c in clubes),
+                                                 "errores": sum(c.get("resultado") == "error" for c in clubes),
+                                                 "detalle": resumen}).eq("id", ej_id).execute()
+    print(f"fichas={len(clubes)} leidas={ok} autoridades={n_aut} cola={cont} archivos en {carpeta}/")
+    sin = [c["url"] for c in clubes if c.get("resultado") == "ok" and not c.get("autoridades")]
+    if sin:
+        print(f"{len(sin)} ficha(s) sin nómina reconocible (revisarlas a mano): " + ", ".join(sin[:10]))
+
+
+if __name__ == "__main__":
+    main()
