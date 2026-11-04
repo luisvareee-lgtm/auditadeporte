@@ -234,7 +234,9 @@ def _fb(v: str):
         h = v.strip("/")
     else:
         return None
-    return None if _norm(h).replace("%c3%a1", "a") in CUENTAS_FABA or "faba" in h.lower() else f"https://www.facebook.com/{h}"
+    if "faba" in h.lower() or re.match(r"(?i)^(sharer|share|dialog|plugins|tr|login|l\.php|groups/?$)", h):
+        return None                                  # cuenta de FABA o botón de "compartir", no la del club
+    return f"https://www.facebook.com/{h}"
 
 
 def extraer_redes(ls: list, data: bytes) -> dict:
@@ -453,6 +455,22 @@ def descartar_pendientes(club_id, c) -> int:
     return len(pend)
 
 
+def retirar_redes_previas(club_id, nuevas: dict) -> int:
+    """Si este agente dejó pendiente una propuesta de redes distinta de la actual (p. ej. un error ya corregido), la retira."""
+    pend = db().table("cola_revision").select("id,propuesta").eq("agente", AGENTE).eq("tipo", "propuesta_cambio") \
+        .eq("estado", "pendiente").eq("club_id", club_id).execute().data or []
+    n = 0
+    for p in pend:
+        pr = p.get("propuesta") or {}
+        if pr.get("accion") == "actualizar_redes_club" and pr.get("parametros") != nuevas:
+            db().table("cola_revision").update({
+                "estado": "rechazada", "motivo_codigo": "otro", "revisada_por": f"{AGENTE} (automático)",
+                "revisada_en": ahora().isoformat(),
+                "nota_revision": "Retirada por el agente: la propuesta tenía un enlace equivocado y fue reemplazada."}).eq("id", p["id"]).execute()
+            n += 1
+    return n
+
+
 def _cap_ancla(cap: Captura, ancla: str) -> Captura:
     """Un ítem de cola por autoridad: misma página y mismo hash, con un ancla que lo distingue."""
     return Captura(f"{cap.url}#{ancla}", cap.http, b"", cap.sha256)
@@ -508,6 +526,7 @@ def proponer_en_cola(clubes):
 
         redes = {k: v for k, v in (c.get("redes") or {}).items() if k in ("instagram", "facebook", "web")}
         nuevas = {k: v for k, v in redes.items() if (club.get(k) or "").rstrip("/").lower() != v.rstrip("/").lower()}
+        cont["redes_retiradas"] = cont.get("redes_retiradas", 0) + retirar_redes_previas(club["id"], nuevas)
         if nuevas:
             r = proponer(AGENTE, "propuesta_cambio", f"{club['nombre']}: redes publicadas en la ficha FABA ({', '.join(nuevas)})",
                          _cap_ancla(cap, "redes"), club_id=club["id"],

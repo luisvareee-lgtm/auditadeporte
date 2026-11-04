@@ -29,6 +29,7 @@ FICHA_A = ("""<html><head><meta property="og:title" content="CEDIMA &#8211; FABA
 <p>Contacto: 011 4444-5555</p>
 <p>Instagram</p><p>@club_ce.di.ma</p><p>Facebook</p><p>CEDIMA Oficial</p>
 <a href="https://www.instagram.com/basquetadaptadofaba/">FABA</a>
+<a href="https://www.facebook.com/sharer/sharer.php?u=x">Compartir</a>
 <p>Jugadores de Selección</p><p>Presidente: Nombre Que No Va</p><p>Fecha de Nacimiento</p><p>20/08/2010</p>
 </main></body></html>""").encode()
 FICHA_VIEJA = b"""<html><head><meta property="article:modified_time" content="2022-04-29T12:07:34+00:00" /></head><body><main>
@@ -135,7 +136,10 @@ class T(unittest.TestCase):
         fdb = FakeDB({"clubes": [{"id": "b1", "slug": "almirante-brown", "nombre": "Almirante Brown", "instagram": None}],
                       "instituciones": [{"id": "i1", "slug": "faba"}], "autoridades": [], "agente_votos": [],
                       "cola_revision": [{"id": "viejo", "agente": r.AGENTE, "tipo": "autoridad_posible", "estado": "pendiente",
-                                         "club_id": "b1", "url_fuente": u + "#x", "hash_sha256": "f" * 64}]})
+                                         "club_id": "b1", "url_fuente": u + "#x", "hash_sha256": "f" * 64},
+                                        {"id": "redmal", "agente": r.AGENTE, "tipo": "propuesta_cambio", "estado": "pendiente",
+                                         "club_id": "b1", "propuesta": {"accion": "actualizar_redes_club",
+                                                                         "parametros": {"facebook": "https://www.facebook.com/sharer/sharer.php"}}}]})
         with mock.patch.object(r, "capturar", side_effect=lambda x, timeout=25: cap(x, paginas[x])), \
              mock.patch.object(r.time, "sleep"), mock.patch.object(o, "db", return_value=fdb), mock.patch.object(r, "db", return_value=fdb):
             clubes, _ = r.relevar()
@@ -145,9 +149,11 @@ class T(unittest.TestCase):
         self.assertEqual(cont["descartadas_por_antiguedad"], 1)
         viejo = next(c for c in fdb.tablas["cola_revision"] if c["id"] == "viejo")
         self.assertEqual((viejo["estado"], viejo["motivo_codigo"]), ("rechazada", "desactualizado"))
-        redes = [c for c in fdb.tablas["cola_revision"] if c.get("propuesta", {}).get("accion") == "actualizar_redes_club"]
+        redes = [c for c in fdb.tablas["cola_revision"] if c.get("propuesta", {}).get("accion") == "actualizar_redes_club" and c["estado"] == "pendiente"]
         self.assertEqual(redes[0]["propuesta"]["parametros"], {"instagram": "deporteinclusivobrown"})
-        self.assertEqual(cont.get("padron"), 1)                             # hallazgo: padrón sin actualizar
+        self.assertEqual(cont.get("padron"), 1)
+        mal = next(c for c in fdb.tablas["cola_revision"] if c["id"] == "redmal")
+        self.assertEqual(mal["estado"], "rechazada"); self.assertEqual(cont["redes_retiradas"], 1)                             # hallazgo: padrón sin actualizar
 
     def test_bloqueo_detiene(self):
         with mock.patch.object(r, "capturar", return_value=(o.Captura(r.LISTADO, 403, motivo="http_403"), {})), \
