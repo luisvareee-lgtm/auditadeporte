@@ -529,7 +529,8 @@ def proponer_en_cola(clubes):
         cont["redes_retiradas"] = cont.get("redes_retiradas", 0) + retirar_redes_previas(club["id"], nuevas)
         if nuevas:
             r = proponer(AGENTE, "propuesta_cambio", f"{club['nombre']}: redes publicadas en la ficha FABA ({', '.join(nuevas)})",
-                         _cap_ancla(cap, "redes"), club_id=club["id"],
+                         _cap_ancla(cap, "redes-" + hashlib.sha256(json.dumps(nuevas, sort_keys=True).encode()).hexdigest()[:10]),
+                         club_id=club["id"],
                          propuesta={"accion": "actualizar_redes_club", "parametros": nuevas, "fuente": "padron_faba",
                                     "url_ficha": c["url"], "fecha_posteo": c.get("fecha_ficha"),
                                     "actuales": {k: club.get(k) for k in nuevas},
