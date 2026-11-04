@@ -5,8 +5,8 @@
 'use strict';
 
 const CONFIG = {
-  SUPABASE_URL: "",            // https://tjlejedfjypntsylqpeq.supabase.co
-  SUPABASE_PUBLISHABLE_KEY: "" // sb_publishable_7Yk8oICpIHHKGyZxpocyNA_G0d7v3Di (o la clave anon legacy). NUNCA la secret/service_role.
+  SUPABASE_URL: "https://tjlejedfjypntsylqpeq.supabase.co",            // https://tjlejedfjypntsylqpeq.supabase.co
+  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_7Yk8oICpIHHKGyZxpocyNA_G0d7v3Di" //  (o la clave anon legacy). NUNCA la secret/service_role.
 };
 
 // ---------------------------------------------------------------- utilidades seguras
