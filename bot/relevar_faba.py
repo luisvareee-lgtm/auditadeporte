@@ -289,7 +289,8 @@ def emparejar(slug_faba: str, nombre: str, clubes: list):
         b = _tokens(c["nombre"]) | _tokens(c["slug"].replace("-", " "))
         if not (a and b):
             continue
-        if b <= a or a <= b:                       # "prodea" está contenido en "prodea las aguilas"
+        if b <= a:              # nuestro nombre está contenido en el de FABA: "prodea" ⊂ "prodea las aguilas".
+                                # Al revés no: "SICA / Poeta Lugones" tiene más datos que "Club Poeta Lugones".
             contenidos.append(c)
         p = len(a & b) / len(a | b)
         if p > pm:
@@ -298,7 +299,7 @@ def emparejar(slug_faba: str, nombre: str, clubes: list):
             empate = True
     if len(contenidos) == 1:
         return contenidos[0], "contenido", 1.0
-    if pm >= 0.6 and not empate and not contenidos:
+    if pm >= 0.75 and not empate and not contenidos:
         return mejor, "aproximada", round(pm, 2)
     return None, None, 0
 
