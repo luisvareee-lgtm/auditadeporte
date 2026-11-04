@@ -456,6 +456,11 @@ def main():
                                                  "errores": sum(c.get("resultado") == "error" for c in clubes),
                                                  "detalle": resumen}).eq("id", ej_id).execute()
     print(f"fichas={len(clubes)} leidas={ok} autoridades={n_aut} cola={cont} archivos en {carpeta}/")
+    print("--- resumen por club (slug FABA -> club AuditaDeporte | localidad | autoridades) ---")
+    for c in clubes:
+        aut = "; ".join(f"{a['cargo']}: {a['nombre']}" for a in c.get("autoridades") or []) or "(sin nómina reconocida)"
+        print(f"{c['slug_faba']} -> {c.get('club_slug') or 'SIN COINCIDENCIA'} | "
+              f"{(c.get('datos') or {}).get('localidad', '-')} | {aut}")
     sin = [c["url"] for c in clubes if c.get("resultado") == "ok" and not c.get("autoridades")]
     if sin:
         print(f"{len(sin)} ficha(s) sin nómina reconocible (revisarlas a mano): " + ", ".join(sin[:10]))
