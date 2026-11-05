@@ -418,7 +418,7 @@ def procesar_url(f: dict, url: str, cap: Captura, titulo: str, vistas: dict) -> 
 
 # ---------------------------------------------------------------- Búsqueda dirigida en índices
 TIPOS_INDICE = {"boletin_oficial", "compras", "portal_transparencia", "concejo_deliberante"}
-MAX_NUEVOS_POR_INDICE = 12
+MAX_NUEVOS_POR_INDICE = 6         # por corrida: el resto se cubre en las corridas diarias siguientes
 RE_ENLACE = re.compile(r"""<a\b[^>]*?href\s*=\s*["']([^"'#]+)["'][^>]*>(.*?)</a>""", re.I | re.S)
 RE_DOC_URL = re.compile(r"(?i)\.(pdf|docx?|xlsx?|odt|ods)(\?|$)|bolet|decreto|ordenanza|resoluci|licitaci|norma|presupuest|"
                         r"edici[oó]n|dataset|contrataci|pliego|expediente|digesto|legislaci")
