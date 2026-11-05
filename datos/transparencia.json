@@ -972,7 +972,7 @@
     "CROL (Club Rosarino de Lisiados)"
    ],
    "estado": "no_publica",
-   "motivo": "Sus páginas oficiales no respondieron en las últimas revisiones.",
+   "motivo": "Sus páginas oficiales no respondieron en las últimas revisiones (tres o más intentos seguidos).",
    "sitio_web": "https://www.santafe.gov.ar/",
    "fuentes": [
     {
