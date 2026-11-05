@@ -1,0 +1,26 @@
+name: Cargar catálogo de fuentes oficiales
+on:
+  workflow_dispatch:
+    inputs:
+      prueba: { description: "Solo mostrar lo que cargaría (no escribe)", type: boolean, default: true }
+  push:
+    branches: [main]
+    paths: [bot/catalogo_fuentes.json]
+permissions: { contents: read }
+jobs:
+  cargar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Tests
+        run: python -m unittest test_supa test_cargar_fuentes
+        working-directory: bot
+      - name: Cargar (agrega o actualiza, no borra)
+        run: python cargar_fuentes.py ${{ (github.event_name == 'workflow_dispatch' && inputs.prueba) && '--prueba' || '' }}
+        working-directory: bot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}

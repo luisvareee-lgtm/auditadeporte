@@ -72,7 +72,7 @@ class _Q:
                 if previa:
                     previa.update(copy.deepcopy(v)); out.append(copy.deepcopy(previa))
                 else:
-                    r = copy.deepcopy(v); filas.append(r); out.append(copy.deepcopy(r))
+                    r = {"id": str(uuid.uuid4()), **copy.deepcopy(v)}; filas.append(r); out.append(copy.deepcopy(r))
             return Resp(out, 201)
         raise AssertionError(self.op)
 

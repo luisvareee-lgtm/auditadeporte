@@ -1,0 +1,613 @@
+{
+ "_nota": "Catálogo verificado el 2026-11-04 desde GitHub Actions. Solo fuentes que respondieron y permiten lectura automática; 'pendiente' explica por qué una jurisdicción no tiene fuente automática.",
+ "jurisdicciones": {
+  "nac-nacion": {
+   "nombre": "Estado Nacional (fuentes nacionales)",
+   "sitio_web": "https://www.argentina.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Presupuesto Abierto: datos abiertos de ejecución",
+     "url": "https://www.presupuestoabierto.gob.ar/sici/datos-abiertos",
+     "tipo": "otro",
+     "portal_origen": "presupuesto_abierto",
+     "frecuencia_dias": 30
+    },
+    {
+     "nombre": "Boletín Oficial de la República Argentina",
+     "url": "https://www.boletinoficial.gob.ar/",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_oficial_nacional",
+     "frecuencia_dias": 1,
+     "nota": "No respondió en la exploración (tiempo agotado): el orquestador reintenta."
+    }
+   ],
+   "sigla": "NACION"
+  },
+  "nac-uncuyo": {
+   "nombre": "Universidad Nacional de Cuyo",
+   "sitio_web": "https://www.uncuyo.edu.ar/",
+   "fuentes": [
+    {
+     "nombre": "UNCuyo: información presupuestaria",
+     "url": "https://www.uncuyo.edu.ar/transparencia/informacion-presupuestaria",
+     "tipo": "portal_transparencia",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 30
+    },
+    {
+     "nombre": "UNCuyo: transferencias y becas",
+     "url": "https://www.uncuyo.edu.ar/transparencia/transferencias",
+     "tipo": "portal_transparencia",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 30
+    },
+    {
+     "nombre": "UNCuyo: compras y contrataciones",
+     "url": "https://www.uncuyo.edu.ar/transparencia/compras-y-contrataciones",
+     "tipo": "compras",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 14
+    }
+   ],
+   "sigla": "UNCUYO"
+  },
+  "prov-buenos-aires": {
+   "nombre": "Provincia de Buenos Aires",
+   "sitio_web": "https://www.gba.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Boletín Oficial PBA: sección oficial",
+     "url": "https://boletinoficial.gba.gob.ar/secciones/14490/ver",
+     "tipo": "boletin_oficial",
+     "portal_origen": "otro",
+     "frecuencia_dias": 1
+    },
+    {
+     "nombre": "SIBOM: boletines oficiales municipales de la Provincia",
+     "url": "https://sibom.slyt.gba.gob.ar/bulletins",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_municipal",
+     "frecuencia_dias": 1,
+     "nota": "Reúne los boletines de los municipios bonaerenses (Ley 14.491). Cubre los municipios cuyo sitio no se puede leer."
+    }
+   ],
+   "sigla": "PBA"
+  },
+  "prov-caba": {
+   "nombre": "Ciudad Autónoma de Buenos Aires",
+   "sitio_web": "https://buenosaires.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Boletín Oficial de la Ciudad de Buenos Aires",
+     "url": "https://boletinoficial.buenosaires.gob.ar/",
+     "tipo": "boletin_oficial",
+     "portal_origen": "otro",
+     "frecuencia_dias": 1
+    }
+   ],
+   "sigla": "CABA"
+  },
+  "prov-cordoba": {
+   "nombre": "Provincia de Córdoba",
+   "sitio_web": "https://www.cba.gov.ar/",
+   "fuentes": [],
+   "pendiente": "El Boletín Oficial (que publica también la 5ª sección de municipios) responde 403 a la lectura automática: consulta manual.",
+   "sigla": "CBA"
+  },
+  "prov-corrientes": {
+   "nombre": "Provincia de Corrientes",
+   "sitio_web": "https://www.corrientes.gob.ar/",
+   "fuentes": [],
+   "pendiente": "El Boletín Oficial tiene un certificado de seguridad incompleto: no se puede leer de forma segura.",
+   "sigla": "CTES"
+  },
+  "prov-entre-rios": {
+   "nombre": "Provincia de Entre Ríos",
+   "sitio_web": "https://www.entrerios.gov.ar/",
+   "fuentes": [
+    {
+     "nombre": "Boletín Oficial de Entre Ríos",
+     "url": "https://www.entrerios.gov.ar/boletin/",
+     "tipo": "boletin_oficial",
+     "portal_origen": "otro",
+     "frecuencia_dias": 1
+    }
+   ],
+   "sigla": "ER"
+  },
+  "prov-jujuy": {
+   "nombre": "Provincia de Jujuy",
+   "sitio_web": "https://www.jujuy.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Boletín Oficial de Jujuy: ediciones",
+     "url": "https://boletinoficial.jujuy.gob.ar/?page_id=2017",
+     "tipo": "boletin_oficial",
+     "portal_origen": "otro",
+     "frecuencia_dias": 1
+    }
+   ],
+   "sigla": "JUJUY"
+  },
+  "prov-mendoza": {
+   "nombre": "Provincia de Mendoza",
+   "sitio_web": "https://www.mendoza.gov.ar/",
+   "fuentes": [
+    {
+     "nombre": "Boletín Oficial de Mendoza",
+     "url": "https://boe.mendoza.gov.ar/",
+     "tipo": "boletin_oficial",
+     "portal_origen": "otro",
+     "frecuencia_dias": 1
+    }
+   ],
+   "sigla": "MZA"
+  },
+  "prov-rio-negro": {
+   "nombre": "Provincia de Río Negro",
+   "sitio_web": "https://www.rionegro.gov.ar/",
+   "fuentes": [],
+   "pendiente": "El Boletín Oficial pide autenticación (HTTP 401) para la consulta automática.",
+   "sigla": "RN"
+  },
+  "prov-santa-cruz": {
+   "nombre": "Provincia de Santa Cruz",
+   "sitio_web": "https://www.santacruz.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Boletín Oficial de Santa Cruz",
+     "url": "https://www.santacruz.gob.ar/boletin-oficial",
+     "tipo": "boletin_oficial",
+     "portal_origen": "otro",
+     "frecuencia_dias": 1
+    }
+   ],
+   "sigla": "SC"
+  },
+  "prov-santa-fe": {
+   "nombre": "Provincia de Santa Fe",
+   "sitio_web": "https://www.santafe.gov.ar/",
+   "fuentes": [
+    {
+     "nombre": "Boletín Oficial de Santa Fe",
+     "url": "https://www.santafe.gov.ar/boletinoficial/",
+     "tipo": "boletin_oficial",
+     "portal_origen": "otro",
+     "frecuencia_dias": 1,
+     "nota": "No respondió en la exploración (tiempo agotado): el orquestador reintenta."
+    }
+   ],
+   "sigla": "SF"
+  },
+  "prov-tucuman": {
+   "nombre": "Provincia de Tucumán",
+   "sitio_web": "https://www.tucuman.gob.ar/",
+   "fuentes": [],
+   "pendiente": "El Boletín Oficial pide no ser leído por bots (robots.txt): consulta manual.",
+   "sigla": "TUC"
+  },
+  "muni-almirante-brown": {
+   "nombre": "Municipalidad de Almirante Brown",
+   "sitio_web": "https://www.almirantebrown.gov.ar/",
+   "fuentes": [],
+   "pendiente": "El sitio municipal pide no ser leído por bots: se cubre con el SIBOM provincial."
+  },
+  "muni-avellaneda": {
+   "nombre": "Municipalidad de Avellaneda",
+   "sitio_web": "https://www.mda.gob.ar/",
+   "fuentes": [],
+   "pendiente": "Certificado de seguridad incompleto: se cubre con el SIBOM provincial."
+  },
+  "muni-bahia-blanca": {
+   "nombre": "Municipalidad de Bahía Blanca",
+   "sitio_web": "https://www.bahia.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Bahía Blanca: digesto y boletín oficial",
+     "url": "https://www.bahia.gob.ar/digestomunicipal/",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_municipal",
+     "frecuencia_dias": 3
+    },
+    {
+     "nombre": "Bahía Blanca: compras y licitaciones",
+     "url": "https://www.bahia.gob.ar/compra/",
+     "tipo": "compras",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 7
+    },
+    {
+     "nombre": "Bahía Blanca: datos de presupuesto",
+     "url": "http://datos.bahia.gob.ar/dataset?groups=presupuesto",
+     "tipo": "portal_transparencia",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 30
+    },
+    {
+     "nombre": "Concejo Deliberante de Bahía Blanca",
+     "url": "https://concejobahia.gob.ar/",
+     "tipo": "concejo_deliberante",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 7
+    }
+   ]
+  },
+  "muni-berazategui": {
+   "nombre": "Municipalidad de Berazategui",
+   "sitio_web": "https://www.berazategui.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Berazategui: boletín municipal",
+     "url": "https://berazategui.gob.ar/boletin-municipal",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_municipal",
+     "frecuencia_dias": 3
+    },
+    {
+     "nombre": "Berazategui: licitaciones",
+     "url": "https://berazategui.gob.ar/licitaciones",
+     "tipo": "compras",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 7
+    }
+   ]
+  },
+  "muni-ensenada": {
+   "nombre": "Municipalidad de Ensenada",
+   "sitio_web": "https://www.ensenada.gov.ar/",
+   "fuentes": [
+    {
+     "nombre": "Ensenada: pliegos de licitaciones públicas",
+     "url": "https://www.ensenada.gov.ar/category/pliegos-para-licitaciones-publicas/",
+     "tipo": "compras",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 7
+    }
+   ],
+   "pendiente": "El boletín oficial propio pide no ser leído por bots: se cubre con el SIBOM provincial."
+  },
+  "muni-esteban-echeverria": {
+   "nombre": "Municipalidad de Esteban Echeverría",
+   "sitio_web": "https://www.estebanecheverria.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Esteban Echeverría: boletín oficial",
+     "url": "https://www.estebanecheverria.gob.ar/boletin-oficial/",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_municipal",
+     "frecuencia_dias": 3,
+     "nota": "Al 04/11/2026 la página lista ediciones por año solo hasta 2023."
+    }
+   ]
+  },
+  "muni-la-matanza": {
+   "nombre": "Municipalidad de La Matanza",
+   "sitio_web": "https://www.lamatanza.gov.ar/",
+   "fuentes": [
+    {
+     "nombre": "La Matanza: compras y contrataciones",
+     "url": "https://www.lamatanza.gov.ar/economia/proveedores",
+     "tipo": "compras",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 7
+    }
+   ],
+   "pendiente": "El boletín se publica en PDF mensual sin página índice legible: se cubre con el SIBOM provincial."
+  },
+  "muni-la-plata": {
+   "nombre": "Municipalidad de La Plata",
+   "sitio_web": "https://www.laplata.gob.ar/",
+   "fuentes": [],
+   "pendiente": "No se encontró boletín oficial en el sitio y el digesto del Concejo no resuelve: se cubre con el SIBOM provincial."
+  },
+  "muni-general-pueyrredon": {
+   "nombre": "Municipalidad de General Pueyrredon (Mar del Plata)",
+   "sitio_web": "https://www.mardelplata.gob.ar/",
+   "fuentes": [],
+   "pendiente": "El sitio municipal pide no ser leído por bots: se cubre con el SIBOM provincial."
+  },
+  "muni-san-fernando": {
+   "nombre": "Municipalidad de San Fernando",
+   "sitio_web": "https://www.sanfernando.gob.ar/",
+   "fuentes": [],
+   "pendiente": "No se encontró boletín oficial en el sitio: se cubre con el SIBOM provincial."
+  },
+  "muni-corrientes": {
+   "nombre": "Municipalidad de Corrientes",
+   "sitio_web": "https://ciudaddecorrientes.gov.ar/",
+   "fuentes": [],
+   "pendiente": "El sitio pide no ser leído por bots."
+  },
+  "muni-alta-gracia": {
+   "nombre": "Municipalidad de Alta Gracia",
+   "sitio_web": "https://www.altagracia.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Concejo Deliberante de Alta Gracia: legislación",
+     "url": "https://concejodeliberanteag.gob.ar/legislacion",
+     "tipo": "concejo_deliberante",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 7
+    },
+    {
+     "nombre": "Alta Gracia: digesto municipal",
+     "url": "https://altagracia.gob.ar/areas/digesto-municipal/",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_municipal",
+     "frecuencia_dias": 7
+    }
+   ]
+  },
+  "muni-malagueno": {
+   "nombre": "Municipalidad de Malagueño",
+   "sitio_web": "https://www.malagueno.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Malagueño: portal de transparencia",
+     "url": "https://www.malagueno.gob.ar/transparencia/",
+     "tipo": "portal_transparencia",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 14
+    },
+    {
+     "nombre": "Malagueño: digesto de ordenanzas y resoluciones",
+     "url": "https://digesto.malagueno.gob.ar/",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_municipal",
+     "frecuencia_dias": 7
+    }
+   ]
+  },
+  "muni-rio-tercero": {
+   "nombre": "Municipalidad de Río Tercero",
+   "sitio_web": "https://www.riotercero.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Río Tercero: boletín oficial (datos abiertos)",
+     "url": "https://datos.riotercero.gob.ar/dataset?groups=boletinoficial",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_municipal",
+     "frecuencia_dias": 7,
+     "nota": "No respondió en la exploración (tiempo agotado): el orquestador reintenta."
+    }
+   ]
+  },
+  "muni-parana": {
+   "nombre": "Municipalidad de Paraná",
+   "sitio_web": "https://www.parana.gob.ar/",
+   "fuentes": [],
+   "pendiente": "El sitio pide no ser leído por bots."
+  },
+  "muni-san-salvador-de-jujuy": {
+   "nombre": "Municipalidad de San Salvador de Jujuy",
+   "sitio_web": "https://sansalvadordejujuy.gob.ar/",
+   "fuentes": [],
+   "pendiente": "El certificado de seguridad no corresponde al dominio: no se puede leer de forma segura."
+  },
+  "muni-godoy-cruz": {
+   "nombre": "Municipalidad de Godoy Cruz",
+   "sitio_web": "https://www.godoycruz.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Godoy Cruz: presupuestos",
+     "url": "https://www.godoycruz.gob.ar/transparencia-godoy-cruz/presupuestos-godoy-cruz/",
+     "tipo": "portal_transparencia",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 30
+    },
+    {
+     "nombre": "Godoy Cruz: responsabilidad fiscal",
+     "url": "https://www.godoycruz.gob.ar/transparencia-godoy-cruz/responsabilidad-fiscal/",
+     "tipo": "portal_transparencia",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 30
+    },
+    {
+     "nombre": "Godoy Cruz: compras y licitaciones",
+     "url": "https://webapps.godoycruz.gob.ar/consultacompras/index",
+     "tipo": "compras",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 7
+    },
+    {
+     "nombre": "Godoy Cruz: digesto",
+     "url": "https://webapps.godoycruz.gob.ar/leyes/index",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_municipal",
+     "frecuencia_dias": 7
+    }
+   ]
+  },
+  "muni-mendoza": {
+   "nombre": "Municipalidad de la Ciudad de Mendoza",
+   "sitio_web": "https://ciudaddemendoza.gob.ar/",
+   "fuentes": [],
+   "pendiente": "El sitio pide no ser leído por bots."
+  },
+  "muni-cipolletti": {
+   "nombre": "Municipalidad de Cipolletti",
+   "sitio_web": "https://www.cipolletti.gob.ar/",
+   "fuentes": [],
+   "pendiente": "El sitio pide no ser leído por bots."
+  },
+  "muni-rio-gallegos": {
+   "nombre": "Municipalidad de Río Gallegos",
+   "sitio_web": "https://www.riogallegos.gob.ar/",
+   "fuentes": [],
+   "pendiente": "No se encontró boletín oficial ni portal de transparencia legible."
+  },
+  "muni-rosario": {
+   "nombre": "Municipalidad de Rosario",
+   "sitio_web": "https://www.rosario.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "Rosario: presupuesto y ordenanzas de presupuesto",
+     "url": "https://www.rosario.gob.ar/inicio/presupuesto",
+     "tipo": "portal_transparencia",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 30
+    },
+    {
+     "nombre": "Rosario: compras y licitaciones",
+     "url": "https://www.rosario.gob.ar/inicio/compras-y-licitaciones",
+     "tipo": "compras",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 7
+    }
+   ]
+  },
+  "muni-santa-fe": {
+   "nombre": "Municipalidad de Santa Fe",
+   "sitio_web": "https://www.santafeciudad.gov.ar/",
+   "fuentes": [],
+   "pendiente": "El sitio pide no ser leído por bots."
+  },
+  "muni-san-miguel-de-tucuman": {
+   "nombre": "Municipalidad de San Miguel de Tucumán",
+   "sitio_web": "https://www.smt.gob.ar/",
+   "fuentes": [
+    {
+     "nombre": "San Miguel de Tucumán: transparencia y participación",
+     "url": "https://www.smt.gob.ar/tramite/transparencia-y-participacion/10",
+     "tipo": "portal_transparencia",
+     "portal_origen": "sitio_oficial",
+     "frecuencia_dias": 14
+    },
+    {
+     "nombre": "San Miguel de Tucumán: boletín oficial digital",
+     "url": "https://www.smt.gob.ar/nota/boletin-oficial-digital/56",
+     "tipo": "boletin_oficial",
+     "portal_origen": "boletin_municipal",
+     "frecuencia_dias": 3
+    }
+   ]
+  }
+ },
+ "clubes": {
+  "almirante-brown": [
+   "muni-almirante-brown",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "municipalidad-avellaneda": [
+   "muni-avellaneda",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "duba": [
+   "muni-bahia-blanca",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "municipalidad-berazategui": [
+   "muni-berazategui",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "municipalidad-ensenada": [
+   "muni-ensenada",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "escuela-municipal-echeverria": [
+   "muni-esteban-echeverria",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "criplap": [
+   "muni-la-plata",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "cideli": [
+   "muni-general-pueyrredon",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "adu-san-fernando": [
+   "muni-san-fernando",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "cedima": [
+   "muni-la-matanza",
+   "prov-buenos-aires",
+   "nac-nacion"
+  ],
+  "cilsa-boca-juniors": [
+   "prov-caba",
+   "nac-nacion"
+  ],
+  "cef-17-corrientes": [
+   "muni-corrientes",
+   "prov-corrientes",
+   "nac-nacion"
+  ],
+  "brown-alta-gracia": [
+   "muni-alta-gracia",
+   "prov-cordoba",
+   "nac-nacion"
+  ],
+  "deportivo-malagueno": [
+   "muni-malagueno",
+   "prov-cordoba",
+   "nac-nacion"
+  ],
+  "sol-y-lago-rio-tercero": [
+   "muni-rio-tercero",
+   "prov-cordoba",
+   "nac-nacion"
+  ],
+  "prodea-parana": [
+   "muni-parana",
+   "prov-entre-rios",
+   "nac-nacion"
+  ],
+  "jujuy-basquet": [
+   "muni-san-salvador-de-jujuy",
+   "prov-jujuy",
+   "nac-nacion"
+  ],
+  "dimot": [
+   "muni-godoy-cruz",
+   "prov-mendoza",
+   "nac-nacion"
+  ],
+  "uncuyo-basquet-adaptado": [
+   "nac-uncuyo",
+   "muni-mendoza",
+   "prov-mendoza",
+   "nac-nacion"
+  ],
+  "cripal": [
+   "muni-cipolletti",
+   "prov-rio-negro",
+   "nac-nacion"
+  ],
+  "crigal": [
+   "muni-rio-gallegos",
+   "prov-santa-cruz",
+   "nac-nacion"
+  ],
+  "crol-rosario": [
+   "muni-rosario",
+   "prov-santa-fe",
+   "nac-nacion"
+  ],
+  "cilsa-santa-fe": [
+   "muni-santa-fe",
+   "prov-santa-fe",
+   "nac-nacion"
+  ],
+  "apri-litoral": [
+   "muni-santa-fe",
+   "prov-santa-fe",
+   "nac-nacion"
+  ],
+  "fudituc": [
+   "muni-san-miguel-de-tucuman",
+   "prov-tucuman",
+   "nac-nacion"
+  ]
+ }
+}
