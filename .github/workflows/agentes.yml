@@ -36,4 +36,4 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
           SUPABASE_ANON_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
-          SITIO_URL: ${{ vars.SITIO_URL }}
+          SITIO_URL: https://auditadeporte.vercel.app/      # el sitio está en Vercel (antes GitHub Pages)
