@@ -14,7 +14,7 @@ jobs:
         with: { python-version: "3.12" }
       - run: pip install "pypdf>=4,<7"          # leer texto de PDFs; los bots no necesitan otra librería
       - name: Tests (si fallan, no se ejecuta ningún agente)
-        run: python -m unittest test_supa test_orquestador test_mesa_ingesta test_especialistas
+        run: python -m unittest test_supa test_orquestador test_mesa_ingesta test_especialistas test_busqueda_dirigida
         working-directory: bot
       - name: Rastreador de documentos (fuentes del panel + sitemaps)
         run: python orquestador_bots_audita.py

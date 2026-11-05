@@ -22,7 +22,7 @@ import urllib.robotparser
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree as ET
 
 UA = "AuditaDeporteBot/6.0 (observatorio civico sin fines de lucro; contacto en el sitio)"
@@ -386,9 +386,23 @@ def registrar_vista(fuente_id, url, sha, requiere):
                                            on_conflict="fuente_id,url").execute()
 
 
+RE_VOLATIL = re.compile(r"\b\d{1,2}[:.]\d{2}(?::\d{2})?\b|\b\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}\b|\b\d{1,2} de [a-z]+(?: de \d{4})?\b|"
+                        r"\b(?:hace|visitas?|vistas?|me gusta|seguidores)\b[^.]{0,30}|\b\d+\b")
+
+
+def hash_estable(cap: Captura) -> str:
+    """Huella del CONTENIDO: en HTML ignora fechas, horas, contadores y números sueltos, que cambian a diario
+    sin que cambie el documento. En PDF y otros archivos se usa el hash del archivo."""
+    if cap.contenido[:5] == b"%PDF-" or not cap.contenido:
+        return cap.sha256
+    t = _norm(texto_html(cap.contenido))
+    return hashlib.sha256(RE_VOLATIL.sub(" ", t).encode()).hexdigest()
+
+
 def procesar_url(f: dict, url: str, cap: Captura, titulo: str, vistas: dict) -> str:
     anterior = vistas.get(url)
-    if anterior == cap.sha256:
+    estable = hash_estable(cap)
+    if anterior in (cap.sha256, estable):
         return "sin_cambios"
     ind, requiere, motivo = analizar_contenido(cap)
     prop = {"portal_origen": f.get("portal_origen") or "sitio_oficial", "fuente_id": f.get("id"),
@@ -396,9 +410,112 @@ def procesar_url(f: dict, url: str, cap: Captura, titulo: str, vistas: dict) -> 
             "hash_anterior": anterior}
     tipo = "documento_cambio" if anterior else "documento_nuevo"
     r = proponer("rastreador", tipo, titulo, cap, f.get("club_id"), f.get("institucion_id"), prop)
-    registrar_vista(f.get("id"), url, cap.sha256, requiere)
-    vistas[url] = cap.sha256
+    registrar_vista(f.get("id"), url, estable, requiere)
+    vistas[url] = estable
     return r
+
+
+# ---------------------------------------------------------------- Búsqueda dirigida en índices
+TIPOS_INDICE = {"boletin_oficial", "compras", "portal_transparencia", "concejo_deliberante"}
+MAX_NUEVOS_POR_INDICE = 12
+RE_ENLACE = re.compile(r"""<a\b[^>]*?href\s*=\s*["']([^"'#]+)["'][^>]*>(.*?)</a>""", re.I | re.S)
+RE_DOC_URL = re.compile(r"(?i)\.(pdf|docx?|xlsx?|odt|ods)(\?|$)|bolet|decreto|ordenanza|resoluci|licitaci|norma|presupuest|"
+                        r"edici[oó]n|dataset|contrataci|pliego|expediente|digesto|legislaci")
+RE_NO_DOC = re.compile(r"(?i)facebook|twitter|x\.com|instagram|youtube|whatsapp|wa\.me|t\.me|linkedin|mailto:|login|"
+                       r"usuarios/|sharer|/tag/|/author/|/feed")
+RE_TEMA_ADAPTADO = re.compile(r"\b(basquet(bol)? adaptado|basquet(bol)? (en|sobre) sillas?|sillas? de ruedas|paralimpic\w*|"
+                              r"deporte adaptado|deporte inclusivo|discapacidad)\b")
+RE_TEMA_DEPORTE = re.compile(r"\b(deportes?|deportiv\w*|polideportivo|basquet\w*|atletas?|seleccion)\b")
+RE_INSTITUCIONES = re.compile(r"\b(faba|copar|enard|federacion argentina de basquet\w* adaptado|comite paralimpico)\b")
+RE_FONDOS = re.compile(r"\b(subsidios?|becas?|viaticos?|aportes?|transferencias?|convenios?|adjudica\w*)\b")
+
+
+def enlaces_documento(data: bytes, base: str) -> list:
+    """Enlaces del índice que parecen documentos (PDF, normas, licitaciones, ediciones), en el orden de la página."""
+    dominio = urlparse(base).netloc.split(":")[0].removeprefix("www.")
+    out = []
+    for h, txt in RE_ENLACE.findall(data.decode("utf-8", "ignore")):
+        u = urljoin(base, html.unescape(h.strip()))
+        if not u.startswith("http") or RE_NO_DOC.search(u) or u.rstrip("/") == base.rstrip("/"):
+            continue
+        host = urlparse(u).netloc.split(":")[0].removeprefix("www.")
+        mismo = host == dominio or host.endswith("." + dominio) or dominio.endswith("." + host)
+        oficial = host.endswith((".gob.ar", ".gov.ar", ".edu.ar"))
+        if (mismo or oficial) and RE_DOC_URL.search(u + " " + txt) and u not in out:
+            out.append(u)
+    return out
+
+
+def relevancia(texto: str, alias: dict) -> list:
+    """Por qué un documento interesa (marcas objetivas). Lista vacía = no se propone."""
+    t = _norm(texto).replace(".", "")
+    marcas = []
+    if RE_INSTITUCIONES.search(t):
+        marcas.append("menciona_faba_copar_enard")
+    if RE_TEMA_ADAPTADO.search(t) and RE_TEMA_DEPORTE.search(t):
+        marcas.append("deporte_y_discapacidad")
+    for a, slug in alias.items():
+        if re.search(r"(?<![a-z0-9@])" + re.escape(a) + r"(?![a-z0-9])", t):
+            marcas.append("menciona_club:" + slug)
+    if marcas and RE_FONDOS.search(t):
+        marcas.append("menciona_fondos")
+    return sorted(set(marcas))
+
+
+def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alias: dict, club_por_slug: dict) -> list:
+    """El índice no se propone: se recorren sus documentos nuevos y solo se proponen los relevantes."""
+    resultados = []
+    registrar_vista(f.get("id"), f["url"], hash_estable(cap), False)
+    nuevos = [u for u in enlaces_documento(cap.contenido, f["url"]) if u not in vistas][:MAX_NUEVOS_POR_INDICE]
+    for u in nuevos:
+        if presupuesto[0] <= 0:
+            break
+        presupuesto[0] -= 1
+        c2 = capturar(u)
+        time.sleep(PAUSA_SEG)
+        if c2.bloqueada:
+            resultados.append("bloqueado"); continue
+        if not c2.utilizable:
+            continue
+        es_pdf = c2.contenido[:5] == b"%PDF-"
+        texto = (texto_pdf(c2.contenido) if es_pdf else texto_html(c2.contenido)) or ""
+        marcas = relevancia(texto, alias)
+        estable = hash_estable(c2)
+        if not marcas:
+            registrar_vista(f.get("id"), u, estable, len(texto) < 200)       # leído y descartado: no se vuelve a bajar
+            vistas[u] = estable
+            resultados.append("no_relevante"); continue
+        club = next((club_por_slug[m.split(":", 1)[1]] for m in marcas if m.startswith("menciona_club:")), None)
+        ind, requiere, motivo = analizar_contenido(c2)
+        prop = {"portal_origen": f.get("portal_origen") or "sitio_oficial", "fuente_id": f.get("id"), "indice": f["url"],
+                "indicadores": ind, "coincidencias": marcas, "requiere_ocr_o_revision_humana": requiere, "motivo_revision": motivo}
+        r = proponer("rastreador", "documento_nuevo", f"{f['nombre']}: {nombre_desde_url(u)}", c2,
+                     club["id"] if club else f.get("club_id"), None if club else f.get("institucion_id"), prop)
+        registrar_vista(f.get("id"), u, estable, requiere)
+        vistas[u] = estable
+        resultados.append(r)
+    return resultados
+
+
+def contexto_jurisdicciones():
+    """alias de clubes por institución-jurisdicción (según bot/catalogo_fuentes.json) y clubes por slug."""
+    try:
+        from cargar_fuentes import catalogo
+        from actualidad_redes import alias_de_clubes
+        cat = catalogo()
+    except Exception:
+        return {}, {}, {}
+    clubes = db().table("clubes").select("id,slug,nombre,instagram").execute().data or []
+    por_slug = {c["slug"]: c for c in clubes}
+    inst = {i["id"]: i["slug"] for i in db().table("instituciones").select("id,slug").execute().data or []}
+    por_juris = {}
+    for club_slug, juris in cat.get("clubes", {}).items():
+        for j in juris:
+            if club_slug in por_slug:
+                por_juris.setdefault(j, []).append(por_slug[club_slug])
+    alias = {j: {a: next(c["slug"] for c in cs if c["id"] == cid) for a, cid in alias_de_clubes(cs).items() if len(a) >= 4}
+             for j, cs in por_juris.items()}
+    return alias, inst, por_slug
 
 
 def ciclo():
@@ -409,6 +526,7 @@ def ciclo():
     ej = db().table("agente_ejecuciones").insert({"agente": "rastreador", "objetivos": len(fuentes)}).execute()
     ej_id = ej.data[0]["id"] if ej.data else None
     presupuesto = [MAX_CAPTURAS_POR_CICLO]
+    alias_juris, inst_slug, club_por_slug = contexto_jurisdicciones()
     ok = bloq = err = 0
     detalle = []
     for f in fuentes:
@@ -426,7 +544,11 @@ def ciclo():
             err += 1; detalle.append({"url": f["url"], "resultado": cap.motivo or f"http_{cap.http}"}); continue
         vistas = urls_vistas(f.get("id"))
         resultados = []
-        if not f.get("usa_sitemap"):          # con sitemap, la portada es solo el punto de partida
+        es_indice = cap.contenido[:5] != b"%PDF-" and b"<a" in cap.contenido.lower()   # una página con enlaces, no un archivo
+        if f.get("tipo") in TIPOS_INDICE and not f.get("usa_sitemap") and es_indice:
+            juris = inst_slug.get(f.get("institucion_id"), "")
+            resultados = procesar_indice(f, cap, vistas, presupuesto, alias_juris.get(juris, {}), club_por_slug)
+        elif not f.get("usa_sitemap"):          # con sitemap, la portada es solo el punto de partida
             resultados.append(procesar_url(f, f["url"], cap, f["nombre"], vistas))
         else:
             for u in descubrir_sitemap(f, presupuesto):
@@ -441,6 +563,7 @@ def ciclo():
                     resultados.append("bloqueado")
         ok += 1
         detalle.append({"url": f["url"], "resultado": "ok", "nuevos": resultados.count("nuevo"),
+                        "leidos_no_relevantes": resultados.count("no_relevante"),
                         "sin_cambios": resultados.count("sin_cambios"), "bloqueados_mesa": resultados.count("bloqueado_legal")})
     if ej_id:
         db().table("agente_ejecuciones").update({"fin": ahora().isoformat(), "ok": ok, "bloqueados": bloq, "errores": err,

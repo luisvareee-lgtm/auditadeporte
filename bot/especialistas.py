@@ -137,7 +137,7 @@ def control_vigencia():
                     "marcar_no_vigente", {"autoridad_id": a["id"]}, club_id=a.get("club_id"), inst_id=a.get("institucion_id"),
                     extra={"detalle": f"Se buscó el nombre publicado en la página oficial capturada hoy (hash {cap.sha256[:12]}…) "
                                       f"y no aparece. Puede ser un cambio de autoridades o un cambio en la página: verificar."},
-                    clave_unica=f"vigencia:{a['id']}:{cap.sha256}"))
+                    clave_unica=f"vigencia:{a['id']}:{date.today():%Y-%m}"))   # como mucho un aviso por mes y persona
     for h in o.db().table("v_hechos_vencidos").select("*").execute().data or []:
         salida.append(proponer_cambio("control_vigencia", f"Dato con más de un año ({h['tipo']}): volver a verificar",
                                       f"{SITIO}#dato-{h['ref']}", "solo_informativa", {"ref": h["ref"], "tipo": h["tipo"]},
