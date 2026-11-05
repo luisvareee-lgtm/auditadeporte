@@ -72,12 +72,16 @@ begin
     end loop;
 
     -- 1b) mensajes y presentaciones que nombran al club por su slug (texto, no clave)
-    if to_regclass('public.tips') is not null then
-      update public.tips set club_slug = par.queda_slug where club_slug = par.vieja_slug;
-    end if;
-    if to_regclass('public.presentaciones_club') is not null then
-      update public.presentaciones_club set club_slug = par.queda_slug where club_slug = par.vieja_slug;
-    end if;
+    --     (solo en las tablas que de verdad tienen esa columna)
+    for fk in
+      select format('public.%I', table_name) as tabla, column_name::name as columna
+        from information_schema.columns
+       where table_schema = 'public' and column_name = 'club_slug'
+         and table_name in (select table_name from information_schema.tables
+                             where table_schema = 'public' and table_type = 'BASE TABLE')
+    loop
+      execute format('update %s set club_slug = $1 where club_slug = $2', fk.tabla) using par.queda_slug, par.vieja_slug;
+    end loop;
 
     -- 2) completar datos vacíos de la ficha que queda con los de la vieja
     update public.clubes k set
