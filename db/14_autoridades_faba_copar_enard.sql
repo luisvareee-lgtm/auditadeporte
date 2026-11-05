@@ -11,10 +11,9 @@
 -- ENARD: su web no permite la consulta automática (robots.txt) y se respeta. Directorio 2025-2029 según
 --        prensa (Doble Amarilla, 30/04/2025). Confirmalo a mano en enard.org.ar/organizacion-y-estructura/.
 -- ============================================================================
-begin;
-
-create temporary table _nomina (inst text, cargo text, nombre text, fuente_url text, fecha date) on commit drop;
-insert into _nomina values
+drop table if exists public.tmp_nomina_14;
+create table public.tmp_nomina_14 (inst text, cargo text, nombre text, fuente_url text, fecha date);
+insert into public.tmp_nomina_14 values
   -- FABA (prensa, 24/02/2025)
   ('faba', 'Presidente',          'Víctor Bava',               'https://paradeportes.com/basquet-adaptado-victor-bava-nuevo-presidente-de-faba/', '2025-02-24'),
   ('faba', 'Vicepresidenta',      'Silvina Pérez',             'https://paradeportes.com/basquet-adaptado-victor-bava-nuevo-presidente-de-faba/', '2025-02-24'),
@@ -52,35 +51,35 @@ insert into _nomina values
 -- VISTA PREVIA: lo que hoy figura como vigente y deja de estarlo
 select i.slug, a.cargo, a.nombre, a.fuente_url, a.fecha_fuente
   from public.autoridades a join public.instituciones i on i.id = a.institucion_id
- where i.slug in (select distinct inst from _nomina) and a.vigente
-   and not exists (select 1 from _nomina n where n.inst = i.slug
+ where i.slug in (select distinct inst from public.tmp_nomina_14) and a.vigente
+   and not exists (select 1 from public.tmp_nomina_14 n where n.inst = i.slug
                      and lower(n.nombre) = lower(a.nombre) and lower(n.cargo) = lower(a.cargo))
  order by 1, 2;
 
 -- 1) Lo que no figura en la nómina actual pasa a histórico (no se borra)
 update public.autoridades a set vigente = false, actualizado_en = now()
   from public.instituciones i
- where a.institucion_id = i.id and i.slug in (select distinct inst from _nomina) and a.vigente
-   and not exists (select 1 from _nomina n where n.inst = i.slug
+ where a.institucion_id = i.id and i.slug in (select distinct inst from public.tmp_nomina_14) and a.vigente
+   and not exists (select 1 from public.tmp_nomina_14 n where n.inst = i.slug
                      and lower(n.nombre) = lower(a.nombre) and lower(n.cargo) = lower(a.cargo));
 
 -- 2) Lo que ya estaba cargado con el mismo nombre y cargo: se actualiza la fuente
 update public.autoridades a set vigente = true, publicable = true, fuente_url = n.fuente_url,
        fecha_fuente = n.fecha, actualizado_en = now()
-  from _nomina n join public.instituciones i on i.slug = n.inst
+  from public.tmp_nomina_14 n join public.instituciones i on i.slug = n.inst
  where a.institucion_id = i.id and lower(a.nombre) = lower(n.nombre) and lower(a.cargo) = lower(n.cargo);
 
 -- 3) Lo nuevo se agrega
 insert into public.autoridades (institucion_id, nombre, cargo, fuente_url, fecha_fuente, vigente, publicable)
 select i.id, n.nombre, n.cargo, n.fuente_url, n.fecha, true, true
-  from _nomina n join public.instituciones i on i.slug = n.inst
+  from public.tmp_nomina_14 n join public.instituciones i on i.slug = n.inst
  where not exists (select 1 from public.autoridades a where a.institucion_id = i.id
                      and lower(a.nombre) = lower(n.nombre) and lower(a.cargo) = lower(n.cargo));
+
+drop table public.tmp_nomina_14;
 
 -- CONTROL: cómo queda cada nómina vigente
 select i.slug, a.cargo, a.nombre, a.fecha_fuente, a.fuente_url
   from public.autoridades a join public.instituciones i on i.id = a.institucion_id
  where i.slug in ('faba','copar','enard') and a.vigente
  order by i.slug, a.cargo;
-
-commit;
