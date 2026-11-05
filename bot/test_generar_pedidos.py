@@ -12,8 +12,11 @@ class T(unittest.TestCase):
              "pedido": {"base": "Constitución Nacional", "norma": "ordenanza municipal", "plazo": "un plazo razonable",
                         "reclamo": "amparo por mora", "provincial": "Ley 12.475 (Poder Ejecutivo)"}}
         t = g.texto_pedido(j)
-        self.assertIn("Municipalidad de X", t); self.assertIn("Ley 12.475", t); self.assertIn("un plazo razonable", t)
-        self.assertNotIn("(Poder Ejecutivo)", t)
+        self.assertIn("Municipalidad de X", t); self.assertIn("un plazo razonable", t)
+        self.assertNotIn("12.475", t)                                    # a un municipio no se le cita la ley provincial
+        self.assertIn("ordenanza municipal", t); self.assertIn("CIPPEC", t)
+        tp = g.texto_pedido({**j, "tipo": "provincia", "pedido": {**j["pedido"], "norma": "Ley 9070 de acceso"}})
+        self.assertIn("por la Ley 9070", tp)
         datos = {"jurisdicciones": [j, {**j, "slug": "muni-y", "estado": "publica"}]}
         fdb = FakeDB({"instituciones": [{"id": "i1", "slug": "muni-x"}, {"id": "i2", "slug": "muni-y"}], "cola_revision": [], "agente_votos": []})
         with mock.patch.object(o, "db", return_value=fdb), mock.patch.object(g.o, "db", return_value=fdb), \
@@ -22,6 +25,12 @@ class T(unittest.TestCase):
         cola = fdb.tablas["cola_revision"]
         self.assertEqual(len(cola), 1)                                   # solo la que no publica, y sin duplicar
         self.assertEqual(cola[0]["estado"], "pendiente")
+        with mock.patch.object(o, "db", return_value=fdb), mock.patch.object(g.o, "db", return_value=fdb), \
+             mock.patch.object(g, "texto_pedido", return_value="texto corregido"), \
+             mock.patch.object(g.json, "load", return_value=datos), mock.patch("builtins.open", mock.mock_open(read_data="{}")):
+            g.main()
+        estados = sorted(c["estado"] for c in fdb.tablas["cola_revision"])
+        self.assertEqual(estados, ["pendiente", "rechazada"])             # el viejo se retira, queda uno solo pendiente
 
 
 if __name__ == "__main__":

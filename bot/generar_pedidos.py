@@ -18,18 +18,38 @@ ITEMS = ["Partidas presupuestarias vigentes y su ejecución (crédito, compromis
          "Enlace o canal oficial donde se publica el Boletín Oficial y el procedimiento para pedir información pública"]
 
 
+BASE_CARTA = ("la Constitución Nacional (arts. 1, 14, 33 y 75 inc. 22), el art. 13 de la Convención Americana sobre Derechos "
+              "Humanos y la jurisprudencia de la Corte Suprema de Justicia de la Nación (caso \"CIPPEC\", 2014)")
+
+
 def texto_pedido(j: dict) -> str:
+    """En la carta va la base constitucional y la norma que obliga A ESE organismo: a un municipio no se le cita
+    la ley provincial (en la Provincia de Buenos Aires, la 12.475 solo alcanza al Ejecutivo provincial)."""
     p = j["pedido"]
-    base = f"{p['base']}" + ("" if p["norma"].startswith("sin ley") else f", y por {p['norma']}")
-    prov = f"; y, en lo que corresponda, {p['provincial'].split(' (')[0]}" if p.get("provincial") else ""
+    if j.get("tipo", "municipio") == "municipio":
+        base = BASE_CARTA + ", y por la ordenanza municipal de acceso a la información pública que corresponda"
+    else:
+        base = BASE_CARTA + ("" if p["norma"].startswith("sin ley") else f", y por la {p['norma']}")
+    prov = ""
     items = "\n".join(f"  {i}. {t}" for i, t in enumerate(ITEMS, 1))
     return (f"Asunto: Solicitud de acceso a la información pública\n\nA: {j['nombre']}\n\n"
-            f"Por la presente, en ejercicio del derecho de acceso a la información pública garantizado por la {base}{prov}, "
+            f"Por la presente, en ejercicio del derecho de acceso a la información pública garantizado por {base}{prov}, "
             f"solicito se me brinde la siguiente información, preferentemente en formato digital abierto:\n\n{items}\n\n"
             f"Solicito respuesta dentro del plazo previsto: {p['plazo']}.\n\n"
             "No se requiere información personal sensible de terceros; si algún dato debiera reservarse, solicito que se entregue "
             "el resto con la parte reservada tachada y se indique el fundamento.\n\n"
             "Datos del solicitante:\nNombre: [Nombre y apellido]\nDNI: [DNI]\nCorreo para la respuesta: [Correo]\n")
+
+
+def retirar_versiones_viejas(inst_id, hash_nuevo):
+    """Si el texto del borrador cambió (p. ej. se corrigió), se retira el pendiente anterior para no duplicar."""
+    pend = o.db().table("cola_revision").select("id,hash_sha256").eq("agente", AGENTE).eq("estado", "pendiente") \
+        .eq("institucion_id", inst_id).execute().data or []
+    for p in pend:
+        if p.get("hash_sha256") != hash_nuevo:
+            o.db().table("cola_revision").update({"estado": "rechazada", "motivo_codigo": "otro", "revisada_por": f"{AGENTE} (automático)",
+                                                  "revisada_en": o.ahora().isoformat(),
+                                                  "nota_revision": "Reemplazado por una versión corregida del borrador."}).eq("id", p["id"]).execute()
 
 
 def main():
@@ -44,6 +64,7 @@ def main():
         cuerpo = json.dumps({"slug": j["slug"], "mes": mes, "texto": texto}, ensure_ascii=False).encode()
         url = (j.get("sitio_web") or "https://auditadeporte.vercel.app/").rstrip("/") + f"/#pedido-{mes}"
         cap = o.Captura(url, 200, cuerpo, hashlib.sha256(cuerpo).hexdigest())
+        retirar_versiones_viejas(insts[j["slug"]], cap.sha256)
         r = o.proponer(AGENTE, "propuesta_cambio", f"Borrador de pedido de acceso: {j['nombre']} ({'no publica datos abiertos' if j['estado'] == 'no_publica' else 'publica a medias'})",
                        cap, None, insts[j["slug"]],
                        {"accion": "solo_informativa", "fuente": "generador_pedidos",

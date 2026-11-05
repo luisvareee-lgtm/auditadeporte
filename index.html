@@ -299,6 +299,7 @@
         <fieldset>
           <legend class="text-sm font-bold mb-2">¿Qué información querés pedir?</legend>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Partidas del presupuesto destinadas a deporte y a deporte adaptado, y su ejecución: lo presupuestado, lo comprometido, lo devengado y lo pagado"> Presupuesto de deporte adaptado</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Balances y memorias anuales de los últimos 3 ejercicios" checked> Balances y memorias</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Subsidios, convenios o transferencias recibidas para el equipo de básquet adaptado" checked> Subsidios y convenios</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y registros de asignación de sillas deportivas, cubiertas, cámaras, ejes, rayos y repuestos"> Sillas y repuestos</label>
@@ -635,6 +636,8 @@ const ESTADO_JURIS = {
 };
 const TIPO_JURIS = { municipio: 'Municipio', provincia: 'Provincia', nacion: 'Nación', universidad: 'Universidad nacional' };
 let JURIS = [], filtroJuris = '', marcoPedido = null;
+const BASE_CARTA = 'la Constitución Nacional (arts. 1, 14, 33 y 75 inc. 22), el art. 13 de la Convención Americana sobre Derechos Humanos y la jurisprudencia de la Corte Suprema de Justicia de la Nación (caso "CIPPEC", 2014)';
+const ITEMS_MUNICIPIO = ['presupuesto', 'Subsidios', 'Criterios y registros', 'Gastos de transporte', 'Criterios y listado de becas'];
 const fechaLinda = f => { if (!f) return '—'; const [a, m, d] = f.split('-'); return `${d}/${m}/${a}`; };
 const urlSegura = u => /^https?:\/\//i.test(u || '') ? u : '';
 
@@ -687,7 +690,7 @@ function pintarJuris() {
       ${j.clubes.length ? `<p class="text-sm"><span class="font-bold">Equipos:</span> ${esc(j.clubes.join(', '))}</p>` : ''}
       <p class="text-sm text-slate-800">${esc(j.motivo)}</p>
       ${fuentes}
-      <p class="text-xs text-slate-500">Documentos leídos: ${esc(j.documentos_leidos)} · Última revisión: ${fechaLinda(j.ultima_revision)}</p>
+      <p class="text-xs text-slate-500">${j.fuentes.length ? `Documentos leídos: ${esc(j.documentos_leidos)} · Última revisión: ${fechaLinda(j.ultima_revision)}` : 'Sin fuente oficial que se pueda revisar.'}</p>
       <details class="text-sm rounded-xl bg-slate-50 border border-slate-200 p-3">
         <summary class="font-bold cursor-pointer">Cómo y dónde pedir la información</summary>
         <div class="space-y-1.5 mt-2">
@@ -862,8 +865,11 @@ function armarPedido() {
   const dni = $('#p-dni').value.trim() || '[DNI]';
   const mail = $('#p-mail').value.trim() || '[Correo electrónico]';
   const mp = (marcoPedido && marcoPedido.entidad === $('#p-entidad').value.trim()) ? marcoPedido : null;
+  // En la carta: la base constitucional y la norma que obliga A ESE organismo (a un municipio no se le cita la ley provincial)
   const marco = mp
-    ? `en ejercicio del derecho de acceso a la información pública garantizado por la ${mp.base}${/^sin ley/.test(mp.norma) ? '' : ', y por ' + mp.norma}${mp.provincial ? '; y, en lo que corresponda, ' + mp.provincial.replace(/ \(.*\)$/, '') : ''}`
+    ? `en ejercicio del derecho de acceso a la información pública garantizado por ${BASE_CARTA}${mp.esMunicipio
+        ? ', y por la ordenanza municipal de acceso a la información pública que corresponda'
+        : /^sin ley/.test(mp.norma) ? '' : ', y por la ' + mp.norma}`
     : tipo === 'municipio'
     ? 'en ejercicio del derecho de acceso a la información pública reconocido por la normativa aplicable en mi jurisdicción'
     : tipo === 'club'
@@ -978,7 +984,8 @@ document.addEventListener('click', e => {
   else if (act === 'copiar') { const t = $('#' + a.dataset.target); t.select(); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.resolve(document.execCommand('copy'))).then(() => toast('Texto copiado')); }
   else if (act === 'pedir-juris') {
     const j = JURIS.find(x => x.slug === a.dataset.slug); if (!j) return;
-    marcoPedido = { entidad: j.nombre, ...j.pedido };
+    marcoPedido = { entidad: j.nombre, esMunicipio: j.tipo === 'municipio', ...j.pedido };
+    $$('.p-item').forEach(i => { i.checked = ITEMS_MUNICIPIO.some(k => i.value.startsWith(k) || i.value.includes(k)); });
     $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
   }
   else if (act === 'pedir-inst') { $('#p-tipo').value = 'federacion'; $('#p-entidad').value = a.dataset.nombre; armarPedido(); showTab('pedir'); }
