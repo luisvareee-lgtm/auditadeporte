@@ -29,6 +29,7 @@ from datetime import date, datetime, timedelta, timezone
 import orquestador_bots_audita as o
 
 AGENTE = "actualidad_redes"
+DIAS_INACTIVA = 180             # sin publicar hace más de esto: aviso para confirmar si el club sigue compitiendo
 GRAPH = "https://graph.facebook.com/v27.0"
 PAUSA = 2                                   # segundos entre consultas (límite de Meta: 200 por hora)
 CAMPOS = "username,name,followers_count,media_count,media.limit(50){timestamp,permalink,caption,media_type}"
@@ -166,7 +167,7 @@ def guardar_foto(dest: dict, res: dict, estado: str, detalle: str = None):
 
 
 def proponer(dest: dict, res: dict) -> dict:
-    cont = {"division": 0, "novedad": 0}
+    cont = {"division": 0, "novedad": 0, "inactiva": 0}
     cid = dest["id"] if dest["tipo"] == "club" else None
     iid = dest["id"] if dest["tipo"] == "inst" else None
     u = dest["instagram"]
@@ -184,6 +185,19 @@ def proponer(dest: dict, res: dict) -> dict:
                                   "nota": "Abrí los posteos y confirmá que hablan del equipo del club en la temporada actual."},
                        texto_para_filtro=f"{u} {div}")
         cont["division"] += r == "nuevo"
+    dias = res.get("dias_sin_publicar")
+    if dest["tipo"] == "club" and dias is not None and dias > DIAS_INACTIVA:
+        mes = datetime.now(timezone.utc).strftime("%Y-%m")
+        r = o.proponer(AGENTE, "propuesta_cambio",
+                       f"{dest['nombre']}: @{u} sin publicar hace {dias} días (último posteo {res['ultimo_posteo']})",
+                       _cap(f"https://www.instagram.com/{u}/#inactiva-{mes}", {"cuenta": u, "ultimo": res["ultimo_posteo"], "mes": mes}),
+                       club_id=cid,
+                       propuesta={"accion": "solo_informativa", "fuente": "instagram_oficial", "fecha_posteo": res["ultimo_posteo"],
+                                  "parametros": {"cuenta": u, "dias_sin_publicar": dias, "ultimo_posteo": res["ultimo_posteo"],
+                                                 "nota": "Puede ser solo que el club usa otra red. Confirmá si sigue compitiendo "
+                                                         "antes de cambiar su estado."}},
+                       texto_para_filtro=u)
+        cont["inactiva"] = int(r == "nuevo")
     for n in res["novedades"]:
         resumen = (f"Publicación de Instagram de @{u} del {n['fecha']}. "
                    f"El texto menciona: {', '.join(n['marcas'])}. Ver el posteo en el enlace.")
@@ -219,31 +233,41 @@ def main():
     propia = graph(os.environ["IG_USER_ID"], "username").get("username")
     ej = o.db().table("agente_ejecuciones").insert({"agente": AGENTE, "objetivos": 0}).execute()
     ej_id = ej.data[0]["id"] if ej.data else None
-    resumen = {"leidas": 0, "sin_acceso": 0, "otras": 0, "division": 0, "novedad": 0, "estados": {}}
+    resumen = {"leidas": 0, "sin_acceso": 0, "otras": 0, "division": 0, "novedad": 0, "inactiva": 0, "estados": {}}
     cuentas = cuentas_a_leer()
+    por_cuenta = {}                                  # una misma cuenta puede figurar en dos fichas: se lee una vez
     for dest in cuentas:
+        por_cuenta.setdefault(dest["instagram"].lower(), []).append(dest)
+    repetidas = {u: [d["slug"] for d in ds] for u, ds in por_cuenta.items() if len(ds) > 1}
+    if repetidas:
+        print("Cuentas cargadas en más de una ficha (¿clubes duplicados?):", repetidas)
+    for u, destinos in por_cuenta.items():
         try:
-            res = analizar(leer_cuenta(dest["instagram"], propia))
-            guardar_foto(dest, res, "ok")
-            c = proponer(dest, res)
+            res = analizar(leer_cuenta(u, propia))
+            guardar_foto(destinos[0], res, "ok")
+            for dest in destinos:
+                c = proponer(dest, res)
+                for k in ("division", "novedad", "inactiva"):
+                    resumen[k] += c.get(k, 0)
             resumen["leidas"] += 1
-            resumen["division"] += c["division"]; resumen["novedad"] += c["novedad"]
-            estado = "ok"
+            estado = (f"ok | último posteo {res['ultimo_posteo']} | 90 días: {res['posteos_90d']} | divisiones "
+                      f"{ {k: v['menciones'] for k, v in res['divisiones'].items()} }")
         except ErrorMeta as e:
             estado = e.estado
-            guardar_foto(dest, {}, e.estado, str(e)[:300])
+            guardar_foto(destinos[0], {}, e.estado, str(e)[:300])
             resumen["sin_acceso" if e.estado == "sin_acceso" else "otras"] += 1
             if e.estado in ("token_vencido", "limite_meta"):
                 print(f"Se detiene: {e.estado} ({e})")
                 break
-        resumen["estados"][dest["instagram"]] = estado
-        print(f"@{dest['instagram']} ({dest['slug']}): {estado}")
+        resumen["estados"][u] = estado.split(" |")[0]
+        print(f"@{u} ({', '.join(d['slug'] for d in destinos)}): {estado}")
         time.sleep(PAUSA)
     if ej_id:
         o.db().table("agente_ejecuciones").update({"fin": o.ahora().isoformat(), "objetivos": len(cuentas),
                                                    "ok": resumen["leidas"], "errores": resumen["otras"],
                                                    "bloqueados": resumen["sin_acceso"], "detalle": resumen}).eq("id", ej_id).execute()
-    print({k: v for k, v in resumen.items() if k != "estados"})
+    resumen["cuentas_repetidas"] = repetidas
+    print({k: v for k, v in resumen.items() if k not in ("estados", "cuentas_repetidas")})
 
 
 if __name__ == "__main__":

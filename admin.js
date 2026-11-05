@@ -493,6 +493,14 @@ async function cargarEstado() {
   $('#estado-proponentes').replaceChildren(tabla([['Agente', x => x.agente], ['Propuestas', x => x.propuestas], ['Aprobadas', x => x.aprobadas],
     ['Rechazadas', x => x.rechazadas], ['Sin resolver', x => x.sin_resolver], ['Aceptación', x => pct(x.pct_aceptacion)], ['Motivo de rechazo más común', x => x.motivo_rechazo_frecuente || '—']],
     r.proponentes, 'Sin datos.'));
+  const ESTADO_RED = { ok: 'Leída', sin_acceso: 'Sin acceso', no_profesional_o_inexistente: 'No es cuenta profesional o no existe',
+    token_vencido: 'Token vencido: hay que renovarlo', limite_meta: 'Límite de Meta: reintenta la próxima semana', error: 'Error' };
+  let redes = [];
+  try { redes = await rpc('panel_redes_actividad'); } catch (_) { redes = []; }
+  $('#estado-redes').replaceChildren(tabla([['Cuenta', x => '@' + x.cuenta], ['Club o institución', x => x.club || x.institucion || '—'],
+    ['Estado', x => ESTADO_RED[x.estado] || x.estado], ['Seguidores', x => x.seguidores ?? '—'], ['Último posteo', x => x.ultimo_posteo || '—'],
+    ['Días sin publicar', x => x.dias_sin_publicar ?? '—'], ['Posteos en 90 días', x => x.posteos_90d ?? '—'], ['Leída el', x => x.fecha_consulta]],
+    redes, 'Todavía no se leyó ninguna cuenta.'));
   $('#estado-ejecuciones').replaceChildren(tabla([['Agente', x => x.agente], ['Inicio', x => fecha(x.inicio)], ['Fin', x => fecha(x.fin)],
     ['OK', x => x.ok], ['Bloqueados', x => x.bloqueados], ['Errores', x => x.errores]], r.ejecuciones, 'Sin ejecuciones registradas.'));
   $('#estado-acciones').replaceChildren(tabla([['Cuándo', x => fecha(x.creado_en)], ['Quién', x => x.admin], ['Acción', x => x.accion], ['Ref.', x => x.ref || '—'], ['Detalle', x => x.detalle || '—']],

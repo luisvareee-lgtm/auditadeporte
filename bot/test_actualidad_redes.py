@@ -36,10 +36,20 @@ class T(unittest.TestCase):
                 "division": None, "estado_afiliacion": "a_confirmar"}
         with mock.patch.object(o, "db", return_value=fdb), mock.patch.object(a.o, "db", return_value=fdb):
             c = a.proponer(dest, a.analizar(CUENTA, HOY))
-        self.assertEqual(c, {"division": 1, "novedad": 1})
+        self.assertEqual(c, {"division": 1, "novedad": 1, "inactiva": 0})
         cola = fdb.tablas["cola_revision"]
         self.assertTrue(all(x["estado"] in ("pendiente", "bloqueada_legal") for x in cola))
         self.assertNotIn("Juan", str(cola)); self.assertNotIn("Córdoba", str(cola)); self.assertNotIn("alias club", str(cola))
+
+    def test_aviso_de_inactividad(self):
+        fdb = FakeDB({"cola_revision": [], "agente_votos": []})
+        dest = {"tipo": "club", "id": "c1", "slug": "club-x", "nombre": "Club X", "instagram": "club_x",
+                "division": "1ra", "estado_afiliacion": "activo"}
+        vieja = {"username": "club_x", "media": {"data": [{"timestamp": "2026-01-02T10:00:00+0000",
+                                                             "permalink": "https://www.instagram.com/p/Z/", "caption": "hola"}]}}
+        with mock.patch.object(o, "db", return_value=fdb), mock.patch.object(a.o, "db", return_value=fdb):
+            c = a.proponer(dest, a.analizar(vieja, HOY))
+        self.assertEqual(c["inactiva"], 1)
 
     def test_token_no_aparece_en_errores(self):
         with mock.patch.dict(os.environ, {"META_TOKEN": "EAASECRETO"}):
