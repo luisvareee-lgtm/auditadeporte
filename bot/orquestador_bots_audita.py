@@ -65,15 +65,35 @@ class Captura:
         return self.http == 200 and bool(self.contenido) and bool(self.sha256)
 
 
+_ROBOTS = {}                      # robots.txt se pide una vez por sitio y por corrida
+TIEMPO_DESCARGA_SEG = 60          # una descarga que tarde más que esto se abandona (servidores que "gotean")
+TIEMPO_PDF_SEG = 30               # leer un PDF no puede llevar más que esto
+TIEMPO_MAX_SEG = 40 * 60          # la corrida deja de empezar fuentes nuevas pasado este tiempo
+_FIN = [None]                     # momento límite de la corrida (lo fija ciclo())
+
+
+def tiempo_agotado() -> bool:
+    return _FIN[0] is not None and time.monotonic() > _FIN[0]
+
+
 def _robots_permite(url: str) -> bool:
     p = urlparse(url)
-    rp = urllib.robotparser.RobotFileParser()
-    try:
-        rp.set_url(f"{p.scheme}://{p.netloc}/robots.txt")
-        rp.read()
-        return rp.can_fetch(UA, url)
-    except Exception:
-        return True  # si robots.txt no responde, seguimos con ritmo cortés
+    clave = f"{p.scheme}://{p.netloc}"
+    if clave not in _ROBOTS:
+        rp = urllib.robotparser.RobotFileParser()
+        try:
+            req = urllib.request.Request(clave + "/robots.txt", headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                rp.parse(r.read(200_000).decode("utf-8", "ignore").splitlines())
+            _ROBOTS[clave] = rp
+        except urllib.error.HTTPError as e:
+            _ROBOTS[clave] = None if e.code in (401, 403) else True   # 401/403 en robots.txt: no se lee el sitio
+        except Exception:
+            _ROBOTS[clave] = True  # si robots.txt no responde, seguimos con ritmo cortés
+    rp = _ROBOTS[clave]
+    if rp is None:
+        return False
+    return True if rp is True else rp.can_fetch(UA, url)
 
 
 def capturar(url: str, timeout: int = 25) -> Captura:
@@ -85,9 +105,17 @@ def capturar(url: str, timeout: int = 25) -> Captura:
     try:
         req = urllib.request.Request(url, headers={"User-Agent": UA})
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            data = r.read(MAX_BYTES + 1)
-            if len(data) > MAX_BYTES:
-                return Captura(url, r.getcode(), motivo="archivo_demasiado_grande")
+            inicio, partes, total = time.monotonic(), [], 0
+            while True:
+                trozo = r.read(256 * 1024)
+                if not trozo:
+                    break
+                partes.append(trozo); total += len(trozo)
+                if total > MAX_BYTES:
+                    return Captura(url, r.getcode(), motivo="archivo_demasiado_grande")
+                if time.monotonic() - inicio > TIEMPO_DESCARGA_SEG:
+                    return Captura(url, r.getcode(), motivo="descarga_demasiado_lenta")
+            data = b"".join(partes)
             return Captura(url, r.getcode(), data, hashlib.sha256(data).hexdigest())
     except urllib.error.HTTPError as e:
         return Captura(url, e.code, motivo=f"http_{e.code}")
@@ -170,6 +198,13 @@ def texto_pdf(data: bytes):
         from pypdf import PdfReader
     except ImportError:
         return None
+    import signal
+    usar_alarma = hasattr(signal, "SIGALRM")
+    if usar_alarma:
+        def _corta(*_):
+            raise TimeoutError("pdf demasiado lento")
+        anterior = signal.signal(signal.SIGALRM, _corta)
+        signal.alarm(TIEMPO_PDF_SEG)
     try:
         lector = PdfReader(io.BytesIO(data))
         partes = []
@@ -178,8 +213,12 @@ def texto_pdf(data: bytes):
                 break
             partes.append(pag.extract_text() or "")
         return re.sub(r"\s+", " ", " ".join(partes)).strip()
-    except Exception:
+    except Exception:                     # incluye el corte por tiempo: el PDF queda para revisión humana
         return ""
+    finally:
+        if usar_alarma:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, anterior)
 
 
 def analizar_contenido(cap: Captura):
@@ -503,7 +542,7 @@ def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alia
     nuevos = [u for u in enlaces_documento(cap.contenido, f["url"]) if u not in vistas]
     leidos = 0
     for u in nuevos:
-        if leidos >= MAX_NUEVOS_POR_INDICE:
+        if leidos >= MAX_NUEVOS_POR_INDICE or tiempo_agotado():
             break
         if presupuesto[0] <= 0:
             break
@@ -572,9 +611,12 @@ def ciclo():
     ej_id = ej.data[0]["id"] if ej.data else None
     presupuesto = [MAX_CAPTURAS_POR_CICLO]
     alias_juris, inst_slug, club_por_slug = contexto_jurisdicciones()
+    _FIN[0] = time.monotonic() + TIEMPO_MAX_SEG
     ok = bloq = err = 0
     detalle = []
     for f in fuentes:
+        if tiempo_agotado():                        # lo que falta se revisa en la próxima corrida
+            detalle.append({"url": f.get("url"), "resultado": "pospuesta_por_tiempo"}); continue
         try:
             r = _procesar_fuente(f, presupuesto, alias_juris, inst_slug, club_por_slug, detalle)
         except Exception as e:                      # una fuente con problemas no frena a las demás
