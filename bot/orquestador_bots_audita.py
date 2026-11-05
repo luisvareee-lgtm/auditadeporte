@@ -339,7 +339,8 @@ def cargar_fuentes(momento=None):
         if e.status in (404,) or e.codigo in ("42P01", "PGRST205"):
             return None
         raise
-    filas = [f for f in filas if f.get("tipo") != "red_oficial" and vencida(f, momento)]   # redes: ingesta_redes.py
+    forzar = os.environ.get("FORZAR_REVISION") == "1"          # corrida manual: revisar todo aunque no haya vencido
+    filas = [f for f in filas if f.get("tipo") != "red_oficial" and (forzar or vencida(f, momento))]   # redes: ingesta_redes.py
     return sorted(filas, key=lambda f: f.get("ultima_revision") or "")[:MAX_FUENTES_POR_CICLO]
 
 

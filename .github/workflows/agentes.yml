@@ -1,7 +1,9 @@
 name: Agentes AuditaDeporte
 on:
   schedule: [{ cron: "0 11 * * *" }]     # diario, 08:00 hora Argentina
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      forzar: { description: "Revisar todas las fuentes aunque no les toque", type: boolean, default: false }
 permissions: { contents: read }
 concurrency: { group: agentes, cancel-in-progress: false }
 jobs:
@@ -20,6 +22,7 @@ jobs:
         run: python orquestador_bots_audita.py
         working-directory: bot
         env:
+          FORZAR_REVISION: ${{ inputs.forzar && '1' || '0' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
       - name: Ingesta de novedades (feeds oficiales)

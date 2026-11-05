@@ -138,11 +138,19 @@ def control_vigencia():
                     extra={"detalle": f"Se buscó el nombre publicado en la página oficial capturada hoy (hash {cap.sha256[:12]}…) "
                                       f"y no aparece. Puede ser un cambio de autoridades o un cambio en la página: verificar."},
                     clave_unica=f"vigencia:{a['id']}:{date.today():%Y-%m}"))   # como mucho un aviso por mes y persona
+    # Datos de más de un año: UN aviso por tipo y por mes, con la lista adentro (no uno por persona).
+    por_tipo = {}
     for h in o.db().table("v_hechos_vencidos").select("*").execute().data or []:
-        salida.append(proponer_cambio("control_vigencia", f"Dato con más de un año ({h['tipo']}): volver a verificar",
-                                      f"{SITIO}#dato-{h['ref']}", "solo_informativa", {"ref": h["ref"], "tipo": h["tipo"]},
-                                      extra={"detalle": f"{h['detalle']} — fecha del dato {h['fecha_dato']} ({h['dias']} días)."},
-                                      clave_unica=f"vencido:{h['tipo']}:{h['ref']}:{h['fecha_dato']}"))
+        por_tipo.setdefault(h["tipo"], []).append(h)
+    mes = f"{date.today():%Y-%m}"
+    for tipo, hs in por_tipo.items():
+        hs.sort(key=lambda h: h.get("dias") or 0, reverse=True)
+        salida.append(proponer_cambio("control_vigencia", f"{len(hs)} dato(s) de {tipo} con más de un año: volver a verificar",
+                                      f"{SITIO}#vencidos-{tipo}-{mes}", "solo_informativa",
+                                      {"tipo": tipo, "refs": [h["ref"] for h in hs]},
+                                      extra={"detalle": "; ".join(f"{h['detalle']} (dato del {h['fecha_dato']}, {h['dias']} días)"
+                                                                  for h in hs[:40])},
+                                      clave_unica=f"vencidos:{tipo}:{mes}"))
     return salida
 
 

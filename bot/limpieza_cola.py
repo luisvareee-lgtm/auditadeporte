@@ -40,6 +40,9 @@ def main():
                 retirar(c, "duplicado", "Misma página que otro ítem más reciente del rastreador.", prueba)
                 n["duplicado_rastreador"] += 1
             vistos_url.add(url)
+        elif c["agente"] == "control_vigencia" and c["titulo"].startswith("Dato con más de un año"):
+            retirar(c, "duplicado", "Aviso individual reemplazado por un aviso agrupado por tipo de dato.", prueba)
+            n["vencido_individual"] = n.get("vencido_individual", 0) + 1
         elif c["agente"] == "control_vigencia" and (c.get("propuesta") or {}).get("accion") == "marcar_no_vigente":
             aid = ((c.get("propuesta") or {}).get("parametros") or {}).get("autoridad_id")
             if aid and aid not in vigentes:
