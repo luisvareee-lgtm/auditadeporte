@@ -32,6 +32,8 @@ class T(unittest.TestCase):
         self.assertEqual(o.relevancia("pavimentacion y discapacidad visual en semaforos", al), [])   # sin deporte, no
         lejos = "Direccion de Discapacidad. " + "x " * 300 + "Secretaria de Deportes"
         self.assertEqual(o.relevancia(lejos, {}), [])                                                  # lejos: no
+        fiscal = "Exencion de tasas a entidades deportivas y a personas con discapacidad segun articulo 45"
+        self.assertEqual(o.relevancia(fiscal, {}), [])                                                 # ordenanza fiscal: no
         self.assertEqual(o.relevancia("convenio con FABA", {}), ["menciona_faba_copar_enard", "menciona_fondos"])
 
     def test_menu_del_sitio_no_cuenta(self):
@@ -55,12 +57,18 @@ class T(unittest.TestCase):
     def test_reabre_lo_retirado_por_la_limpieza(self):
         c = cap("https://m.gob.ar/d.pdf", b"<html>deporte adaptado</html>")
         fdb = FakeDB({"agente_votos": [], "cola_revision": [
-            {"id": "x", "url_fuente": c.url, "hash_sha256": c.sha256, "estado": "rechazada", "revisada_por": "limpieza automática"}]})
+            {"id": "x", "url_fuente": c.url, "hash_sha256": c.sha256, "estado": "rechazada", "revisada_por": "limpieza automática",
+             "nota_revision": "Falso positivo del filtro anterior"}]})
         with mock.patch.object(o, "db", return_value=fdb):
             self.assertEqual(o.proponer("rastreador", "documento_nuevo", "t", c, None, "i1", {}), "nuevo")
             self.assertEqual(o.proponer("rastreador", "documento_nuevo", "t", c, None, "i1", {}), "duplicado")
         self.assertEqual(len(fdb.tablas["cola_revision"]), 1)
         self.assertEqual(fdb.tablas["cola_revision"][0]["estado"], "pendiente")
+        port = cap("https://m.gob.ar/portada", b"<html>x</html>")
+        fdb2 = FakeDB({"agente_votos": [], "cola_revision": [{"id": "p", "url_fuente": port.url, "hash_sha256": port.sha256,
+                       "estado": "rechazada", "revisada_por": "limpieza automática", "nota_revision": "Portada de un índice"}]})
+        with mock.patch.object(o, "db", return_value=fdb2):
+            self.assertEqual(o.proponer("rastreador", "documento_nuevo", "t", port, None, "i1", {}), "duplicado")
 
     def test_hash_estable_ignora_fechas(self):
         a = o.hash_estable(cap("u", b"<p>Boletin de hoy 04/11/2026 10:35 visitas 120</p>"))

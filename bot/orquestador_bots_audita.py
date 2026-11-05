@@ -281,11 +281,12 @@ def proponer(agente, tipo, titulo, cap: Captura, club_id=None, inst_id=None, pro
     """Pasa el ítem por la mesa de agentes y lo inserta en cola_revision (privada) con sus votos.
     Devuelve 'nuevo' | 'duplicado' | 'bloqueado_legal'."""
     from mesa import evaluar, decidir   # import tardío: mesa importa este módulo
-    previo = db().table("cola_revision").select("id,revisada_por") \
+    previo = db().table("cola_revision").select("id,revisada_por,nota_revision") \
         .eq("url_fuente", cap.url).eq("hash_sha256", cap.sha256).execute()
     # lo que retiró la limpieza automática (por un filtro equivocado) puede volver a proponerse: se REABRE
     # el mismo ítem (la base no admite dos con la misma URL y huella).
-    if any(r.get("revisada_por") != "limpieza automática" for r in previo.data or []):
+    reabrible = lambda r: r.get("revisada_por") == "limpieza automática" and (r.get("nota_revision") or "").startswith("Falso positivo")
+    if any(not reabrible(r) for r in previo.data or []):
         return "duplicado"
     reabrir = (previo.data or [None])[0]
     item = {"tipo": tipo, "titulo": titulo, "url_fuente": cap.url, "hash_sha256": cap.sha256,
@@ -303,8 +304,8 @@ def proponer(agente, tipo, titulo, cap: Captura, club_id=None, inst_id=None, pro
         res = db().table("cola_revision").insert(fila).execute()
     if res.data:
         cola_id = res.data[0]["id"]
-        db().table("agente_votos").insert([{"cola_id": cola_id, "agente": v["agente"], "voto": v["voto"],
-                                            "motivo": v["motivo"] or None} for v in votos]).execute()
+        db().table("agente_votos").upsert([{"cola_id": cola_id, "agente": v["agente"], "voto": v["voto"],
+                                            "motivo": v["motivo"] or None} for v in votos], on_conflict="cola_id,agente").execute()
     return "bloqueado_legal" if estado == "bloqueada_legal" else "nuevo"
 
 
@@ -431,8 +432,9 @@ RE_DOC_URL = re.compile(r"(?i)\.(pdf|docx?|xlsx?|odt|ods)(\?|$)|bolet[ií]n|decr
                         r"edici[oó]n|dataset|contrataci|pliego|expediente|digesto|legislaci")
 RE_NO_DOC = re.compile(r"(?i)facebook|twitter|x\.com|instagram|youtube|whatsapp|wa\.me|t\.me|linkedin|mailto:|login|"
                        r"usuarios/|sharer|/tag/|/author/|/feed")
-RE_TEMA_ADAPTADO = re.compile(r"\b(basquet(bol)? adaptado|basquet(bol)? (en|sobre) sillas?|sillas? de ruedas|paralimpic\w*|"
-                              r"deporte adaptado|deporte inclusivo|discapacidad)\b")
+RE_TEMA_FUERTE = re.compile(r"\b(basquet(bol)? adaptado|basquet(bol)? (en|sobre) sillas?|sillas? de ruedas|paralimpic\w*|"
+                            r"deporte adaptado|deporte inclusivo)\b")
+RE_TEMA_ADAPTADO = re.compile(RE_TEMA_FUERTE.pattern[:-3] + r"|discapacidad)\b")
 RE_TEMA_DEPORTE = re.compile(r"\b(deportes?|deportiv\w*|polideportivo|basquet\w*|atletas?|seleccion)\b")
 RE_INSTITUCIONES = re.compile(r"\b(faba|copar|enard|federacion argentina de basquet\w* adaptado|comite paralimpico)\b")
 RE_FONDOS = re.compile(r"\b(subsidios?|becas?|viaticos?|aportes?|transferencias?|convenios?|adjudica\w*)\b")
@@ -481,7 +483,10 @@ def relevancia(texto: str, alias: dict) -> list:
     marcas = []
     if RE_INSTITUCIONES.search(t):
         marcas.append("menciona_faba_copar_enard")
-    if _cerca(t, RE_TEMA_ADAPTADO, RE_TEMA_DEPORTE):
+    if _cerca(t, RE_TEMA_FUERTE, RE_TEMA_DEPORTE):
+        marcas.append("deporte_y_discapacidad")
+    elif _cerca(t, RE_TEMA_ADAPTADO, RE_TEMA_DEPORTE) and (RE_FONDOS.search(t) or any(a in t for a in alias)):
+        # "discapacidad" a secas (p. ej. exenciones de una ordenanza fiscal) solo cuenta con fondos o un club nombrado
         marcas.append("deporte_y_discapacidad")
     for a, slug in alias.items():
         if re.search(r"(?<![a-z0-9@])" + re.escape(a) + r"(?![a-z0-9])", t):
