@@ -15,10 +15,16 @@ jobs:
       - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
       - name: Tests
-        run: python -m unittest test_supa test_generar_resumen
+        run: python -m unittest test_supa test_generar_resumen test_generar_pedidos
         working-directory: bot
       - name: Armar datos/transparencia.json (solo datos agregados y públicos)
         run: python generar_resumen.py
+        working-directory: bot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
+      - name: Borradores de pedidos de acceso (uno por jurisdicción y por mes, a la Bandeja)
+        run: python generar_pedidos.py
         working-directory: bot
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
