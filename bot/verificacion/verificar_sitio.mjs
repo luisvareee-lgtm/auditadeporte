@@ -18,6 +18,12 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
     simple: !!document.querySelector('#s-simple'),
   }));
   console.log(`[${nombre}]`, JSON.stringify(r));
+  if (r.anchoDoc > r.anchoVentana) {
+    const anchos = await p.evaluate(() => [...document.querySelectorAll('body *')].filter(e => {
+      const b = e.getBoundingClientRect(); return b.right > window.innerWidth + 1 && b.width > 0;
+    }).slice(0, 12).map(e => `${e.tagName.toLowerCase()}#${e.id}.${[...e.classList].slice(0, 4).join('.')} right=${Math.round(e.getBoundingClientRect().right)}`));
+    console.log(`[${nombre}] se salen del ancho:`, JSON.stringify(anchos));
+  }
   if (r.simple) {
     await p.click('#t-simple'); await p.waitForTimeout(1500);
     const s = await p.evaluate(() => ({

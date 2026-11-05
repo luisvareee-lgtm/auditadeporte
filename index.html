@@ -867,7 +867,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           'muni-avellaneda': 'municipalidad-avellaneda', 'sica': 'sica-poeta-lugones' };
         const slugActual = id => ALIAS_SLUG[id] || id;
         const slugsCanonic = new Set(CLUBES_LOCALES.map(c => slugActual(c.id)));
-        const filtradosDb = clubesDb.filter(d => slugsCanonic.has(d.slug));
+        const filtradosDb = clubesDb.filter(d => slugsCanonic.has(d.slug) && d.publicado !== false);   // despublicados: fuera del mapa
 
         if (filtradosDb.length > 0) {
           CLUBES = filtradosDb.map(d => {
