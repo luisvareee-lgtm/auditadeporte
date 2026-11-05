@@ -29,7 +29,7 @@ UA = "AuditaDeporteBot/6.0 (observatorio civico sin fines de lucro; contacto en 
 PAUSA_SEG = 2.0                 # cortesía entre pedidos
 MAX_BYTES = 25 * 1024 * 1024    # no se descargan archivos más grandes
 MAX_FUENTES_POR_CICLO = 40
-MAX_CAPTURAS_POR_CICLO = 150    # tope total para no exceder el tiempo del workflow
+MAX_CAPTURAS_POR_CICLO = 260    # tope de descargas por corrida (el límite de 40 min protege el tiempo)
 MAX_DESCUBIERTAS_POR_FUENTE = 15
 MAX_PAGINAS_PDF = 40
 _cliente = None
@@ -476,6 +476,7 @@ RE_TEMA_FUERTE = re.compile(r"\b(basquet(bol)? adaptado|basquet(bol)? (en|sobre)
 RE_TEMA_ADAPTADO = re.compile(RE_TEMA_FUERTE.pattern[:-3] + r"|discapacidad)\b")
 RE_TEMA_DEPORTE = re.compile(r"\b(deportes?|deportiv\w*|polideportivo|basquet\w*|atletas?|seleccion)\b")
 RE_INSTITUCIONES = re.compile(r"\b(faba|copar|enard|federacion argentina de basquet\w* adaptado|comite paralimpico)\b")
+RE_TRIBUTARIA = re.compile(r"\bordenanza (fiscal|impositiva|tarifaria)\b|\bcodigo (fiscal|tributario)\b")
 RE_FONDOS = re.compile(r"\b(subsidios?|becas?|viaticos?|aportes?|transferencias?|convenios?|adjudica\w*)\b")
 
 
@@ -524,8 +525,10 @@ def relevancia(texto: str, alias: dict) -> list:
         marcas.append("menciona_faba_copar_enard")
     if _cerca(t, RE_TEMA_FUERTE, RE_TEMA_DEPORTE):
         marcas.append("deporte_y_discapacidad")
-    elif _cerca(t, RE_TEMA_ADAPTADO, RE_TEMA_DEPORTE) and (RE_FONDOS.search(t) or any(a in t for a in alias)):
-        # "discapacidad" a secas (p. ej. exenciones de una ordenanza fiscal) solo cuenta con fondos o un club nombrado
+    elif (_cerca(t, RE_TEMA_ADAPTADO, RE_TEMA_DEPORTE) and not RE_TRIBUTARIA.search(t[:3000])
+          and (_cerca(t, RE_TEMA_ADAPTADO, RE_FONDOS) or any(a in t for a in alias))):
+        # "discapacidad" a secas solo cuenta con fondos CERCA o con un club nombrado, y nunca en normas tributarias
+        # (las ordenanzas fiscal/impositiva mencionan exenciones a entidades deportivas y a personas con discapacidad)
         marcas.append("deporte_y_discapacidad")
     for a, slug in alias.items():
         if re.search(r"(?<![a-z0-9@])" + re.escape(a) + r"(?![a-z0-9])", t):
@@ -540,20 +543,22 @@ def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alia
     resultados = []
     registrar_vista(f.get("id"), f["url"], hash_estable(cap), False)
     nuevos = [u for u in enlaces_documento(cap.contenido, f["url"]) if u not in vistas]
-    leidos = 0
+    intentos = 0
     for u in nuevos:
-        if leidos >= MAX_NUEVOS_POR_INDICE or tiempo_agotado():
+        if intentos >= MAX_NUEVOS_POR_INDICE or tiempo_agotado():   # cada intento cuenta, salga bien o mal
             break
         if presupuesto[0] <= 0:
             break
         presupuesto[0] -= 1
+        intentos += 1
         c2 = capturar(u)
         time.sleep(PAUSA_SEG)
-        if c2.bloqueada:
-            resultados.append("bloqueado"); continue
-        if not c2.utilizable:
-            continue
-        leidos += 1
+        if c2.bloqueada or not c2.utilizable:
+            # se anota para no reintentarlo en cada corrida (la huella marca el motivo)
+            marca = hashlib.sha256(f"fallo:{c2.motivo or c2.http}".encode()).hexdigest()
+            registrar_vista(f.get("id"), u, marca, True)
+            vistas[u] = marca
+            resultados.append("bloqueado" if c2.bloqueada else "fallo"); continue
         es_pdf = c2.contenido[:5] == b"%PDF-"
         estable = hash_estable(c2)
         if not es_pdf:

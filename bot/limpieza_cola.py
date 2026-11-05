@@ -33,7 +33,10 @@ def main():
     for c in cola:
         url = (c.get("url_fuente") or "").split("#")[0].rstrip("/")
         if c["agente"] == "rastreador":
-            if url in indices:
+            if (c.get("propuesta") or {}).get("indice") and o.re.search(r"(?i)ordenanza[_ -]?(fiscal|impositiva|tarifaria)", c["url_fuente"] + c["titulo"]):
+                retirar(c, "otro", "Falso positivo del filtro anterior: norma tributaria (exenciones), no un acto de deporte adaptado.", prueba)
+                n["norma_tributaria"] = n.get("norma_tributaria", 0) + 1
+            elif url in indices:
                 retirar(c, "otro", "Portada de un índice: el rastreador ahora busca los documentos de adentro y propone solo los relevantes.", prueba)
                 n["portada_indice"] += 1
             elif url in vistos_url:

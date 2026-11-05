@@ -34,6 +34,9 @@ class T(unittest.TestCase):
         self.assertEqual(o.relevancia(lejos, {}), [])                                                  # lejos: no
         fiscal = "Exencion de tasas a entidades deportivas y a personas con discapacidad segun articulo 45"
         self.assertEqual(o.relevancia(fiscal, {}), [])                                                 # ordenanza fiscal: no
+        tribut = ("Ordenanza Impositiva 2026. Titulo 3: exenciones. Entidades deportivas y personas con discapacidad. "
+                  + "x " * 400 + "Aportes y subsidios de terceros")
+        self.assertEqual(o.relevancia(tribut, {}), [])                                                 # fondos lejos y tributaria
         self.assertEqual(o.relevancia("convenio con FABA", {}), ["menciona_faba_copar_enard", "menciona_fondos"])
 
     def test_menu_del_sitio_no_cuenta(self):
@@ -69,6 +72,17 @@ class T(unittest.TestCase):
                        "estado": "rechazada", "revisada_por": "limpieza automática", "nota_revision": "Portada de un índice"}]})
         with mock.patch.object(o, "db", return_value=fdb2):
             self.assertEqual(o.proponer("rastreador", "documento_nuevo", "t", port, None, "i1", {}), "duplicado")
+
+    def test_enlaces_que_fallan_cuentan_y_se_anotan(self):
+        idx = b"<html>" + b"".join(b'<a href="/d/n%d.pdf">n</a>' % i for i in range(20)) + b"</html>"
+        fdb = FakeDB({"cola_revision": [], "agente_votos": [], "fuente_urls_vistas": []})
+        f = {"id": "f1", "url": "https://m.gob.ar/i/", "nombre": "I", "tipo": "boletin_oficial", "institucion_id": "i1", "club_id": None}
+        pres = [100]
+        with mock.patch.object(o, "db", return_value=fdb), mock.patch.object(o.time, "sleep"), \
+             mock.patch.object(o, "capturar", side_effect=lambda u, **k: o.Captura(u, 404, motivo="http_404")):
+            r = o.procesar_indice(f, cap(f["url"], idx), {}, pres, {}, {})
+        self.assertEqual(r.count("fallo"), o.MAX_NUEVOS_POR_INDICE); self.assertEqual(pres[0], 100 - o.MAX_NUEVOS_POR_INDICE)
+        self.assertEqual(len(fdb.tablas["fuente_urls_vistas"]), 1 + o.MAX_NUEVOS_POR_INDICE)
 
     def test_hash_estable_ignora_fechas(self):
         a = o.hash_estable(cap("u", b"<p>Boletin de hoy 04/11/2026 10:35 visitas 120</p>"))
