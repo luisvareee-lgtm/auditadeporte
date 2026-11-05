@@ -71,6 +71,14 @@ begin
       end;
     end loop;
 
+    -- 1b) mensajes y presentaciones que nombran al club por su slug (texto, no clave)
+    if to_regclass('public.tips') is not null then
+      update public.tips set club_slug = par.queda_slug where club_slug = par.vieja_slug;
+    end if;
+    if to_regclass('public.presentaciones_club') is not null then
+      update public.presentaciones_club set club_slug = par.queda_slug where club_slug = par.vieja_slug;
+    end if;
+
     -- 2) completar datos vacíos de la ficha que queda con los de la vieja
     update public.clubes k set
       instagram         = coalesce(k.instagram, v.instagram),
