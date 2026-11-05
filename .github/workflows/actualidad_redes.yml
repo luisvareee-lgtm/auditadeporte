@@ -1,0 +1,30 @@
+name: Actualidad en Instagram (API oficial de Meta)
+on:
+  workflow_dispatch:
+    inputs:
+      prueba:
+        description: "Solo probar el acceso (lee la cuenta llave y FABA, no escribe nada)"
+        type: boolean
+        default: true
+  schedule: [{ cron: "0 13 * * 1" }]      # lunes 10:00 hora Argentina
+permissions: { contents: read }
+concurrency: { group: actualidad-redes, cancel-in-progress: false }
+jobs:
+  redes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Tests
+        run: python -m unittest test_supa test_actualidad_redes
+        working-directory: bot
+      - name: Leer cuentas de Instagram (todo queda para revisión humana)
+        run: python actualidad_redes.py ${{ (github.event_name == 'schedule' || !inputs.prueba) && ' ' || '--prueba' }}
+        working-directory: bot
+        env:
+          META_TOKEN: ${{ secrets.META_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
