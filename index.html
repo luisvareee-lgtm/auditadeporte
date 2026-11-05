@@ -34,6 +34,13 @@
   .leaflet-container a.btn-popup { color: #fff; }
   dialog { border: 0; border-radius: 20px; padding: 0; max-width: 760px; width: calc(100% - 24px); box-shadow: 0 25px 60px rgba(0,0,0,.45); }
   dialog::backdrop { background: rgba(2,6,23,.7); }
+  .ruta { counter-reset: paso; }
+  .ruta li { counter-increment: paso; position: relative; padding: .6rem .75rem .6rem 2.6rem; background: #fff; border-radius: .9rem; border: 1px solid #e2e8f0; }
+  .ruta li::before { content: counter(paso); position: absolute; left: .7rem; top: .65rem; width: 1.4rem; height: 1.4rem; border-radius: 999px; background: #0f172a; color: #fff; font: 800 .75rem/1.4rem system-ui, sans-serif; text-align: center; }
+  .ruta li:not(:last-child)::after { content: ""; position: absolute; left: 1.38rem; bottom: -.55rem; width: 2px; height: .55rem; background: #94a3b8; }
+  .ruta b { display: block; font-size: .95rem; line-height: 1.3; }
+  .ruta span { display: block; font-size: .82rem; color: #475569; margin-top: .2rem; }
+  .filtro-juris[aria-pressed="true"] { background: #0f172a; color: #fff; border-color: #0f172a; }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -67,6 +74,7 @@
   <nav class="bg-white text-slate-700 border-b border-slate-200" aria-label="Secciones">
     <div role="tablist" class="max-w-7xl mx-auto px-2 flex overflow-x-auto text-sm">
       <button role="tab" id="t-mapa" data-tab="mapa" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="map" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Mapa y clubes</button>
+      <button role="tab" id="t-simple" data-tab="simple" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="lightbulb" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Explicado fácil</button>
       <button role="tab" id="t-transp" data-tab="transp" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="file-search" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Documentos públicos</button>
       <button role="tab" id="t-inst" data-tab="inst" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="landmark" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Instituciones</button>
       <button role="tab" id="t-pedir" data-tab="pedir" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="mail-open" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Pedir información</button>
@@ -131,6 +139,102 @@
         </div>
         <ul id="dir" class="space-y-2.5 max-h-[470px] overflow-y-auto pr-1"></ul>
       </aside>
+    </div>
+  </section>
+
+  <!-- ===== EXPLICADO FÁCIL ===== -->
+  <section id="s-simple" role="tabpanel" aria-labelledby="t-simple" class="hidden space-y-6">
+
+    <div class="rounded-2xl bg-gradient-to-br from-emerald-900 via-slate-900 to-slate-900 text-white p-6 md:p-8 shadow-lg space-y-3">
+      <p class="inline-block bg-emerald-300 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wide">Explicado fácil</p>
+      <h2 class="text-2xl md:text-3xl font-black leading-tight">¿A dónde va la plata del básquet en silla de ruedas?</h2>
+      <p class="text-slate-200 text-base max-w-3xl">Todos los días, unos programas automáticos revisan las páginas oficiales de los municipios y provincias donde juegan los equipos. Buscan documentos sobre plata para el deporte adaptado: <strong>subsidios, becas, compras de sillas, viajes</strong>. Acá te contamos qué encontramos, sin palabras difíciles.</p>
+      <p id="simple-actualizado" class="text-sm text-emerald-200"></p>
+    </div>
+
+    <!-- 1. Lo que encontramos -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+      <h3 class="text-xl font-black">1. Lo que encontramos hasta hoy</h3>
+      <dl id="simple-numeros" class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center"></dl>
+      <div id="simple-lectura" class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-slate-800 text-base space-y-2"></div>
+    </div>
+
+    <!-- 2. La ruta de la plata -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
+      <div class="space-y-1">
+        <h3 class="text-xl font-black">2. La ruta de la plata</h3>
+        <p class="text-slate-700 max-w-3xl">La plata para el deporte adaptado puede salir de tres lugares. En cada paso, el Estado tiene que dejar un papel público: una ley, un decreto, una resolución o una rendición. <strong>Si falta un papel, la ruta se corta y ya no se puede seguir la plata.</strong></p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <article class="rounded-2xl border-2 border-blue-200 bg-blue-50/50 p-4 space-y-2" aria-label="Ruta nacional">
+          <h4 class="font-black text-blue-900 text-lg">Desde la Nación</h4>
+          <ol class="ruta space-y-2">
+            <li><b>El Congreso aprueba el Presupuesto nacional.</b><span>Se ve en: Presupuesto Abierto y el Boletín Oficial.</span></li>
+            <li><b>Lo reparten la Secretaría de Deportes, el ENARD y la Agencia Nacional de Discapacidad.</b><span>El ENARD apoya al deporte de alto rendimiento. Desde 2018 se financia con el Presupuesto nacional.</span></li>
+            <li><b>Llega al Comité Paralímpico (COPAR), a la federación (FABA) o directo a deportistas como becas.</b><span>Se ve en: resoluciones, convenios y en los balances de cada entidad.</span></li>
+            <li><b>Termina en el club o en el deportista.</b><span>Sillas, viajes, inscripciones, becas. El que recibe tiene que rendir cuentas.</span></li>
+          </ol>
+        </article>
+        <article class="rounded-2xl border-2 border-amber-200 bg-amber-50/50 p-4 space-y-2" aria-label="Ruta provincial">
+          <h4 class="font-black text-amber-900 text-lg">Desde la Provincia</h4>
+          <ol class="ruta space-y-2">
+            <li><b>La Legislatura aprueba el Presupuesto provincial.</b><span>Se ve en: el Boletín Oficial de la provincia.</span></li>
+            <li><b>El área de Deportes de la provincia arma sus programas.</b><span>Por ejemplo, subsidios a clubes o ayuda para competir.</span></li>
+            <li><b>Le da plata a un municipio o a un club.</b><span>Se ve en: la resolución o el convenio que lo aprueba.</span></li>
+            <li><b>Termina en el equipo.</b><span>Quien recibe un subsidio tiene que rendir cuentas de en qué lo gastó.</span></li>
+          </ol>
+        </article>
+        <article class="rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 p-4 space-y-2" aria-label="Ruta municipal">
+          <h4 class="font-black text-emerald-900 text-lg">Desde el Municipio</h4>
+          <ol class="ruta space-y-2">
+            <li><b>El Concejo Deliberante aprueba el Presupuesto municipal.</b><span>Es una ordenanza. Dice cuánto va a Deportes y si hay una partida para deporte adaptado.</span></li>
+            <li><b>La Secretaría o Dirección de Deportes decide en qué se usa.</b><span>Se ve en: decretos del intendente publicados en el Boletín Oficial municipal.</span></li>
+            <li><b>Compra cosas o le da un subsidio a un club.</b><span>Las compras se ven en las licitaciones. Los subsidios, en el decreto que los otorga.</span></li>
+            <li><b>Termina en el equipo municipal o en el club.</b><span>Sillas, cubiertas, viajes, profes. Si es un club, tiene que rendir cuentas al municipio.</span></li>
+          </ol>
+        </article>
+      </div>
+      <div class="rounded-2xl bg-slate-900 text-white p-5 space-y-3">
+        <h4 class="font-black text-lg">Los 4 pasos de cada peso</h4>
+        <p class="text-slate-300 text-sm">Con un ejemplo: un municipio quiere comprarle una silla deportiva a su equipo.</p>
+        <ol class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+          <li class="rounded-xl bg-white/10 p-3"><p class="text-amber-300 font-black">1. Se promete</p><p>El presupuesto dice que hay plata para eso. <span class="text-slate-400">(crédito)</span></p></li>
+          <li class="rounded-xl bg-white/10 p-3"><p class="text-amber-300 font-black">2. Se reserva</p><p>Se aparta la plata y se elige a quién comprarle. <span class="text-slate-400">(compromiso)</span></p></li>
+          <li class="rounded-xl bg-white/10 p-3"><p class="text-amber-300 font-black">3. Se debe</p><p>La silla llegó: el municipio ya le debe al proveedor. <span class="text-slate-400">(devengado)</span></p></li>
+          <li class="rounded-xl bg-white/10 p-3"><p class="text-amber-300 font-black">4. Se paga</p><p>Sale la transferencia. Recién ahí la plata llegó. <span class="text-slate-400">(pagado)</span></p></li>
+        </ol>
+        <p class="text-slate-300 text-sm">Si algo se prometió pero nunca se pagó, el equipo no lo recibió aunque figure en el presupuesto. Por eso miramos los cuatro pasos y no solo el primero.</p>
+      </div>
+    </div>
+
+    <!-- 3. Quién muestra sus papeles -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+      <div class="space-y-1">
+        <h3 class="text-xl font-black">3. ¿Quién muestra sus papeles?</h3>
+        <p class="text-slate-700 max-w-3xl">Estos son los municipios y provincias donde juegan los equipos. <strong>"No publica datos abiertos"</strong> significa que no encontramos sus documentos de forma pública y revisable. Puede que los tenga y no los publique, o que su página no deje consultarlos. En los dos casos, cualquier persona puede pedirlos: es un derecho.</p>
+      </div>
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrar por estado">
+        <button data-filtro-juris="" aria-pressed="true" class="filtro-juris px-3 py-1.5 rounded-full text-sm font-bold border border-slate-300">Todos</button>
+        <button data-filtro-juris="no_publica" aria-pressed="false" class="filtro-juris px-3 py-1.5 rounded-full text-sm font-bold border border-red-300 text-red-800">No publica datos abiertos</button>
+        <button data-filtro-juris="a_medias" aria-pressed="false" class="filtro-juris px-3 py-1.5 rounded-full text-sm font-bold border border-amber-300 text-amber-800">Publica a medias</button>
+        <button data-filtro-juris="publica" aria-pressed="false" class="filtro-juris px-3 py-1.5 rounded-full text-sm font-bold border border-emerald-300 text-emerald-800">Publica</button>
+      </div>
+      <label class="block max-w-md"><span class="sr-only">Buscar por club o lugar</span>
+        <input id="buscar-juris" type="search" placeholder="Buscá tu club o tu ciudad" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm"></label>
+      <ul id="lista-juris" class="grid grid-cols-1 md:grid-cols-2 gap-3" aria-live="polite"></ul>
+    </div>
+
+    <!-- 4. Cómo ayudar -->
+    <div class="bg-amber-50 border border-amber-300 rounded-2xl p-6 space-y-3">
+      <h3 class="text-xl font-black text-amber-950">4. ¿Querés ayudar? Pedí la información vos también</h3>
+      <ol class="list-decimal pl-5 space-y-1.5 text-amber-950">
+        <li>Elegí un lugar marcado como <strong>"No publica datos abiertos"</strong> o <strong>"Publica a medias"</strong> y tocá <strong>"Pedí esta información"</strong>.</li>
+        <li>Te armamos el texto del pedido con la ley que corresponde. Completá tu nombre y copialo.</li>
+        <li>Presentalo por el canal oficial del municipio o de la provincia (mesa de entradas, correo o formulario web) y <strong>guardá el número de expediente o el comprobante</strong>.</li>
+        <li>Si no te contestan en el plazo, se puede reclamar. Cada tarjeta te dice dónde.</li>
+        <li>Si querés, avisanos que lo presentaste en <button data-tab="dato" class="underline font-bold">Enviar un dato</button>. No hace falta que pongas tu nombre.</li>
+      </ol>
+      <p class="text-sm text-amber-900">Pedir información pública es gratis y no hace falta explicar para qué la querés. Cuantas más personas la piden, más difícil es no responder. Esta guía es orientativa y no es asesoramiento legal.</p>
     </div>
   </section>
 
@@ -522,8 +626,85 @@ function renderTransp() {
   $('#stat-rev').textContent = rev;
 }
 
+
+/* ============ EXPLICADO FÁCIL ============ */
+const ESTADO_JURIS = {
+  publica:    { txt: 'Publica', cls: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+  a_medias:   { txt: 'Publica a medias', cls: 'bg-amber-100 text-amber-900 border-amber-300' },
+  no_publica: { txt: 'No publica datos abiertos', cls: 'bg-red-100 text-red-900 border-red-300' }
+};
+const TIPO_JURIS = { municipio: 'Municipio', provincia: 'Provincia', nacion: 'Nación', universidad: 'Universidad nacional' };
+let JURIS = [], filtroJuris = '', marcoPedido = null;
+const fechaLinda = f => { if (!f) return '—'; const [a, m, d] = f.split('-'); return `${d}/${m}/${a}`; };
+const urlSegura = u => /^https?:\/\//i.test(u || '') ? u : '';
+
+async function cargarSimple() {
+  try {
+    const r = await fetch('datos/transparencia.json', { cache: 'no-store' });
+    if (!r.ok) throw new Error('http ' + r.status);
+    const d = await r.json();
+    JURIS = d.jurisdicciones || [];
+    const t = d.totales || {};
+    $('#simple-actualizado').textContent = `Última actualización: ${fechaLinda(d.actualizado)}. Se actualiza solo, todos los días.`;
+    const num = (v, txt, color) => `<div class="rounded-xl ${color} p-4"><dd class="text-3xl font-black">${esc(v)}</dd><dt class="text-sm font-semibold">${txt}</dt></div>`;
+    $('#simple-numeros').innerHTML =
+      num(t.jurisdicciones ?? '—', 'lugares revisados', 'bg-slate-100') +
+      num(t.publica ?? '—', 'publican sus documentos', 'bg-emerald-50 text-emerald-900') +
+      num(t.a_medias ?? '—', 'publican a medias', 'bg-amber-50 text-amber-900') +
+      num(t.no_publica ?? '—', 'no publican datos abiertos', 'bg-red-50 text-red-900');
+    const munis = JURIS.filter(j => j.tipo === 'municipio').length, provs = JURIS.filter(j => j.tipo === 'provincia').length;
+    const hallados = (t.encontrados_para_revisar || 0) + (t.publicados || 0);
+    $('#simple-lectura').innerHTML = `
+      <p>Revisamos <strong>${munis} municipios</strong> y <strong>${provs} provincias</strong> donde juegan <strong>${esc(t.clubes)} equipos</strong>, más fuentes nacionales.</p>
+      <p>Leímos <strong>${esc(t.documentos_leidos)} documentos oficiales</strong> (boletines, licitaciones, presupuestos).</p>
+      ${hallados
+        ? `<p>Encontramos <strong>${hallados}</strong> que hablan de deporte adaptado: ${t.publicados ? `<strong>${t.publicados}</strong> ya están publicados en este sitio` : 'todavía se están revisando'}.</p>`
+        : `<p><strong>Hasta hoy no apareció ningún documento que hable de deporte adaptado.</strong> Eso no prueba que no haya plata: quiere decir que en lo que estos lugares publican, y se puede leer, no está escrito. Por eso es importante pedir la información.</p>`}
+      <p><strong>${esc(t.no_publica)} lugares no publican datos abiertos:</strong> no podemos ver sus papeles. Abajo te mostramos cuáles son y cómo pedírselos.</p>`;
+    pintarJuris();
+  } catch (e) {
+    $('#simple-lectura').innerHTML = '<p>No pudimos cargar el resumen en este momento. Probá de nuevo en un rato.</p>';
+  }
+}
+
+function pintarJuris() {
+  const q = (($('#buscar-juris') || {}).value || '').trim().toLowerCase();
+  const lista = JURIS.filter(j => (!filtroJuris || j.estado === filtroJuris) &&
+    (!q || (j.nombre + ' ' + j.clubes.join(' ')).toLowerCase().includes(q)));
+  $('#lista-juris').innerHTML = lista.length ? lista.map(j => {
+    const e = ESTADO_JURIS[j.estado] || ESTADO_JURIS.no_publica;
+    const p = j.pedido || {};
+    const fuentes = j.fuentes.length ? `<ul class="text-sm space-y-1">${j.fuentes.map(f => `
+        <li class="flex gap-2 items-start"><span aria-hidden="true">${f.responde ? '✅' : '⚠️'}</span>
+          <span><a class="underline text-blue-800 break-words" href="${esc(urlSegura(f.url))}" target="_blank" rel="noopener">${esc(f.nombre)}</a>
+          <span class="text-slate-500">· ${esc(f.tipo)}${f.responde ? '' : ' · no respondió'}</span></span></li>`).join('')}</ul>` : '';
+    return `<li data-juris="${esc(j.slug)}" data-estado="${esc(j.estado)}" class="rounded-2xl border border-slate-200 p-4 space-y-2 min-w-0">
+      <div class="flex flex-wrap items-start gap-2 justify-between">
+        <div class="min-w-0"><p class="text-xs font-bold uppercase tracking-wide text-slate-500">${esc(TIPO_JURIS[j.tipo] || '')}</p>
+          <h4 class="font-black text-lg leading-tight break-words">${esc(j.nombre)}</h4></div>
+        <span class="text-xs font-extrabold px-2.5 py-1 rounded-full border ${e.cls}">${e.txt}</span>
+      </div>
+      ${j.clubes.length ? `<p class="text-sm"><span class="font-bold">Equipos:</span> ${esc(j.clubes.join(', '))}</p>` : ''}
+      <p class="text-sm text-slate-800">${esc(j.motivo)}</p>
+      ${fuentes}
+      <p class="text-xs text-slate-500">Documentos leídos: ${esc(j.documentos_leidos)} · Última revisión: ${fechaLinda(j.ultima_revision)}</p>
+      <details class="text-sm rounded-xl bg-slate-50 border border-slate-200 p-3">
+        <summary class="font-bold cursor-pointer">Cómo y dónde pedir la información</summary>
+        <div class="space-y-1.5 mt-2">
+          <p><span class="font-bold">Qué ley usar:</span> ${esc(p.norma || '')}${p.provincial ? `. En la provincia rige ${esc(p.provincial)}` : ''}.</p>
+          <p><span class="font-bold">Cuánto tienen para contestar:</span> ${esc(p.plazo || '')}.</p>
+          <p><span class="font-bold">Si no contestan:</span> ${esc(p.reclamo || '')}.</p>
+          ${p.extra ? `<p class="text-slate-600">${esc(p.extra)}</p>` : ''}
+          ${urlSegura(j.sitio_web) ? `<p><span class="font-bold">Sitio oficial:</span> <a class="underline text-blue-800 break-words" href="${esc(j.sitio_web)}" target="_blank" rel="noopener">${esc(j.sitio_web)}</a> (buscá "mesa de entradas", "acceso a la información" o "contacto").</p>` : ''}
+        </div>
+      </details>
+      <button data-action="pedir-juris" data-slug="${esc(j.slug)}" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">${j.estado === 'publica' ? 'Pedir más información' : 'Pedí esta información'}</button>
+    </li>`;
+  }).join('') : '<li class="text-slate-600">No hay lugares con ese filtro.</li>';
+}
+
 /* ============ TABS ============ */
-const TABS = ['mapa','transp','inst','pedir','dato','rse'];
+const TABS = ['mapa','simple','transp','inst','pedir','dato','rse'];
 function showTab(t, push = true) {
   if (!TABS.includes(t)) t = 'mapa';
   TABS.forEach(x => {
@@ -680,7 +861,10 @@ function armarPedido() {
   const nom = $('#p-nom').value.trim() || '[Nombre y apellido]';
   const dni = $('#p-dni').value.trim() || '[DNI]';
   const mail = $('#p-mail').value.trim() || '[Correo electrónico]';
-  const marco = tipo === 'municipio'
+  const mp = (marcoPedido && marcoPedido.entidad === $('#p-entidad').value.trim()) ? marcoPedido : null;
+  const marco = mp
+    ? `en ejercicio del derecho de acceso a la información pública garantizado por la ${mp.base}${/^sin ley/.test(mp.norma) ? '' : ', y por ' + mp.norma}${mp.provincial ? '; y, en lo que corresponda, ' + mp.provincial.replace(/ \(.*\)$/, '') : ''}`
+    : tipo === 'municipio'
     ? 'en ejercicio del derecho de acceso a la información pública reconocido por la normativa aplicable en mi jurisdicción'
     : tipo === 'club'
       ? 'en mi carácter de persona interesada, y en lo que se relacione con fondos públicos recibidos por la entidad o, si soy socio/a, conforme a su estatuto'
@@ -695,7 +879,7 @@ Por la presente, ${marco}, solicito se me brinde la siguiente información, pref
 ${items.length ? items.join('\n') : '  - [Indicar la información solicitada]'}
 
 Período: últimos tres años o el que corresponda.
-
+${mp ? `\nSolicito respuesta dentro del plazo previsto: ${mp.plazo}.\n` : ''}
 No se requiere información personal sensible de terceros; si algún dato debiera reservarse, solicito que se entregue el resto de la documentación con la parte reservada tachada y se indique el fundamento.
 
 Datos del solicitante:
@@ -792,6 +976,11 @@ document.addEventListener('click', e => {
   else if (act === 'abrir') $('#' + a.dataset.dialog).showModal();
   else if (act === 'cerrar') a.closest('dialog').close();
   else if (act === 'copiar') { const t = $('#' + a.dataset.target); t.select(); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.resolve(document.execCommand('copy'))).then(() => toast('Texto copiado')); }
+  else if (act === 'pedir-juris') {
+    const j = JURIS.find(x => x.slug === a.dataset.slug); if (!j) return;
+    marcoPedido = { entidad: j.nombre, ...j.pedido };
+    $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
+  }
   else if (act === 'pedir-inst') { $('#p-tipo').value = 'federacion'; $('#p-entidad').value = a.dataset.nombre; armarPedido(); showTab('pedir'); }
   else if (act === 'postular') { $('#post-cod').textContent = a.dataset.cod; $('#post-estado').textContent = ''; $('#dlg-post').showModal(); }
 });
@@ -802,6 +991,11 @@ $('#club-rse').onclick = () => { $('#dlg-club').close(); showTab('rse'); };
 $('#buscador').addEventListener('input', () => { refrescar(); });
 $('#filtro-div').addEventListener('change', refrescar);
 $('#form-pedido').addEventListener('input', armarPedido);
+$$('.filtro-juris').forEach(b => b.addEventListener('click', () => {
+  filtroJuris = b.dataset.filtroJuris; $$('.filtro-juris').forEach(x => x.setAttribute('aria-pressed', x === b)); pintarJuris();
+}));
+$('#buscar-juris').addEventListener('input', pintarJuris);
+cargarSimple();
 $('#p-mailto').onclick = () => { armarPedido(); location.href = `mailto:?subject=${encodeURIComponent('Solicitud de acceso a información')}&body=${encodeURIComponent($('#p-texto').value)}`; };
 $('#form-dato').addEventListener('submit', enviarDato);
 $('#form-post').addEventListener('submit', async ev => {

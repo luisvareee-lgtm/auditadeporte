@@ -72,7 +72,7 @@ def construir(db=None, cat=None, marco=None) -> dict:
     cat = cat or catalogo()
     marco = marco or json.load(open(os.path.join(AQUI, "marco_legal.json"), encoding="utf-8"))
     insts = {i["slug"]: i for i in db.table("instituciones").select("id,slug,nombre,sitio_web").execute().data or []}
-    fuentes = db.table("fuentes_monitoreadas").select("id,institucion_id,club_id,nombre,url,tipo,estado,ultimo_status,ultima_revision,nota") \
+    fuentes = db.table("fuentes_monitoreadas").select("id,institucion_id,club_id,nombre,url,tipo,estado,ultimo_status,ultima_revision,nota,fallos_consecutivos") \
         .execute().data or []
     vistas = db.table("fuente_urls_vistas").select("fuente_id").execute().data or []
     leidos_por_fuente = {}
@@ -100,8 +100,11 @@ def construir(db=None, cat=None, marco=None) -> dict:
         notas = " ".join((f.get("nota") or "") for f in fs)
         if not fs:
             estado, motivo = "no_publica", motivo_simple(j.get("pendiente"), "")
+        elif not ok and max((f.get("fallos_consecutivos") or 0) for f in fs) < 3:
+            # una caída puntual no alcanza para decir que no publica: se espera a tres fallas seguidas
+            estado, motivo = "a_medias", "Su página oficial no respondió en la última revisión. Se vuelve a intentar todos los días."
         elif not ok:
-            estado, motivo = "no_publica", "Sus páginas oficiales no respondieron en las últimas revisiones."
+            estado, motivo = "no_publica", "Sus páginas oficiales no respondieron en las últimas revisiones (tres o más intentos seguidos)."
         elif "solo hasta" in notas:
             estado, motivo = "a_medias", "Publica su boletín oficial, pero la página muestra ediciones viejas: " + notas.split("lista ediciones por año ")[-1].rstrip(".") + "."
         elif not boletin_ok and slug.startswith("muni-"):

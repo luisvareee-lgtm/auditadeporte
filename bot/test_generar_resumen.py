@@ -21,7 +21,7 @@ class T(unittest.TestCase):
             "fuentes_monitoreadas": [
                 {"id": "fa", "institucion_id": "ia", "nombre": "Boletín A", "url": "https://a", "tipo": "boletin_oficial", "estado": "activa", "ultimo_status": 200, "ultima_revision": "2026-11-05T06:00"},
                 {"id": "fc", "institucion_id": "ic", "nombre": "Compras C", "url": "https://c", "tipo": "compras", "estado": "activa", "ultimo_status": 200},
-                {"id": "fp", "institucion_id": "ip", "nombre": "BO PBA", "url": "https://p", "tipo": "boletin_oficial", "estado": "activa", "ultimo_status": 503}],
+                {"id": "fp", "institucion_id": "ip", "nombre": "BO PBA", "url": "https://p", "tipo": "boletin_oficial", "estado": "activa", "ultimo_status": 503, "fallos_consecutivos": 3}],
             "fuente_urls_vistas": [{"fuente_id": "fa"}] * 7 + [{"fuente_id": "fc"}] * 2,
             "cola_revision": [{"agente": "rastreador", "estado": "pendiente", "propuesta": {"fuente_id": "fa", "indice": "https://a"}},
                               {"agente": "rastreador", "estado": "rechazada", "revisada_por": "limpieza automática",
