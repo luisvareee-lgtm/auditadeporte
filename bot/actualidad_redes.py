@@ -133,10 +133,18 @@ def contraste_colecta(dest: dict, n: dict, cap_post: o.Captura) -> str:
     AuditaDeporte relevó en fuentes oficiales de esa entidad. Sin calificativos. La ausencia en NUESTRAS
     fuentes no prueba ausencia en la realidad: el texto lo dice y, si no hay fuentes, propone cómo cubrir el hueco."""
     cid = dest["id"]
-    fuentes = o.db().table("fuentes_monitoreadas").select("nombre,tipo,estado,ultima_revision").eq("club_id", cid).execute().data or []
+    # Fuentes del club y de su jurisdicción (municipio y provincia, según bot/catalogo_fuentes.json)
+    from cargar_fuentes import jurisdicciones_de
+    juris = jurisdicciones_de(dest.get("slug", ""))
+    inst_ids = [i["id"] for i in (o.db().table("instituciones").select("id,slug").execute().data or []) if i["slug"] in juris]
+    campos_f, campos_d = "nombre,tipo,estado,ultima_revision", "titulo,expediente_o_norma,url_fuente,portal_origen,fecha_captura"
+    fuentes = o.db().table("fuentes_monitoreadas").select(campos_f).eq("club_id", cid).execute().data or []
+    docs_todos = o.db().table("documentos_fuente").select(campos_d).eq("club_id", cid).execute().data or []
+    for iid in inst_ids:
+        fuentes += o.db().table("fuentes_monitoreadas").select(campos_f).eq("institucion_id", iid).execute().data or []
+        docs_todos += o.db().table("documentos_fuente").select(campos_d).eq("institucion_id", iid).execute().data or []
     desde = (date.fromisoformat(n["fecha"]) - timedelta(days=365)).isoformat()
-    docs = [d for d in (o.db().table("documentos_fuente").select("titulo,expediente_o_norma,url_fuente,portal_origen,fecha_captura")
-                        .eq("club_id", cid).execute().data or []) if (d.get("fecha_captura") or "")[:10] >= desde]
+    docs = [d for d in docs_todos if (d.get("fecha_captura") or "")[:10] >= desde]
     hoy = datetime.now(timezone.utc).date().isoformat()
     motivo = "convocatoria a colecta, rifa o pedido de fondos" + (" vinculada a un viaje o traslado" if "viaje" in n["marcas"] else "")
     hecho = (f"Hecho relevado: publicación de @{dest['instagram']} de fecha {n['fecha']} (SHA-256 {cap_post.sha256[:16]}…) "
@@ -151,13 +159,13 @@ def contraste_colecta(dest: dict, n: dict, cap_post: o.Captura) -> str:
         lista = "; ".join(f"{d['titulo'][:80]}" + (f" ({d['expediente_o_norma']})" if d.get("expediente_o_norma") else "")
                           for d in docs[:5])
         contraste = (f"Contraste: a la fecha de corte ({hoy}), en las {len(activas)} fuentes oficiales relevadas para "
-                     f"{dest['nombre']} obran {len(docs)} documento(s) de los 12 meses previos: {lista}. "
+                     f"{dest['nombre']} y su jurisdicción obran {len(docs)} documento(s) de los 12 meses previos: {lista}. "
                      f"Verificar si alguno corresponde al gasto mencionado en la publicación.")
         estado = "con_documentos"
     else:
         tipos = ", ".join(sorted({f["tipo"] for f in activas}))
         contraste = (f"Contraste: a la fecha de corte ({hoy}), en las {len(activas)} fuentes oficiales relevadas para "
-                     f"{dest['nombre']} ({tipos}) no obra documento de los 12 meses previos vinculado a asignación de fondos, "
+                     f"{dest['nombre']} y su jurisdicción ({tipos}) no obra documento de los 12 meses previos vinculado a asignación de fondos, "
                      f"viáticos o contratación de transporte. La falta de registro en estas fuentes no acredita que el acto "
                      f"no exista: corresponde confirmarlo en la fuente o mediante pedido de acceso a la información.")
         estado = "sin_documentos"
