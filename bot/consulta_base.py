@@ -27,3 +27,7 @@ for (a, t), n in sorted(conteo.items()):
 print("EJEMPLOS DEL ORQUESTADOR")
 for c in [c for c in cola if c["agente"] not in ("relevador_faba", "actualidad_redes")][:25]:
     print(f"{c['agente']}|{c['tipo']}|{c['titulo'][:110]}")
+print("ULTIMO RASTREO")
+ej = o.db().table("agente_ejecuciones").select("detalle,inicio").eq("agente", "rastreador").order("inicio", desc=True).limit(1).execute().data or []
+for d in ((ej[0].get("detalle") or {}).get("fuentes") or []) if ej else []:
+    print(f"{d.get('resultado')}|nuevos={d.get('nuevos')}|leidos_no_relevantes={d.get('leidos_no_relevantes')}|sin_cambios={d.get('sin_cambios')}|{d['url'][:90]}")
