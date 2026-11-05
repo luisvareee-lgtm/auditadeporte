@@ -81,7 +81,7 @@
   <!-- ===== MAPA Y CLUBES ===== -->
   <section id="s-mapa" role="tabpanel" aria-labelledby="t-mapa" class="space-y-6">
     <div class="rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white p-6 md:p-8 shadow-lg">
-      <div class="grid lg:grid-cols-12 gap-6 items-center">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         <div class="lg:col-span-8 space-y-3">
           <p class="inline-block bg-amber-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wide">Observatorio cívico · sin banderas políticas</p>
           <h2 class="text-2xl md:text-3xl font-black leading-tight">Cada club de básquet adaptado, con sus documentos públicos a la vista.</h2>
@@ -99,7 +99,7 @@
       </div>
     </div>
 
-    <div class="grid lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div class="lg:col-span-8 bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-700">
         <div class="p-3 flex flex-wrap items-center gap-2 border-b border-slate-700">
           <div class="flex gap-1.5" role="group" aria-label="Estilo de mapa">
@@ -158,12 +158,12 @@
       <h2 class="text-2xl font-black">Instituciones que organizan y financian</h2>
       <p class="text-sm text-slate-700 max-w-3xl">Qué hace cada entidad y qué documentos conviene buscar. Los cargos de sus autoridades se publican <strong>solo con fuente oficial y fecha</strong> (acta, resolución, sitio institucional), redactados como hechos verificables y sin adjetivos.</p>
     </div>
-    <div id="inst-grid" class="grid md:grid-cols-3 gap-5"></div>
+    <div id="inst-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
   </section>
 
   <!-- ===== PEDIR INFORMACIÓN ===== -->
   <section id="s-pedir" role="tabpanel" aria-labelledby="t-pedir" class="hidden">
-    <div class="grid lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div class="lg:col-span-5 space-y-4">
         <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3">
           <h2 class="text-2xl font-black">Pedir información</h2>
@@ -177,7 +177,7 @@
       </div>
 
       <form id="form-pedido" class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 space-y-4" novalidate>
-        <div class="grid sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="p-tipo" class="block text-sm font-bold mb-1">Tipo de destinatario</label>
             <select id="p-tipo" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
@@ -194,7 +194,7 @@
         </div>
         <fieldset>
           <legend class="text-sm font-bold mb-2">¿Qué información querés pedir?</legend>
-          <div class="grid sm:grid-cols-2 gap-2 text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Balances y memorias anuales de los últimos 3 ejercicios" checked> Balances y memorias</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Subsidios, convenios o transferencias recibidas para el equipo de básquet adaptado" checked> Subsidios y convenios</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y registros de asignación de sillas deportivas, cubiertas, cámaras, ejes, rayos y repuestos"> Sillas y repuestos</label>
@@ -203,7 +203,7 @@
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Nómina vigente de autoridades y acta de designación"> Autoridades vigentes</label>
           </div>
         </fieldset>
-        <fieldset class="grid sm:grid-cols-3 gap-3">
+        <fieldset class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <legend class="text-sm font-bold mb-2">Tus datos (quedan solo en el texto que copiás)</legend>
           <div><label for="p-nom" class="sr-only">Nombre completo</label><input id="p-nom" autocomplete="name" placeholder="Nombre y apellido" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm"></div>
           <div><label for="p-dni" class="sr-only">DNI</label><input id="p-dni" inputmode="numeric" placeholder="DNI" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm"></div>
@@ -224,7 +224,7 @@
 
   <!-- ===== ENVIAR UN DATO ===== -->
   <section id="s-dato" role="tabpanel" aria-labelledby="t-dato" class="hidden">
-    <div class="grid lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div class="lg:col-span-5 space-y-4">
         <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3">
           <h2 class="text-2xl font-black">Enviar un dato de forma privada</h2>
@@ -246,7 +246,7 @@
       </div>
 
       <form id="form-dato" class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 space-y-4" novalidate>
-        <div class="grid sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="d-tipo" class="block text-sm font-bold mb-1">¿Qué querés enviar?</label>
             <select id="d-tipo" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
@@ -291,7 +291,7 @@
       <p class="inline-block bg-emerald-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase">Inspirado en esquemas de liga de España, Serie A de Italia y de Brasil</p>
       <h2 class="text-2xl md:text-3xl font-black">Patrocinio por rubro, con pago directo al proveedor</h2>
       <p class="text-slate-300 text-sm max-w-3xl">Una empresa financia un módulo concreto y paga directamente al proveedor contra factura. El equipo recibe el bien o el servicio, y la empresa recibe visibilidad y trazabilidad contable. Sin intermediarios y con comprobantes a la vista.</p>
-      <div class="grid md:grid-cols-3 gap-3 pt-2 text-xs text-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs text-slate-200">
         <div class="bg-white/10 rounded-xl p-3 border border-white/15">
           <p class="font-extrabold text-amber-300 mb-1">🇪🇸 Liga de España (BSR / FEDDF)</p>
           <p>Salió del estancamiento exigiendo auditoría pública de cuentas (CSD) y patrocinio técnico específico de neumáticos, ejes y sillas certificadas por plantel.</p>
@@ -309,7 +309,7 @@
     <div class="rounded-xl bg-amber-50 border border-amber-300 p-4 text-sm text-amber-950">
       Los montos son <strong>estimaciones referenciales</strong> para armar un presupuesto. Cada operación se cotiza con el proveedor y se formaliza por escrito entre las partes.
     </div>
-    <div id="rse-grid" class="grid md:grid-cols-2 gap-5"></div>
+    <div id="rse-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
   </section>
 </main>
 
@@ -352,7 +352,7 @@
         <ul id="club-novedades" class="space-y-2 text-sm"></ul>
       </div>
       <div id="club-links" class="flex flex-wrap gap-2 text-sm"></div>
-      <div class="grid sm:grid-cols-3 gap-2 pt-2 border-t border-slate-200">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-200">
         <button id="club-pedir" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-3 rounded-xl text-sm">Pedir información</button>
         <button id="club-dato" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-3 py-3 rounded-xl text-sm">Enviar un dato</button>
         <button id="club-rse" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3 py-3 rounded-xl text-sm">Patrocinar</button>
