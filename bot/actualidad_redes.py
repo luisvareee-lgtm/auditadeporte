@@ -263,7 +263,8 @@ def division_probable(divisiones: dict):
 
 
 def cuentas_a_leer():
-    clubes = o.db().table("clubes").select("id,slug,nombre,instagram,division,estado_afiliacion").execute().data or []
+    clubes = o.db().table("clubes").select("id,slug,nombre,instagram,division,estado_afiliacion,publicado").execute().data or []
+    clubes = [c for c in clubes if c.get("publicado") is not False and c.get("estado_afiliacion") != "baja"]   # los dados de baja no se leen
     insts = o.db().table("instituciones").select("id,slug,nombre,instagram").execute().data or []
     out = [{"tipo": "club", **c} for c in clubes if c.get("instagram")]
     for i in insts:
@@ -370,7 +371,7 @@ def main():
         por_cuenta.setdefault(dest["instagram"].lower(), []).append(dest)
     repetidas = {u: [d["slug"] for d in ds] for u, ds in por_cuenta.items() if len(ds) > 1}
     if repetidas:
-        print("Cuentas cargadas en más de una ficha (¿clubes duplicados?):", repetidas)
+        print("Cuentas compartidas por más de una ficha (se leen una vez; revisar si no es la misma organización):", repetidas)
     for u, destinos in por_cuenta.items():
         try:
             crudo = leer_cuenta(u, propia)
