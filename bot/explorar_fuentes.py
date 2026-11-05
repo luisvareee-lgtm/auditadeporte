@@ -19,8 +19,11 @@ for nombre, url in SITIOS.items():
     for h, txt in re.findall(r"""<a\b[^>]*href=["']([^"'#]+)["'][^>]*>(.*?)</a>""", t, re.S | re.I):
         txt = re.sub(r"<[^>]+>|\s+", " ", txt).strip()
         u = urljoin(url, h.strip())
-        if CLAVE.search(u + " " + txt) and u not in vistos and not u.startswith("mailto"):
+        todos = nombre.startswith("*")                     # "*" = listar todos los enlaces del sitio (p. ej. SIBOM)
+        if (todos or CLAVE.search(u + " " + txt)) and u not in vistos and not u.startswith("mailto"):
             vistos.add(u)
             print(f"   {txt[:50]:50} {u[:150]}")
-        if len(vistos) >= 25:
+        if len(vistos) >= (400 if todos else 25):
             break
+    fechas = re.findall(r"\b(?:20[12]\d[-/]\d\d[-/]\d\d|\d\d/\d\d/20[12]\d)\b", t)
+    print("FECHAS EN LA PÁGINA (más recientes):", sorted(set(fechas), key=lambda f: f[-4:] + f[3:5] + f[:2] if "/" in f else f)[-5:])
