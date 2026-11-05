@@ -542,6 +542,7 @@ def ciclo():
         if cap.bloqueada:
             bloq += 1; detalle.append({"url": f["url"], "resultado": f"bloqueado_{cap.http or cap.motivo}"}); continue
         if not cap.utilizable:
+            print(f"  {f['nombre'][:60]}: no se pudo leer ({cap.motivo or cap.http})", flush=True)
             err += 1; detalle.append({"url": f["url"], "resultado": cap.motivo or f"http_{cap.http}"}); continue
         vistas = urls_vistas(f.get("id"))
         resultados = []
@@ -563,6 +564,8 @@ def ciclo():
                 elif c2.bloqueada:
                     resultados.append("bloqueado")
         ok += 1
+        print(f"  {f['nombre'][:60]}: propuestos={resultados.count('nuevo')} no_relevantes={resultados.count('no_relevante')} "
+              f"sin_cambios={resultados.count('sin_cambios')} presupuesto_restante={presupuesto[0]}", flush=True)
         detalle.append({"url": f["url"], "resultado": "ok", "nuevos": resultados.count("nuevo"),
                         "leidos_no_relevantes": resultados.count("no_relevante"),
                         "sin_cambios": resultados.count("sin_cambios"), "bloqueados_mesa": resultados.count("bloqueado_legal")})

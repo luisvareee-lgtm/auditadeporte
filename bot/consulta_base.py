@@ -31,3 +31,10 @@ print("ULTIMO RASTREO")
 ej = o.db().table("agente_ejecuciones").select("detalle,inicio").eq("agente", "rastreador").order("inicio", desc=True).limit(1).execute().data or []
 for d in ((ej[0].get("detalle") or {}).get("fuentes") or []) if ej else []:
     print(f"{d.get('resultado')}|nuevos={d.get('nuevos')}|leidos_no_relevantes={d.get('leidos_no_relevantes')}|sin_cambios={d.get('sin_cambios')}|{d['url'][:90]}")
+print("DOCUMENTOS LEIDOS POR FUENTE")
+fu = {f["id"]: f["nombre"] for f in o.db().table("fuentes_monitoreadas").select("id,nombre").execute().data or []}
+cnt = {}
+for v in o.db().table("fuente_urls_vistas").select("fuente_id").execute().data or []:
+    cnt[v["fuente_id"]] = cnt.get(v["fuente_id"], 0) + 1
+for fid, n in sorted(cnt.items(), key=lambda kv: -kv[1]):
+    print(f"{n}|{fu.get(fid, fid)}")
