@@ -84,6 +84,17 @@ class T(unittest.TestCase):
         self.assertEqual(r.count("fallo"), o.MAX_NUEVOS_POR_INDICE); self.assertEqual(pres[0], 100 - o.MAX_NUEVOS_POR_INDICE)
         self.assertEqual(len(fdb.tablas["fuente_urls_vistas"]), 1 + o.MAX_NUEVOS_POR_INDICE)
 
+    def test_nombre_del_municipio_no_es_mencion_del_club(self):
+        fdb = FakeDB({"clubes": [{"id": "b", "slug": "municipalidad-berazategui", "nombre": "Municipalidad de Berazategui", "instagram": None},
+                                 {"id": "d", "slug": "duba", "nombre": "DUBA", "instagram": None}],
+                      "instituciones": [{"id": "i1", "slug": "muni-berazategui", "nombre": "Municipalidad de Berazategui"},
+                                        {"id": "i2", "slug": "muni-bahia-blanca", "nombre": "Municipalidad de Bahía Blanca"}]})
+        with mock.patch.object(o, "db", return_value=fdb):
+            alias, _, _ = o.contexto_jurisdicciones()
+        self.assertNotIn("berazategui", alias.get("muni-berazategui", {}))
+        self.assertNotIn("municipalidad de berazategui", alias.get("muni-berazategui", {}))
+        self.assertIn("duba", alias.get("muni-bahia-blanca", {}))
+
     def test_hash_estable_ignora_fechas(self):
         a = o.hash_estable(cap("u", b"<p>Boletin de hoy 04/11/2026 10:35 visitas 120</p>"))
         b = o.hash_estable(cap("u", b"<p>Boletin de hoy 05/11/2026 11:02 visitas 133</p>"))

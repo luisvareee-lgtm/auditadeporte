@@ -15,7 +15,7 @@ jobs:
         with: { python-version: "3.12" }
       - run: python -m unittest test_supa test_limpieza_cola
         working-directory: bot
-      - run: python limpieza_cola.py ${{ inputs.prueba && '--prueba' || '' }} ${{ inputs.reiniciar_indices && '--reiniciar-indices' || '' }}
+      - run: python limpieza_cola.py ${{ inputs.prueba && '--prueba' || '' }} ${{ inputs.reiniciar_indices && '--reiniciar-indices' || '' }} --reevaluar-municipales
         working-directory: bot
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

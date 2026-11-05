@@ -70,6 +70,7 @@ TIEMPO_DESCARGA_SEG = 60          # una descarga que tarde más que esto se aban
 TIEMPO_PDF_SEG = 30               # leer un PDF no puede llevar más que esto
 TIEMPO_MAX_SEG = 40 * 60          # la corrida deja de empezar fuentes nuevas pasado este tiempo
 _FIN = [None]                     # momento límite de la corrida (lo fija ciclo())
+_URLS_FUENTES = set()             # URLs de todas las fuentes cargadas: no se tratan como documentos de otro índice
 
 
 def tiempo_agotado() -> bool:
@@ -542,7 +543,8 @@ def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alia
     """El índice no se propone: se recorren sus documentos nuevos y solo se proponen los relevantes."""
     resultados = []
     registrar_vista(f.get("id"), f["url"], hash_estable(cap), False)
-    nuevos = [u for u in enlaces_documento(cap.contenido, f["url"]) if u not in vistas]
+    otras_fuentes = {x.rstrip("/") for x in _URLS_FUENTES}
+    nuevos = [u for u in enlaces_documento(cap.contenido, f["url"]) if u not in vistas and u.rstrip("/") not in otras_fuentes]
     intentos = 0
     for u in nuevos:
         if intentos >= MAX_NUEVOS_POR_INDICE or tiempo_agotado():   # cada intento cuenta, salga bien o mal
@@ -596,13 +598,18 @@ def contexto_jurisdicciones():
         return {}, {}, {}
     clubes = db().table("clubes").select("id,slug,nombre,instagram").execute().data or []
     por_slug = {c["slug"]: c for c in clubes}
-    inst = {i["id"]: i["slug"] for i in db().table("instituciones").select("id,slug").execute().data or []}
+    insts = db().table("instituciones").select("id,slug,nombre").execute().data or []
+    inst = {i["id"]: i["slug"] for i in insts}
+    nombre_juris = {i["slug"]: _norm(i["nombre"]) for i in insts}
     por_juris = {}
     for club_slug, juris in cat.get("clubes", {}).items():
         for j in juris:
             if club_slug in por_slug:
                 por_juris.setdefault(j, []).append(por_slug[club_slug])
-    alias = {j: {a: next(c["slug"] for c in cs if c["id"] == cid) for a, cid in alias_de_clubes(cs).items() if len(a) >= 4}
+    # Un alias que es el nombre de la propia jurisdicción no identifica al club: "berazategui" aparece en todos los
+    # documentos de la Municipalidad de Berazategui, hable o no de su equipo.
+    alias = {j: {a: next(c["slug"] for c in cs if c["id"] == cid) for a, cid in alias_de_clubes(cs).items()
+                 if len(a) >= 4 and a not in nombre_juris.get(j, "") and not nombre_juris.get(j, "").endswith(a)}
              for j, cs in por_juris.items()}
     return alias, inst, por_slug
 
@@ -617,6 +624,7 @@ def ciclo():
     presupuesto = [MAX_CAPTURAS_POR_CICLO]
     alias_juris, inst_slug, club_por_slug = contexto_jurisdicciones()
     _FIN[0] = time.monotonic() + TIEMPO_MAX_SEG
+    _URLS_FUENTES.clear(); _URLS_FUENTES.update(f["url"] for f in fuentes)
     ok = bloq = err = 0
     detalle = []
     for f in fuentes:

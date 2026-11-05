@@ -26,6 +26,7 @@ def main():
         .eq("estado", "pendiente").execute().data or []
     fuentes = o.db().table("fuentes_monitoreadas").select("url,tipo").execute().data or []
     indices = {f["url"].rstrip("/") for f in fuentes if f["tipo"] in o.TIPOS_INDICE}
+    indices_y_fuentes = {f["url"].rstrip("/") for f in fuentes}
     vigentes = {a["id"] for a in o.db().table("autoridades").select("id").eq("vigente", True).execute().data or []}
     n = {"portada_indice": 0, "duplicado_rastreador": 0, "duplicado_vigencia": 0, "autoridad_ya_no_vigente": 0}
     cola.sort(key=lambda c: c.get("creado_en") or "", reverse=True)                # el más nuevo primero
@@ -33,7 +34,16 @@ def main():
     for c in cola:
         url = (c.get("url_fuente") or "").split("#")[0].rstrip("/")
         if c["agente"] == "rastreador":
-            if (c.get("propuesta") or {}).get("indice") and o.re.search(r"(?i)ordenanza[_ -]?(fiscal|impositiva|tarifaria)", c["url_fuente"] + c["titulo"]):
+            coinc = (c.get("propuesta") or {}).get("coincidencias") or []
+            if (c.get("propuesta") or {}).get("indice") and coinc and all(m.startswith("menciona_club:") or m in ("menciona_fondos", "deporte_y_discapacidad")
+                                                                      for m in coinc) and any(m.startswith("menciona_club:municipalidad-") for m in coinc) \
+                    and not any(m == "menciona_faba_copar_enard" for m in coinc) and "--reevaluar-municipales" in sys.argv:
+                retirar(c, "otro", "Falso positivo del filtro anterior: el nombre del municipio se tomaba como mención del club.", prueba)
+                n["alias_municipio"] = n.get("alias_municipio", 0) + 1
+            elif (c.get("propuesta") or {}).get("indice") and url.rstrip("/") in indices_y_fuentes:
+                retirar(c, "otro", "Falso positivo del filtro anterior: es otra fuente cargada, no un documento.", prueba)
+                n["otra_fuente"] = n.get("otra_fuente", 0) + 1
+            elif (c.get("propuesta") or {}).get("indice") and o.re.search(r"(?i)ordenanza[_ -]?(fiscal|impositiva|tarifaria)", c["url_fuente"] + c["titulo"]):
                 retirar(c, "otro", "Falso positivo del filtro anterior: norma tributaria (exenciones), no un acto de deporte adaptado.", prueba)
                 n["norma_tributaria"] = n.get("norma_tributaria", 0) + 1
             elif url in indices:
