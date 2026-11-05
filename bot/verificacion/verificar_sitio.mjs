@@ -35,7 +35,19 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
       noPublica: document.querySelectorAll('#lista-juris [data-estado="no_publica"]').length,
       anchoDoc: document.documentElement.scrollWidth,
     }));
-    console.log(`[${nombre}] sección simple`, JSON.stringify(s));
+    console.log(`[${nombre}] sección simple`, JSON.stringify({ ...s, texto: s.texto.slice(0, 200) }));
+    if (nombre === 'celular') {
+      const foto = await p.locator('#s-simple').screenshot({ type: 'jpeg', quality: 45 });
+      console.log('FOTO_SIMPLE_INICIO'); console.log(foto.toString('base64')); console.log('FOTO_SIMPLE_FIN');
+    }
+    const boton = p.locator('#lista-juris [data-estado="no_publica"] [data-action="pedir-juris"]').first();
+    if (await boton.count()) {
+      await boton.click(); await p.waitForTimeout(800);
+      const pedido = await p.evaluate(() => ({ pestana: document.querySelector('[role=tab][aria-selected=true]')?.textContent.trim(),
+                                               entidad: document.querySelector('#p-entidad').value,
+                                               texto: document.querySelector('#p-texto').value }));
+      console.log(`[${nombre}] pedido`, JSON.stringify(pedido));
+    }
   }
   console.log(`[${nombre}] errores:`, JSON.stringify(errores.slice(0, 8)));
   await p.close();
