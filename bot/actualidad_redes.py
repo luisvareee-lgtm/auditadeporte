@@ -48,6 +48,131 @@ MARCAS = {"colecta": r"\b(rifa|sorteo|bono contribucion|colecta|cbu|alias|ayudan
           "balance": r"\b(balance|memoria|rendicion)\b"}
 
 
+# ---------------------------------------------------------------- Divisiones de todos los clubes desde los posteos de FABA
+GENERICOS = r"^(?:club atletico|club|instituto municipal del deporte|instituto municipal|escuela municipal de basquet adaptado|" \
+            r"escuela municipal|municipalidad de|municipio de|asociacion civil|fundacion)\s+"
+
+
+def alias_de_clubes(clubes: list) -> dict:
+    """Formas en que un posteo puede nombrar a cada club. Un alias que sirve para dos clubes se descarta
+    (por ejemplo "brown": Almirante Brown y Brown de Alta Gracia; "cilsa": Santa Fe y Boca)."""
+    cand = {}
+    for c in clubes:
+        nom = c.get("nombre") or ""
+        al = {o._norm(nom), o._norm(re.sub(r"\(.*?\)", "", nom)).strip(), o._norm(c["slug"].replace("-", " "))}
+        al |= {o._norm(x) for x in re.findall(r"\(([^)]+)\)", nom)}
+        al |= {o._norm(t) for t in re.findall(r"\b[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑa-z.]*[A-ZÁÉÍÓÚÑ]\b", nom) if len(t.replace(".", "")) >= 3
+               and sum(ch.isupper() for ch in t) >= 3}                       # siglas: CEDIMA, CROL, Fu.Di.Tuc
+        sin_gen = re.sub(GENERICOS, "", o._norm(re.sub(r"\(.*?\)", "", nom))).strip()
+        if len(sin_gen) >= 5:
+            al.add(sin_gen)                                                  # "almirante brown", "avellaneda"
+        if c.get("instagram"):
+            al.add("@" + c["instagram"].lower())
+        for a in al:
+            a = a.replace(".", "")                             # el texto se compara sin puntos
+            if len(a) >= 3:
+                cand.setdefault(a, set()).add(c["id"])
+    return {a: next(iter(ids)) for a, ids in cand.items() if len(ids) == 1}
+
+
+def divisiones_desde_faba(cuenta: dict, clubes: list, hoy: date = None) -> dict:
+    """{club_id: {division: {menciones, ultima, enlaces}}} según los posteos de FABA del último año.
+    Un posteo cuenta para una división solo si nombra una sola división (si nombra varias, es ambiguo)."""
+    hoy = hoy or datetime.now(timezone.utc).date()
+    alias = alias_de_clubes(clubes)
+    patrones = [(re.compile(r"(?<![a-z0-9@._])" + re.escape(a) + r"(?![a-z0-9_])"), cid) for a, cid in
+                sorted(alias.items(), key=lambda kv: -len(kv[0]))]
+    out = {}
+    for p in (cuenta.get("media") or {}).get("data") or []:
+        if not p.get("timestamp") or not p.get("permalink"):
+            continue
+        f = _fecha(p["timestamp"])
+        if (hoy - f).days > 365:
+            continue
+        txt = o._norm(p.get("caption") or "").replace(".", "")
+        divs = [d for d, rx in DIVISIONES.items() if re.search(rx, txt)]
+        if len(divs) != 1:
+            continue
+        for cid in {cid for rx, cid in patrones if rx.search(txt)}:
+            d = out.setdefault(cid, {}).setdefault(divs[0], {"menciones": 0, "ultima": None, "enlaces": []})
+            d["menciones"] += 1
+            d["ultima"] = max(d["ultima"] or f.isoformat(), f.isoformat())
+            if len(d["enlaces"]) < 5:
+                d["enlaces"].append(p["permalink"])
+    return out
+
+
+def proponer_divisiones_faba(por_club: dict, clubes: list) -> int:
+    n = 0
+    por_id = {c["id"]: c for c in clubes}
+    for cid, divs in por_club.items():
+        c = por_id.get(cid)
+        div = division_probable(divs)
+        if not c or not div or divs[div]["menciones"] < 2:          # una sola mención no alcanza
+            continue
+        if div == c.get("division") and c.get("estado_afiliacion") == "activo":
+            continue
+        ev = divs[div]
+        r = o.proponer(AGENTE, "propuesta_cambio",
+                       f"{c['nombre']}: FABA lo nombra en {div} división ({ev['menciones']} posteos, último {ev['ultima']})",
+                       _cap(ev["enlaces"][0] + "#club-" + c["slug"], {"club": c["slug"], "division": div, **ev}), club_id=cid,
+                       propuesta={"accion": "actualizar_division_club", "fuente": "instagram_faba",
+                                  "parametros": {"division": div, "fuente_url": ev["enlaces"][0], "fecha": ev["ultima"]},
+                                  "actual": {"division": c.get("division"), "estado_afiliacion": c.get("estado_afiliacion")},
+                                  "evidencia": ev["enlaces"], "fecha_posteo": ev["ultima"],
+                                  "otras_menciones": {k: v["menciones"] for k, v in divs.items() if k != div},
+                                  "nota": "Detectado por nombre en posteos de FABA. Abrí los enlaces y confirmá que se refieren a este club."},
+                       texto_para_filtro=f"{c['slug']} {div}")
+        n += r == "nuevo"
+    return n
+
+
+# ---------------------------------------------------------------- Contraste colecta / fuentes oficiales relevadas
+def contraste_colecta(dest: dict, n: dict, cap_post: o.Captura) -> str:
+    """Dictamen de contraste objetivo (Patrón A): una colecta publicada por el club frente a lo que
+    AuditaDeporte relevó en fuentes oficiales de esa entidad. Sin calificativos. La ausencia en NUESTRAS
+    fuentes no prueba ausencia en la realidad: el texto lo dice y, si no hay fuentes, propone cómo cubrir el hueco."""
+    cid = dest["id"]
+    fuentes = o.db().table("fuentes_monitoreadas").select("nombre,tipo,estado,ultima_revision").eq("club_id", cid).execute().data or []
+    desde = (date.fromisoformat(n["fecha"]) - timedelta(days=365)).isoformat()
+    docs = [d for d in (o.db().table("documentos_fuente").select("titulo,expediente_o_norma,url_fuente,portal_origen,fecha_captura")
+                        .eq("club_id", cid).execute().data or []) if (d.get("fecha_captura") or "")[:10] >= desde]
+    hoy = datetime.now(timezone.utc).date().isoformat()
+    motivo = "convocatoria a colecta, rifa o pedido de fondos" + (" vinculada a un viaje o traslado" if "viaje" in n["marcas"] else "")
+    hecho = (f"Hecho relevado: publicación de @{dest['instagram']} de fecha {n['fecha']} (SHA-256 {cap_post.sha256[:16]}…) "
+             f"registra una {motivo}.")
+    activas = [f for f in fuentes if f.get("estado") == "activa"]
+    if not activas:
+        contraste = (f"Contraste: a la fecha de corte ({hoy}) AuditaDeporte no tiene fuentes oficiales activas relevadas "
+                     f"para {dest['nombre']}; no es posible contrastar. Para cubrirlo: cargar como fuente el boletín oficial "
+                     f"de la jurisdicción o iniciar un pedido de acceso a la información pública.")
+        estado = "sin_fuentes"
+    elif docs:
+        lista = "; ".join(f"{d['titulo'][:80]}" + (f" ({d['expediente_o_norma']})" if d.get("expediente_o_norma") else "")
+                          for d in docs[:5])
+        contraste = (f"Contraste: a la fecha de corte ({hoy}), en las {len(activas)} fuentes oficiales relevadas para "
+                     f"{dest['nombre']} obran {len(docs)} documento(s) de los 12 meses previos: {lista}. "
+                     f"Verificar si alguno corresponde al gasto mencionado en la publicación.")
+        estado = "con_documentos"
+    else:
+        tipos = ", ".join(sorted({f["tipo"] for f in activas}))
+        contraste = (f"Contraste: a la fecha de corte ({hoy}), en las {len(activas)} fuentes oficiales relevadas para "
+                     f"{dest['nombre']} ({tipos}) no obra documento de los 12 meses previos vinculado a asignación de fondos, "
+                     f"viáticos o contratación de transporte. La falta de registro en estas fuentes no acredita que el acto "
+                     f"no exista: corresponde confirmarlo en la fuente o mediante pedido de acceso a la información.")
+        estado = "sin_documentos"
+    dictamen = f"{hecho} {contraste}"
+    r = o.proponer(AGENTE, "propuesta_cambio", f"Contraste: colecta de {dest['nombre']} ({n['fecha']}) frente a fuentes oficiales relevadas",
+                   _cap(n["permalink"] + "#contraste-" + hoy[:7], {"post": n, "fuentes": len(activas), "docs": len(docs), "corte": hoy}),
+                   club_id=cid,
+                   propuesta={"accion": "solo_informativa", "fuente": "contraste_colecta", "fecha_posteo": n["fecha"],
+                              "parametros": {"dictamen": dictamen, "resultado": estado, "publicacion": n["permalink"],
+                                             "fuentes_activas": len(activas), "documentos_12_meses": len(docs),
+                                             "fecha_corte": hoy}},
+                   texto_para_filtro=dictamen)
+    return r
+
+
 class ErrorMeta(Exception):
     def __init__(self, estado, mensaje):
         super().__init__(mensaje)
@@ -167,7 +292,7 @@ def guardar_foto(dest: dict, res: dict, estado: str, detalle: str = None):
 
 
 def proponer(dest: dict, res: dict) -> dict:
-    cont = {"division": 0, "novedad": 0, "inactiva": 0}
+    cont = {"division": 0, "novedad": 0, "inactiva": 0, "contraste": 0}
     cid = dest["id"] if dest["tipo"] == "club" else None
     iid = dest["id"] if dest["tipo"] == "inst" else None
     u = dest["instagram"]
@@ -207,6 +332,8 @@ def proponer(dest: dict, res: dict) -> dict:
                         "menciona_colecta": "colecta" in n["marcas"], "temas": n["marcas"]},
                        resumen)
         cont["novedad"] += r == "nuevo"
+        if dest["tipo"] == "club" and "colecta" in n["marcas"]:
+            cont["contraste"] = cont.get("contraste", 0) + (contraste_colecta(dest, n, _cap(n["permalink"], {"cuenta": u, **n})) == "nuevo")
     return cont
 
 
@@ -233,7 +360,10 @@ def main():
     propia = graph(os.environ["IG_USER_ID"], "username").get("username")
     ej = o.db().table("agente_ejecuciones").insert({"agente": AGENTE, "objetivos": 0}).execute()
     ej_id = ej.data[0]["id"] if ej.data else None
-    resumen = {"leidas": 0, "sin_acceso": 0, "otras": 0, "division": 0, "novedad": 0, "inactiva": 0, "estados": {}}
+    resumen = {"leidas": 0, "sin_acceso": 0, "otras": 0, "division": 0, "novedad": 0, "inactiva": 0, "contraste": 0,
+               "division_faba": 0, "estados": {}}
+    todos_clubes = o.db().table("clubes").select("id,slug,nombre,instagram,division,estado_afiliacion,publicado").execute().data or []
+    todos_clubes = [c for c in todos_clubes if c.get("publicado") is not False]
     cuentas = cuentas_a_leer()
     por_cuenta = {}                                  # una misma cuenta puede figurar en dos fichas: se lee una vez
     for dest in cuentas:
@@ -243,12 +373,16 @@ def main():
         print("Cuentas cargadas en más de una ficha (¿clubes duplicados?):", repetidas)
     for u, destinos in por_cuenta.items():
         try:
-            res = analizar(leer_cuenta(u, propia))
+            crudo = leer_cuenta(u, propia)
+            res = analizar(crudo)
             guardar_foto(destinos[0], res, "ok")
             for dest in destinos:
                 c = proponer(dest, res)
-                for k in ("division", "novedad", "inactiva"):
+                for k in ("division", "novedad", "inactiva", "contraste"):
                     resumen[k] += c.get(k, 0)
+                if dest["tipo"] == "inst" and dest["slug"] == "faba":
+                    resumen["division_faba"] += proponer_divisiones_faba(divisiones_desde_faba(crudo, todos_clubes), todos_clubes)
+            del crudo                                        # los textos de los posteos no se conservan
             resumen["leidas"] += 1
             estado = (f"ok | último posteo {res['ultimo_posteo']} | 90 días: {res['posteos_90d']} | divisiones "
                       f"{ {k: v['menciones'] for k, v in res['divisiones'].items()} }")
