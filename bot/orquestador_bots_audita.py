@@ -283,9 +283,11 @@ def proponer(agente, tipo, titulo, cap: Captura, club_id=None, inst_id=None, pro
     from mesa import evaluar, decidir   # import tardío: mesa importa este módulo
     previo = db().table("cola_revision").select("id,revisada_por") \
         .eq("url_fuente", cap.url).eq("hash_sha256", cap.sha256).execute()
-    # lo que retiró la limpieza automática (por un filtro equivocado) puede volver a proponerse
+    # lo que retiró la limpieza automática (por un filtro equivocado) puede volver a proponerse: se REABRE
+    # el mismo ítem (la base no admite dos con la misma URL y huella).
     if any(r.get("revisada_por") != "limpieza automática" for r in previo.data or []):
         return "duplicado"
+    reabrir = (previo.data or [None])[0]
     item = {"tipo": tipo, "titulo": titulo, "url_fuente": cap.url, "hash_sha256": cap.sha256,
             "http_status": cap.http, "propuesta": propuesta or {}, "texto": texto_para_filtro}
     votos = evaluar(item)
@@ -294,7 +296,11 @@ def proponer(agente, tipo, titulo, cap: Captura, club_id=None, inst_id=None, pro
             "url_fuente": cap.url, "hash_sha256": cap.sha256, "http_status": cap.http,
             "propuesta": {**(propuesta or {}), "_mesa": {"observaciones": obs}},
             "veto_juridico": "; ".join(obs) if estado == "bloqueada_legal" else None, "estado": estado}
-    res = db().table("cola_revision").insert(fila).execute()
+    if reabrir:
+        res = db().table("cola_revision").update({**fila, "revisada_por": None, "revisada_en": None, "motivo_codigo": None,
+                                                  "nota_revision": None}).eq("id", reabrir["id"]).execute()
+    else:
+        res = db().table("cola_revision").insert(fila).execute()
     if res.data:
         cola_id = res.data[0]["id"]
         db().table("agente_votos").insert([{"cola_id": cola_id, "agente": v["agente"], "voto": v["voto"],
@@ -564,49 +570,60 @@ def ciclo():
     ok = bloq = err = 0
     detalle = []
     for f in fuentes:
-        if (f.get("club_id") is None) == (f.get("institucion_id") is None):
-            err += 1; detalle.append({"url": f["url"], "resultado": "destino_inexistente"}); continue
-        if presupuesto[0] <= 0:
-            detalle.append({"url": f["url"], "resultado": "pospuesta_por_tope"}); continue
-        presupuesto[0] -= 1
-        cap = capturar(f["url"])
-        time.sleep(PAUSA_SEG)
-        actualizar_fuente(f, cap)
-        if cap.bloqueada:
-            bloq += 1; detalle.append({"url": f["url"], "resultado": f"bloqueado_{cap.http or cap.motivo}"}); continue
-        if not cap.utilizable:
-            print(f"  {f['nombre'][:60]}: no se pudo leer ({cap.motivo or cap.http})", flush=True)
-            err += 1; detalle.append({"url": f["url"], "resultado": cap.motivo or f"http_{cap.http}"}); continue
-        vistas = urls_vistas(f.get("id"))
-        resultados = []
-        es_indice = cap.contenido[:5] != b"%PDF-" and b"<a" in cap.contenido.lower()   # una página con enlaces, no un archivo
-        if f.get("tipo") in TIPOS_INDICE and not f.get("usa_sitemap") and es_indice:
-            juris = inst_slug.get(f.get("institucion_id"), "")
-            resultados = procesar_indice(f, cap, vistas, presupuesto, alias_juris.get(juris, {}), club_por_slug)
-        elif not f.get("usa_sitemap"):          # con sitemap, la portada es solo el punto de partida
-            resultados.append(procesar_url(f, f["url"], cap, f["nombre"], vistas))
-        else:
-            for u in descubrir_sitemap(f, presupuesto):
-                if presupuesto[0] <= 0:
-                    break
-                presupuesto[0] -= 1
-                c2 = capturar(u)
-                time.sleep(PAUSA_SEG)
-                if c2.utilizable:
-                    resultados.append(procesar_url(f, u, c2, f"{f['nombre']}: {nombre_desde_url(u)}", vistas))
-                elif c2.bloqueada:
-                    resultados.append("bloqueado")
-        ok += 1
-        print(f"  {f['nombre'][:60]}: propuestos={resultados.count('nuevo')} no_relevantes={resultados.count('no_relevante')} "
-              f"sin_cambios={resultados.count('sin_cambios')} presupuesto_restante={presupuesto[0]}", flush=True)
-        detalle.append({"url": f["url"], "resultado": "ok", "nuevos": resultados.count("nuevo"),
-                        "leidos_no_relevantes": resultados.count("no_relevante"),
-                        "sin_cambios": resultados.count("sin_cambios"), "bloqueados_mesa": resultados.count("bloqueado_legal")})
+        try:
+            r = _procesar_fuente(f, presupuesto, alias_juris, inst_slug, club_por_slug, detalle)
+        except Exception as e:                      # una fuente con problemas no frena a las demás
+            r = "err"
+            print(f"  {f.get('nombre', '')[:60]}: error inesperado ({type(e).__name__}: {str(e)[:120]})", flush=True)
+            detalle.append({"url": f.get("url"), "resultado": f"error:{type(e).__name__}"})
+        ok += r == "ok"; bloq += r == "bloq"; err += r == "err"
     if ej_id:
         db().table("agente_ejecuciones").update({"fin": ahora().isoformat(), "ok": ok, "bloqueados": bloq, "errores": err,
                                                  "detalle": {"modo": modo, "fuentes": detalle}}).eq("id", ej_id).execute()
     print(f"modo={modo} fuentes={len(fuentes)} ok={ok} bloqueados={bloq} errores={err} "
           f"(todo queda en cola_revision para revisión humana)")
+
+
+def _procesar_fuente(f, presupuesto, alias_juris, inst_slug, club_por_slug, detalle) -> str:
+    """Procesa una fuente. Devuelve ok | bloq | err | tope."""
+    if (f.get("club_id") is None) == (f.get("institucion_id") is None):
+        detalle.append({"url": f["url"], "resultado": "destino_inexistente"}); return "err"
+    if presupuesto[0] <= 0:
+        detalle.append({"url": f["url"], "resultado": "pospuesta_por_tope"}); return "tope"
+    presupuesto[0] -= 1
+    cap = capturar(f["url"])
+    time.sleep(PAUSA_SEG)
+    actualizar_fuente(f, cap)
+    if cap.bloqueada:
+        detalle.append({"url": f["url"], "resultado": f"bloqueado_{cap.http or cap.motivo}"}); return "bloq"
+    if not cap.utilizable:
+        print(f"  {f['nombre'][:60]}: no se pudo leer ({cap.motivo or cap.http})", flush=True)
+        detalle.append({"url": f["url"], "resultado": cap.motivo or f"http_{cap.http}"}); return "err"
+    vistas = urls_vistas(f.get("id"))
+    resultados = []
+    es_indice = cap.contenido[:5] != b"%PDF-" and b"<a" in cap.contenido.lower()   # una página con enlaces, no un archivo
+    if f.get("tipo") in TIPOS_INDICE and not f.get("usa_sitemap") and es_indice:
+        juris = inst_slug.get(f.get("institucion_id"), "")
+        resultados = procesar_indice(f, cap, vistas, presupuesto, alias_juris.get(juris, {}), club_por_slug)
+    elif not f.get("usa_sitemap"):          # con sitemap, la portada es solo el punto de partida
+        resultados.append(procesar_url(f, f["url"], cap, f["nombre"], vistas))
+    else:
+        for u in descubrir_sitemap(f, presupuesto):
+            if presupuesto[0] <= 0:
+                break
+            presupuesto[0] -= 1
+            c2 = capturar(u)
+            time.sleep(PAUSA_SEG)
+            if c2.utilizable:
+                resultados.append(procesar_url(f, u, c2, f"{f['nombre']}: {nombre_desde_url(u)}", vistas))
+            elif c2.bloqueada:
+                resultados.append("bloqueado")
+    print(f"  {f['nombre'][:60]}: propuestos={resultados.count('nuevo')} no_relevantes={resultados.count('no_relevante')} "
+          f"sin_cambios={resultados.count('sin_cambios')} presupuesto_restante={presupuesto[0]}", flush=True)
+    detalle.append({"url": f["url"], "resultado": "ok", "nuevos": resultados.count("nuevo"),
+                    "leidos_no_relevantes": resultados.count("no_relevante"),
+                    "sin_cambios": resultados.count("sin_cambios"), "bloqueados_mesa": resultados.count("bloqueado_legal")})
+    return "ok"
 
 
 if __name__ == "__main__":

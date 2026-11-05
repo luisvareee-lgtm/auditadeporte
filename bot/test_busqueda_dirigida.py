@@ -52,6 +52,16 @@ class T(unittest.TestCase):
         self.assertEqual(r[0], "subindice"); self.assertEqual(r.count("nuevo"), 5)       # 1 sub-índice + 5 docs (tope 6)
         self.assertFalse(any("boletin-oficial-2021" in c["url_fuente"] for c in fdb.tablas["cola_revision"]))
 
+    def test_reabre_lo_retirado_por_la_limpieza(self):
+        c = cap("https://m.gob.ar/d.pdf", b"<html>deporte adaptado</html>")
+        fdb = FakeDB({"agente_votos": [], "cola_revision": [
+            {"id": "x", "url_fuente": c.url, "hash_sha256": c.sha256, "estado": "rechazada", "revisada_por": "limpieza automática"}]})
+        with mock.patch.object(o, "db", return_value=fdb):
+            self.assertEqual(o.proponer("rastreador", "documento_nuevo", "t", c, None, "i1", {}), "nuevo")
+            self.assertEqual(o.proponer("rastreador", "documento_nuevo", "t", c, None, "i1", {}), "duplicado")
+        self.assertEqual(len(fdb.tablas["cola_revision"]), 1)
+        self.assertEqual(fdb.tablas["cola_revision"][0]["estado"], "pendiente")
+
     def test_hash_estable_ignora_fechas(self):
         a = o.hash_estable(cap("u", b"<p>Boletin de hoy 04/11/2026 10:35 visitas 120</p>"))
         b = o.hash_estable(cap("u", b"<p>Boletin de hoy 05/11/2026 11:02 visitas 133</p>"))
