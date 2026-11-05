@@ -20,7 +20,10 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
   console.log(`[${nombre}]`, JSON.stringify(r));
   if (r.anchoDoc > r.anchoVentana) {
     const anchos = await p.evaluate(() => [...document.querySelectorAll('body *')].filter(e => {
-      const b = e.getBoundingClientRect(); return b.right > window.innerWidth + 1 && b.width > 0;
+      const b = e.getBoundingClientRect();
+      if (!(b.right > window.innerWidth + 1 && b.width > 0)) return false;
+      for (let a = e.parentElement; a; a = a.parentElement) { const o = getComputedStyle(a).overflowX; if (o === 'auto' || o === 'scroll' || o === 'hidden') return false; }
+      return true;
     }).slice(0, 12).map(e => `${e.tagName.toLowerCase()}#${e.id}.${[...e.classList].slice(0, 4).join('.')} right=${Math.round(e.getBoundingClientRect().right)}`));
     console.log(`[${nombre}] se salen del ancho:`, JSON.stringify(anchos));
   }
