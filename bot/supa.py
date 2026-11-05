@@ -71,13 +71,17 @@ class Query:
             self.params.append(("on_conflict", on_conflict))
         return self
 
+    def delete(self):
+        self.metodo, self.cuerpo = "DELETE", None
+        self.prefer.append("return=representation"); return self
+
     def url(self):
         q = urllib.parse.urlencode(self.params, safe="(),.*\"")
         return f"{self.cli.url}/rest/v1/{self.tabla}" + (f"?{q}" if q else "")
 
     def execute(self):
-        if self.metodo == "PATCH" and not any(k not in ("select", "order", "limit") for k, _ in self.params):
-            raise SupaError(0, "update sin filtro: se rechaza para no modificar toda la tabla")
+        if self.metodo in ("PATCH", "DELETE") and not any(k not in ("select", "order", "limit") for k, _ in self.params):
+            raise SupaError(0, "update/delete sin filtro: se rechaza para no modificar toda la tabla")
         return self.cli._pedir(self.metodo, self.url(), self.cuerpo, self.prefer)
 
 

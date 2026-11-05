@@ -36,6 +36,9 @@ class _Q:
     def update(self, v):
         self.op, self.valor = "update", v; return self
 
+    def delete(self):
+        self.op, self.valor = "delete", None; return self
+
     def upsert(self, filas, on_conflict=None):
         self.op, self.valor, self.conflict = "upsert", filas, on_conflict; return self
 
@@ -64,6 +67,12 @@ class _Q:
                 if all(f(r) for f in self.filtros):
                     r.update(copy.deepcopy(self.valor)); cambiadas.append(copy.deepcopy(r))
             return Resp(cambiadas, 200)
+        if self.op == "delete":
+            if not self.filtros:
+                raise SupaError(0, "delete sin filtro")
+            borradas = [r for r in filas if all(fn(r) for fn in self.filtros)]
+            self.fdb.tablas[self.tabla] = [r for r in filas if r not in borradas]
+            return Resp(copy.deepcopy(borradas), 200)
         if self.op == "upsert":
             claves = (self.conflict or "id").split(",")
             out = []

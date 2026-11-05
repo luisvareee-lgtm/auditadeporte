@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       prueba: { description: "Solo mostrar qué retiraría", type: boolean, default: true }
+      reiniciar_indices: { description: "Releer los índices (tras corregir el filtro)", type: boolean, default: false }
 permissions: { contents: read }
 jobs:
   limpiar:
@@ -14,7 +15,7 @@ jobs:
         with: { python-version: "3.12" }
       - run: python -m unittest test_supa test_limpieza_cola
         working-directory: bot
-      - run: python limpieza_cola.py ${{ inputs.prueba && '--prueba' || '' }}
+      - run: python limpieza_cola.py ${{ inputs.prueba && '--prueba' || '' }} ${{ inputs.reiniciar_indices && '--reiniciar-indices' || '' }}
         working-directory: bot
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

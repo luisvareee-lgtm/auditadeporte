@@ -281,9 +281,10 @@ def proponer(agente, tipo, titulo, cap: Captura, club_id=None, inst_id=None, pro
     """Pasa el ítem por la mesa de agentes y lo inserta en cola_revision (privada) con sus votos.
     Devuelve 'nuevo' | 'duplicado' | 'bloqueado_legal'."""
     from mesa import evaluar, decidir   # import tardío: mesa importa este módulo
-    previo = db().table("cola_revision").select("id") \
+    previo = db().table("cola_revision").select("id,revisada_por") \
         .eq("url_fuente", cap.url).eq("hash_sha256", cap.sha256).execute()
-    if previo.data:
+    # lo que retiró la limpieza automática (por un filtro equivocado) puede volver a proponerse
+    if any(r.get("revisada_por") != "limpieza automática" for r in previo.data or []):
         return "duplicado"
     item = {"tipo": tipo, "titulo": titulo, "url_fuente": cap.url, "hash_sha256": cap.sha256,
             "http_status": cap.http, "propuesta": propuesta or {}, "texto": texto_para_filtro}
@@ -420,7 +421,7 @@ def procesar_url(f: dict, url: str, cap: Captura, titulo: str, vistas: dict) -> 
 TIPOS_INDICE = {"boletin_oficial", "compras", "portal_transparencia", "concejo_deliberante"}
 MAX_NUEVOS_POR_INDICE = 6         # por corrida: el resto se cubre en las corridas diarias siguientes
 RE_ENLACE = re.compile(r"""<a\b[^>]*?href\s*=\s*["']([^"'#]+)["'][^>]*>(.*?)</a>""", re.I | re.S)
-RE_DOC_URL = re.compile(r"(?i)\.(pdf|docx?|xlsx?|odt|ods)(\?|$)|bolet|decreto|ordenanza|resoluci|licitaci|norma|presupuest|"
+RE_DOC_URL = re.compile(r"(?i)\.(pdf|docx?|xlsx?|odt|ods)(\?|$)|bolet[ií]n|decreto|ordenanza|resoluci|licitaci|norma|presupuest|"
                         r"edici[oó]n|dataset|contrataci|pliego|expediente|digesto|legislaci")
 RE_NO_DOC = re.compile(r"(?i)facebook|twitter|x\.com|instagram|youtube|whatsapp|wa\.me|t\.me|linkedin|mailto:|login|"
                        r"usuarios/|sharer|/tag/|/author/|/feed")
@@ -442,9 +443,30 @@ def enlaces_documento(data: bytes, base: str) -> list:
         host = urlparse(u).netloc.split(":")[0].removeprefix("www.")
         mismo = host == dominio or host.endswith("." + dominio) or dominio.endswith("." + host)
         oficial = host.endswith((".gob.ar", ".gov.ar", ".edu.ar"))
-        if (mismo or oficial) and RE_DOC_URL.search(u + " " + txt) and u not in out:
+        if (mismo or oficial) and (RE_DOC_URL.search(u) or RE_DOC_URL.search(txt)) and u not in out:
             out.append(u)
     return out
+
+
+RE_FUERA_DE_CONTENIDO = re.compile(r"<(script|style|noscript|svg|nav|header|footer|aside|form|menu)\b[^>]*>.*?</\1>", re.S | re.I)
+RE_MENU = re.compile(r"""<(ul|div)\b[^>]*(?:class|id)=["'][^"']*(?:menu|nav|sidebar|footer|header|breadcrumb|widget)[^"']*["'][^>]*>.*?</\1>""",
+                     re.S | re.I)
+CERCANIA = 250          # "deporte" y "discapacidad/adaptado" tienen que estar a menos de esto (caracteres)
+
+
+def texto_contenido(data: bytes) -> str:
+    """Texto del CONTENIDO de una página: sin menús, encabezado, pie ni barras laterales (que repiten
+    "Deportes" o "Discapacidad" en todas las páginas de un sitio municipal)."""
+    t = data.decode("utf-8", "ignore")
+    m = re.search(r"<(main|article)\b[^>]*>(.*)</\1>", t, re.S | re.I)
+    t = m.group(2) if m else t
+    t = RE_MENU.sub(" ", RE_FUERA_DE_CONTENIDO.sub(" ", t))
+    return re.sub(r"\s+", " ", html.unescape(RE_TAGS.sub(" ", t))).strip()
+
+
+def _cerca(t: str, rx_a, rx_b, dist=CERCANIA) -> bool:
+    pos_b = [m.start() for m in rx_b.finditer(t)]
+    return any(abs(a.start() - b) <= dist for a in rx_a.finditer(t) for b in pos_b)
 
 
 def relevancia(texto: str, alias: dict) -> list:
@@ -453,7 +475,7 @@ def relevancia(texto: str, alias: dict) -> list:
     marcas = []
     if RE_INSTITUCIONES.search(t):
         marcas.append("menciona_faba_copar_enard")
-    if RE_TEMA_ADAPTADO.search(t) and RE_TEMA_DEPORTE.search(t):
+    if _cerca(t, RE_TEMA_ADAPTADO, RE_TEMA_DEPORTE):
         marcas.append("deporte_y_discapacidad")
     for a, slug in alias.items():
         if re.search(r"(?<![a-z0-9@])" + re.escape(a) + r"(?![a-z0-9])", t):
@@ -467,8 +489,11 @@ def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alia
     """El índice no se propone: se recorren sus documentos nuevos y solo se proponen los relevantes."""
     resultados = []
     registrar_vista(f.get("id"), f["url"], hash_estable(cap), False)
-    nuevos = [u for u in enlaces_documento(cap.contenido, f["url"]) if u not in vistas][:MAX_NUEVOS_POR_INDICE]
+    nuevos = [u for u in enlaces_documento(cap.contenido, f["url"]) if u not in vistas]
+    leidos = 0
     for u in nuevos:
+        if leidos >= MAX_NUEVOS_POR_INDICE:
+            break
         if presupuesto[0] <= 0:
             break
         presupuesto[0] -= 1
@@ -478,10 +503,18 @@ def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alia
             resultados.append("bloqueado"); continue
         if not c2.utilizable:
             continue
+        leidos += 1
         es_pdf = c2.contenido[:5] == b"%PDF-"
-        texto = (texto_pdf(c2.contenido) if es_pdf else texto_html(c2.contenido)) or ""
-        marcas = relevancia(texto, alias)
         estable = hash_estable(c2)
+        if not es_pdf:
+            hijos = [h for h in enlaces_documento(c2.contenido, u) if h not in vistas and h not in nuevos]
+            if len(hijos) >= 5:                    # sub-índice (p. ej. "Boletín 2021"): se recorre, no se propone
+                nuevos.extend(hijos)
+                registrar_vista(f.get("id"), u, estable, False)
+                vistas[u] = estable
+                resultados.append("subindice"); continue
+        texto = (texto_pdf(c2.contenido) if es_pdf else texto_contenido(c2.contenido)) or ""
+        marcas = relevancia(texto, alias)
         if not marcas:
             registrar_vista(f.get("id"), u, estable, len(texto) < 200)       # leído y descartado: no se vuelve a bajar
             vistas[u] = estable

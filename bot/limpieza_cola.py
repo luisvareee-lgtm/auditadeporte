@@ -22,7 +22,7 @@ def retirar(item, motivo, nota, prueba):
 
 def main():
     prueba = "--prueba" in sys.argv
-    cola = o.db().table("cola_revision").select("id,agente,tipo,titulo,url_fuente,propuesta,creado_en") \
+    cola = o.db().table("cola_revision").select("id,agente,tipo,titulo,url_fuente,propuesta,creado_en,estado") \
         .eq("estado", "pendiente").execute().data or []
     fuentes = o.db().table("fuentes_monitoreadas").select("url,tipo").execute().data or []
     indices = {f["url"].rstrip("/") for f in fuentes if f["tipo"] in o.TIPOS_INDICE}
@@ -52,6 +52,20 @@ def main():
                 retirar(c, "duplicado", "Aviso repetido sobre la misma autoridad: queda el más reciente.", prueba)
                 n["duplicado_vigencia"] += 1
             vistos_aut.add(aid)
+    if "--reiniciar-indices" in sys.argv:
+        # Las propuestas de la búsqueda dirigida hechas con el filtro anterior se retiran y los índices se releen.
+        for c in cola:
+            if c["agente"] == "rastreador" and (c.get("propuesta") or {}).get("indice") and c["estado"] == "pendiente":
+                retirar(c, "otro", "Falso positivo del filtro anterior (contaba palabras del menú del sitio): se reevalúa con el filtro corregido.", prueba)
+                n["reevaluar"] = n.get("reevaluar", 0) + 1
+        ids = [f["id"] for f in o.db().table("fuentes_monitoreadas").select("id,tipo").execute().data or [] if f["tipo"] in o.TIPOS_INDICE]
+        borradas = 0
+        for fid in ids:
+            if prueba:
+                borradas += len(o.db().table("fuente_urls_vistas").select("url").eq("fuente_id", fid).execute().data or [])
+            else:
+                borradas += len(o.db().table("fuente_urls_vistas").delete().eq("fuente_id", fid).execute().data or [])
+        print(f"{'(prueba) ' if prueba else ''}índices reiniciados: {len(ids)} · URLs que se vuelven a leer: {borradas}")
     print(("(prueba) " if prueba else "") + f"retirados: {n} · pendientes antes: {len(cola)} · quedan: {len(cola) - sum(n.values())}")
 
 

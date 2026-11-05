@@ -30,7 +30,27 @@ class T(unittest.TestCase):
         self.assertEqual(o.relevancia("subsidio a CEDIMA para basquet adaptado", al),
                          ["deporte_y_discapacidad", "menciona_club:cedima", "menciona_fondos"])
         self.assertEqual(o.relevancia("pavimentacion y discapacidad visual en semaforos", al), [])   # sin deporte, no
+        lejos = "Direccion de Discapacidad. " + "x " * 300 + "Secretaria de Deportes"
+        self.assertEqual(o.relevancia(lejos, {}), [])                                                  # lejos: no
         self.assertEqual(o.relevancia("convenio con FABA", {}), ["menciona_faba_copar_enard", "menciona_fondos"])
+
+    def test_menu_del_sitio_no_cuenta(self):
+        pag = b"""<html><nav><a>Deportes</a><a>Discapacidad</a></nav><main><h1>Boleto estudiantil</h1>
+        <p>Tramite para estudiantes secundarios.</p></main><footer>Deporte adaptado</footer></html>"""
+        self.assertEqual(o.relevancia(o.texto_contenido(pag), {}), [])
+
+    def test_subindice_se_recorre(self):
+        sub = b"<html><main>" + b"".join(b'<a href="/b/2021/n%d.pdf">n</a>' % i for i in range(6)) + b"</main></html>"
+        idx = b'<html><a href="/boletin-oficial-2021/">2021</a></html>'
+        pags = {"https://m.gob.ar/boletin-oficial-2021/": sub,
+                **{f"https://m.gob.ar/b/2021/n{i}.pdf": b"<html>deporte adaptado: subsidio al club</html>" for i in range(6)}}
+        fdb = FakeDB({"cola_revision": [], "agente_votos": [], "fuente_urls_vistas": []})
+        f = {"id": "f1", "url": "https://m.gob.ar/boletin/", "nombre": "B", "tipo": "boletin_oficial", "institucion_id": "i1", "club_id": None}
+        with mock.patch.object(o, "db", return_value=fdb), mock.patch.object(o.time, "sleep"), \
+             mock.patch.object(o, "capturar", side_effect=lambda u, **k: cap(u, pags[u])):
+            r = o.procesar_indice(f, cap(f["url"], idx), {}, [50], {}, {})
+        self.assertEqual(r[0], "subindice"); self.assertEqual(r.count("nuevo"), 5)       # 1 sub-índice + 5 docs (tope 6)
+        self.assertFalse(any("boletin-oficial-2021" in c["url_fuente"] for c in fdb.tablas["cola_revision"]))
 
     def test_hash_estable_ignora_fechas(self):
         a = o.hash_estable(cap("u", b"<p>Boletin de hoy 04/11/2026 10:35 visitas 120</p>"))
