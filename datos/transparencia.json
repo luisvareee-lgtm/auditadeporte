@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-05",
+ "actualizado": "2026-11-06",
  "totales": {
   "publica": 14,
   "a_medias": 5,
@@ -27,6 +27,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -64,6 +91,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "completo"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -87,6 +141,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -136,6 +217,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "completo"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "completo"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -173,6 +281,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -197,6 +332,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -220,6 +382,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -250,6 +439,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -281,6 +497,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "parcial"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -305,6 +548,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -354,6 +624,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "completo"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -384,6 +681,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -408,6 +732,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -445,6 +796,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "completo"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -468,6 +846,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -504,6 +909,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "parcial"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "completo"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -527,6 +959,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -557,6 +1016,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -580,6 +1066,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -617,6 +1130,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "completo"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -640,6 +1180,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -664,6 +1231,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -687,6 +1281,33 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "normas",
+     "texto": "Ordenanzas del Concejo Deliberante",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -717,6 +1338,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 104 de Acceso a la Información Pública de la Ciudad",
     "plazo": "10 días hábiles, prorrogables por 15",
@@ -762,6 +1405,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 12.475 de acceso a documentos administrativos",
     "plazo": "8 días, prorrogables por 10",
@@ -785,6 +1450,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 5834 de acceso a la información pública",
     "plazo": "30 días hábiles",
@@ -810,6 +1497,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 8803 de Acceso al Conocimiento de los Actos del Estado",
     "plazo": "10 días hábiles, prorrogables por 10",
@@ -840,6 +1549,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Decreto 1169/05 de acceso a la información pública",
     "plazo": "10 días, prorrogables por 10",
@@ -870,6 +1601,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 5886 de acceso a la información pública",
     "plazo": "15 días, prorrogables por 5",
@@ -901,6 +1654,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 9070 de acceso a la información pública",
     "plazo": "15 días, prorrogables por 15",
@@ -924,6 +1699,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 1829 de libre acceso a las fuentes de información pública (Decreto 1028/2004)",
     "plazo": "la norma no fija plazo: se pide respuesta en un plazo razonable",
@@ -954,6 +1751,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 3540 de acceso a la información pública",
     "plazo": "10 días, prorrogables por 10",
@@ -986,6 +1805,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "parcial"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Decretos 692/09 y 1774/09 de acceso a la información (la ley provincial tuvo media sanción, sin vigencia a la fecha de esta guía)",
     "plazo": "15 días, prorrogables por 10",
@@ -1009,6 +1850,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": null,
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "sin ley provincial general de acceso a la información: rige la base constitucional",
     "plazo": "no hay plazo legal provincial: se pide respuesta en un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -1051,6 +1914,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "completo"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "completo"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 27.275 de Acceso a la Información Pública",
     "plazo": "15 días hábiles, prorrogables por otros 15",
@@ -1111,6 +1996,28 @@
    "encontrados_para_revisar": 0,
    "publicados": 0,
    "ultima_revision": "2026-11-05",
+   "checklist": [
+    {
+     "clave": "boletin",
+     "texto": "Boletín oficial con decretos y resoluciones",
+     "estado": "parcial"
+    },
+    {
+     "clave": "compras",
+     "texto": "Compras y licitaciones",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "presupuesto",
+     "texto": "Presupuesto y su ejecución",
+     "estado": "no_encontrado"
+    },
+    {
+     "clave": "deporte_adaptado",
+     "texto": "Documentos sobre deporte adaptado",
+     "estado": "no_encontrado"
+    }
+   ],
    "pedido": {
     "norma": "Ley 27.275 de Acceso a la Información Pública",
     "plazo": "15 días hábiles, prorrogables por otros 15",
