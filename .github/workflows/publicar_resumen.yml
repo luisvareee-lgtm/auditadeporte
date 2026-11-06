@@ -23,6 +23,12 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
+      - name: Armar datos/colectas.json (agregados de colectas en cuentas oficiales)
+        run: python relevar_colectas.py --publicar
+        working-directory: bot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
       - name: Borradores de pedidos de acceso (uno por jurisdicción y por mes, a la Bandeja)
         run: python generar_pedidos.py
         working-directory: bot
@@ -33,5 +39,5 @@ jobs:
         run: |
           git config user.name "auditadeporte-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add datos/transparencia.json
+          git add datos/transparencia.json datos/colectas.json 2>/dev/null || git add datos/transparencia.json
           git diff --cached --quiet && echo "sin cambios" || (git commit -m "Resumen ciudadano: actualización automática" && git push)
