@@ -38,6 +38,13 @@ class TiposYPatrones(unittest.TestCase):
         self.assertIn("pedido_empresas", c["tipos_pedido"]); self.assertIn("empresas", c["destinatarios"])
         self.assertEqual(c["fecha_limite"], "2026-06-05")
 
+    def test_no_son_colectas(self):
+        for t in ["Mundial Dubai 2023: se sorteo la fase de grupos. Argentina en la zona A con Canada",
+                  "Sorteo: ganate una pelota oficial, participa del sorteo siguiendo la cuenta",
+                  "Comienza el curso oficial de entrenador. Inscripcion por transferencia"]:
+            self.assertIsNone(r.clasificar(t, "2023-02-08"), t)
+        self.assertIsNotNone(r.clasificar("Rifa solidaria para viajar al Nacional: numeros a $2000, alias en bio", "2023-02-08"))
+
     def test_patrones_agrupa_parecidas(self):
         import patrones_colectas as pc
         base = {"tipos_pedido": ["rifa_sorteo"], "torneos": ["liga_nacional"], "montos": [], "destinatarios": ["personas"]}

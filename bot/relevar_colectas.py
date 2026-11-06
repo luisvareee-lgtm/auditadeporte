@@ -53,6 +53,11 @@ MESES = {m: i for i, m in enumerate(["enero", "febrero", "marzo", "abril", "mayo
                                      "septiembre", "octubre", "noviembre", "diciembre"], 1)}
 RE_LIMITE = re.compile(r"\b(?:antes del?|hasta el|para el|el)\s+(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|"
                        r"octubre|noviembre|diciembre)\b")
+# tiene que haber un pedido de plata: un sorteo de grupos, un concurso o una inscripción a un curso no son colectas
+RE_DINERO = re.compile(r"\b(rifas?|bonos? contribucion|colectas?|alias|cbu|cvu|mercado pago|transferencia|donacion(es)?|dona(r|nos|ndo)|"
+                       r"aport\w*|colabor\w*|ayud(a|anos|enos)|recaud\w*|juntar|necesitamos|a beneficio|solidari\w*|sponsors?|"
+                       r"patrocin\w*|gofundme|cafecito|link de pago|vendemos|se venden|venta)\b|\$|u\$s|usd")
+RE_FALSO = re.compile(r"\b(se sorteo|sorteo de (la )?(fase|grupos|zonas|fixture)|ganate|participa del sorteo|curso|capacitacion|clinica)\b")
 RE_SALUD = re.compile(r"\b(operacion|cirugia|tratamiento|internad[oa]|medicamentos?|rehabilitacion|protesis|enfermedad)\b")
 FINALIDADES = {
     "viaje_torneo": r"\b(viajes?|viajar|pasajes?|traslados?|micros?|alojamiento|hotel|estadia|vuelos?)\b",
@@ -81,7 +86,9 @@ def clasificar(caption: str, fecha: str = None):
     """None si no es una colecta (o si habla de la salud de una persona). Si lo es: finalidades, cómo se pide,
     a quién, torneos, montos y fecha límite (si la dice)."""
     t = o._norm(caption or "")
-    if not RE_COLECTA.search(t) or RE_SALUD.search(t):
+    if not RE_COLECTA.search(t) or RE_SALUD.search(t) or not RE_DINERO.search(t):
+        return None
+    if RE_FALSO.search(t) and not re.search(r"\b(rifas?|colectas?|alias|cbu|cvu|recaud\w*|donacion(es)?)\b", t):
         return None
     fin = [k for k, rx in FINALIDADES.items() if re.search(rx, t)] or ["general"]
     tipos = [k for k, rx in TIPOS_PEDIDO.items() if re.search(rx, t)] or ["otro"]

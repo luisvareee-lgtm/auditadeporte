@@ -565,7 +565,12 @@
           <p>Clasificó como subcampeona de la Copa América. El 1 de septiembre, a una semana del Mundial, la federación (FABA) publicó un video del plantel: agradecen la ayuda recibida y dicen que <strong>todavía necesitan US$ 15.000 para pagar la inscripción</strong>, con un alias para aportar. El video no explica por qué la inscripción no estaba cubierta. <a class="underline text-blue-800" href="https://www.instagram.com/p/DcwdAc7N6ac/" target="_blank" rel="noopener">Ver la publicación de FABA</a></p>
         </article>
       </div>
-      <p class="text-sm text-slate-700"><strong>Nuestro relevamiento automático de Instagram</strong> lee las convocatorias a colectas de las cuentas oficiales (para qué eran, para qué torneo y qué monto declaran), sin guardar textos, nombres ni datos de cuentas bancarias. Hoy Meta solo nos deja leer la cuenta del equipo de Almirante Brown, donde encontró una colecta de julio de 2026 para sillas y equipamiento. Para leer las demás cuentas falta que Meta apruebe el acceso avanzado de la aplicación.</p>
+      <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4 space-y-3 text-sm">
+        <p class="font-black text-base">Relevamiento de colectas: qué se repite</p>
+        <p>El bot busca convocatorias a colectas, rifas, ventas y pedidos de fondos en el sitio oficial de FABA y en las cuentas oficiales de clubes, instituciones y selecciones. De cada una guarda solo rasgos: para qué (viaje, inscripción, silla, indumentaria), cómo se pidió (rifa, venta de comida, evento, alias, campaña online, pedido a empresas o al Estado), para qué torneo y qué monto declara la propia cuenta. Nunca guarda textos, nombres, alias ni CBU, y descarta lo que habla de la salud de una persona. Después agrupa las colectas parecidas para ver qué problema se repite y cuánto se podría cubrir con patrocinio.</p>
+        <p class="text-slate-600"><strong>Primer resultado (noviembre de 2026):</strong> en el sitio de FABA no hay ninguna convocatoria a colecta desde 2018: las 3 noticias que coincidían con las palabras clave eran un sorteo de grupos, un concurso y un curso. Los pedidos de fondos se hacen en Instagram, que hoy Meta solo nos deja leer en la cuenta de Almirante Brown (una colecta de julio de 2026 para sillas y equipamiento). Para las demás cuentas falta que Meta apruebe el acceso avanzado; mientras tanto se pueden cargar a mano desde el panel.</p>
+        <div id="colectas-patrones" class="space-y-2" aria-live="polite"></div>
+      </div>
     </div>
 
     <div id="dep-simulador" class="bg-white rounded-2xl border-2 border-blue-300 p-6 space-y-4 scroll-mt-24">
@@ -1222,8 +1227,28 @@ function docJurisHtml(d) {
 const fechaLinda = f => { if (!f) return '—'; const [a, m, d] = f.split('-'); return `${d}/${m}/${a}`; };
 const urlSegura = u => /^https?:\/\//i.test(u || '') ? u : '';
 
+const NEC_COLOR = { alta: 'bg-emerald-100 text-emerald-900', media: 'bg-amber-100 text-amber-900', baja: 'bg-slate-200 text-slate-800' };
+const ETQ = { rifa_sorteo: 'rifa o sorteo', venta_comida: 'venta de comida', evento: 'evento', transferencia: 'alias o transferencia', campana_online: 'campaña online',
+  venta_merch: 'venta de remeras', pedido_empresas: 'pedido a empresas', pedido_estado: 'pedido al Estado', otro: 'otro', liga_nacional: 'liga nacional',
+  juegos_bonaerenses: 'Juegos Bonaerenses', copa_america: 'Copa América', sudamericano: 'Sudamericano', parapanamericanos: 'Parapanamericanos',
+  mundial: 'Mundial', repechaje: 'repechaje', paralimpicos: 'Paralímpicos' };
+async function cargarPatronesColectas() {
+  const caja = $('#colectas-patrones'); if (!caja) return;
+  let d;
+  try { const r = await fetch('datos/colectas.json', { cache: 'no-store' }); if (!r.ok) return; d = await r.json(); } catch (e) { return; }
+  const ps = (d.patrones || []).slice(0, 6);
+  if (!ps.length) return;
+  const lst = l => (l || []).map(x => ETQ[x] || x.replace(/_/g, ' ')).join(', ') || '—';
+  caja.innerHTML = `<p class="font-bold">${esc(d.total)} colecta(s) revisadas, agrupadas por parecido (actualizado ${esc(fechaLinda(d.actualizado))}):</p>` +
+    ps.map(p => `<div class="rounded-xl bg-white border border-slate-200 p-3"><p class="font-bold">${esc(p.necesidad.charAt(0).toUpperCase() + p.necesidad.slice(1))}: ${esc(p.colectas)} colecta(s) en ${esc(p.cuentas)} cuenta(s)
+      <span class="ml-1 text-xs font-bold px-2 py-0.5 rounded-full ${NEC_COLOR[p.rse] || ''}">patrocinio: ${esc(p.rse)}</span></p>
+      <p class="text-slate-600">Cómo se pidió: ${esc(lst(p.tipos_pedido))} · Torneos: ${esc(lst(p.torneos))} · ${esc(fechaLinda(p.desde))} a ${esc(fechaLinda(p.hasta))}</p>
+      <p class="text-xs text-slate-500">${esc(p.por_que_rse)}</p></div>`).join('');
+}
+
 async function cargarSimple() {
   try {
+    cargarPatronesColectas();
     const r = await fetch('datos/transparencia.json', { cache: 'no-store' });
     if (!r.ok) throw new Error('http ' + r.status);
     const d = await r.json();
