@@ -313,6 +313,7 @@
       <h2 class="text-2xl md:text-3xl font-black leading-tight">Si jugás representando a tu ciudad</h2>
       <p class="text-slate-200 max-w-3xl">Lo que te corresponde, de dónde sale, qué papeles pedir, quién paga el arreglo de la silla y cómo buscar una empresa que te apoye.</p>
       <nav aria-label="En esta página" class="flex flex-wrap gap-2 pt-1 text-sm">
+        <a href="#dep-casos" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3 py-2 rounded-xl">¿Cuál es tu situación?</a>
         <a href="#dep-corresponde" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Qué me corresponde</a>
         <a href="#dep-otros" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Beneficios que no dependen del municipio</a>
         <a href="#simple-deportista" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Silla y patrocinio</a>
@@ -352,12 +353,45 @@
       <button data-action="pedir-deportista" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Pedir los papeles de mi equipo</button>
     </div>
 
+    <div id="dep-casos" class="bg-white rounded-2xl border-2 border-amber-300 p-6 space-y-4 scroll-mt-24">
+      <div class="space-y-1">
+        <h3 class="text-xl font-black">¿Cuál es tu situación?</h3>
+        <p class="text-slate-700 max-w-3xl">Las situaciones más comunes de quienes juegan representando a un municipio. Elegí la tuya: te decimos qué dice la regla, qué podés hacer y te armamos los papeles.</p>
+      </div>
+      <div id="casos-botones" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2" role="tablist" aria-label="Situaciones"></div>
+      <div id="caso-panel" class="rounded-2xl bg-amber-50 border border-amber-200 p-4 space-y-3" aria-live="polite">
+        <p class="text-sm text-amber-950">Tocá una situación para ver qué podés hacer.</p>
+      </div>
+      <div id="nota-caso" class="hidden rounded-2xl border-2 border-blue-300 bg-blue-50 p-4 space-y-3 scroll-mt-24">
+        <h4 class="font-black text-blue-950">Tu nota al municipio</h4>
+        <p class="text-sm text-slate-700">Es un pedido formal (derecho de peticionar a las autoridades, art. 14 de la Constitución Nacional). Tiene más fuerza si la firman varias personas del equipo. No nombres a nadie ni acuses: describí la situación y pedí algo concreto.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <label class="block"><span class="font-bold">Municipio</span><input id="nc-muni" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Municipalidad de…"></label>
+          <label class="block"><span class="font-bold">Equipo</span><input id="nc-equipo" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Equipo de básquet en silla de ruedas de…"></label>
+          <label class="block"><span class="font-bold">Nombre y apellido (o "Las y los integrantes del plantel")</span><input id="nc-nom" autocomplete="name" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+          <label class="block"><span class="font-bold">DNI y contacto</span><input id="nc-dni" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="DNI · correo o teléfono"></label>
+          <label class="block sm:col-span-2"><span class="font-bold">Detalle (opcional): qué está roto, qué falta, desde cuándo</span>
+            <textarea id="nc-detalle" rows="3" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Ej.: 4 sillas del equipo sin cámaras, 2 con el eje doblado, faltan 3 antivuelcos. Adjunto fotos fechadas."></textarea></label>
+        </div>
+        <fieldset class="text-sm">
+          <legend class="font-bold">¿Te pasa más de una? Sumalas a la misma nota</legend>
+          <div id="nc-casos" class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1"></div>
+        </fieldset>
+        <label for="nc-texto" class="block text-sm font-bold">Texto de la nota</label>
+        <textarea id="nc-texto" rows="14" class="w-full bg-slate-950 text-emerald-200 font-mono text-sm rounded-xl p-3 border border-slate-700"></textarea>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" data-action="copiar" data-target="nc-texto" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Copiar la nota</button>
+        </div>
+        <p class="text-xs text-slate-600">Presentala en mesa de entradas con dos copias (pedí que te sellen una) o por el correo oficial. Guardá el número de expediente. Si en un tiempo razonable no responden, podés pedir pronto despacho por escrito. El texto se arma en tu navegador: no se envía a ningún lado.</p>
+      </div>
+    </div>
+
     <div id="dep-otros" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 scroll-mt-24">
       <h3 class="text-xl font-black">Beneficios que no dependen del municipio</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <article class="rounded-2xl border border-slate-200 p-4 space-y-2">
           <h4 class="font-black">Viajar gratis con el CUD</h4>
-          <p class="text-sm text-slate-700">Con el <strong>Certificado Único de Discapacidad</strong>, la Ley 22.431 (art. 22) da derecho a viajar gratis en el transporte terrestre de jurisdicción nacional, de corta, media y larga distancia, y también a un acompañante si el certificado lo indica. Para larga distancia, el pasaje se pide antes en la boletería. En las líneas provinciales o municipales depende de la norma de cada lugar.</p>
+          <p class="text-sm text-slate-700">Con el <strong>Certificado Único de Discapacidad</strong>, la Ley 22.431 (art. 22) da derecho a viajar gratis en el transporte terrestre de jurisdicción nacional, de corta, media y larga distancia, y también a un acompañante si el certificado lo indica. Para larga distancia, el pasaje se pide antes en la boletería. En la Provincia de Buenos Aires, además, la Ley 10.592 (art. 22, texto de la Ley 13.877) obliga a las empresas de transporte colectivo que operan en la provincia a llevar gratis (o con sistemas especiales) a las personas con discapacidad, y a quien las acompañe si lo necesitan. En otras provincias depende de su norma.</p>
         </article>
         <article class="rounded-2xl border border-slate-200 p-4 space-y-2">
           <h4 class="font-black">Becas del ENARD</h4>
@@ -516,6 +550,9 @@
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Norma de creación del organismo a cargo del deporte municipal (instituto, ente o dirección), su estructura y su presupuesto por programa, incluido el de deporte adaptado"> Organismo de deportes y su presupuesto</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Ordenanzas y decretos de modificación presupuestaria (ampliaciones y compensaciones de crédito) del ejercicio en curso"> Modificaciones del presupuesto</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Transferencias a instituciones privadas sin fines de lucro del ejercicio en curso: beneficiario, monto, fecha, norma de otorgamiento y estado de la rendición de cuentas"> Subsidios a clubes y asociaciones</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Compras de indumentaria deportiva para el equipo de deporte adaptado en los últimos 3 años: fecha, cantidad, proveedor y monto"> Indumentaria del equipo</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Inventario de elementos de entrenamiento del equipo de deporte adaptado (pelotas, conos, elementos de preparación física) y compras de los últimos 3 años"> Elementos de entrenamiento</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y presupuesto para viáticos o ayuda de traslado de deportistas que representan al municipio en entrenamientos y competencias"> Viáticos y traslados</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Seguro de los deportistas en entrenamientos, partidos y viajes: póliza vigente, aseguradora y cobertura"> Seguro de deportistas</label>
           </div>
         </fieldset>
@@ -1072,6 +1109,117 @@ function pintarJuris() {
   }).join('') : '<li class="text-slate-600">No hay lugares con ese filtro.</li>';
 }
 
+/* ============ SITUACIONES DE DEPORTISTAS ============ */
+const EJEMPLO_DETALLE = {
+  'silla-propia': 'Ej.: en el último año gasté $ … en cubiertas y cámaras, y $ … en rayos. Adjunto presupuesto de repuestos para el plantel.',
+  'sillas-municipio': 'Ej.: 4 sillas sin cámaras, 2 con el eje doblado, faltan 3 antivuelcos. Ninguna es a medida. Adjunto fotos fechadas.',
+  'traslados': 'Ej.: cada fecha de liga viajamos por nuestra cuenta. Adjunto el calendario de la temporada.',
+  'indumentaria': 'Ej.: las últimas camisetas que entregó el municipio son de hace varios años. Somos 12 jugadores; adjunto talles.',
+  'elementos': 'Ej.: el cuerpo técnico necesita 10 pelotas, conos y bandas elásticas. Adjunto presupuesto.'
+};
+let casosNota = new Set();
+const CASOS = [
+  { id: 'silla-propia', icono: '♿', titulo: 'Uso mi propia silla y los arreglos los pago yo',
+    regla: [
+      'Si la silla es tuya, en principio el arreglo es tuyo, salvo que el municipio o el club se hayan comprometido por escrito.',
+      'Nada impide pedirle al municipio que colabore con repuestos o reparaciones del equipo que lo representa. Es un pedido, no una obligación: por eso conviene hacerlo por escrito y como equipo.',
+      'Obra social: con una prescripción médica que justifique la silla deportiva y un presupuesto, se puede pedir cobertura (Ley 24.901). En 2018 la Justicia lo ordenó para un menor; para adultos no encontramos un fallo publicado sobre silla deportiva, así que no hay nada garantizado.'],
+    pasos: ['Anotá qué gastaste en el último año en la silla (cubiertas, cámaras, rayos, rulemanes) con fecha y monto.',
+      'Pedí por nota que el municipio colabore con repuestos para el plantel, con un presupuesto concreto.',
+      'En paralelo, publicá un pedido de patrocinio para la mecánica de las sillas: la empresa paga directo al proveedor.'],
+    items: /^(Criterios y registros de asignación de sillas|Partidas del presupuesto)/, rse: 'silla',
+    nota: 'colaboración con repuestos y reparaciones de las sillas deportivas que usamos para representar al municipio (cubiertas, cámaras, rayos, ejes y rulemanes)' },
+  { id: 'sillas-municipio', icono: '🔧', titulo: 'El municipio tiene sillas, pero no son a medida y están rotas o con faltantes',
+    regla: [
+      'Las sillas compradas por el municipio son bienes públicos: tienen que estar inventariadas y alguien es responsable de conservarlas.',
+      'Si te las prestaron, quien usa la silla paga el desgaste común (cubiertas, cámaras); las roturas grandes y la conservación extraordinaria corresponden al dueño (Código Civil y Comercial, arts. 1536, 1538 y 1540).',
+      'Una silla estándar que no se ajusta a quien la usa rinde menos y puede lastimar. Es razonable pedir que el plan de compras prevea sillas a medida o adaptables.'],
+    pasos: ['Hagan entre todos una lista de cada silla: número de inventario si tiene, qué está roto, qué falta y desde cuándo, con fotos fechadas.',
+      'Presenten una nota pidiendo la reparación y el recambio, con esa lista adjunta.',
+      'Pidan por acceso a la información el inventario, las actas de entrega y el plan de mantenimiento.',
+      'Si quieren que el equipo lo vea, envíen la lista y las fotos por "Enviar un dato": queda privado y se usa solo si se puede respaldar.'],
+    items: /^(Actas de entrega o de comodato|Criterios y registros de asignación de sillas)/, rse: 'silla', dato: true,
+    nota: 'la reparación y el recambio de las sillas deportivas del equipo, que hoy están rotas o incompletas, y la incorporación de sillas a medida o adaptables al plan de compras' },
+  { id: 'traslados', icono: '🚌', titulo: 'Pago mi traslado al club y a los partidos: no hay viáticos',
+    regla: [
+      'No hay una ley que obligue a pagar viáticos por entrenar. Depende de lo que diga la norma o el convenio del equipo, o de una beca.',
+      'Con el CUD podés viajar gratis: en el transporte de jurisdicción nacional (Ley 22.431, art. 22) y, en la Provincia de Buenos Aires, en las empresas de transporte colectivo que operan en la provincia (Ley 10.592, art. 22). También tu acompañante, si lo necesitás.',
+      'Para partidos y torneos oficiales en los que representás al municipio, es razonable pedir que provea el transporte.'],
+    pasos: ['Si no tenés el pase de transporte con el CUD, tramitalo: es lo que más rápido te baja el gasto diario.',
+      'Pidan por nota transporte para los partidos y torneos oficiales, con el calendario de la temporada adjunto.',
+      'Pidan por acceso a la información los criterios y el presupuesto de viáticos o ayuda de traslado.'],
+    items: /^(Criterios y presupuesto para viáticos|Gastos de transporte y alojamiento)/, rse: 'gira',
+    nota: 'transporte para los partidos y torneos oficiales en los que el equipo representa al municipio, según el calendario que adjuntamos' },
+  { id: 'indumentaria', icono: '👕', titulo: 'Las camisetas y la indumentaria las pagamos nosotros',
+    regla: [
+      'Ninguna ley general obliga al municipio a dar indumentaria, pero si el equipo juega con su nombre y su escudo, es razonable pedirlo. Fijate si la norma o el convenio del equipo dice algo.',
+      'Si el municipio compró indumentaria para el equipo, esa compra tiene que estar registrada: se puede pedir cuándo fue la última y qué se compró.'],
+    pasos: ['Pidan por acceso a la información las compras de indumentaria del equipo de los últimos 3 años.',
+      'Presenten una nota pidiendo la renovación de las camisetas oficiales, con la cantidad y los talles.',
+      'Publiquen un pedido de patrocinio de indumentaria: la empresa puede poner su marca y pagar directo al proveedor.'],
+    items: /^(Compras de indumentaria deportiva)/, rse: 'indumentaria',
+    nota: 'la renovación de la indumentaria oficial del equipo (camisetas y conjuntos), que el municipio no renueva desde hace tiempo y hoy pagamos las y los deportistas' },
+  { id: 'elementos', icono: '🏀', titulo: 'Los profes no tienen elementos de trabajo',
+    regla: [
+      'Los elementos de entrenamiento comprados por el municipio también son bienes públicos inventariados.',
+      'Pedir el inventario y las compras permite saber qué hay, qué se compró y qué falta.'],
+    pasos: ['Con los profes, armen la lista de lo que hace falta (pelotas, conos, elementos de preparación física) con un presupuesto.',
+      'Presenten una nota pidiendo esos elementos, con la lista y el presupuesto.',
+      'Pidan por acceso a la información el inventario y las compras de los últimos 3 años.',
+      'Publiquen un pedido de patrocinio de preparación física.'],
+    items: /^(Inventario de elementos de entrenamiento)/, rse: 'fisico',
+    nota: 'la provisión de elementos de entrenamiento para el cuerpo técnico del equipo (pelotas, conos y elementos de preparación física), según la lista y el presupuesto que adjuntamos' }
+];
+let casoActual = null;
+
+function pintarCasos() {
+  $('#casos-botones').innerHTML = CASOS.map(c => `<button role="tab" aria-selected="${casoActual && casoActual.id === c.id}" data-action="caso" data-caso="${c.id}"
+    class="text-left rounded-xl border-2 ${casoActual && casoActual.id === c.id ? 'border-amber-500 bg-amber-100' : 'border-slate-200 hover:border-amber-400'} p-3 font-bold text-sm">${c.icono} ${esc(c.titulo)}</button>`).join('');
+  if (!casoActual) return;
+  const c = casoActual;
+  $('#caso-panel').innerHTML = `
+    <h4 class="font-black text-lg text-amber-950">${c.icono} ${esc(c.titulo)}</h4>
+    <div><p class="font-bold">Lo que dice la regla</p><ul class="list-disc pl-5 space-y-1 text-sm text-slate-800">${c.regla.map(r => `<li>${esc(r)}</li>`).join('')}</ul></div>
+    <div><p class="font-bold">Qué podés hacer</p><ol class="list-decimal pl-5 space-y-1 text-sm text-slate-800">${c.pasos.map(r => `<li>${esc(r)}</li>`).join('')}</ol></div>
+    <div class="flex flex-wrap gap-2 pt-1">
+      <button data-action="caso-nota" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Armar la nota al municipio</button>
+      <button data-action="caso-pedido" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Pedir la información</button>
+      <button data-action="caso-rse" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-sm">Publicar pedido de patrocinio</button>
+      ${c.dato ? '<button data-action="caso-dato" class="border-2 border-emerald-700 text-emerald-800 hover:bg-white font-bold px-4 py-2 rounded-xl text-sm">Enviar la lista y las fotos (privado)</button>' : ''}
+    </div>
+    <p class="text-xs text-slate-600">Orientación general, no asesoramiento legal. Para un caso concreto, consultá a un abogado (muchos colegios de abogados tienen consultorios gratuitos).</p>`;
+}
+
+function pintarCasosNota() {
+  $('#nc-casos').innerHTML = CASOS.map(x => `<label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 nc-caso" value="${x.id}" ${casosNota.has(x.id) ? 'checked' : ''}> ${x.icono} ${esc(x.titulo)}</label>`).join('');
+}
+
+function armarNotaCaso() {
+  const c = casoActual; if (!c) return;
+  const elegidos = CASOS.filter(x => x.id === c.id || casosNota.has(x.id));
+  const v = id => $('#' + id).value.trim();
+  const muni = v('nc-muni') || '[Municipalidad de …]', eq = v('nc-equipo') || '[equipo de básquet en silla de ruedas de …]';
+  const nom = v('nc-nom') || '[Nombre y apellido, o "Las y los integrantes del plantel"]', dni = v('nc-dni') || '[DNI y contacto]';
+  const det = v('nc-detalle');
+  $('#nc-texto').value =
+`Asunto: Solicitud — ${elegidos.length > 1 ? 'necesidades del equipo de deporte adaptado' : c.titulo}
+
+A: ${muni}
+Secretaría / Dirección de Deportes
+
+Quienes integramos el ${eq}, que representa al municipio en competencias oficiales, nos dirigimos a ustedes en ejercicio del derecho de peticionar a las autoridades (art. 14 de la Constitución Nacional), y teniendo en cuenta el art. 30.5 de la Convención sobre los Derechos de las Personas con Discapacidad (Ley 26.378, con jerarquía constitucional) y la Ley 27.202 de Deporte, que piden al Estado asegurar el acceso al deporte adaptado.
+
+${elegidos.length > 1 ? 'Solicitamos:\n' + elegidos.map((x, i) => `${i + 1}) ${x.nota[0].toUpperCase() + x.nota.slice(1)}.`).join('\n') : `Solicitamos ${c.nota}.`}
+${det ? `
+Detalle de la situación:
+${det}
+` : ''}
+Pedimos que se nos informe por escrito qué se resuelve, en qué plazo y qué área es responsable. Quedamos a disposición para aportar presupuestos, listados y fotografías.
+
+${nom}
+${dni}`;
+}
+
 /* ============ TABS ============ */
 const TABS = ['mapa','simple','deportistas','transp','inst','pedir','dato','rse'];
 function showTab(t, push = true) {
@@ -1445,6 +1593,24 @@ document.addEventListener('click', e => {
     $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
   }
   else if (act === 'pedir-rse') { showTab('dato'); $('#d-tipo').value = 'solicitud_rse'; ajustarTipoDato(); $('#d-texto').focus(); }
+  else if (act === 'caso') { casoActual = CASOS.find(c => c.id === a.dataset.caso); pintarCasos(); $('#caso-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+  else if (act === 'caso-nota') {
+    casosNota.delete(casoActual.id); pintarCasosNota();
+    $('#nc-detalle').placeholder = EJEMPLO_DETALLE[casoActual.id] || '';
+    $('#nota-caso').classList.remove('hidden'); armarNotaCaso(); $('#nota-caso').scrollIntoView({ behavior: 'smooth' });
+  }
+  else if (act === 'caso-pedido') {
+    $$('.p-item').forEach(i => { i.checked = casoActual.items.test(i.value); });
+    $('#p-tipo').value = 'municipio'; if ($('#nc-muni').value.trim()) $('#p-entidad').value = $('#nc-muni').value.trim(); armarPedido(); showTab('pedir');
+  }
+  else if (act === 'caso-rse') {
+    showTab('dato'); $('#d-tipo').value = 'solicitud_rse'; ajustarTipoDato(); $('#d-rubro').value = casoActual.rse;
+    $('#d-para').value = casoActual.id === 'silla-propia' ? 'personal' : 'equipo'; $('#d-texto').focus();
+  }
+  else if (act === 'caso-dato') {
+    showTab('dato'); $('#d-tipo').value = 'dato'; ajustarTipoDato();
+    $('#d-texto').value = 'Estado de las sillas del equipo (lista): ' + ($('#nc-detalle').value.trim() || '[número de inventario, qué está roto, qué falta, desde cuándo]'); $('#d-texto').focus();
+  }
   else if (act === 'ya-presente') marcarPresentado(a.dataset.slug, a);
   else if (act === 'postular') { $('#post-cod').textContent = a.dataset.cod; $('#post-estado').textContent = ''; $('#dlg-post').showModal(); }
 });
@@ -1454,6 +1620,10 @@ $('#club-dato').onclick = () => { $('#dlg-club').close(); $('#d-club').value = c
 $('#club-rse').onclick = () => { $('#dlg-club').close(); showTab('rse'); };
 $('#buscador').addEventListener('input', () => { refrescar(); });
 $('#filtro-div').addEventListener('change', refrescar);
+['nc-muni', 'nc-equipo', 'nc-nom', 'nc-dni', 'nc-detalle'].forEach(id => $('#' + id).addEventListener('input', armarNotaCaso));
+pintarCasos();
+$('#nc-casos').addEventListener('change', e => { if (!e.target.classList.contains('nc-caso')) return;
+  e.target.checked ? casosNota.add(e.target.value) : casosNota.delete(e.target.value); armarNotaCaso(); });
 $('#ver-todos-juris').addEventListener('click', () => { verTodosJuris = true; pintarJuris(); });
 $('#form-pedido').addEventListener('input', e => { if (!e.target.closest('details')) armarPedido(); });
 $('#p-tipo').addEventListener('change', () => { itemsPorTipo(); armarPedido(); });

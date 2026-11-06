@@ -52,6 +52,25 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
       console.log('FOTO_DEPORTISTA_FIN');
     }
     await p.click('#t-deportistas'); await p.waitForTimeout(500);
+    // ensayo de situaciones: cada caso arma nota, pedido y patrocinio
+    const ensayo = [];
+    for (const id of await p.evaluate(() => CASOS.map(c => c.id))) {
+      await p.click('#t-deportistas'); await p.click(`[data-action="caso"][data-caso="${id}"]`); await p.click('[data-action="caso-nota"]');
+      await p.fill('#nc-muni', 'Municipalidad de Prueba');
+      const nota = await p.inputValue('#nc-texto');
+      await p.click('[data-action="caso-pedido"]');
+      const items = await p.evaluate(() => document.querySelectorAll('.p-item:checked').length);
+      await p.click('#t-deportistas'); await p.click('[data-action="caso-rse"]');
+      const rubro = await p.inputValue('#d-rubro');
+      ensayo.push({ id, nota: nota.includes('Municipalidad de Prueba') && nota.includes('Solicitamos'), items, rubro });
+    }
+    console.log(`[${nombre}] ensayo casos`, JSON.stringify(ensayo));
+    if (nombre === 'celular') {
+      await p.click('#t-deportistas'); await p.click('[data-action="caso"][data-caso="sillas-municipio"]'); await p.waitForTimeout(300);
+      const fc = (await p.locator('#dep-casos').screenshot({ type: 'jpeg', quality: 30 })).toString('base64');
+      console.log('FOTO_CASOS_INICIO'); for (let i = 0; i < fc.length; i += 8000) console.log(fc.slice(i, i + 8000)); console.log('FOTO_CASOS_FIN');
+    }
+    await p.click('#t-deportistas'); await p.waitForTimeout(300);
     await p.locator('#dep-corresponde [data-action="pedir-deportista"]').click(); await p.waitForTimeout(500);
     console.log(`[${nombre}] pedido deportista`, JSON.stringify(await p.evaluate(() => ({ pestana: document.querySelector('[role=tab][aria-selected=true]')?.textContent.trim(),
       items: [...document.querySelectorAll('.p-item:checked')].map(i => i.value.slice(0, 30)) }))));
