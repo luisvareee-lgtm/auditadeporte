@@ -1,5 +1,5 @@
 name: Verificar el sitio publicado (solo lectura)
-on: { workflow_dispatch: {} }
+on: { workflow_dispatch: { inputs: { script: { description: "verificar_sitio.mjs o recorrer_sitio.mjs", default: "verificar_sitio.mjs" } } } }
 permissions: { contents: read }
 jobs:
   verificar:
@@ -11,5 +11,5 @@ jobs:
         with: { node-version: "22" }
       - run: npm init -y >/dev/null && npm i playwright@1.49.1 >/dev/null && npx playwright install --with-deps chromium >/dev/null
         working-directory: bot/verificacion
-      - run: node verificar_sitio.mjs
+      - run: node ${{ inputs.script || 'verificar_sitio.mjs' }}
         working-directory: bot/verificacion
