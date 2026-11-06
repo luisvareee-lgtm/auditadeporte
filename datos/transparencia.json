@@ -2,8 +2,8 @@
  "actualizado": "2026-11-06",
  "totales": {
   "publica": 14,
-  "a_medias": 5,
-  "no_publica": 17,
+  "a_medias": 6,
+  "no_publica": 16,
   "jurisdicciones": 36,
   "clubes": 25,
   "documentos_leidos": 197,
@@ -19,9 +19,10 @@
    "clubes": [
     "Instituto Municipal del Deporte Almirante Brown"
    ],
-   "estado": "no_publica",
-   "motivo": "Su sitio oficial no permite revisar los documentos de forma automática. Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM).",
-   "sitio_web": "https://www.almirantebrown.gov.ar/",
+   "estado": "a_medias",
+   "motivo": "Publica su boletín oficial en su sitio, pero el sitio rechaza la lectura automática. El equipo descarga los PDF y los revisa igual.",
+   "sitio_web": "https://www.brown.gob.ar/",
+   "boletin_oficial": "https://www.brown.gob.ar/boletin-oficial-2026/",
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -31,7 +32,7 @@
     {
      "clave": "boletin",
      "texto": "Boletín oficial con decretos y resoluciones",
-     "estado": "no_encontrado"
+     "estado": "parcial"
     },
     {
      "clave": "compras",
@@ -54,6 +55,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -73,6 +79,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.altagracia.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Concejo Deliberante de Alta Gracia: legislación",
@@ -118,6 +125,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -136,6 +145,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial tiene una falla de seguridad que impide consultarlo de forma segura. Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM).",
    "sitio_web": "https://www.mda.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -168,6 +178,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -187,6 +202,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.bahia.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Bahía Blanca: digesto y boletín oficial",
@@ -244,6 +260,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -263,6 +284,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.berazategui.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Berazategui: boletín municipal",
@@ -308,6 +330,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -327,6 +354,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://www.cipolletti.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -359,6 +387,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -377,6 +407,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://ciudaddecorrientes.gov.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -409,6 +440,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -427,6 +460,7 @@
    "estado": "a_medias",
    "motivo": "Publica información (compras, presupuesto o transparencia), pero no encontramos su boletín oficial revisable.",
    "sitio_web": "https://www.ensenada.gov.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Ensenada: pliegos de licitaciones públicas",
@@ -466,6 +500,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -485,6 +524,7 @@
    "estado": "a_medias",
    "motivo": "Publica su boletín oficial, pero la página muestra ediciones viejas: solo hasta 2023.",
    "sitio_web": "https://www.estebanecheverria.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Esteban Echeverría: boletín oficial",
@@ -524,6 +564,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -543,6 +588,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática. Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM).",
    "sitio_web": "https://www.mardelplata.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -575,6 +621,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -594,6 +645,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.godoycruz.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Godoy Cruz: presupuestos",
@@ -651,6 +703,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -669,6 +723,7 @@
    "estado": "a_medias",
    "motivo": "Publica información (compras, presupuesto o transparencia), pero no encontramos su boletín oficial revisable.",
    "sitio_web": "https://www.lamatanza.gov.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "La Matanza: compras y contrataciones",
@@ -708,6 +763,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -727,6 +787,7 @@
    "estado": "no_publica",
    "motivo": "No encontramos un boletín oficial ni un portal de transparencia que se pueda revisar. Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM).",
    "sitio_web": "https://www.laplata.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -759,6 +820,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -778,6 +844,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.malagueno.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Malagueño: portal de transparencia",
@@ -823,6 +890,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -841,6 +910,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://www.parana.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -873,6 +943,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -891,6 +963,7 @@
    "estado": "a_medias",
    "motivo": "Publica información (compras, presupuesto o transparencia), pero no encontramos su boletín oficial revisable.",
    "sitio_web": "https://www.rosario.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Rosario: presupuesto y ordenanzas de presupuesto",
@@ -936,6 +1009,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -954,6 +1029,7 @@
    "estado": "no_publica",
    "motivo": "No encontramos un boletín oficial ni un portal de transparencia que se pueda revisar.",
    "sitio_web": "https://www.riogallegos.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -986,6 +1062,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -1004,6 +1082,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.riotercero.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Río Tercero: boletín oficial (datos abiertos)",
@@ -1043,6 +1122,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -1061,6 +1142,7 @@
    "estado": "no_publica",
    "motivo": "No encontramos un boletín oficial ni un portal de transparencia que se pueda revisar. Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM).",
    "sitio_web": "https://www.sanfernando.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -1093,6 +1175,11 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": {
+    "publicados": [],
+    "en_revision": 0
+   },
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -1112,6 +1199,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.smt.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "San Miguel de Tucumán: transparencia y participación",
@@ -1157,6 +1245,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -1175,6 +1265,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial tiene una falla de seguridad que impide consultarlo de forma segura.",
    "sitio_web": "https://sansalvadordejujuy.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -1207,6 +1298,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -1226,6 +1319,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://www.santafeciudad.gov.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -1258,6 +1352,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -1276,6 +1372,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://ciudaddemendoza.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -1308,6 +1405,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -1326,6 +1425,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://buenosaires.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Boletín Oficial de la Ciudad de Buenos Aires",
@@ -1360,6 +1460,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 104 de Acceso a la Información Pública de la Ciudad",
     "plazo": "10 días hábiles, prorrogables por 15",
@@ -1387,6 +1489,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.gba.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Boletín Oficial PBA: sección oficial",
@@ -1427,6 +1530,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 12.475 de acceso a documentos administrativos",
     "plazo": "8 días, prorrogables por 10",
@@ -1445,6 +1550,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial tiene una falla de seguridad que impide consultarlo de forma segura.",
    "sitio_web": "https://www.corrientes.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -1472,6 +1578,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 5834 de acceso a la información pública",
     "plazo": "30 días hábiles",
@@ -1492,6 +1600,7 @@
    "estado": "no_publica",
    "motivo": "Rechaza la consulta automática de su boletín oficial.",
    "sitio_web": "https://www.cba.gov.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -1519,6 +1628,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 8803 de Acceso al Conocimiento de los Actos del Estado",
     "plazo": "10 días hábiles, prorrogables por 10",
@@ -1537,6 +1648,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.entrerios.gov.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Boletín Oficial de Entre Ríos",
@@ -1571,6 +1683,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Decreto 1169/05 de acceso a la información pública",
     "plazo": "10 días, prorrogables por 10",
@@ -1589,6 +1703,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.jujuy.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Boletín Oficial de Jujuy: ediciones",
@@ -1623,6 +1738,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 5886 de acceso a la información pública",
     "plazo": "15 días, prorrogables por 5",
@@ -1642,6 +1759,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.mendoza.gov.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Boletín Oficial de Mendoza",
@@ -1676,6 +1794,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 9070 de acceso a la información pública",
     "plazo": "15 días, prorrogables por 15",
@@ -1694,6 +1814,7 @@
    "estado": "no_publica",
    "motivo": "Pide usuario y contraseña para consultar el boletín oficial.",
    "sitio_web": "https://www.rionegro.gov.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -1721,6 +1842,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 1829 de libre acceso a las fuentes de información pública (Decreto 1028/2004)",
     "plazo": "la norma no fija plazo: se pide respuesta en un plazo razonable",
@@ -1739,6 +1862,7 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.santacruz.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Boletín Oficial de Santa Cruz",
@@ -1773,6 +1897,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 3540 de acceso a la información pública",
     "plazo": "10 días, prorrogables por 10",
@@ -1793,6 +1919,7 @@
    "estado": "no_publica",
    "motivo": "Sus páginas oficiales no respondieron en las últimas revisiones (tres o más intentos seguidos).",
    "sitio_web": "https://www.santafe.gov.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Boletín Oficial de Santa Fe",
@@ -1827,6 +1954,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Decretos 692/09 y 1774/09 de acceso a la información (la ley provincial tuvo media sanción, sin vigencia a la fecha de esta guía)",
     "plazo": "15 días, prorrogables por 10",
@@ -1845,6 +1974,7 @@
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://www.tucuman.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [],
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
@@ -1872,6 +2002,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "sin ley provincial general de acceso a la información: rige la base constitucional",
     "plazo": "no hay plazo legal provincial: se pide respuesta en un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
@@ -1890,13 +2022,8 @@
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.uncuyo.edu.ar/",
+   "boletin_oficial": null,
    "fuentes": [
-    {
-     "nombre": "UNCuyo: información presupuestaria",
-     "url": "https://www.uncuyo.edu.ar/transparencia/informacion-presupuestaria",
-     "tipo": "Transparencia y presupuesto",
-     "responde": true
-    },
     {
      "nombre": "UNCuyo: transferencias y becas",
      "url": "https://www.uncuyo.edu.ar/transparencia/transferencias",
@@ -1907,6 +2034,12 @@
      "nombre": "UNCuyo: compras y contrataciones",
      "url": "https://www.uncuyo.edu.ar/transparencia/compras-y-contrataciones",
      "tipo": "Compras y licitaciones",
+     "responde": true
+    },
+    {
+     "nombre": "UNCuyo: información presupuestaria",
+     "url": "https://www.uncuyo.edu.ar/transparencia/informacion-presupuestaria",
+     "tipo": "Transparencia y presupuesto",
      "responde": true
     }
    ],
@@ -1936,6 +2069,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 27.275 de Acceso a la Información Pública",
     "plazo": "15 días hábiles, prorrogables por otros 15",
@@ -1978,6 +2113,7 @@
    "estado": "a_medias",
    "motivo": "Publica datos, pero algunas de sus páginas oficiales no respondieron en la última revisión.",
    "sitio_web": "https://www.argentina.gob.ar/",
+   "boletin_oficial": null,
    "fuentes": [
     {
      "nombre": "Presupuesto Abierto: datos abiertos de ejecución",
@@ -2018,6 +2154,8 @@
      "estado": "no_encontrado"
     }
    ],
+   "documentos": [],
+   "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 27.275 de Acceso a la Información Pública",
     "plazo": "15 días hábiles, prorrogables por otros 15",
