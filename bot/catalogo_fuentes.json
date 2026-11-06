@@ -188,9 +188,10 @@
   },
   "muni-almirante-brown": {
    "nombre": "Municipalidad de Almirante Brown",
-   "sitio_web": "https://www.almirantebrown.gov.ar/",
+   "sitio_web": "https://www.brown.gob.ar/",
    "fuentes": [],
-   "pendiente": "El sitio municipal pide no ser leído por bots: se cubre con el SIBOM provincial."
+   "pendiente": "El sitio oficial (brown.gob.ar) rechaza las consultas desde servidores (HTTP 403, también a robots.txt): no se fuerza. El equipo carga a mano los PDF del boletín para que el analista los lea.",
+   "boletin_oficial": "https://www.brown.gob.ar/boletin-oficial-2026/"
   },
   "muni-avellaneda": {
    "nombre": "Municipalidad de Avellaneda",

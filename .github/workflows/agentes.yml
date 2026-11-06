@@ -14,9 +14,12 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
-      - run: pip install "pypdf>=4,<7"          # leer texto de PDFs; los bots no necesitan otra librería
+      - name: Lectores de PDF y OCR en español (cada página, también escaneos)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-spa fonts-dejavu-core > /dev/null
+          pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12"
       - name: Tests (si fallan, no se ejecuta ningún agente)
-        run: python -m unittest test_supa test_orquestador test_mesa_ingesta test_especialistas test_busqueda_dirigida
+        run: python -m unittest test_supa test_orquestador test_mesa_ingesta test_especialistas test_busqueda_dirigida test_analista_pdf
         working-directory: bot
       - name: Rastreador de documentos (fuentes del panel + sitemaps)
         run: python orquestador_bots_audita.py

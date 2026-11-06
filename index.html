@@ -422,6 +422,7 @@
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Subsidios, convenios o transferencias recibidas para el equipo de básquet adaptado" checked> Subsidios y convenios</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y registros de asignación de sillas deportivas, cubiertas, cámaras, ejes, rayos y repuestos"> Sillas y repuestos</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Gastos de transporte y alojamiento para competencias y su forma de contratación"> Transporte y alojamiento</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Juegos Bonaerenses de los últimos 2 años: gasto total del municipio y su detalle (traslados, alojamiento, inscripciones, indumentaria, viáticos), disciplinas y categorías con participación de deporte adaptado, y los decretos o expedientes de esas contrataciones"> Juegos Bonaerenses</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y listado de becas o viáticos otorgados, sin datos personales sensibles"> Becas y viáticos</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Nómina vigente de autoridades y acta de designación"> Autoridades vigentes</label>
           </div>
@@ -811,6 +812,25 @@ async function marcarPresentado(slugJ, boton) {
 }
 const BASE_CARTA = 'la Constitución Nacional (arts. 1, 14, 33 y 75 inc. 22), el art. 13 de la Convención Americana sobre Derechos Humanos y la jurisprudencia de la Corte Suprema de Justicia de la Nación (caso "CIPPEC", 2014)';
 const ITEMS_MUNICIPIO = ['presupuesto', 'Subsidios', 'Criterios y registros', 'Gastos de transporte', 'Criterios y listado de becas'];
+const NOMBRE_TEMA = { deporte_adaptado: 'Deporte adaptado', discapacidad_deporte: 'Discapacidad y deporte', instituto_deporte: 'Instituto Municipal del Deporte',
+  juegos_bonaerenses: 'Juegos Bonaerenses', viajes_deportivos: 'Viajes deportivos', federaciones: 'FABA / COPAR / ENARD' };
+const RE_CAPTURA = /^https:\/\/[a-z0-9]+\.supabase\.co\/storage\/v1\/object\/public\/capturas-publicas\//;
+// Capturas de la página del documento con el pasaje resaltado (solo las que una persona aprobó)
+function capturasHtml(caps, fuente) {
+  const ok = (caps || []).filter(c => RE_CAPTURA.test(c.url || ''));
+  if (!ok.length) return '';
+  return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${ok.map(c => `<figure class="rounded-lg border border-slate-300 bg-white overflow-hidden">
+    <a href="${esc(c.url)}" target="_blank" rel="noopener"><img src="${esc(c.url)}" alt="Captura de la página ${esc(c.pagina)} del documento, con el pasaje resaltado" loading="lazy" class="w-full h-auto"></a>
+    <figcaption class="px-2 py-1 text-[11px] text-slate-600">Página ${esc(c.pagina)}${c.ocr ? ' · texto leído por OCR' : ''} · <a class="underline" href="${esc(urlSegura(fuente))}" target="_blank" rel="noopener">fuente original</a></figcaption></figure>`).join('')}</div>`;
+}
+function docJurisHtml(d) {
+  return `<li class="rounded-xl border border-slate-200 bg-white p-2.5 space-y-1.5">
+    <p class="font-semibold">${esc(d.titulo)}${d.norma ? ` <span class="text-slate-500 font-normal">(${esc(d.norma)})</span>` : ''}</p>
+    ${d.resumen ? `<p class="text-slate-700">${esc(d.resumen)}</p>` : ''}
+    ${(d.temas || []).length ? `<p class="text-xs text-slate-500">Temas: ${esc(d.temas.map(t => NOMBRE_TEMA[t] || t).join(', '))}</p>` : ''}
+    ${capturasHtml(d.capturas, d.url)}
+    <a class="text-blue-800 font-bold underline text-xs" href="${esc(urlSegura(d.url))}" target="_blank" rel="noopener">Ver el documento original ↗</a></li>`;
+}
 const fechaLinda = f => { if (!f) return '—'; const [a, m, d] = f.split('-'); return `${d}/${m}/${a}`; };
 const urlSegura = u => /^https?:\/\//i.test(u || '') ? u : '';
 
@@ -854,7 +874,8 @@ function pintarJuris() {
     const fuentes = j.fuentes.length ? `<ul class="text-sm space-y-1">${j.fuentes.map(f => `
         <li class="flex gap-2 items-start"><span aria-hidden="true">${f.responde ? '✅' : '⚠️'}</span>
           <span><a class="underline text-blue-800 break-words" href="${esc(urlSegura(f.url))}" target="_blank" rel="noopener">${esc(f.nombre)}</a>
-          <span class="text-slate-500">· ${esc(f.tipo)}${f.responde ? '' : ' · no respondió'}</span></span></li>`).join('')}</ul>` : '';
+          <span class="text-slate-500">· ${esc(f.tipo)}${f.responde ? '' : ' · no respondió'}</span></span></li>`).join('')}</ul>`
+      : urlSegura(j.boletin_oficial) ? `<ul class="text-sm"><li class="flex gap-2 items-start"><span aria-hidden="true">📄</span><span><a class="underline text-blue-800 break-words" href="${esc(j.boletin_oficial)}" target="_blank" rel="noopener">Boletín oficial</a> <span class="text-slate-500">· se revisa a mano</span></span></li></ul>` : '';
     return `<li data-juris="${esc(j.slug)}" data-estado="${esc(j.estado)}" class="rounded-2xl border border-slate-200 p-4 space-y-2 min-w-0">
       <div class="flex flex-wrap items-start gap-2 justify-between">
         <div class="min-w-0"><p class="text-xs font-bold uppercase tracking-wide text-slate-500">${esc(TIPO_JURIS[j.tipo] || '')}</p>
@@ -868,6 +889,16 @@ function pintarJuris() {
         const ei = ESTADO_ITEM[i.estado] || ESTADO_ITEM.no_encontrado;
         return `<li class="flex gap-1.5 items-start min-w-0"><span aria-hidden="true">${ei.icono}</span><span class="min-w-0">${esc(i.texto)} <span class="${ei.cls} font-semibold">· ${ei.txt}</span></span></li>`;
       }).join('')}</ul>` : ''}
+      ${j.juegos_bonaerenses ? (() => { const jb = j.juegos_bonaerenses;
+        return `<div class="rounded-xl border-2 border-sky-200 bg-sky-50 p-3 space-y-2 text-sm">
+          <p class="font-black text-sky-950">🏅 Juegos Bonaerenses</p>
+          ${jb.publicados.length ? `<ul class="space-y-2">${jb.publicados.map(docJurisHtml).join('')}</ul>`
+            : `<p class="text-slate-700">Todavía no publicamos documentos de este municipio sobre lo que gastó en los Juegos Bonaerenses (viajes, inscripciones, indumentaria, delegación de deporte adaptado).${jb.en_revision ? ` <strong>${jb.en_revision} en revisión.</strong>` : ''}</p>`}
+          <button data-action="pedir-jb" data-slug="${esc(j.slug)}" class="text-sky-900 font-bold underline">Pedir lo que gastó en los Juegos Bonaerenses</button>
+        </div>`; })() : ''}
+      ${(j.documentos || []).length ? `<details class="text-sm rounded-xl border border-slate-200 p-3">
+        <summary class="font-bold cursor-pointer">Documentos publicados (${j.documentos.length})</summary>
+        <ul class="space-y-2 mt-2">${j.documentos.map(docJurisHtml).join('')}</ul></details>` : ''}
       <p class="text-xs text-slate-500">${j.fuentes.length ? `Documentos leídos: ${esc(j.documentos_leidos)} · Última revisión: ${fechaLinda(j.ultima_revision)}` : 'Sin fuente oficial que se pueda revisar.'}</p>
       <details class="text-sm rounded-xl bg-slate-50 border border-slate-200 p-3">
         <summary class="font-bold cursor-pointer">Cómo y dónde pedir la información</summary>
@@ -1007,7 +1038,7 @@ function abrirClub(id) {
     : '';
 
   const docsAnalizadosHtml = (c.docs && c.docs.length)
-    ? `<div class="mt-4"><h4 class="font-extrabold mb-2 text-slate-900">Documentos analizados por los bots</h4><ul class="space-y-1.5 text-xs">${c.docs.map(d => `<li class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 flex justify-between items-center gap-2"><span><strong>${esc(d.titulo)}</strong> (${esc(d.expediente_o_norma || 'Fuente pública')})</span><a href="${esc(d.url_fuente)}" target="_blank" rel="noopener noreferrer" class="text-blue-800 font-bold underline shrink-0">Ver documento ↗</a></li>`).join('')}</ul></div>`
+    ? `<div class="mt-4"><h4 class="font-extrabold mb-2 text-slate-900">Documentos analizados</h4><ul class="space-y-1.5 text-xs">${c.docs.filter(d => d.publicado !== false).map(d => `<li class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 space-y-2"><div class="flex justify-between items-start gap-2"><span class="min-w-0"><strong>${esc(d.titulo)}</strong> (${esc(d.expediente_o_norma || 'Fuente pública')})${d.resumen ? `<span class="block text-slate-700 mt-1">${esc(d.resumen)}</span>` : ''}</span><a href="${esc(urlSegura(d.url_fuente))}" target="_blank" rel="noopener noreferrer" class="text-blue-800 font-bold underline shrink-0">Ver documento ↗</a></div>${capturasHtml(d.capturas, d.url_fuente)}</li>`).join('')}</ul></div>`
     : '';
 
   $('#club-docs').innerHTML = autHtml + CRITERIOS.map(k => {
@@ -1187,6 +1218,12 @@ document.addEventListener('click', e => {
     $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
   }
   else if (act === 'pedir-inst') { $('#p-tipo').value = 'federacion'; $('#p-entidad').value = a.dataset.nombre; armarPedido(); showTab('pedir'); }
+  else if (act === 'pedir-jb') {
+    const j = JURIS.find(x => x.slug === a.dataset.slug); if (!j) return;
+    marcoPedido = { entidad: j.nombre, esMunicipio: true, ...j.pedido };
+    $$('.p-item').forEach(i => { i.checked = i.value.startsWith('Juegos Bonaerenses') || i.value.startsWith('Partidas del presupuesto'); });
+    $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
+  }
   else if (act === 'pedir-rse') { showTab('dato'); $('#d-tipo').value = 'solicitud_rse'; ajustarTipoDato(); $('#d-texto').focus(); }
   else if (act === 'ya-presente') marcarPresentado(a.dataset.slug, a);
   else if (act === 'postular') { $('#post-cod').textContent = a.dataset.cod; $('#post-estado').textContent = ''; $('#dlg-post').showModal(); }

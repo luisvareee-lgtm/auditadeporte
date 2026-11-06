@@ -36,6 +36,8 @@ def motivo_simple(pendiente: str, provincia: str) -> str:
         m = "No encontramos un boletín oficial ni un portal de transparencia que se pueda revisar."
     else:
         m = "No encontramos publicación oficial que se pueda revisar."
+    if "carga a mano" in p:
+        m += " El equipo descarga sus boletines desde el sitio oficial y los revisa igual."
     if "sibom" in p:
         m += " Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM)."
     return m
@@ -52,7 +54,7 @@ ITEMS_CHECKLIST = [
 ]
 
 
-def checklist(slug: str, fs: list, encontrados: int, publicados: int) -> list:
+def checklist(slug: str, fs: list, encontrados: int, publicados: int, boletin_manual: str = None) -> list:
     out = []
     for clave, texto, tipos in ITEMS_CHECKLIST:
         if clave == "normas" and not slug.startswith("muni-"):
@@ -61,7 +63,7 @@ def checklist(slug: str, fs: list, encontrados: int, publicados: int) -> list:
         if any(f.get("estado") == "activa" and f.get("ultimo_status") == 200 and "solo hasta" not in (f.get("nota") or "")
                for f in propias):
             estado = "completo"
-        elif propias:
+        elif propias or (clave == "boletin" and boletin_manual):
             estado = "parcial"
         else:
             estado = "no_encontrado"
@@ -69,6 +71,14 @@ def checklist(slug: str, fs: list, encontrados: int, publicados: int) -> list:
     out.append({"clave": "deporte_adaptado", "texto": "Documentos sobre deporte adaptado",
                 "estado": "completo" if publicados else ("parcial" if encontrados else "no_encontrado")})
     return out
+
+
+def documento_publico(d: dict) -> dict:
+    """Lo que se muestra de un documento ya aprobado por una persona: título, fuente, resumen, temas y capturas."""
+    return {"titulo": d.get("titulo"), "url": d.get("url_fuente"), "norma": d.get("expediente_o_norma"), "resumen": d.get("resumen"),
+            "fecha": (d.get("fecha_captura") or "")[:10] or None, "temas": d.get("temas") or [],
+            "capturas": [{"url": c.get("url"), "pagina": c.get("pagina"), "ocr": bool(c.get("ocr"))}
+                         for c in (d.get("capturas") or []) if str(c.get("url", "")).startswith("https://")]}
 
 
 def tipo_juris(slug: str) -> str:
@@ -109,10 +119,15 @@ def construir(db=None, cat=None, marco=None) -> dict:
     for v in vistas:
         leidos_por_fuente[v["fuente_id"]] = leidos_por_fuente.get(v["fuente_id"], 0) + 1
     cola = db.table("cola_revision").select("agente,estado,revisada_por,propuesta,club_id,institucion_id") \
-        .eq("agente", "rastreador").execute().data or []
+        .in_("agente", ["rastreador", "analista_pdf"]).execute().data or []
     clubes = {c["slug"]: c for c in db.table("clubes").select("id,slug,nombre,publicado").execute().data or []
               if c.get("publicado") is not False}
-    docs = db.table("documentos_fuente").select("institucion_id,club_id,publicado").execute().data or []
+    try:     # temas y capturas existen desde db/16
+        docs = db.table("documentos_fuente").select("institucion_id,club_id,publicado,titulo,url_fuente,resumen,expediente_o_norma,"
+                                                    "fecha_captura,temas,capturas").execute().data or []
+    except Exception:
+        docs = db.table("documentos_fuente").select("institucion_id,club_id,publicado,titulo,url_fuente,resumen,expediente_o_norma,"
+                                                    "fecha_captura").execute().data or []
 
     juris_por_club = cat.get("clubes", {})
     clubes_por_juris = {}
@@ -128,7 +143,11 @@ def construir(db=None, cat=None, marco=None) -> dict:
         ok = [f for f in fs if f.get("estado") == "activa" and f.get("ultimo_status") == 200]
         boletin_ok = [f for f in ok if f["tipo"] == "boletin_oficial"]
         notas = " ".join((f.get("nota") or "") for f in fs)
-        if not fs:
+        if not fs and j.get("boletin_oficial"):
+            # el boletín está publicado para personas (lo verificó alguien del equipo) pero el sitio no deja leerlo a un programa
+            estado, motivo = "a_medias", ("Publica su boletín oficial en su sitio, pero el sitio rechaza la lectura automática. "
+                                          "El equipo descarga los PDF y los revisa igual.")
+        elif not fs:
             estado, motivo = "no_publica", motivo_simple(j.get("pendiente"), "")
         elif not ok and max((f.get("fallos_consecutivos") or 0) for f in fs) < 3:
             # una caída puntual no alcanza para decir que no publica: se espera a tres fallas seguidas
@@ -146,23 +165,35 @@ def construir(db=None, cat=None, marco=None) -> dict:
         ids_fuentes = {f["id"] for f in fs}
         clubes_j = clubes_por_juris.get(slug, [])
         ids_clubes = {c["id"] for c in clubes_j}
-        encontrados = sum(1 for c in cola if (c.get("propuesta") or {}).get("fuente_id") in ids_fuentes
-                          and (c.get("propuesta") or {}).get("indice") and c.get("revisada_por") != "limpieza automática"
-                          and c.get("estado") != "rechazada")
-        publicados = sum(1 for d in docs if d.get("publicado") and
-                         (d.get("institucion_id") == inst.get("id") or (slug.startswith("muni-") and d.get("club_id") in ids_clubes)))
+        def de_aca(c):
+            p = c.get("propuesta") or {}
+            return ((p.get("fuente_id") in ids_fuentes and p.get("indice")) or
+                    (p.get("cargado_a_mano") and inst and (c.get("institucion_id") == inst.get("id") or
+                                                          (slug.startswith("muni-") and c.get("club_id") in ids_clubes))))
+        abiertos = [c for c in cola if de_aca(c) and c.get("revisada_por") != "limpieza automática" and c.get("estado") != "rechazada"
+                    and c.get("estado") != "aprobada"]
+        encontrados = len(abiertos)
+        docs_j = [d for d in docs if d.get("publicado") and
+                  (d.get("institucion_id") == inst.get("id") or (slug.startswith("muni-") and d.get("club_id") in ids_clubes))]
+        publicados = len(docs_j)
         juris_de_un_club = next((juris_por_club[c["slug"]] for c in clubes_j), [])
         revs = [f["ultima_revision"] for f in fs if f.get("ultima_revision")]
+        es_pba = slug.startswith("muni-") and "prov-buenos-aires" in juris_de_un_club
+        jb_docs = [documento_publico(d) for d in docs_j if "juegos_bonaerenses" in (d.get("temas") or [])]
+        jb_revision = sum(1 for c in abiertos if "juegos_bonaerenses" in ((c.get("propuesta") or {}).get("temas") or []))
         salida.append({
             "slug": slug, "nombre": inst.get("nombre") or j["nombre"], "tipo": tipo_juris(slug),
             "clubes": sorted(c["nombre"] for c in clubes_j), "estado": estado, "motivo": motivo,
-            "sitio_web": inst.get("sitio_web") or j.get("sitio_web"),
+            "sitio_web": j.get("sitio_web") or inst.get("sitio_web"),
+            "boletin_oficial": j.get("boletin_oficial"),
             "fuentes": [{"nombre": f["nombre"], "url": f["url"], "tipo": TIPO_SIMPLE.get(f["tipo"], "Datos oficiales"),
                          "responde": f.get("estado") == "activa" and f.get("ultimo_status") == 200} for f in fs],
             "documentos_leidos": sum(leidos_por_fuente.get(i, 0) for i in ids_fuentes),
             "encontrados_para_revisar": encontrados, "publicados": publicados,
             "ultima_revision": max(revs)[:10] if revs else None,
-            "checklist": checklist(slug, fs, encontrados, publicados),
+            "checklist": checklist(slug, fs, encontrados, publicados, j.get("boletin_oficial")),
+            "documentos": [documento_publico(d) for d in sorted(docs_j, key=lambda d: d.get("fecha_captura") or "", reverse=True)[:10]],
+            "juegos_bonaerenses": {"publicados": jb_docs, "en_revision": jb_revision} if es_pba else None,
             "pedido": pedido(slug, juris_de_un_club, marco),
         })
     orden = {"municipio": 0, "provincia": 1, "universidad": 2, "nacion": 3}

@@ -1,0 +1,39 @@
+name: Analizar PDFs cargados a mano
+on:
+  schedule: [{ cron: "17 * * * *" }]     # cada hora: si no hay nada pendiente termina en segundos
+  workflow_dispatch: {}
+permissions: { contents: read }
+concurrency: { group: cargados, cancel-in-progress: false }
+jobs:
+  analizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: ¿Hay documentos pendientes?
+        id: hay
+        working-directory: bot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
+        run: |
+          n=$(python -c "import orquestador_bots_audita as o; print(len(o.db().table('documentos_cargados').select('id').eq('estado','pendiente').execute().data or []))" 2>/dev/null || echo 0)
+          echo "pendientes=$n" >> "$GITHUB_OUTPUT"; echo "pendientes: $n"
+      - name: Lectores de PDF y OCR en español
+        if: steps.hay.outputs.pendientes != '0'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-spa fonts-dejavu-core > /dev/null
+          pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12"
+      - name: Tests
+        if: steps.hay.outputs.pendientes != '0'
+        run: python -m unittest test_supa test_analista_pdf
+        working-directory: bot
+      - name: Analizar (página por página, con OCR) y proponer a la cola de revisión
+        if: steps.hay.outputs.pendientes != '0'
+        run: python procesar_cargados.py
+        working-directory: bot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}

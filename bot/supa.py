@@ -111,6 +111,30 @@ class Cliente:
     def rpc(self, fn, params=None):
         return Rpc(self, fn, params)
 
+    # ---------------- Storage (archivos): solo lo usa el bot, con la clave secreta guardada en GitHub
+    def _storage(self, metodo, ruta, datos=None, tipo=None, extra=None):
+        h = {k: v for k, v in self.cabeceras().items() if k != "Content-Type"}
+        if tipo:
+            h["Content-Type"] = tipo
+        h.update(extra or {})
+        req = urllib.request.Request(f"{self.url}/storage/v1/{ruta}", data=datos, method=metodo, headers=h)
+        try:
+            with urllib.request.urlopen(req, timeout=max(self.timeout, 60)) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            try:
+                err = json.loads(e.read().decode() or "{}")
+            except Exception:
+                err = {}
+            raise SupaError(e.code, err.get("message") or err.get("error") or e.reason, err.get("statusCode")) from None
+
+    def subir_archivo(self, bucket: str, ruta: str, datos: bytes, tipo: str, reemplazar=True) -> str:
+        self._storage("POST", f"object/{bucket}/{ruta}", datos, tipo, {"x-upsert": "true" if reemplazar else "false"})
+        return f"{bucket}/{ruta}"
+
+    def bajar_archivo(self, bucket: str, ruta: str) -> bytes:
+        return self._storage("GET", f"object/authenticated/{bucket}/{ruta}")
+
     def _pedir(self, metodo, url, cuerpo, prefer):
         h = self.cabeceras()
         if prefer:

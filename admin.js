@@ -144,7 +144,7 @@ $('#btn-salir').addEventListener('click', async () => { await sb.auth.signOut();
 
 // ---------------------------------------------------------------- pestañas
 const CARGAS = { bandeja: cargarBandeja, borradores: cargarBorradores, publicados: cargarPublicados, fuentes: cargarFuentes,
-  estado: cargarEstado, historial: cargarHistorial, cuenta: pintarCuenta };
+  estado: cargarEstado, historial: cargarHistorial, cuenta: pintarCuenta, cargar: cargarCargados };
 document.querySelectorAll('[role="tab"]').forEach(b => b.addEventListener('click', () => abrirTab(b.dataset.tab)));
 function abrirTab(t) {
   document.querySelectorAll('[role="tab"]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
@@ -215,6 +215,67 @@ async function abrirDetalle(i) {
   } catch (e) { box.replaceChildren(el('p', { class: 'aviso' }, e.message)); }
 }
 
+const NOMBRE_TEMA = { deporte_adaptado: 'Deporte adaptado', discapacidad_deporte: 'Discapacidad y deporte', instituto_deporte: 'Instituto Municipal del Deporte',
+  juegos_bonaerenses: 'Juegos Bonaerenses', viajes_deportivos: 'Viajes deportivos', federaciones: 'FABA / COPAR / ENARD' };
+
+// Copia las capturas elegidas del depósito privado al público y las asocia al documento publicado.
+async function publicarCapturas(colaId, caps) {
+  const pub = [];
+  for (const c of caps) {
+    try {
+      const { data, error } = await sb.storage.from('capturas').download(c.ruta);
+      if (error) throw error;
+      const up = await sb.storage.from('capturas-publicas').upload(c.ruta, data, { contentType: 'image/jpeg', upsert: false });
+      if (up.error && !/exists|duplicate/i.test(up.error.message || '')) throw up.error;
+      pub.push({ url: sb.storage.from('capturas-publicas').getPublicUrl(c.ruta).data.publicUrl, pagina: c.pagina, temas: c.temas || [], ocr: !!c.ocr });
+    } catch (e) { aviso('No se pudo publicar la captura de la pág. ' + c.pagina + ': ' + (e.message || e), true); }
+  }
+  if (pub.length) {
+    try { await rpc('panel_capturas_documento', { p_cola_id: colaId, p_capturas: pub }); aviso(`Documento publicado con ${pub.length} captura(s).`); }
+    catch (e) { aviso(e.message, true); }
+  }
+}
+
+// ---------------------------------------------------------------- carga manual de PDFs
+async function sha256Hex(buf) {
+  const h = await crypto.subtle.digest('SHA-256', buf);
+  return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function cargarCargados() {
+  if (!$('#fc-juris').options.length) {
+    try {
+      const d = await (await fetch('/datos/transparencia.json', { cache: 'no-store' })).json();
+      $('#fc-juris').replaceChildren(...d.jurisdicciones.map(j => el('option', { value: j.slug }, j.nombre)));
+    } catch (e) { aviso('No se pudo cargar la lista de municipios.', true); }
+  }
+  const l = await rpc('panel_documentos_cargados');
+  $('#t-cargados').replaceChildren(tabla([['Documento', x => el('span', {}, el('strong', {}, x.titulo), el('br'), enlace(x.url_original))],
+    ['Lugar', x => x.juris_slug], ['Cargado', x => fecha(x.creado_en) + (x.cargado_por ? ' · ' + x.cargado_por : '')],
+    ['Estado', x => el('span', { class: 'chip ' + ({ procesado: 'ok', error: 'mal' }[x.estado] || '') }, x.estado === 'pendiente' ? 'en espera (se analiza en menos de una hora)' : x.estado)],
+    ['Resultado', x => x.error ? x.error : x.estado === 'procesado' ? `${x.paginas || '?'} páginas · ${x.hallazgos} hallazgo(s)` : '—']], l, 'Todavía no cargaste documentos.'));
+}
+async function subirPdf(ev) {
+  ev.preventDefault();
+  const f = $('#fc-archivo').files[0], url = $('#fc-url').value.trim(), titulo = $('#fc-titulo').value.trim(), juris = $('#fc-juris').value;
+  if (!f || f.type !== 'application/pdf') { aviso('Elegí un archivo PDF.', true); return; }
+  if (f.size > 50 * 1024 * 1024) { aviso('El PDF supera 50 MB.', true); return; }
+  if (!urlSegura(url)) { aviso('Pegá el enlace del sitio oficial donde está publicado (https://…).', true); return; }
+  if (titulo.length < 3) { aviso('Poné un título (por ejemplo: Boletín Oficial agosto 2026 - decretos).', true); return; }
+  const btn = $('#fc-enviar'); btn.disabled = true; $('#fc-estado').textContent = 'Calculando la huella…';
+  try {
+    const buf = await f.arrayBuffer();
+    if (new TextDecoder().decode(buf.slice(0, 5)) !== '%PDF-') throw new Error('El archivo no es un PDF válido.');
+    const sha = await sha256Hex(buf), ruta = `${juris}/${sha}.pdf`;
+    $('#fc-estado').textContent = 'Subiendo…';
+    const up = await sb.storage.from('documentos-cargados').upload(ruta, new Blob([buf], { type: 'application/pdf' }), { contentType: 'application/pdf', upsert: false });
+    if (up.error && !/exists|duplicate/i.test(up.error.message || '')) throw up.error;
+    await rpc('panel_cargar_documento', { p_juris: juris, p_url: url, p_titulo: titulo, p_ruta: ruta, p_sha: sha });
+    aviso('Cargado. El analista lo lee en menos de una hora y, si encuentra algo, aparece en la Bandeja.');
+    ev.target.reset(); $('#fc-estado').textContent = 'SHA-256: ' + sha; cargarCargados();
+  } catch (e) { aviso(e.message || String(e), true); $('#fc-estado').textContent = ''; }
+  finally { btn.disabled = false; }
+}
+
 async function hacer(fn, args, ok, recargar = true) {
   try {
     const r = await rpc(fn, args);
@@ -265,6 +326,23 @@ function vistaCola(d) {
     if (d.tipo === 'documento_cambio') b.push(el('p', { class: 'aviso' }, 'La página cambió desde la última vez. Hash anterior: ' + (p.hash_anterior || '—')));
     b.push(campo('Expedientes', (ind.expedientes || []).join(' · ') || '—'), campo('CUIT de entidades', (ind.cuits_entidades || []).join(' · ') || '—'));
     if (ind.contiene_posibles_dni) b.push(el('p', { class: 'aviso' }, 'El documento tiene números con forma de DNI: no los repitas en el resumen.'));
+    if (p.paginas) b.push(campo('Páginas leídas', `${p.paginas}${p.paginas_ocr ? ` (${p.paginas_ocr} por OCR: el texto puede tener errores, verificalo en el original)` : ''}`));
+    if (p.cargado_a_mano) b.push(el('p', { class: 'nota' }, 'PDF cargado a mano desde el sitio oficial. El enlace de la fuente es el original.'));
+    if ((p.hallazgos || []).length) b.push(el('h3', {}, 'Dónde aparece cada tema'), el('ul', { class: 'hallazgos' }, p.hallazgos.map(h =>
+      el('li', {}, el('strong', {}, (NOMBRE_TEMA[h.tema] || h.tema) + ` · pág. ${h.pagina}`), h.montos && h.montos.length ? ` · montos cerca: ${h.montos.join(', ')}` : '',
+        el('p', { class: 'cita' }, h.extracto)))));
+    if ((p.capturas || []).length) {
+      d._caps = new Set();
+      const cont = el('div', { class: 'capturas' });
+      b.push(el('h3', {}, 'Capturas (privadas hasta que las publiques)'),
+        el('p', { class: 'nota' }, 'Marcá las que quieras publicar junto al documento. Antes, compará cada una con el original: el resaltado lo hizo un programa.'), cont);
+      p.capturas.forEach(async c => {
+        const { data } = await sb.storage.from('capturas').createSignedUrl(c.ruta, 900);
+        const chk = el('input', { type: 'checkbox', onchange: e => e.target.checked ? d._caps.add(c) : d._caps.delete(c) });
+        cont.append(el('figure', {}, data ? el('a', { href: data.signedUrl, target: '_blank', rel: 'noopener' }, el('img', { src: data.signedUrl, alt: 'Captura de la página ' + c.pagina, loading: 'lazy' })) : el('p', { class: 'aviso' }, 'No se pudo abrir la captura.'),
+          el('figcaption', {}, el('label', { class: 'check' }, chk, `Publicar · pág. ${c.pagina} · ${(c.temas || []).map(t => NOMBRE_TEMA[t] || t).join(', ')}`))));
+      });
+    }
     if (d.cruces && d.cruces.length) b.push(el('h3', {}, 'Cruces con otras fuentes'), el('ul', {}, d.cruces.map(c =>
       el('li', {}, c.expediente + ': ', ...c.otras_fuentes.map(u => el('span', {}, enlace(u), ' '))))));
     out.push(el('div', { class: 'bloque' }, b));
@@ -324,7 +402,9 @@ function formAprobar(d) {
     etiqueta = (ACCIONES[p.accion] || ['Aprobar'])[0]; aviso_ = (ACCIONES[p.accion] || ['', ''])[1];
   }
   partes.push(el('div', { class: 'acciones' }, el('button', { class: 'btn primario', onclick: async () => {
-    if (await confirmar(etiqueta, aviso_, etiqueta)) hacer('panel_aprobar_cola', { p_id: d.id, p_datos: leer() }, 'Hecho.');
+    if (!await confirmar(etiqueta, aviso_, etiqueta)) return;
+    const r = await hacer('panel_aprobar_cola', { p_id: d.id, p_datos: leer() }, 'Hecho.');
+    if (r && d._caps && d._caps.size) publicarCapturas(d.id, [...d._caps]);
   } }, etiqueta)));
   return el('div', { class: 'bloque' }, partes);
 }
@@ -556,3 +636,4 @@ $('#f-mfa-alta').addEventListener('submit', async ev => {
 });
 
 iniciar();
+$('#f-cargar').addEventListener('submit', subirPdf);

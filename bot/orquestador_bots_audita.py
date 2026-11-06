@@ -570,16 +570,33 @@ def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alia
                 registrar_vista(f.get("id"), u, estable, False)
                 vistas[u] = estable
                 resultados.append("subindice"); continue
-        texto = (texto_pdf(c2.contenido) if es_pdf else texto_contenido(c2.contenido)) or ""
+        import analista_pdf as analista
+        res = None
+        if es_pdf and analista.disponible():
+            try:   # cada página, con OCR si es un escaneo (con tope para no frenar la corrida diaria)
+                res = analista.analizar(c2.contenido, u, c2.sha256, max_ocr=12, tiempo_max=90)
+            except Exception as e:
+                print(f"  analista: no pudo leer {u[:80]} ({type(e).__name__})", flush=True)
+        texto = res["texto"] if res else ((texto_pdf(c2.contenido) if es_pdf else texto_contenido(c2.contenido)) or "")
+        hallazgos = res["hallazgos"] if res else analista.hallazgos_texto(texto)
         marcas = relevancia(texto, alias)
+        if hallazgos and analista.es_relevante(hallazgos):
+            marcas = sorted(set(marcas) | {"tema:" + t for t in analista.temas_de(hallazgos)})
         if not marcas:
             registrar_vista(f.get("id"), u, estable, len(texto) < 200)       # leído y descartado: no se vuelve a bajar
             vistas[u] = estable
             resultados.append("no_relevante"); continue
         club = next((club_por_slug[m.split(":", 1)[1]] for m in marcas if m.startswith("menciona_club:")), None)
         ind, requiere, motivo = analizar_contenido(c2)
+        if res:      # el analista leyó el PDF entero (con OCR): sus números mandan
+            ind.update({"caracteres": len(texto), "expedientes": extraer_expedientes(texto),
+                        "cuits_entidades": extraer_cuits_entidades(texto)})
+            requiere, motivo = len(texto) < 200, ("pdf_sin_capa_de_texto" if len(texto) < 200 else None)
+        caps = analista.subir_capturas(db(), c2.sha256, res["capturas"]) if res and res["capturas"] else []
         prop = {"portal_origen": f.get("portal_origen") or "sitio_oficial", "fuente_id": f.get("id"), "indice": f["url"],
-                "indicadores": ind, "coincidencias": marcas, "requiere_ocr_o_revision_humana": requiere, "motivo_revision": motivo}
+                "indicadores": ind, "coincidencias": marcas, "requiere_ocr_o_revision_humana": requiere, "motivo_revision": motivo,
+                "temas": analista.temas_de(hallazgos), "hallazgos": analista.resumen_hallazgos(hallazgos), "capturas": caps,
+                "paginas": res["paginas"] if res else None, "paginas_ocr": res["paginas_ocr"] if res else None}
         r = proponer("rastreador", "documento_nuevo", f"{f['nombre']}: {nombre_desde_url(u)}", c2,
                      club["id"] if club else f.get("club_id"), None if club else f.get("institucion_id"), prop)
         registrar_vista(f.get("id"), u, estable, requiere)

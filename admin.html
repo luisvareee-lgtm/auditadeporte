@@ -52,6 +52,7 @@
       <button role="tab" data-tab="borradores" aria-selected="false">Borradores <span class="cuenta" id="c-borradores"></span></button>
       <button role="tab" data-tab="publicados" aria-selected="false">Publicado</button>
       <button role="tab" data-tab="fuentes" aria-selected="false">Fuentes</button>
+      <button role="tab" data-tab="cargar" aria-selected="false">Cargar PDF</button>
       <button role="tab" data-tab="estado" aria-selected="false">Estado y métricas <span class="cuenta alerta" id="c-alertas"></span></button>
       <button role="tab" data-tab="historial" aria-selected="false">Historial</button>
       <button role="tab" data-tab="cuenta" aria-selected="false">Cuenta</button>
@@ -93,6 +94,18 @@
     <div id="p-publicados" class="pestana" role="tabpanel" hidden>
       <p class="nota">Lo que hoy se ve en el sitio. Si algo es inexacto o llega una réplica que lo corrige, retiralo dejando el motivo.</p>
       <div id="t-publicados"></div>
+    </div>
+
+    <div id="p-cargar" class="pestana" role="tabpanel" hidden>
+      <p class="nota">Para sitios que rechazan las consultas automáticas (por ejemplo Almirante Brown). Bajá el PDF desde el sitio oficial como cualquier vecino, pegá el enlace donde está publicado y subilo. El analista lo lee página por página (con OCR si es un escaneo), arma capturas con el pasaje resaltado y, si encuentra algo, lo deja en la Bandeja. Nada se publica sin que lo apruebes.</p>
+      <form id="f-cargar" class="tarjeta grilla" novalidate>
+        <label>Municipio o provincia<select id="fc-juris" required></select></label>
+        <label>Enlace donde está publicado<input id="fc-url" type="url" required placeholder="https://www.brown.gob.ar/boletin-oficial-2026/"></label>
+        <label>Título<input id="fc-titulo" required maxlength="200" placeholder="Boletín Oficial julio 2026 - decretos"></label>
+        <label>Archivo PDF (hasta 50 MB)<input id="fc-archivo" type="file" accept="application/pdf" required></label>
+        <div class="acciones"><button id="fc-enviar" class="btn primario">Subir y analizar</button> <span id="fc-estado" class="meta"></span></div>
+      </form>
+      <div id="t-cargados"></div>
     </div>
 
     <div id="p-fuentes" class="pestana" role="tabpanel" hidden>
