@@ -88,7 +88,7 @@ def clasificar(caption: str, fecha: str = None):
     t = o._norm(caption or "")
     if not RE_COLECTA.search(t) or RE_SALUD.search(t) or not RE_DINERO.search(t):
         return None
-    if RE_FALSO.search(t) and not re.search(r"\b(rifas?|colectas?|alias|cbu|cvu|recaud\w*|donacion(es)?)\b", t):
+    if RE_FALSO.search(t) and not re.search(r"\b(rifas?|colectas?|recaud\w*|donacion(es)?)\b", t):
         return None
     fin = [k for k, rx in FINALIDADES.items() if re.search(rx, t)] or ["general"]
     tipos = [k for k, rx in TIPOS_PEDIDO.items() if re.search(rx, t)] or ["otro"]

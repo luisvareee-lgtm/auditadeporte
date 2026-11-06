@@ -41,7 +41,7 @@ class TiposYPatrones(unittest.TestCase):
     def test_no_son_colectas(self):
         for t in ["Mundial Dubai 2023: se sorteo la fase de grupos. Argentina en la zona A con Canada",
                   "Sorteo: ganate una pelota oficial, participa del sorteo siguiendo la cuenta",
-                  "Comienza el curso oficial de entrenador. Inscripcion por transferencia"]:
+                  "Comienza el curso oficial de entrenador. Inscripcion por transferencia al alias de la federacion"]:
             self.assertIsNone(r.clasificar(t, "2023-02-08"), t)
         self.assertIsNotNone(r.clasificar("Rifa solidaria para viajar al Nacional: numeros a $2000, alias en bio", "2023-02-08"))
 
