@@ -56,9 +56,10 @@ class Query:
         self.params.append(("limit", str(int(n)))); return self
 
     # --- escritura
-    def insert(self, filas):
+    def insert(self, filas, minimal=False):
+        """minimal=True no pide las filas de vuelta (lo que hace un visitante, que puede insertar pero no leer)."""
         self.metodo, self.cuerpo = "POST", filas
-        self.prefer.append("return=representation"); return self
+        self.prefer.append("return=minimal" if minimal else "return=representation"); return self
 
     def update(self, valores):
         self.metodo, self.cuerpo = "PATCH", valores
