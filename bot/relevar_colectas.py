@@ -276,6 +276,8 @@ def main():
         del web
         todas += fw
         estados["faba_web"] = f"ok ({len(fw)} colectas)"
+        for f in fw:                          # noticias públicas de la federación: se pueden listar
+            print("  FABA:", f["fecha"], f["permalink"], f["finalidades"], f["tipos_pedido"], f["torneos"])
     except Exception as e:
         estados["faba_web"] = f"error: {str(e)[:80]}"
     for usuario, nombre, tipo in cuentas():
