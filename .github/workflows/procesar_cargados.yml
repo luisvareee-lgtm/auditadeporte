@@ -19,13 +19,27 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
         run: |
-          n=$(python -c "import orquestador_bots_audita as o; print(len(o.db().table('documentos_cargados').select('id').eq('estado','pendiente').execute().data or []))" 2>/dev/null || echo 0)
-          echo "pendientes=$n" >> "$GITHUB_OUTPUT"; echo "pendientes: $n"
+          python - <<'PY' >> "$GITHUB_OUTPUT" || { echo "pendientes=0"; echo "oficina=0"; } >> "$GITHUB_OUTPUT"
+          import orquestador_bots_audita as o
+          try:
+              filas = o.db().table('documentos_cargados').select('id,formato').eq('estado', 'pendiente').execute().data or []
+          except Exception:
+              filas = []
+          print(f"pendientes={len(filas)}")
+          print(f"oficina={sum(1 for f in filas if (f.get('formato') or 'pdf') not in ('pdf','jpg','png','tif','webp'))}")
+          PY
+          cat "$GITHUB_OUTPUT"
       - name: Lectores de PDF y OCR en español
         if: steps.hay.outputs.pendientes != '0' || github.event_name == 'workflow_dispatch'
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends tesseract-ocr tesseract-ocr-spa fonts-dejavu-core \
-            libreoffice-writer-nogui libreoffice-calc-nogui > /dev/null
+          export DEBIAN_FRONTEND=noninteractive
+          sudo -E apt-get update -qq
+          sudo -E apt-get install -y -qq --no-install-recommends tesseract-ocr tesseract-ocr-spa fonts-dejavu-core > /dev/null
+          # LibreOffice solo si hay Word, planillas o texto pendientes (o al probarlo a mano): tarda en instalarse
+          if [ "${{ steps.hay.outputs.oficina }}" != "0" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            timeout 900 sudo -E apt-get install -y -qq --no-install-recommends -o Dpkg::Options::="--force-confnew" \
+              libreoffice-writer-nogui libreoffice-calc-nogui > /dev/null && soffice --version || echo "LibreOffice no se instaló: esos formatos quedan con error y se reintentan"
+          fi
           pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12" "openpyxl>=3.1,<4" "python-docx>=1,<2"
       - name: Tests
         if: steps.hay.outputs.pendientes != '0' || github.event_name == 'workflow_dispatch'
