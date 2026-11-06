@@ -25,7 +25,8 @@ import orquestador_bots_audita as o
 
 AGENTE = "relevar_colectas"
 SELECCIONES = {"laslobasbasquet": "Selección argentina femenina (Las Lobas)"}   # cuentas oficiales de equipos nacionales
-PAGINAS_MAX = 12                      # 12 x 50 posteos por cuenta como máximo
+LLAMADAS_POR_CORRIDA = 150            # Meta permite 200 consultas por hora: se deja margen
+DESDE_TOTAL = date(2010, 1, 1)        # barrido exhaustivo: toda la historia de la cuenta
 AQUI = os.path.dirname(os.path.abspath(__file__))
 
 RE_COLECTA = re.compile(r"\b(rifas?|bonos? contribucion|colectas?|alias|cbu|cvu|ayudanos|ayudenos|donacion(es)?|dona(r|nos)?|"
@@ -111,25 +112,81 @@ def clasificar(caption: str, fecha: str = None):
             "fecha_limite": limite}
 
 
-def leer_historial(usuario: str, propia: str, desde: date):
-    """Posteos desde una fecha, paginando. Devuelve [{timestamp, permalink, caption}] (en memoria)."""
+# Otras señales útiles (no colectas): quién apoya, viajes, equipamiento, reclamos y avisos de torneo.
+SENALES = {
+    "apoyo_estado": r"\b(gracias|agradec\w*)\b.{0,80}\b(municipio|municipalidad|intendente|instituto municipal|secretaria|subsecretaria|gobierno|enard)\b",
+    "apoyo_empresas": r"\b(gracias|agradec\w*)\b.{0,80}\b(sponsors?|patrocin\w*|empresas?|comercios?|marcas?|auspicia\w*)\b|\bnuestros sponsors\b",
+    "viaje": r"\b(viajamos|viaje a|partimos (hacia|rumbo)|llegamos a|rumbo a|de gira)\b",
+    "equipamiento_nuevo": r"\b(nuevas? sillas?|entrega de sillas?|recibimos (las|nuevas)|nueva indumentaria|nuevas camisetas)\b",
+    "reclamo": r"\b(sin apoyo|falta de apoyo|no tenemos sillas|sillas rotas|nadie nos ayuda|abandon\w*|reclam\w*)\b",
+    "convocatoria_torneo": r"\b(confirmad[oa]s?|fixture|cronograma|sede)\b.{0,60}\b(torneo|fecha|liga|nacional|cuadrangular)\b",
+}
+
+
+def senales(caption: str) -> list:
+    t = o._norm(caption or "")
+    if RE_SALUD.search(t):
+        return []
+    return [k for k, rx in SENALES.items() if re.search(rx, t)]
+
+
+def _progreso(cuenta):
+    try:
+        r = o.db().table("barrido_redes").select("*").eq("cuenta", cuenta).execute().data
+        return r[0] if r else {}
+    except Exception:                 # sin db/24: barre desde el principio y no guarda avance
+        return {}
+
+
+def _guardar_progreso(fila):
+    try:
+        o.db().table("barrido_redes").upsert([fila], on_conflict="cuenta").execute()
+    except Exception:
+        pass
+
+
+def barrer(usuario: str, propia: str, desde: date, presupuesto: list, prueba=False):
+    """Recorre TODOS los posteos de la cuenta (50 por consulta). Clasifica cada página en el momento y descarta el
+    texto. Guarda el cursor en barrido_redes para seguir en la próxima corrida si se agota el presupuesto de consultas.
+    Una vez completo, las corridas siguientes solo leen lo nuevo. presupuesto = [consultas que quedan] (se descuenta)."""
     import actualidad_redes as ar
-    ig, out, after = os.environ["IG_USER_ID"], [], None
-    campos = "timestamp,permalink,caption"
-    for _ in range(PAGINAS_MAX):
+    ig, campos = os.environ["IG_USER_ID"], "timestamp,permalink,caption"
+    prog = {} if prueba else _progreso(usuario.lower())
+    completo, after = bool(prog.get("completo")), (None if prog.get("completo") else prog.get("cursor"))
+    hasta_fecha = date.fromisoformat(prog["mas_nuevo"]) if completo and prog.get("mas_nuevo") else None
+    leidos, mas_nuevo, posts_clasif = int(prog.get("posts_leidos") or 0), prog.get("mas_nuevo"), []
+    while presupuesto[0] > 0:
         pag = f".after({after})" if after else ""
-        if usuario.lower() == (propia or "").lower():
-            d = ar.graph(ig, f"media{pag}.limit(50){{{campos}}}").get("media") or {}
-        else:
-            d = (ar.graph(ig, f"business_discovery.username({usuario}){{media{pag}.limit(50){{{campos}}}}}")
-                 .get("business_discovery") or {}).get("media") or {}
-        posts = d.get("data") or []
-        out += posts
-        after = ((d.get("paging") or {}).get("cursors") or {}).get("after")
-        if not posts or not after or any(ar._fecha(p["timestamp"]) < desde for p in posts if p.get("timestamp")):
+        presupuesto[0] -= 1
+        try:
+            if usuario.lower() == (propia or "").lower():
+                d = ar.graph(ig, f"media{pag}.limit(50){{{campos}}}").get("media") or {}
+            else:
+                d = (ar.graph(ig, f"business_discovery.username({usuario}){{media{pag}.limit(50){{{campos}}}}}")
+                     .get("business_discovery") or {}).get("media") or {}
+        except ar.ErrorMeta as e:
+            if e.estado == "error" and after and after == prog.get("cursor"):
+                after = None; continue          # cursor guardado vencido: se empieza de nuevo
+            raise
+        posts = [p for p in d.get("data") or [] if p.get("timestamp")]
+        leidos += len(posts)
+        for p in posts:
+            f = ar._fecha(p["timestamp"])
+            mas_nuevo = max(mas_nuevo or f.isoformat(), f.isoformat())
+            if f >= desde and (not hasta_fecha or f >= hasta_fecha):
+                posts_clasif.append({"timestamp": p["timestamp"], "permalink": p.get("permalink"), "caption": p.get("caption")})
+        nuevo = ((d.get("paging") or {}).get("cursors") or {}).get("after")
+        after = nuevo if nuevo and nuevo != after else None
+        viejo = posts and ar._fecha(posts[-1]["timestamp"]) < (hasta_fecha or desde)
+        if not posts or not after or viejo:
+            completo = completo or not after or viejo
+            after = None
             break
         time.sleep(ar.PAUSA)
-    return [p for p in out if p.get("timestamp") and ar._fecha(p["timestamp"]) >= desde]
+    if not prueba:
+        _guardar_progreso({"cuenta": usuario.lower(), "cursor": after, "completo": completo, "posts_leidos": leidos,
+                           "mas_nuevo": mas_nuevo, "actualizado": datetime.now(timezone.utc).isoformat()})
+    return posts_clasif, completo
 
 
 FABA_BASE = "https://basquetadaptado.com.ar"
@@ -192,6 +249,18 @@ def leer_faba_web(desde: date):
             out.append({"timestamp": it["fecha"], "permalink": it["link"], "caption": texto, "fuente": "faba_web"})
         time.sleep(1)
     print(f"  faba web: {len(out)} noticias con alguna palabra clave")
+    return out
+
+
+def senales_cuenta(usuario, nombre, tipo, posts):
+    """Publicaciones con señales útiles que no son colectas (quién apoya, viajes, reclamos, avisos de torneo)."""
+    out = []
+    for p in posts:
+        sn = senales(p.get("caption"))
+        if sn and p.get("permalink") and not clasificar(p.get("caption"), p.get("timestamp")):
+            t = o._norm(p.get("caption") or "")
+            out.append({"cuenta": usuario.lower(), "nombre_cuenta": nombre, "tipo_cuenta": tipo, "fecha": p["timestamp"][:10],
+                        "permalink": p["permalink"], "senales": sn, "torneos": [k for k, rx in TORNEOS.items() if re.search(rx, t)]})
     return out
 
 
@@ -273,7 +342,7 @@ def main():
         except Exception as e:
             print("sin tabla colectas_relevadas todavía (db/21):", str(e)[:120]); return
     import actualidad_redes as ar
-    desde = date.fromisoformat(sys.argv[sys.argv.index("--desde") + 1]) if "--desde" in sys.argv else date(2024, 1, 1)
+    desde = date.fromisoformat(sys.argv[sys.argv.index("--desde") + 1]) if "--desde" in sys.argv else DESDE_TOTAL
     prueba = "--prueba" in sys.argv
     propia = ar.graph(os.environ["IG_USER_ID"], "username").get("username")
     todas, estados = [], {}
@@ -287,16 +356,32 @@ def main():
             print("  FABA:", f["fecha"], f["permalink"], f["finalidades"], f["tipos_pedido"], f["torneos"])
     except Exception as e:
         estados["faba_web"] = f"error: {str(e)[:80]}"
+    presupuesto, otras = [LLAMADAS_POR_CORRIDA], []
     for usuario, nombre, tipo in cuentas():
+        if presupuesto[0] <= 0:
+            estados[usuario] = "pendiente (sigue en la próxima corrida)"; continue
         try:
-            posts = leer_historial(usuario, propia, desde)
+            posts, completo = barrer(usuario, propia, desde, presupuesto, prueba)
             filas = relevar_cuenta(usuario, nombre, tipo, posts)
+            otras += senales_cuenta(usuario, nombre, tipo, posts)
             del posts                                  # los textos no se conservan
             todas += filas
-            estados[usuario] = f"ok ({len(filas)} colectas)"
+            estados[usuario] = f"ok ({len(filas)} colectas{'' if completo else ', barrido a medias'})"
         except ar.ErrorMeta as e:
             estados[usuario] = e.estado
+            if e.estado == "limite_meta":
+                break
         time.sleep(ar.PAUSA)
+    sen = {}
+    for x in otras:
+        for k in x["senales"]:
+            sen[k] = sen.get(k, 0) + 1
+    print("OTRAS SEÑALES:", json.dumps(sen, ensure_ascii=False), "| consultas usadas:", LLAMADAS_POR_CORRIDA - presupuesto[0])
+    if not prueba and otras:
+        try:
+            o.db().table("publicaciones_relevantes").upsert(otras, on_conflict="permalink", ignore_duplicates=True).execute()
+        except Exception as e:
+            print("sin db/24 (publicaciones_relevantes):", str(e)[:120])
     print("CUENTAS:", json.dumps(estados, ensure_ascii=False))
     print("AGREGADO:", json.dumps(agregar(todas), ensure_ascii=False))
     import patrones_colectas as pc

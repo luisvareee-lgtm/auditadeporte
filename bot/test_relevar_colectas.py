@@ -60,5 +60,30 @@ class TiposYPatrones(unittest.TestCase):
         self.assertEqual(len(ps), 2)
 
 
+class Barrido(unittest.TestCase):
+    def test_senales(self):
+        self.assertIn("apoyo_estado", r.senales("Gracias al Instituto Municipal del Deporte por los pasajes"))
+        self.assertIn("convocatoria_torneo", r.senales("Confirmado el fixture del torneo nacional en Rio Gallegos"))
+        self.assertEqual(r.senales("Gracias al municipio por acompanar la cirugia de nuestro jugador"), [])
+
+    def test_barre_todas_las_paginas_y_respeta_presupuesto(self):
+        import os, actualidad_redes as ar
+        os.environ.setdefault("IG_USER_ID", "1")
+        paginas = {None: ("c1", "2026-05-01"), "c1": ("c2", "2020-03-01"), "c2": (None, "2015-01-01")}
+        llamadas = []
+        def graph(ig, campos):
+            cur = campos.split(".after(")[1].split(")")[0] if ".after(" in campos else None
+            llamadas.append(cur); sig, f = paginas[cur]
+            media = {"data": [{"timestamp": f + "T10:00:00+0000", "permalink": "https://www.instagram.com/p/" + f, "caption": "rifa"}]}
+            if sig: media["paging"] = {"cursors": {"after": sig}}
+            return {"business_discovery": {"media": media}}
+        ar.graph, ar.PAUSA = graph, 0
+        posts, completo = r.barrer("faba", "propia", r.DESDE_TOTAL, [10], prueba=True)
+        self.assertTrue(completo); self.assertEqual(len(posts), 3); self.assertEqual(llamadas, [None, "c1", "c2"])
+        llamadas.clear()
+        posts, completo = r.barrer("faba", "propia", r.DESDE_TOTAL, [2], prueba=True)
+        self.assertFalse(completo); self.assertEqual(len(posts), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

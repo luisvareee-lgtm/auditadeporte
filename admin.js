@@ -306,6 +306,7 @@ async function cargarCargados() {
   cargarEjecuciones();
   cargarColectas();
   cargarConvocatoriasPanel();
+  cargarBarrido();
   $('#t-cargados').replaceChildren(tabla([['Documento', x => el('span', {}, el('strong', {}, x.titulo), el('br'), enlace(x.url_original))],
     ['Lugar', x => x.juris_slug + (x.formato && x.formato !== 'pdf' ? ' · .' + x.formato : '')], ['Cargado', x => fecha(x.creado_en) + (x.cargado_por ? ' · ' + x.cargado_por : '')],
     ['Estado', x => el('span', { class: 'chip ' + ({ procesado: 'ok', error: 'mal' }[x.estado] || '') }, x.estado === 'pendiente' ? 'en espera (se analiza en menos de una hora)' : x.estado)],
@@ -375,6 +376,25 @@ async function cargarColectas() {
     ['', x => x.revisada ? el('span', { class: 'chip ok' }, 'Aprobada') : el('span', {},
       el('button', { class: 'btn chico primario', onclick: () => revisarColecta(x, true) }, 'Aprobar'), ' ',
       el('button', { class: 'btn chico', onclick: () => revisarColecta(x, false) }, 'Descartar'))]], l, 'Todavía no hay colectas relevadas.'));
+}
+const ETQ_SENAL = { apoyo_estado: 'Agradece al Estado', apoyo_empresas: 'Agradece a empresas', viaje: 'Viaje', equipamiento_nuevo: 'Equipamiento nuevo',
+  reclamo: 'Reclamo', convocatoria_torneo: 'Aviso de torneo' };
+async function cargarBarrido() {
+  let d;
+  try { d = await rpc('panel_barrido_redes'); }
+  catch (e) { $('#t-barrido').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/24 en Supabase: ' + e.message)); return; }
+  $('#t-barrido').replaceChildren(
+    tabla([['Cuenta', x => '@' + x.cuenta], ['Posteos leídos', x => x.posts_leidos], ['Estado', x => el('span', { class: 'chip ' + (x.completo ? 'ok' : 'obs') }, x.completo ? 'Completo (lee lo nuevo)' : 'En curso')],
+      ['Más nuevo', x => x.mas_nuevo || '—'], ['Última corrida', x => fecha(x.actualizado)]], d.cuentas || [], 'Todavía no se barrió ninguna cuenta.'),
+    tabla([['Publicación', x => el('span', {}, el('strong', {}, x.nombre_cuenta), ` · ${x.fecha}`, el('br'), enlace(x.permalink))],
+      ['Señales', x => (x.senales || []).map(k => ETQ_SENAL[k] || k).join(', ')], ['Torneo', x => (x.torneos || []).join(', ') || '—'],
+      ['', x => x.revisada ? el('span', { class: 'chip ok' }, 'Aprobada') : el('span', {},
+        el('button', { class: 'btn chico primario', onclick: () => revisarPublicacion(x, true) }, 'Aprobar'), ' ',
+        el('button', { class: 'btn chico', onclick: () => revisarPublicacion(x, false) }, 'Descartar'))]], d.publicaciones || [], 'Todavía no hay publicaciones marcadas.'));
+}
+async function revisarPublicacion(x, ok) {
+  try { await rpc('panel_publicacion_revisar', { p_id: x.id, p_ok: ok }); aviso(ok ? 'Aprobada.' : 'Descartada.'); cargarBarrido(); }
+  catch (e) { aviso(e.message, true); }
 }
 async function cargarConvocatoriasPanel() {
   let l;
