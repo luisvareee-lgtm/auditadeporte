@@ -125,32 +125,66 @@ def leer_historial(usuario: str, propia: str, desde: date):
     return [p for p in out if p.get("timestamp") and ar._fecha(p["timestamp"]) >= desde]
 
 
-FABA_WP = "https://basquetadaptado.com.ar/wp-json/wp/v2/posts"
-PALABRAS_WEB = ["rifa", "colecta", "ayuda", "donacion", "alias", "sorteo", "beneficio", "solidari", "sponsor"]
+FABA_BASE = "https://basquetadaptado.com.ar"
+PALABRAS_WEB = ["rifa", "colecta", "ayuda", "donacion", "alias", "sorteo", "beneficio", "solidaria", "sponsor", "recaudar", "colaborar", "financiamiento"]
+
+
+def _items_wp(kw, desde):
+    """Busca en el sitio de FABA. La API REST está apagada (/wp-json da 404), así que prueba ?rest_route= y después
+    el canal RSS de búsqueda que trae WordPress (?s=palabra&feed=rss2). Respeta robots.txt (o.capturar)."""
+    import urllib.parse
+    from xml.etree import ElementTree as ET
+    q = {"search": kw, "per_page": 50, "after": f"{desde.isoformat()}T00:00:00", "_fields": "date,link,title,content"}
+    c = o.capturar(FABA_BASE + "/?" + urllib.parse.urlencode({"rest_route": "/wp/v2/posts", **q}))
+    if c.http == 200 and c.contenido[:1] == b"[":
+        try:
+            return [{"fecha": it.get("date", "")[:10], "link": it.get("link"),
+                     "html": (it.get("title") or {}).get("rendered", "") + " " + (it.get("content") or {}).get("rendered", "")}
+                    for it in json.loads(c.contenido.decode("utf-8", "ignore"))]
+        except ValueError:
+            pass
+    out = []
+    for pag in range(1, 6):
+        c = o.capturar(FABA_BASE + "/?" + urllib.parse.urlencode({"s": kw, "feed": "rss2", "paged": pag}))
+        if c.http != 200 or not c.contenido:
+            if pag == 1:
+                print(f"  faba web '{kw}': {c.http} {c.motivo}")
+            break
+        try:
+            raiz = ET.fromstring(c.contenido)
+        except ET.ParseError:
+            break
+        ns = {"content": "http://purl.org/rss/1.0/modules/content/"}
+        nuevos = 0
+        for it in raiz.iter("item"):
+            try:
+                f = datetime.strptime((it.findtext("pubDate") or "")[:25].strip(), "%a, %d %b %Y %H:%M:%S").date()
+            except ValueError:
+                continue
+            if f < desde:
+                continue
+            nuevos += 1
+            out.append({"fecha": f.isoformat(), "link": it.findtext("link"),
+                        "html": (it.findtext("title") or "") + " " + (it.findtext("content:encoded", namespaces=ns) or it.findtext("description") or "")})
+        if not nuevos:
+            break
+        time.sleep(1)
+    return out
 
 
 def leer_faba_web(desde: date):
-    """Noticias del sitio oficial de FABA que mencionan pedidos de fondos (API pública de WordPress, sin clave)."""
-    import html, urllib.parse
+    """Noticias del sitio oficial de FABA que mencionan pedidos de fondos (sin clave: solo lo que el sitio publica)."""
+    import html
     vistos, out = set(), []
     for kw in PALABRAS_WEB:
-        url = FABA_WP + "?" + urllib.parse.urlencode({"search": kw, "per_page": 50, "after": f"{desde.isoformat()}T00:00:00",
-                                                       "_fields": "date,link,title,content"})
-        c = o.capturar(url)
-        if c.http != 200 or not c.contenido:
-            print(f"  faba web '{kw}': {c.http} {c.motivo}"); continue
-        try:
-            items = json.loads(c.contenido.decode("utf-8", "ignore"))
-        except ValueError:
-            continue
-        for it in items if isinstance(items, list) else []:
-            if it.get("link") in vistos:
+        for it in _items_wp(kw, desde):
+            if not it.get("link") or it["link"] in vistos:
                 continue
-            vistos.add(it.get("link"))
-            texto = html.unescape(re.sub(r"<[^>]+>", " ", (it.get("title") or {}).get("rendered", "") + " " +
-                                         (it.get("content") or {}).get("rendered", "")))
-            out.append({"timestamp": it.get("date", "")[:10], "permalink": it.get("link"), "caption": texto, "fuente": "faba_web"})
+            vistos.add(it["link"])
+            texto = html.unescape(re.sub(r"<[^>]+>", " ", it["html"]))
+            out.append({"timestamp": it["fecha"], "permalink": it["link"], "caption": texto, "fuente": "faba_web"})
         time.sleep(1)
+    print(f"  faba web: {len(out)} noticias con alguna palabra clave")
     return out
 
 
