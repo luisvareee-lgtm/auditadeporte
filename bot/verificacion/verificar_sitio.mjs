@@ -65,6 +65,14 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
       ensayo.push({ id, nota: nota.includes('Municipalidad de Prueba') && nota.includes('Solicitamos'), items, rubro });
     }
     console.log(`[${nombre}] ensayo casos`, JSON.stringify(ensayo));
+    // ensayo del simulador: selección a un torneo internacional (US$ 40.000 a $ 1.500 + indumentaria + seguro = $ 65.500.000)
+    await p.click('#t-deportistas'); await p.click('.sim-preset[data-sim="seleccion"]'); await p.waitForTimeout(200);
+    const sim = await p.locator('#sim-resultado').innerText();
+    await p.click('#sim-resultado [data-action="pedir-seleccion"]'); await p.waitForTimeout(300);
+    console.log(`[${nombre}] ensayo simulador`, JSON.stringify({ total: sim.includes('65.500.000'), patrocinio5: /hasta el 5 %/.test(sim),
+      entidad: await p.inputValue('#p-entidad'), items: await p.evaluate(() => document.querySelectorAll('.p-item:checked').length),
+      ley: (await p.inputValue('#p-texto')).includes('27.275'),
+      trabas: await p.evaluate(() => document.querySelectorAll('#trabas-niveles details').length) }));
     // ensayo del pedido de convenio: dirigido al Intendente, con copias, y pedido de los convenios existentes
     await p.click('#t-deportistas'); await p.fill('#cv-muni', 'Municipalidad de Prueba'); await p.fill('#cv-org', 'Instituto Municipal del Deporte');
     const conv = await p.inputValue('#cv-texto');
