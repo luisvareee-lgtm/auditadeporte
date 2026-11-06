@@ -6,8 +6,8 @@
   "no_publica": 16,
   "jurisdicciones": 36,
   "clubes": 25,
-  "documentos_leidos": 197,
-  "encontrados_para_revisar": 0,
+  "documentos_leidos": 212,
+  "encontrados_para_revisar": 4,
   "publicados": 0
  },
  "fuente_marco_legal": "https://www.fundacionapolo.org/wp-content/uploads/2023/08/INFORME-Leyes-de-ACCESO-A-LA-INFO-PUBLICA.pdf",
@@ -25,7 +25,7 @@
    "boletin_oficial": "https://www.brown.gob.ar/boletin-oficial-2026/",
    "fuentes": [],
    "documentos_leidos": 0,
-   "encontrados_para_revisar": 0,
+   "encontrados_para_revisar": 4,
    "publicados": 0,
    "ultima_revision": null,
    "checklist": [
@@ -52,10 +52,11 @@
     {
      "clave": "deporte_adaptado",
      "texto": "Documentos sobre deporte adaptado",
-     "estado": "no_encontrado"
+     "estado": "parcial"
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -126,6 +127,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -179,6 +181,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -261,6 +264,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -331,6 +335,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -388,6 +393,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -441,6 +447,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -501,6 +508,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -565,6 +573,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -622,6 +631,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -704,6 +714,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -764,6 +775,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -821,6 +833,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -891,6 +904,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -944,6 +958,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -1010,6 +1025,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -1063,6 +1079,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -1123,6 +1140,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -1176,6 +1194,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": {
     "publicados": [],
     "en_revision": 0
@@ -1246,6 +1265,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -1299,6 +1319,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -1353,6 +1374,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -1406,6 +1428,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
@@ -1434,10 +1457,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 13,
+   "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-06",
    "checklist": [
     {
      "clave": "boletin",
@@ -1461,6 +1484,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 104 de Acceso a la Información Pública de la Ciudad",
@@ -1507,7 +1531,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-06",
    "checklist": [
     {
      "clave": "boletin",
@@ -1531,6 +1555,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 12.475 de acceso a documentos administrativos",
@@ -1579,6 +1604,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 5834 de acceso a la información pública",
@@ -1629,6 +1655,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 8803 de Acceso al Conocimiento de los Actos del Estado",
@@ -1660,7 +1687,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-06",
    "checklist": [
     {
      "clave": "boletin",
@@ -1684,6 +1711,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Decreto 1169/05 de acceso a la información pública",
@@ -1712,10 +1740,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 13,
+   "documentos_leidos": 16,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-06",
    "checklist": [
     {
      "clave": "boletin",
@@ -1739,6 +1767,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 5886 de acceso a la información pública",
@@ -1771,7 +1800,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-06",
    "checklist": [
     {
      "clave": "boletin",
@@ -1795,6 +1824,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 9070 de acceso a la información pública",
@@ -1843,6 +1873,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 1829 de libre acceso a las fuentes de información pública (Decreto 1028/2004)",
@@ -1871,10 +1902,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 13,
+   "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-06",
    "checklist": [
     {
      "clave": "boletin",
@@ -1898,6 +1929,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 3540 de acceso a la información pública",
@@ -1931,7 +1963,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-06",
    "checklist": [
     {
      "clave": "boletin",
@@ -1955,6 +1987,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Decretos 692/09 y 1774/09 de acceso a la información (la ley provincial tuvo media sanción, sin vigencia a la fecha de esta guía)",
@@ -2003,6 +2036,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "sin ley provincial general de acceso a la información: rige la base constitucional",
@@ -2070,6 +2104,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 27.275 de Acceso a la Información Pública",
@@ -2131,7 +2166,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-06",
    "checklist": [
     {
      "clave": "boletin",
@@ -2155,6 +2190,7 @@
     }
    ],
    "documentos": [],
+   "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
     "norma": "Ley 27.275 de Acceso a la Información Pública",
