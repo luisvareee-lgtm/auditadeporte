@@ -259,7 +259,8 @@ def analizar(data: bytes, url: str = "", sha256: str = "", ocr=True, capturas=Tr
                 caps.append((_captura(page, cajas[:400], pie), {"pagina": pag.n, "temas": temas, "ocr": pag.ocr}))
             except Exception:
                 pass
-    return {"paginas": n_pag, "paginas_ocr": n_ocr, "texto": "\n".join(textos), "hallazgos": hallazgos, "capturas": caps}
+    return {"paginas": n_pag, "paginas_ocr": n_ocr, "texto": "\n".join(textos), "por_pagina": textos,
+            "hallazgos": hallazgos, "capturas": caps}
 
 
 def hallazgos_texto(texto: str) -> list:

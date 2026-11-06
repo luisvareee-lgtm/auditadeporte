@@ -579,6 +579,9 @@ def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alia
                 print(f"  analista: no pudo leer {u[:80]} ({type(e).__name__})", flush=True)
         texto = res["texto"] if res else ((texto_pdf(c2.contenido) if es_pdf else texto_contenido(c2.contenido)) or "")
         hallazgos = res["hallazgos"] if res else analista.hallazgos_texto(texto)
+        # para el vigía: números de normas y adjudicaciones de TODO lo leído (también lo que no habla de deporte)
+        import vigia
+        vigia.registrar_estructura(db(), _INST_SLUG.get(f.get("institucion_id")), u, res["por_pagina"] if res else [texto])
         marcas = relevancia(texto, alias)
         if hallazgos and analista.es_relevante(hallazgos):
             marcas = sorted(set(marcas) | {"tema:" + t for t in analista.temas_de(hallazgos)})
@@ -603,6 +606,9 @@ def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alia
         vistas[u] = estable
         resultados.append(r)
     return resultados
+
+
+_INST_SLUG = {}       # id de institución -> slug de jurisdicción (lo llena ciclo())
 
 
 def contexto_jurisdicciones():
@@ -640,6 +646,7 @@ def ciclo():
     ej_id = ej.data[0]["id"] if ej.data else None
     presupuesto = [MAX_CAPTURAS_POR_CICLO]
     alias_juris, inst_slug, club_por_slug = contexto_jurisdicciones()
+    _INST_SLUG.clear(); _INST_SLUG.update(inst_slug or {})
     _FIN[0] = time.monotonic() + TIEMPO_MAX_SEG
     _URLS_FUENTES.clear(); _URLS_FUENTES.update(f["url"] for f in fuentes)
     ok = bloq = err = 0

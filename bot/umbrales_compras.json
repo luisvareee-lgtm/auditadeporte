@@ -1,0 +1,10 @@
+{
+ "_nota": "Topes del art. 151 de la Ley Orgánica de las Municipalidades (Decreto-Ley 6769/58). Se actualizan por resolución del Ministerio de Gobierno de la Provincia (art. 283 bis). Revisar cada vez que salga una nueva.",
+ "provincia_buenos_aires": {
+  "fuente": "Resolución 248/2026 del Ministerio de Gobierno de la Provincia de Buenos Aires, vigente desde el 1/6/2026 (https://normas.gba.gob.ar/ar-b/resolucion/2026/248/594187)",
+  "vigente_desde": "2026-06-01",
+  "compra_directa_hasta": 9370451,
+  "concurso_de_precios_hasta": 46855592,
+  "licitacion_privada_hasta": 140565928
+ }
+}

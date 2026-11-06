@@ -144,7 +144,7 @@ $('#btn-salir').addEventListener('click', async () => { await sb.auth.signOut();
 
 // ---------------------------------------------------------------- pestañas
 const CARGAS = { bandeja: cargarBandeja, borradores: cargarBorradores, publicados: cargarPublicados, fuentes: cargarFuentes,
-  estado: cargarEstado, historial: cargarHistorial, cuenta: pintarCuenta, cargar: cargarCargados };
+  estado: cargarEstado, historial: cargarHistorial, cuenta: pintarCuenta, cargar: cargarCargados, alertas: cargarAlertas };
 document.querySelectorAll('[role="tab"]').forEach(b => b.addEventListener('click', () => abrirTab(b.dataset.tab)));
 function abrirTab(t) {
   document.querySelectorAll('[role="tab"]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
@@ -159,6 +159,7 @@ async function cargarContadores() {
     $('#c-bandeja').textContent = (p.cola + p.bloqueadas + p.tips + p.postulaciones + p.presentaciones) || '';
     $('#c-alertas').textContent = p.alertas || '';
     const b = await rpc('panel_borradores'); $('#c-borradores').textContent = b.length || '';
+    try { const v = await rpc('panel_alertas_vigia', { p_todas: false }); $('#c-vigia').textContent = v.alertas.filter(a => a.estado === 'nueva').length || ''; } catch (e) { /* sin db/18 */ }
   } catch (e) { /* los contadores no son críticos */ }
 }
 
@@ -235,6 +236,39 @@ async function publicarCapturas(colaId, caps) {
     catch (e) { aviso(e.message, true); }
   }
 }
+
+// ---------------------------------------------------------------- alertas del vigía
+const REGLA = { huecos_numeracion: 'Huecos en la numeración', fraccionamiento: 'Posible fraccionamiento de compras' };
+const GRAVEDAD = { alta: 'mal', media: 'obs', baja: '' };
+async function cargarAlertas() {
+  let r;
+  try { r = await rpc('panel_alertas_vigia', { p_todas: $('#al-todas').checked }); }
+  catch (e) { $('#t-alertas').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/18 en Supabase: ' + e.message)); return; }
+  const secc = (t, v) => v ? el('div', {}, el('h4', {}, t), el('p', {}, v)) : null;
+  $('#t-alertas').replaceChildren(...(r.alertas.length ? r.alertas.map(a => {
+    const x = a.explicacion || {};
+    const nota = el('input', { maxlength: 1000, placeholder: 'Qué verificaste (obligatorio para confirmar o descartar)' });
+    const res = (estado, txt) => el('button', { class: 'btn chico' + (estado === 'descartada' ? ' peligro' : estado === 'confirmada' ? ' primario' : ''),
+      onclick: async () => { try { await rpc('panel_alerta_resolver', { p_id: a.id, p_estado: estado, p_nota: nota.value }); aviso('Alerta: ' + estado + '.'); cargarAlertas(); cargarContadores(); } catch (e) { aviso(e.message, true); } } }, txt);
+    return el('article', { class: 'tarjeta alerta-vigia' },
+      el('p', {}, el('span', { class: 'chip ' + (GRAVEDAD[a.gravedad] || '') }, 'Gravedad ' + a.gravedad), el('span', { class: 'chip' }, REGLA[a.regla] || a.regla),
+        el('span', { class: 'chip' }, a.juris_slug || 'general'), el('span', { class: 'chip' }, a.estado), ' ', fecha(a.creado_en)),
+      el('h3', {}, a.titulo),
+      secc('Qué encontré', x.que), secc('Por qué lo marco', x.por_que), secc('Qué dice la norma', x.norma),
+      secc('Qué podría explicarlo sin que haya nada irregular', x.puede_explicarse), secc('Qué hacer', x.que_hacer),
+      (a.evidencia || []).length ? el('div', {}, el('h4', {}, 'Evidencia'), el('ul', {}, a.evidencia.map(ev =>
+        el('li', {}, enlace(ev.url), ev.pagina ? ` · pág. ${ev.pagina}` : '', ev.fecha ? ` · ${ev.fecha}` : '',
+          ev.monto ? ` · $ ${Number(ev.monto).toLocaleString('es-AR')}` : '', ev.extracto ? el('p', { class: 'cita' }, ev.extracto) : null)))) : null,
+      a.nota ? campo('Resolución', `${a.nota} (${a.resuelta_por || ''})`) : null,
+      ['nueva', 'vista'].includes(a.estado) ? el('div', { class: 'bloque' }, nota, el('div', { class: 'acciones' },
+        a.estado === 'nueva' ? res('vista', 'La estoy viendo') : null, res('confirmada', 'Confirmada: hay que pedir/publicar'), res('descartada', 'Descartar'))) : null);
+  }) : [el('p', { class: 'vacio' }, 'No hay alertas abiertas.')]));
+  $('#t-precision').replaceChildren(tabla([['Regla', x => REGLA[x.regla] || x.regla], ['Confirmadas', x => x.confirmadas], ['Descartadas', x => x.descartadas], ['Abiertas', x => x.abiertas],
+    ['Acierto', x => (x.confirmadas + x.descartadas) ? Math.round(100 * x.confirmadas / (x.confirmadas + x.descartadas)) + '%' : '—']], r.precision, 'Todavía no hay alertas resueltas.'));
+  $('#t-cobertura').replaceChildren(tabla([['Lugar', x => x.juris], ['Tipo', x => x.tipo], ['Año', x => x.anio], ['Leídas', x => x.vistas], ['Números', x => `${x.desde} a ${x.hasta}`]],
+    r.cobertura, 'Todavía no se leyeron normas con encabezado numerado.'));
+}
+$('#al-todas').addEventListener('change', () => cargarAlertas());
 
 // lista pública de clubes (para mostrar nombres y elegir club)
 let _clubes = null;

@@ -49,6 +49,7 @@
   <section id="v-panel" hidden>
     <nav class="pestanas" role="tablist" aria-label="Secciones del panel">
       <button role="tab" data-tab="bandeja" aria-selected="true">Bandeja <span class="cuenta" id="c-bandeja"></span></button>
+      <button role="tab" data-tab="alertas" aria-selected="false">Alertas <span class="cuenta alerta" id="c-vigia"></span></button>
       <button role="tab" data-tab="borradores" aria-selected="false">Borradores <span class="cuenta" id="c-borradores"></span></button>
       <button role="tab" data-tab="publicados" aria-selected="false">Publicado</button>
       <button role="tab" data-tab="fuentes" aria-selected="false">Fuentes</button>
@@ -94,6 +95,14 @@
     <div id="p-publicados" class="pestana" role="tabpanel" hidden>
       <p class="nota">Lo que hoy se ve en el sitio. Si algo es inexacto o llega una réplica que lo corrige, retiralo dejando el motivo.</p>
       <div id="t-publicados"></div>
+    </div>
+
+    <div id="p-alertas" class="pestana" role="tabpanel" hidden>
+      <p class="nota">Lo que marca el vigía con reglas objetivas sobre lo que leyeron los agentes. <strong>Una alerta no es una acusación: es una pregunta para verificar.</strong> Nada de esto se publica. Cuando la resuelvas, contá qué verificaste: así se mide qué reglas aciertan.</p>
+      <label class="check"><input type="checkbox" id="al-todas"> Ver también las resueltas</label>
+      <div id="t-alertas"></div>
+      <details class="tarjeta"><summary>Cuánto acierta cada regla</summary><div id="t-precision"></div></details>
+      <details class="tarjeta"><summary>Qué normas leímos (cobertura por lugar y año)</summary><div id="t-cobertura"></div></details>
     </div>
 
     <div id="p-cargar" class="pestana" role="tabpanel" hidden>

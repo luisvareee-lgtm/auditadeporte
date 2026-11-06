@@ -19,13 +19,21 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-spa fonts-dejavu-core > /dev/null
           pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12"
       - name: Tests (si fallan, no se ejecuta ningún agente)
-        run: python -m unittest test_supa test_orquestador test_mesa_ingesta test_especialistas test_busqueda_dirigida test_analista_pdf
+        run: python -m unittest test_supa test_orquestador test_mesa_ingesta test_especialistas test_busqueda_dirigida test_analista_pdf test_vigia
         working-directory: bot
       - name: Rastreador de documentos (fuentes del panel + sitemaps)
         run: python orquestador_bots_audita.py
         working-directory: bot
         env:
           FORZAR_REVISION: ${{ inputs.forzar && '1' || '0' }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
+      - name: Vigía (alertas objetivas; si hay nuevas la corrida queda en rojo y GitHub te avisa por correo)
+        id: vigia
+        continue-on-error: true
+        run: python vigia.py
+        working-directory: bot
+        env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
       - name: Ingesta de novedades (feeds oficiales)
@@ -43,3 +51,6 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
           SUPABASE_ANON_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
           SITIO_URL: https://auditadeporte.vercel.app/      # el sitio está en Vercel (antes GitHub Pages)
+      - name: Avisar alertas nuevas del vigía
+        if: steps.vigia.outcome == 'failure'
+        run: echo "Hay alertas nuevas del vigía. Entrá al panel, pestaña Alertas." && exit 1

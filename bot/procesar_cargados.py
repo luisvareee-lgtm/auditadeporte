@@ -27,6 +27,8 @@ def principal():
             if datos[:5] != b"%PDF-":
                 raise ValueError("no es un PDF")
             res = a.analizar(datos, d["url_original"], sha)
+            import vigia
+            vigia.registrar_estructura(cli, d["juris_slug"], d["url_original"], res["por_pagina"])
             marcas = o.relevancia(res["texto"], alias_juris.get(d["juris_slug"], {}))
             relevante = bool(marcas) or a.es_relevante(res["hallazgos"])
             resultado = {"paginas": res["paginas"], "paginas_ocr": res["paginas_ocr"],

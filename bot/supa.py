@@ -64,9 +64,9 @@ class Query:
         self.metodo, self.cuerpo = "PATCH", valores
         self.prefer.append("return=representation"); return self
 
-    def upsert(self, filas, on_conflict=None):
+    def upsert(self, filas, on_conflict=None, ignore_duplicates=False):
         self.metodo, self.cuerpo = "POST", filas
-        self.prefer += ["return=representation", "resolution=merge-duplicates"]
+        self.prefer += ["return=representation", "resolution=ignore-duplicates" if ignore_duplicates else "resolution=merge-duplicates"]
         if on_conflict:
             self.params.append(("on_conflict", on_conflict))
         return self

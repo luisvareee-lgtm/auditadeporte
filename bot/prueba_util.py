@@ -39,7 +39,7 @@ class _Q:
     def delete(self):
         self.op, self.valor = "delete", None; return self
 
-    def upsert(self, filas, on_conflict=None):
+    def upsert(self, filas, on_conflict=None, ignore_duplicates=False):
         self.op, self.valor, self.conflict = "upsert", filas, on_conflict; return self
 
     def execute(self):

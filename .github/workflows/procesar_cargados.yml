@@ -28,11 +28,18 @@ jobs:
           pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12"
       - name: Tests
         if: steps.hay.outputs.pendientes != '0' || github.event_name == 'workflow_dispatch'
-        run: python -m unittest test_supa test_analista_pdf
+        run: python -m unittest test_supa test_analista_pdf test_vigia
         working-directory: bot
       - name: Analizar (página por página, con OCR) y proponer a la cola de revisión
         if: steps.hay.outputs.pendientes != '0'
         run: python procesar_cargados.py
+        working-directory: bot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
+      - name: Vigía (si hay alertas nuevas la corrida queda en rojo y GitHub te avisa por correo)
+        if: steps.hay.outputs.pendientes != '0'
+        run: python vigia.py
         working-directory: bot
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
