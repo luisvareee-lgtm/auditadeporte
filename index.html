@@ -1030,12 +1030,13 @@ function pintarJuris() {
         return `<li class="flex gap-1.5 items-start min-w-0"><span aria-hidden="true">${ei.icono}</span><span class="min-w-0">${esc(i.texto)} <span class="${ei.cls} font-semibold">· ${ei.txt}</span></span></li>`;
       }).join('')}</ul>` : ''}
       ${(j.presupuesto_deporte || []).length ? (() => { const p = j.presupuesto_deporte[0];
+        const pc = v => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 3 });
         const pct = Math.min(100, Number(p.porcentaje_devengado) || 0), $$m = v => '$ ' + Number(v || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 });
         return `<div class="rounded-xl border-2 border-emerald-200 bg-emerald-50 p-3 space-y-2 text-sm">
           <p class="font-black text-emerald-950">💰 Presupuesto de Deporte y recreación ${esc(p.ejercicio || '')}</p>
           <p class="text-slate-700">Al ${fechaLinda(p.hasta)}: tenía <strong>${$$m(p.vigente)}</strong> para gastar en el año y gastó (devengado) <strong>${$$m(p.devengado)}</strong>, de los que pagó ${$$m(p.pagado)}.</p>
           <div class="h-3 rounded-full bg-white border border-emerald-200 overflow-hidden" role="img" aria-label="Ejecutado ${pct}%"><div class="h-full bg-emerald-600" style="width:${pct}%"></div></div>
-          <p class="text-xs text-slate-600">Ejecutado: ${esc(p.porcentaje_devengado)} %${p.porcentaje_devengado_municipio ? ` · el municipio en total, ${esc(p.porcentaje_devengado_municipio)} %` : ''}${p.peso_en_presupuesto ? ` · es el ${esc(String(p.peso_en_presupuesto).replace('.', ','))} % del presupuesto municipal` : ''}.
+          <p class="text-xs text-slate-600">Ejecutado: ${pc(p.porcentaje_devengado)} %${p.porcentaje_devengado_municipio ? ` · el municipio en total, ${pc(p.porcentaje_devengado_municipio)} %` : ''}${p.peso_en_presupuesto ? ` · es el ${pc(p.peso_en_presupuesto)} % del presupuesto municipal` : ''}.
             Es solo la función "Deporte y recreación": un instituto o ente de deportes con presupuesto propio puede estar en otro reporte.
             <a class="underline text-blue-800" href="${esc(urlSegura(p.url))}" target="_blank" rel="noopener">Ver el reporte oficial</a></p>
         </div>`; })() : ''}
