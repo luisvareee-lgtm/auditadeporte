@@ -1135,10 +1135,14 @@ async function enviarDato(ev) {
   if (Date.now() - ultimo < 60000) { est.textContent = 'Esperá un minuto antes de enviar otro mensaje.'; est.classList.add('text-rose-700'); return; }
   if (!sb) { est.textContent = 'El canal todavía no está activado en esta versión.'; est.classList.add('text-amber-800'); return; }
   $('#d-enviar').disabled = true; est.textContent = 'Enviando…';
+  // la tabla guarda el id del club; si se eligió una institución (FABA, COPAR…) se anota en el texto
+  const elegido = $('#d-club').value, clubSel = CLUBES.find(c => c.id === elegido);
+  const instSel = !clubSel && elegido ? $('#d-club').selectedOptions[0].textContent : '';
   const fila = {
     tipo,
-    club_slug: $('#d-club').value || null,
-    texto: tipo === 'solicitud_rse' ? `[Rubro: ${$('#d-rubro').value}] [Para: ${$('#d-para').value}] ${texto}`.slice(0, 2000) : texto,
+    club_id: clubSel && clubSel.dbid ? clubSel.dbid : null,
+    texto: ((instSel ? `[Institución: ${instSel}] ` : '') +
+            (tipo === 'solicitud_rse' ? `[Rubro: ${$('#d-rubro').value}] [Para: ${$('#d-para').value}] ` : '') + texto).slice(0, 2000),
     url: url || null,
     contacto: (tipo === 'replica' || tipo === 'solicitud_rse') ? $('#d-contacto').value.trim() : null
   };

@@ -236,19 +236,38 @@ async function publicarCapturas(colaId, caps) {
   }
 }
 
+// lista pública de clubes (para mostrar nombres y elegir club)
+let _clubes = null;
+async function clubesAdmin() {
+  if (_clubes) return _clubes;
+  const { data } = await sb.from('clubes').select('id,slug,nombre').order('nombre');
+  _clubes = data || []; return _clubes;
+}
+
 // ---------------------------------------------------------------- carga manual de PDFs
 async function sha256Hex(buf) {
   const h = await crypto.subtle.digest('SHA-256', buf);
   return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 async function cargarCargados() {
-  if (!$('#fc-juris').options.length) {
+  if ($('#fc-juris').options.length < 2) {
     try {
-      const d = await (await fetch('/datos/transparencia.json', { cache: 'no-store' })).json();
-      $('#fc-juris').replaceChildren(...d.jurisdicciones.map(j => el('option', { value: j.slug }, j.nombre)));
-    } catch (e) { aviso('No se pudo cargar la lista de municipios.', true); }
+      const r = await fetch('/datos/transparencia.json', { cache: 'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      const grupo = (t, et) => el('optgroup', { label: et }, ...d.jurisdicciones.filter(j => j.tipo === t).map(j => el('option', { value: j.slug }, j.nombre)));
+      $('#fc-juris').replaceChildren(el('option', { value: '' }, '— Elegí dónde se publicó —'), grupo('municipio', 'Municipios'),
+        grupo('provincia', 'Provincias'), grupo('nacion', 'Nación'), grupo('universidad', 'Universidades'));
+    } catch (e) { aviso('No se pudo cargar la lista de municipios: ' + e.message, true); }
   }
-  const l = await rpc('panel_documentos_cargados');
+  if ($('#fc-club').options.length < 2) {
+    try { $('#fc-club').replaceChildren(el('option', { value: '' }, '— Ninguno en particular —'),
+      ...(await clubesAdmin()).map(c => el('option', { value: c.slug }, c.nombre))); }
+    catch (e) { /* el club es opcional */ }
+  }
+  let l = [];
+  try { l = await rpc('panel_documentos_cargados'); }
+  catch (e) { $('#t-cargados').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/16 y db/17 en Supabase: ' + e.message)); return; }
   $('#t-cargados').replaceChildren(tabla([['Documento', x => el('span', {}, el('strong', {}, x.titulo), el('br'), enlace(x.url_original))],
     ['Lugar', x => x.juris_slug], ['Cargado', x => fecha(x.creado_en) + (x.cargado_por ? ' · ' + x.cargado_por : '')],
     ['Estado', x => el('span', { class: 'chip ' + ({ procesado: 'ok', error: 'mal' }[x.estado] || '') }, x.estado === 'pendiente' ? 'en espera (se analiza en menos de una hora)' : x.estado)],
@@ -256,7 +275,8 @@ async function cargarCargados() {
 }
 async function subirPdf(ev) {
   ev.preventDefault();
-  const f = $('#fc-archivo').files[0], url = $('#fc-url').value.trim(), titulo = $('#fc-titulo').value.trim(), juris = $('#fc-juris').value;
+  const f = $('#fc-archivo').files[0], url = $('#fc-url').value.trim(), titulo = $('#fc-titulo').value.trim(), juris = $('#fc-juris').value, club = $('#fc-club').value;
+  if (!juris) { aviso('Elegí el municipio o la provincia donde está publicado.', true); return; }
   if (!f || f.type !== 'application/pdf') { aviso('Elegí un archivo PDF.', true); return; }
   if (f.size > 50 * 1024 * 1024) { aviso('El PDF supera 50 MB.', true); return; }
   if (!urlSegura(url)) { aviso('Pegá el enlace del sitio oficial donde está publicado (https://…).', true); return; }
@@ -269,7 +289,7 @@ async function subirPdf(ev) {
     $('#fc-estado').textContent = 'Subiendo…';
     const up = await sb.storage.from('documentos-cargados').upload(ruta, new Blob([buf], { type: 'application/pdf' }), { contentType: 'application/pdf', upsert: false });
     if (up.error && !/exists|duplicate/i.test(up.error.message || '')) throw up.error;
-    await rpc('panel_cargar_documento', { p_juris: juris, p_url: url, p_titulo: titulo, p_ruta: ruta, p_sha: sha });
+    await rpc('panel_cargar_documento', { p_juris: juris, p_url: url, p_titulo: titulo, p_ruta: ruta, p_sha: sha, p_club: club || null });
     aviso('Cargado. El analista lo lee en menos de una hora y, si encuentra algo, aparece en la Bandeja.');
     ev.target.reset(); $('#fc-estado').textContent = 'SHA-256: ' + sha; cargarCargados();
   } catch (e) { aviso(e.message || String(e), true); $('#fc-estado').textContent = ''; }
@@ -396,6 +416,14 @@ function formAprobar(d) {
     const f = el('input', { id: 'a-frev', type: 'date', value: new Date().toISOString().slice(0, 10) }), nt = el('input', { id: 'a-nrev', maxlength: 300 });
     partes.push(el('label', { for: 'a-crit' }, 'Criterio'), cr, el('label', { for: 'a-est' }, 'Resultado'), es,
       el('label', { for: 'a-frev' }, 'Fecha de revisión'), f, el('label', { for: 'a-nrev' }, 'Nota'), nt);
+    const portada = !/^https?:\/\/[^/]+\/[^/?#]+/i.test(d.url_fuente || '');
+    const nu = el('input', { id: 'a-url', type: 'url', value: portada ? '' : d.url_fuente, placeholder: 'https://… (el PDF o la página exacta del documento)' });
+    partes.push(el('label', { for: 'a-url' }, 'Enlace concreto al documento (obligatorio si marcás "Publicado")'), nu,
+      portada ? el('p', { class: 'aviso' }, 'El agente dejó un enlace a una portada o menú: no sirve como respaldo. Buscá el documento y pegá su enlace exacto. Si el sitio solo tiene un menú sin el documento, marcá "No encontrado" (si lo buscaste vos) o rechazá el ítem.') : null);
+    d._antesDeAprobar = async () => {
+      const u = nu.value.trim();
+      if (es.value === 'publicado' && u && u !== d.url_fuente) await rpc('panel_cola_cambiar_url', { p_id: d.id, p_url: u, p_motivo: 'reemplazo de portada por documento' });
+    };
     leer = () => ({ criterio: cr.value, estado: es.value, fecha_revision: f.value, nota: nt.value });
     aviso_ = 'Que un bot no encuentre algo no prueba que no exista: marcá "no encontrado" solo si lo buscaste vos.';
   } else if (d.tipo === 'propuesta_cambio') {
@@ -403,6 +431,7 @@ function formAprobar(d) {
   }
   partes.push(el('div', { class: 'acciones' }, el('button', { class: 'btn primario', onclick: async () => {
     if (!await confirmar(etiqueta, aviso_, etiqueta)) return;
+    if (d._antesDeAprobar) { try { await d._antesDeAprobar(); } catch (e) { aviso(e.message, true); return; } }
     const r = await hacer('panel_aprobar_cola', { p_id: d.id, p_datos: leer() }, 'Hecho.');
     if (r && d._caps && d._caps.size) publicarCapturas(d.id, [...d._caps]);
   } }, etiqueta)));
@@ -419,7 +448,7 @@ function contactoOculto(c) {
 
 function vistaTip(t) {
   const out = [el('h2', { tabindex: '-1' }, NOMBRE_TIPO[t.tipo] || 'Mensaje'),
-    campo('Recibido', fecha(t.creado_en)), campo('Club o institución', t.club_slug), campo('Enlace aportado', t.url ? enlace(t.url) : '—'),
+    campo('Recibido', fecha(t.creado_en)), campo('Club', el('span', { id: 't-club' }, t.club_id ? '…' : '— (ver el texto)')), campo('Enlace aportado', t.url ? enlace(t.url) : '—'),
     campo('Contacto (dato privado)', contactoOculto(t.contacto)), el('p', { class: 'cita' }, t.texto),
     t.notas_internas ? campo('Notas internas', t.notas_internas) : null];
   const notas = el('input', { id: 't-notas', maxlength: 1000, placeholder: 'Qué verificaste o qué falta' });
@@ -429,6 +458,7 @@ function vistaTip(t) {
       el('button', { class: 'btn', onclick: () => hacer('panel_tip_resolver', { p_id: Number(t.id), p_estado: 'en_revision', p_notas: notas.value }, 'Marcado en revisión.') }, 'En revisión'),
       el('button', { class: 'btn', onclick: () => hacer('panel_tip_resolver', { p_id: Number(t.id), p_estado: 'verificado', p_notas: notas.value }, 'Marcado como verificado.') }, 'Verificado'),
       el('button', { class: 'btn peligro', onclick: () => hacer('panel_tip_resolver', { p_id: Number(t.id), p_estado: 'descartado', p_notas: notas.value }, 'Descartado.') }, 'Descartar'))));
+  if (t.club_id) clubesAdmin().then(cs => { const c = cs.find(x => x.id === t.club_id); const n = $('#t-club'); if (n) n.textContent = c ? `${c.nombre} (${c.slug})` : t.club_id; t._slug = c && c.slug; const r = $('#rp-slug'); if (r && !r.value && c) r.value = c.slug; });
   if (t.tipo === 'solicitud_rse' && ['nuevo', 'en_revision'].includes(t.estado)) {
     const rubro = (t.texto.match(/^\[Rubro: (\w+)\]/) || [])[1] || 'otro';
     const personal = /\[Para: personal\]/.test(t.texto);
@@ -445,7 +475,7 @@ function vistaTip(t) {
       } }, 'Crear borrador'))));
   }
   if (t.tipo === 'replica') {
-    const slug = el('input', { id: 'rp-slug', value: t.club_slug || '' });
+    const slug = el('input', { id: 'rp-slug', value: '' });
     const [ta, cont, ul] = areaConPistas('rp-texto', t.texto, 1500);
     const firm = el('input', { id: 'rp-firm', maxlength: 150, placeholder: 'Ej.: Comisión directiva del club' });
     const ref = el('input', { id: 'rp-ref', type: 'url', placeholder: 'https://… (lo que se responde o su respaldo)', value: t.url || '' });

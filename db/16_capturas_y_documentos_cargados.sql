@@ -103,3 +103,6 @@ grant execute on function public.panel_capturas_documento(uuid, jsonb) to authen
 
 -- control
 select id, public from storage.buckets where id in ('documentos-cargados', 'capturas', 'capturas-publicas') order by id;
+
+-- que la API vea las funciones nuevas sin esperar
+notify pgrst, 'reload schema';

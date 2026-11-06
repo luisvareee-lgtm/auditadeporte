@@ -37,7 +37,8 @@ def principal():
                 ind, requiere, motivo = o.analizar_contenido(cap)
                 ind.update({"caracteres": len(res["texto"]), "expedientes": o.extraer_expedientes(res["texto"]),
                             "cuits_entidades": o.extraer_cuits_entidades(res["texto"])})
-                club = next((club_por_slug[m.split(":", 1)[1]] for m in marcas if m.startswith("menciona_club:")), None)
+                club = club_por_slug.get(d.get("club_slug") or "") or \
+                    next((club_por_slug[m.split(":", 1)[1]] for m in marcas if m.startswith("menciona_club:")), None)
                 inst = insts.get(d["juris_slug"]) or {}
                 prop = {"portal_origen": "boletin_municipal" if d["juris_slug"].startswith("muni-") else "sitio_oficial",
                         "cargado_a_mano": True, "documento_cargado_id": d["id"], "indicadores": ind,

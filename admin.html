@@ -99,7 +99,8 @@
     <div id="p-cargar" class="pestana" role="tabpanel" hidden>
       <p class="nota">Para sitios que rechazan las consultas automáticas (por ejemplo Almirante Brown). Bajá el PDF desde el sitio oficial como cualquier vecino, pegá el enlace donde está publicado y subilo. El analista lo lee página por página (con OCR si es un escaneo), arma capturas con el pasaje resaltado y, si encuentra algo, lo deja en la Bandeja. Nada se publica sin que lo apruebes.</p>
       <form id="f-cargar" class="tarjeta grilla" novalidate>
-        <label>Municipio o provincia<select id="fc-juris" required></select></label>
+        <label>Municipio o provincia donde se publicó<select id="fc-juris" required><option value="">Cargando…</option></select></label>
+        <label>Club (opcional, si el documento es de un club)<select id="fc-club"><option value="">— Ninguno en particular —</option></select></label>
         <label>Enlace donde está publicado<input id="fc-url" type="url" required placeholder="https://www.brown.gob.ar/boletin-oficial-2026/"></label>
         <label>Título<input id="fc-titulo" required maxlength="200" placeholder="Boletín Oficial julio 2026 - decretos"></label>
         <label>Archivo PDF (hasta 50 MB)<input id="fc-archivo" type="file" accept="application/pdf" required></label>
