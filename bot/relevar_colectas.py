@@ -137,8 +137,8 @@ def leer_faba_web(desde: date):
         url = FABA_WP + "?" + urllib.parse.urlencode({"search": kw, "per_page": 50, "after": f"{desde.isoformat()}T00:00:00",
                                                        "_fields": "date,link,title,content"})
         c = o.capturar(url)
-        if c.estado != 200 or not c.contenido:
-            print(f"  faba web '{kw}': {c.estado}"); continue
+        if c.http != 200 or not c.contenido:
+            print(f"  faba web '{kw}': {c.http} {c.motivo}"); continue
         try:
             items = json.loads(c.contenido.decode("utf-8", "ignore"))
         except ValueError:
