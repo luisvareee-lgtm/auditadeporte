@@ -33,11 +33,11 @@ jobs:
         if: steps.hay.outputs.pendientes != '0' || github.event_name == 'workflow_dispatch'
         run: |
           export DEBIAN_FRONTEND=noninteractive
-          sudo -E apt-get update -qq
-          sudo -E apt-get install -y -qq --no-install-recommends tesseract-ocr tesseract-ocr-spa fonts-dejavu-core poppler-utils > /dev/null
+          timeout 300 sudo -E apt-get -o DPkg::Lock::Timeout=120 update -qq
+          timeout 600 sudo -E apt-get -o DPkg::Lock::Timeout=120 install -y -qq --no-install-recommends tesseract-ocr tesseract-ocr-spa fonts-dejavu-core poppler-utils > /dev/null
           # LibreOffice solo si hay Word, planillas o texto pendientes (o al probarlo a mano): tarda en instalarse
           if [ "${{ steps.hay.outputs.oficina }}" != "0" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            timeout 900 sudo -E apt-get install -y -qq --no-install-recommends -o Dpkg::Options::="--force-confnew" \
+            timeout 900 sudo -E apt-get -o DPkg::Lock::Timeout=120 install -y -qq --no-install-recommends -o Dpkg::Options::="--force-confnew" \
               libreoffice-writer-nogui libreoffice-calc-nogui > /dev/null && soffice --version || echo "LibreOffice no se instaló: esos formatos quedan con error y se reintentan"
           fi
           pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12" "openpyxl>=3.1,<4" "python-docx>=1,<2"

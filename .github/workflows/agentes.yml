@@ -16,7 +16,8 @@ jobs:
         with: { python-version: "3.12" }
       - name: Lectores de PDF y OCR en español (cada página, también escaneos)
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-spa fonts-dejavu-core poppler-utils > /dev/null
+          export DEBIAN_FRONTEND=noninteractive
+          timeout 300 sudo -E apt-get -o DPkg::Lock::Timeout=120 update -qq && timeout 600 sudo -E apt-get -o DPkg::Lock::Timeout=120 install -y -qq --no-install-recommends tesseract-ocr tesseract-ocr-spa fonts-dejavu-core poppler-utils > /dev/null
           pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12"
       - name: Tests (si fallan, no se ejecuta ningún agente)
         run: python -m unittest test_supa test_orquestador test_mesa_ingesta test_especialistas test_busqueda_dirigida test_analista_pdf test_vigia test_rafam
