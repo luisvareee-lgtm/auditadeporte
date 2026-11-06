@@ -3,6 +3,7 @@
 --
 -- 1. La tabla tips guarda club_id (no club_slug): se corrige la función que crea un pliego desde un pedido de patrocinio.
 -- 2. Carga manual de PDFs: se puede indicar también el club, no solo el municipio o la provincia.
+-- 4. Bandeja e historial fallaban con "column t.club_slug does not exist": se leen por club_id.
 -- 3. Revisión documental con enlace a una portada o menú: el panel permite reemplazarlo por el enlace concreto al
 --    documento (por ejemplo, el PDF del balance) antes de aprobar. El enlace nuevo tiene que ser una página concreta.
 
@@ -78,6 +79,39 @@ begin
 end $$;
 revoke all on function public.panel_cola_cambiar_url(uuid, text, text) from public, anon;
 grant execute on function public.panel_cola_cambiar_url(uuid, text, text) to authenticated;
+
+-- ---------- 4) bandeja e historial: tips guarda club_id ----------
+create or replace function public.panel_bandeja(p_historial boolean default false) returns jsonb
+language plpgsql stable security definer set search_path = public, pg_temp as $$
+begin
+  perform public.panel_exige_admin();
+  return coalesce((select jsonb_agg(to_jsonb(x) order by x.creado_en) from (
+    select 'cola'::text as origen, c.id::text as id, c.tipo, c.titulo, coalesce(cl.nombre, ins.sigla) as destino,
+           c.url_fuente as url, c.creado_en, c.estado,
+           case when c.estado = 'bloqueada_legal' then 'bloqueada'
+                when c.veto_juridico is not null
+                  or jsonb_array_length(coalesce(c.propuesta #> '{_mesa,observaciones}', '[]'::jsonb)) > 0 then 'observada'
+                else 'limpia' end as semaforo
+      from public.cola_revision c
+      left join public.clubes cl on cl.id = c.club_id
+      left join public.instituciones ins on ins.id = c.institucion_id
+     where case when p_historial then c.estado in ('aprobada','rechazada') else c.estado in ('pendiente','bloqueada_legal') end
+    union all
+    select 'tip', t.id::text, t.tipo, left(t.texto, 90), ct.nombre, t.url, t.creado_en, t.estado, 'limpia'
+      from public.tips t
+      left join public.clubes ct on ct.id = t.club_id
+     where case when p_historial then t.estado in ('verificado','descartado') else t.estado in ('nuevo','en_revision') end
+    union all
+    select 'postulacion', p.id::text, 'postulacion', p.empresa || ' → ' || p.pliego_codigo, p.pliego_codigo, null, p.creado_en, p.estado, 'limpia'
+      from public.postulaciones_rse p
+     where case when p_historial then p.estado in ('contactada','descartada') else p.estado = 'nueva' end
+    union all
+    select 'presentacion', pr.id::text, 'presentacion', pr.nombre || ' (' || pr.ciudad || ')', pr.club_slug, pr.web, pr.creado_en, pr.estado, 'limpia'
+      from public.presentaciones_club pr
+     where case when p_historial then pr.estado in ('aprobada','rechazada') else pr.estado in ('nueva','en_revision') end
+    order by 7 desc limit 500
+  ) x), '[]'::jsonb);
+end $$;
 
 -- control: tienen que aparecer las tres funciones
 select proname from pg_proc where pronamespace = 'public'::regnamespace
