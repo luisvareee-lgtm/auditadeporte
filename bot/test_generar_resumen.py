@@ -38,6 +38,13 @@ class T(unittest.TestCase):
         self.assertEqual(j["muni-c"]["clubes"], [])                                  # club despublicado: no figura
         self.assertEqual(j["prov-buenos-aires"]["estado"], "no_publica")             # su fuente no respondió
         self.assertEqual(j["muni-a"]["pedido"]["extra"], "Ley 14.491")
+        ck = {i["clave"]: i["estado"] for i in j["muni-a"]["checklist"]}
+        self.assertEqual(ck, {"boletin": "completo", "compras": "no_encontrado", "presupuesto": "no_encontrado",
+                              "normas": "no_encontrado", "deporte_adaptado": "completo"})
+        ckp = {i["clave"]: i["estado"] for i in j["prov-buenos-aires"]["checklist"]}
+        self.assertNotIn("normas", ckp)                                              # el Concejo es solo municipal
+        self.assertEqual(ckp["boletin"], "parcial")                                  # existe pero no respondió
+        self.assertEqual({i["clave"]: i["estado"] for i in j["muni-b"]["checklist"]}["boletin"], "no_encontrado")
         self.assertIn("Ley 12.475", j["muni-a"]["pedido"]["provincial"])
         self.assertEqual(r["totales"]["no_publica"], 2)
         texto = str(r).lower()

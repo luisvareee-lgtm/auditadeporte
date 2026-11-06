@@ -34,12 +34,28 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
       jurisdicciones: document.querySelectorAll('#lista-juris [data-juris]').length,
       noPublica: document.querySelectorAll('#lista-juris [data-estado="no_publica"]').length,
       anchoDoc: document.documentElement.scrollWidth,
+      checklists: document.querySelectorAll('#lista-juris [aria-label="Qué publica"]').length,
+      botonesPresente: document.querySelectorAll('#lista-juris [data-action="ya-presente"]').length,
+      contador: document.querySelector('#lista-juris [data-action="ya-presente"]')?.closest('li')?.querySelector('p.text-slate-600')?.textContent.trim(),
+      deportista: !!document.querySelector('#simple-deportista'),
+      anchos: [...document.querySelectorAll('#s-simple *')].filter(e => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1).slice(0, 5).map(e => e.tagName + '.' + e.className.toString().slice(0, 40)),
     }));
     console.log(`[${nombre}] sección simple`, JSON.stringify({ ...s, texto: s.texto.slice(0, 200) }));
     if (nombre === 'celular') {
-      const foto = await p.locator('#s-simple').screenshot({ type: 'jpeg', quality: 45 });
+      const foto = await p.locator('#lista-juris > li').first().screenshot({ type: 'jpeg', quality: 45 });
       console.log('FOTO_SIMPLE_INICIO'); console.log(foto.toString('base64')); console.log('FOTO_SIMPLE_FIN');
+      const foto2 = await p.locator('#simple-deportista').screenshot({ type: 'jpeg', quality: 35 });
+      console.log('FOTO_DEPORTISTA_INICIO'); console.log(foto2.toString('base64')); console.log('FOTO_DEPORTISTA_FIN');
     }
+    await p.locator('#simple-deportista [data-action="pedir-rse"]').click(); await p.waitForTimeout(500);
+    console.log(`[${nombre}] pedido rse`, JSON.stringify(await p.evaluate(() => ({
+      pestana: document.querySelector('[role=tab][aria-selected=true]')?.textContent.trim(), tipo: document.querySelector('#d-tipo').value,
+      rseVisible: !document.querySelector('#d-rse-wrap').classList.contains('hidden'),
+      contactoVisible: !document.querySelector('#d-contacto-wrap').classList.contains('hidden') }))));
+    await p.click('#t-rse'); await p.waitForTimeout(500);
+    console.log(`[${nombre}] patrocinar`, JSON.stringify(await p.evaluate(() => ({ pliegos: document.querySelectorAll('#rse-grid article').length,
+      banner: !!document.querySelector('#s-rse [data-action="pedir-rse"]') }))));
+    await p.click('#t-simple'); await p.waitForTimeout(500);
     const boton = p.locator('#lista-juris [data-estado="no_publica"] [data-action="pedir-juris"]').first();
     if (await boton.count()) {
       await boton.click(); await p.waitForTimeout(800);

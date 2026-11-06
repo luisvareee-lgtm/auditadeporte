@@ -41,6 +41,36 @@ def motivo_simple(pendiente: str, provincia: str) -> str:
     return m
 
 
+# Lo que una jurisdicción debería tener publicado para que se pueda seguir la plata del deporte adaptado.
+# Cada ítem queda: completo (hay fuente oficial que se pudo leer), parcial (existe pero no respondió o está
+# desactualizada) o no_encontrado (no hallamos una publicación revisable). Es un hecho verificable, no una nota.
+ITEMS_CHECKLIST = [
+    ("boletin", "Boletín oficial con decretos y resoluciones", ("boletin_oficial",)),
+    ("compras", "Compras y licitaciones", ("compras",)),
+    ("presupuesto", "Presupuesto y su ejecución", ("portal_transparencia",)),
+    ("normas", "Ordenanzas del Concejo Deliberante", ("concejo_deliberante",)),
+]
+
+
+def checklist(slug: str, fs: list, encontrados: int, publicados: int) -> list:
+    out = []
+    for clave, texto, tipos in ITEMS_CHECKLIST:
+        if clave == "normas" and not slug.startswith("muni-"):
+            continue
+        propias = [f for f in fs if f.get("tipo") in tipos]
+        if any(f.get("estado") == "activa" and f.get("ultimo_status") == 200 and "solo hasta" not in (f.get("nota") or "")
+               for f in propias):
+            estado = "completo"
+        elif propias:
+            estado = "parcial"
+        else:
+            estado = "no_encontrado"
+        out.append({"clave": clave, "texto": texto, "estado": estado})
+    out.append({"clave": "deporte_adaptado", "texto": "Documentos sobre deporte adaptado",
+                "estado": "completo" if publicados else ("parcial" if encontrados else "no_encontrado")})
+    return out
+
+
 def tipo_juris(slug: str) -> str:
     if slug.startswith("muni-"):
         return "municipio"
@@ -132,6 +162,7 @@ def construir(db=None, cat=None, marco=None) -> dict:
             "documentos_leidos": sum(leidos_por_fuente.get(i, 0) for i in ids_fuentes),
             "encontrados_para_revisar": encontrados, "publicados": publicados,
             "ultima_revision": max(revs)[:10] if revs else None,
+            "checklist": checklist(slug, fs, encontrados, publicados),
             "pedido": pedido(slug, juris_de_un_club, marco),
         })
     orden = {"municipio": 0, "provincia": 1, "universidad": 2, "nacion": 3}

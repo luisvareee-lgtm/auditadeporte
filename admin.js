@@ -166,7 +166,7 @@ async function cargarContadores() {
 const NOMBRE_TIPO = {
   novedad_red: 'Novedad de red', documento_nuevo: 'Documento nuevo', documento_cambio: 'Documento modificado',
   autoridad_posible: 'Autoridad hallada', revision_sugerida: 'Revisión documental', propuesta_cambio: 'Propuesta de un especialista',
-  documento: 'Mensaje: documento', dato: 'Mensaje: dato', correccion: 'Mensaje: corrección', replica: 'Derecho a réplica',
+  documento: 'Mensaje: documento', dato: 'Mensaje: dato', correccion: 'Mensaje: corrección', replica: 'Derecho a réplica', solicitud_rse: 'Pedido de patrocinio',
   presentacion: 'Presentación de club', postulacion: 'Postulación de empresa'
 };
 const ACCIONES = {
@@ -349,6 +349,21 @@ function vistaTip(t) {
       el('button', { class: 'btn', onclick: () => hacer('panel_tip_resolver', { p_id: Number(t.id), p_estado: 'en_revision', p_notas: notas.value }, 'Marcado en revisión.') }, 'En revisión'),
       el('button', { class: 'btn', onclick: () => hacer('panel_tip_resolver', { p_id: Number(t.id), p_estado: 'verificado', p_notas: notas.value }, 'Marcado como verificado.') }, 'Verificado'),
       el('button', { class: 'btn peligro', onclick: () => hacer('panel_tip_resolver', { p_id: Number(t.id), p_estado: 'descartado', p_notas: notas.value }, 'Descartado.') }, 'Descartar'))));
+  if (t.tipo === 'solicitud_rse' && ['nuevo', 'en_revision'].includes(t.estado)) {
+    const rubro = (t.texto.match(/^\[Rubro: (\w+)\]/) || [])[1] || 'otro';
+    const personal = /\[Para: personal\]/.test(t.texto);
+    const tit = el('input', { id: 'sr-titulo', maxlength: 150, placeholder: 'Ej.: Cubiertas y rayos para el plantel' });
+    const [ta, cont, ul] = areaConPistas('sr-desc', t.texto.replace(/^(\[[^\]]+\]\s*)+/, ''), 1000);
+    out.push(el('div', { class: 'bloque' }, el('h3', {}, 'Crear borrador de pliego'),
+      el('p', { class: 'nota' }, (personal ? 'Es un pedido PERSONAL: confirmá con la persona qué autoriza a publicar y no publiques su nombre sin su permiso. ' : '') +
+        'Antes, confirmá por un canal oficial que el pedido viene del equipo. Se crea un pliego NO publicado del club elegido; después ponés el monto y lo publicás desde Borradores. Rubro: ' + rubro + '.'),
+      el('label', { for: 'sr-titulo' }, 'Título público'), tit,
+      el('label', { for: 'sr-desc' }, 'Descripción pública (sin datos personales ni de salud)'), ta, cont, ul,
+      el('div', { class: 'acciones' }, el('button', { class: 'btn primario', onclick: async () => {
+        if (await confirmar('Crear borrador', 'Se crea un pliego sin publicar y el mensaje queda como verificado.', 'Crear'))
+          hacer('panel_tip_a_pliego', { p_id: Number(t.id), p_rubro: rubro, p_titulo: tit.value, p_descripcion: ta.value }, 'Borrador creado. Completalo en Borradores.');
+      } }, 'Crear borrador'))));
+  }
   if (t.tipo === 'replica') {
     const slug = el('input', { id: 'rp-slug', value: t.club_slug || '' });
     const [ta, cont, ul] = areaConPistas('rp-texto', t.texto, 1500);
