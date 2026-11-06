@@ -65,6 +65,13 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
       ensayo.push({ id, nota: nota.includes('Municipalidad de Prueba') && nota.includes('Solicitamos'), items, rubro });
     }
     console.log(`[${nombre}] ensayo casos`, JSON.stringify(ensayo));
+    // ensayo del pedido de convenio: dirigido al Intendente, con copias, y pedido de los convenios existentes
+    await p.click('#t-deportistas'); await p.fill('#cv-muni', 'Municipalidad de Prueba'); await p.fill('#cv-org', 'Instituto Municipal del Deporte');
+    const conv = await p.inputValue('#cv-texto');
+    await p.click('[data-action="pedir-convenios"]'); await p.waitForTimeout(300);
+    console.log(`[${nombre}] ensayo convenio`, JSON.stringify({ dirigido: conv.includes('Intendente/a de la Municipalidad de Prueba'),
+      copias: conv.includes('Con copia a: Instituto Municipal del Deporte y Honorable Concejo Deliberante'), pide: (conv.match(/^[a-i]\) /gm) || []).length,
+      items: await p.evaluate(() => document.querySelectorAll('.p-item:checked').length), entidad: await p.inputValue('#p-entidad') }));
     // ensayo de la calculadora: 3 viajes x $2.000 x 44 semanas + cubiertas 120.000 + arreglos 80.000 + indumentaria 60.000
     // + torneos 150.000 + silla 3.000.000 / 5 años = $ 1.274.000 por año
     await p.click('#t-deportistas');

@@ -314,6 +314,7 @@
       <p class="text-slate-200 max-w-3xl">Lo que te corresponde, de dónde sale, qué papeles pedir, quién paga el arreglo de la silla y cómo buscar una empresa que te apoye.</p>
       <nav aria-label="En esta página" class="flex flex-wrap gap-2 pt-1 text-sm">
         <a href="#dep-casos" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3 py-2 rounded-xl">¿Cuál es tu situación?</a>
+        <a href="#dep-convenio" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Pedir un convenio</a>
         <a href="#dep-costo" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">¿Cuánto te cuesta jugar?</a>
         <a href="#dep-corresponde" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Qué me corresponde</a>
         <a href="#dep-otros" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Beneficios que no dependen del municipio</a>
@@ -387,6 +388,84 @@
       </div>
     </div>
 
+
+
+    <div id="dep-convenio" class="bg-white rounded-2xl border-2 border-blue-300 p-6 space-y-5 scroll-mt-24">
+      <div class="space-y-1">
+        <p class="inline-block bg-blue-100 text-blue-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wide">Plantilla</p>
+        <h3 class="text-xl font-black">Pedir un convenio de representación</h3>
+        <p class="text-slate-700 max-w-3xl">Si no hay un papel firmado, el municipio <strong>no está obligado</strong> a cubrir silla, traslados ni indumentaria: es un pedido, y ellos deciden. Pero sí está obligado a <strong>responder por escrito y en plazo</strong>. Lo que más protege al equipo es pedir que la relación quede en un <strong>convenio</strong>: qué da el municipio y qué da el equipo, que representa a la ciudad y presta su imagen. Si en otros municipios les dan indumentaria o transporte, lo más probable es que haya un convenio o una ordenanza: se puede pedir y usarlo de modelo.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+        <article class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+          <h4 class="font-black">A quién va dirigida</h4>
+          <p><strong>Al Intendente o Intendenta</strong>: es quien firma los convenios. Se presenta en la <strong>mesa de entradas</strong> de la Municipalidad.</p>
+          <p><strong>Con copia</strong> al organismo de deportes (instituto, secretaría o dirección) y al <strong>Concejo Deliberante</strong> (presidencia y comisión de deportes), que controla y puede tener que aprobar el convenio.</p>
+        </article>
+        <article class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+          <h4 class="font-black">Cuánto tienen para responder</h4>
+          <p>En los municipios bonaerenses rige la Ordenanza General 267/80: para una decisión definitiva, el plazo general es de <strong>30 días hábiles</strong> (art. 77).</p>
+          <p>Si no responden, se pide <strong>pronto despacho</strong>. Dos meses después de ese pedido, el silencio cuenta como un "no" (art. 79), y eso habilita a reclamar.</p>
+        </article>
+        <article class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+          <h4 class="font-black">Su imagen como equipo</h4>
+          <p>Para usar la imagen de una persona hace falta su consentimiento, salvo que participe en actos públicos o que se informe sobre algo de interés general (Código Civil y Comercial, art. 53).</p>
+          <p>Fotos de un partido, sí. Usar al equipo en publicidad o campañas es discutible: lo más claro es que el convenio lo regule.</p>
+        </article>
+      </div>
+
+      <form id="form-convenio" class="space-y-3 text-sm" novalidate>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="block"><span class="font-bold">Municipio</span><input id="cv-muni" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Municipalidad de…"></label>
+          <label class="block"><span class="font-bold">Organismo de deportes</span><input id="cv-org" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Instituto Municipal del Deporte / Secretaría de Deportes"></label>
+          <label class="block"><span class="font-bold">Equipo</span><input id="cv-equipo" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Equipo de básquet en silla de ruedas de…"></label>
+          <label class="block"><span class="font-bold">Competencias en las que representa al municipio</span><input id="cv-comp" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Liga FABA Primera División, Juegos Bonaerenses…"></label>
+          <label class="block"><span class="font-bold">Cantidad de deportistas y cuerpo técnico</span><input id="cv-cant" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Ej.: 12 deportistas y 2 profesores"></label>
+          <label class="block"><span class="font-bold">Desde cuándo representa al municipio</span><input id="cv-desde" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Ej.: desde 2015"></label>
+        </div>
+        <fieldset>
+          <legend class="font-bold">Qué pedimos que el convenio defina (lo que da el municipio)</legend>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1">
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" checked value="la provisión y renovación periódica de la indumentaria oficial con la que el equipo representa al municipio">Indumentaria oficial y su renovación</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" checked value="el transporte de la delegación a los partidos y torneos oficiales, y el alojamiento y las comidas cuando el viaje lo requiera">Transporte, alojamiento y comidas en torneos</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" checked value="un seguro de accidentes personales para entrenamientos, partidos y viajes">Seguro</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" checked value="un fondo o un sistema de reparación y mantenimiento de las sillas deportivas, incluidas las propias de cada deportista que se usan para representar al municipio">Arreglos de las sillas (también las propias)</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" checked value="la reparación, el inventario y la renovación de las sillas deportivas propiedad del municipio, previendo sillas a medida o adaptables">Sillas del municipio: reparación y renovación</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" checked value="los elementos de entrenamiento para el cuerpo técnico">Elementos de entrenamiento</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" value="el pago de las inscripciones y fichajes ante la federación">Inscripciones y fichajes</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" value="una ayuda de traslado para quienes viajan a entrenar desde lejos">Ayuda de traslado a los entrenamientos</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" checked value="un lugar y horarios de entrenamiento accesibles y estables">Lugar y horario accesibles</label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend class="font-bold">Qué ofrece el equipo a cambio</legend>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1">
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-da" checked value="representar al municipio con su nombre y escudo en las competencias oficiales">Representar al municipio con su nombre</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-da" checked value="participar en actividades de difusión del deporte adaptado (clínicas, exhibiciones, escuelas)">Clínicas y exhibiciones</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-da" checked value="autorizar el uso institucional de su imagen como equipo, en las condiciones que fije el convenio y con consentimiento de cada integrante">Uso de imagen, con reglas y consentimiento</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-da" checked value="rendir cuentas por escrito de lo que reciba">Rendir cuentas de lo recibido</label>
+          </div>
+        </fieldset>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="block"><span class="font-bold">Firman (o "Las y los integrantes del plantel")</span><input id="cv-nom" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Nombre y apellido de cada firmante"></label>
+          <label class="block"><span class="font-bold">Contacto para la respuesta</span><input id="cv-contacto" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="Correo o teléfono"></label>
+        </div>
+        <label for="cv-texto" class="block font-bold">Texto de la nota</label>
+        <textarea id="cv-texto" rows="18" class="w-full bg-slate-950 text-emerald-200 font-mono text-sm rounded-xl p-3 border border-slate-700"></textarea>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" data-action="copiar" data-target="cv-texto" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Copiar la nota</button>
+          <button type="button" data-action="pedir-convenios" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Pedir los convenios que ya existen (para usarlos de modelo)</button>
+        </div>
+      </form>
+      <ol class="list-decimal pl-5 space-y-1 text-sm text-slate-800">
+        <li>Imprimí <strong>tres copias</strong> firmadas: la de mesa de entradas, una para el organismo de deportes y otra para el Concejo Deliberante. Pedí que te sellen una con fecha.</li>
+        <li>Anotá el <strong>número de expediente</strong> que te den.</li>
+        <li>Si a los 30 días hábiles no hay respuesta, presentá un <strong>pronto despacho</strong> citando ese número. En la pestaña Pedir hay un modelo de reclamo que podés adaptar.</li>
+        <li>Mientras tanto, pedí por acceso a la información <strong>los convenios que ya tiene el municipio</strong> con otros equipos o clubes, y los de otros municipios que sí dan indumentaria: son el mejor argumento.</li>
+      </ol>
+      <p class="text-xs text-slate-500">Orientación general, no asesoramiento legal. Los plazos de la Ordenanza General 267/80 se cuentan en días hábiles; revisá si tu municipio tiene una ordenanza de procedimiento propia.</p>
+    </div>
 
     <div id="dep-costo" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 scroll-mt-24">
       <div class="space-y-1">
@@ -578,6 +657,7 @@
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Compras de indumentaria deportiva para el equipo de deporte adaptado en los últimos 3 años: fecha, cantidad, proveedor y monto"> Indumentaria del equipo</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Inventario de elementos de entrenamiento del equipo de deporte adaptado (pelotas, conos, elementos de preparación física) y compras de los últimos 3 años"> Elementos de entrenamiento</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y presupuesto para viáticos o ayuda de traslado de deportistas que representan al municipio en entrenamientos y competencias"> Viáticos y traslados</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Convenios vigentes entre el municipio (o su organismo de deportes) y clubes o equipos de deporte adaptado que lo representan, con las obligaciones y aportes de cada parte (indumentaria, transporte, seguro, equipamiento) y la norma que los aprobó"> Convenios con equipos que lo representan</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Seguro de los deportistas en entrenamientos, partidos y viajes: póliza vigente, aseguradora y cobertura"> Seguro de deportistas</label>
           </div>
         </fieldset>
@@ -1177,7 +1257,7 @@ const CASOS = [
     nota: 'transporte para los partidos y torneos oficiales en los que el equipo representa al municipio, según el calendario que adjuntamos' },
   { id: 'indumentaria', icono: '👕', titulo: 'Las camisetas y la indumentaria las pagamos nosotros',
     regla: [
-      'Ninguna ley general obliga al municipio a dar indumentaria, pero si el equipo juega con su nombre y su escudo, es razonable pedirlo. Fijate si la norma o el convenio del equipo dice algo.',
+      'Ninguna ley general obliga al municipio a dar indumentaria, pero si el equipo juega con su nombre y su escudo, es razonable pedirlo. Fijate si la norma o el convenio del equipo dice algo; si no hay convenio, pedilo (plantilla más abajo).',
       'Si el municipio compró indumentaria para el equipo, esa compra tiene que estar registrada: se puede pedir cuándo fue la última y qué se compró.'],
     pasos: ['Pidan por acceso a la información las compras de indumentaria del equipo de los últimos 3 años.',
       'Presenten una nota pidiendo la renovación de las camisetas oficiales, con la cantidad y los talles.',
@@ -1206,6 +1286,40 @@ const CASOS = [
     nota: 'información y, en adelante, la cobertura del transporte, el alojamiento y las comidas de la delegación en los viajes a torneos oficiales en los que el equipo representa al municipio' }
 ];
 let casoActual = null;
+
+// ---- Pedido de convenio de representación
+function armarConvenio() {
+  const v = id => $('#' + id).value.trim();
+  const muni = v('cv-muni') || '[Municipalidad de …]', org = v('cv-org') || '[organismo de deportes]';
+  const eq = v('cv-equipo') || '[equipo de básquet en silla de ruedas de …]', comp = v('cv-comp') || '[competencias oficiales]';
+  const cant = v('cv-cant'), desde = v('cv-desde');
+  const pide = [...$$('.cv-pide:checked')].map(i => i.value), da = [...$$('.cv-da:checked')].map(i => i.value);
+  const lista = xs => xs.map((x, i) => `${String.fromCharCode(97 + i)}) ${x[0].toUpperCase() + x.slice(1)}.`).join('\n');
+  $('#cv-texto').value =
+`Asunto: Solicitud de convenio de representación deportiva — ${eq}
+
+Al Sr./Sra. Intendente/a de la ${muni}
+S/D
+
+Con copia a: ${org} y Honorable Concejo Deliberante (Presidencia y Comisión de Deportes).
+
+Quienes integramos el ${eq}${cant ? ` (${cant})` : ''}, que representa al municipio${desde ? ` ${desde}` : ''} en ${comp}, nos dirigimos a usted en ejercicio del derecho de peticionar a las autoridades (art. 14 de la Constitución Nacional).
+
+Representamos a la ciudad con su nombre y su escudo, y nuestra imagen como equipo se usa en la comunicación institucional del municipio. Sin embargo, no existe un instrumento escrito que defina qué aporta cada parte, y hoy las y los deportistas cubrimos por nuestra cuenta gran parte de lo necesario para competir.
+
+Teniendo en cuenta el art. 30.5 de la Convención sobre los Derechos de las Personas con Discapacidad (Ley 26.378, con jerarquía constitucional por Ley 27.044) y la Ley 27.202 de Deporte, que reconoce el deporte adaptado, solicitamos la firma de un convenio de representación deportiva que defina:
+${pide.length ? lista(pide) : 'a) [qué debería aportar el municipio].'}
+
+Por su parte, el equipo se compromete a:
+${da.length ? lista(da) : 'a) [qué ofrece el equipo].'}
+
+Solicitamos además que se nos informe si existen convenios u ordenanzas vigentes con otros equipos o clubes que representan al municipio, para tomarlos como referencia.
+
+Pedimos respuesta por escrito en el plazo previsto por la Ordenanza General 267/80 y quedamos a disposición para una reunión.
+
+${v('cv-nom') || '[Nombre, apellido y DNI de cada firmante, o "Las y los integrantes del plantel"]'}
+Contacto: ${v('cv-contacto') || '[correo o teléfono]'}`;
+}
 
 // ---- ¿Cuánto te cuesta jugar? (todo queda en la pantalla: no se guarda ni se envía)
 const fmtPesos = v => '$ ' + Math.round(v).toLocaleString('es-AR');
@@ -1638,6 +1752,11 @@ document.addEventListener('click', e => {
   else if (act === 'ir-mi-lugar') {
     $('#simple-lugares').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => $('#buscar-juris').focus({ preventScroll: true }), 400);
   }
+  else if (act === 'pedir-convenios') {
+    $$('.p-item').forEach(i => { i.checked = /^(Convenios vigentes entre el municipio|Norma \(ordenanza o decreto\) que crea)/.test(i.value); });
+    $('#p-tipo').value = 'municipio'; if ($('#cv-muni').value.trim()) $('#p-entidad').value = $('#cv-muni').value.trim();
+    armarPedido(); showTab('pedir'); $('#p-entidad').focus();
+  }
   else if (act === 'pedir-deportista') {
     $$('.p-item').forEach(i => { i.checked = /^(Norma \(ordenanza|Actas de entrega|Seguro de los deportistas|Gastos de transporte)/.test(i.value); });
     $('#p-tipo').value = 'municipio'; armarPedido(); showTab('pedir'); $('#p-entidad').focus();
@@ -1685,9 +1804,12 @@ $('#filtro-div').addEventListener('change', refrescar);
 ['nc-muni', 'nc-equipo', 'nc-nom', 'nc-dni', 'nc-detalle'].forEach(id => $('#' + id).addEventListener('input', armarNotaCaso));
 pintarCasos();
 calcularCosto();
+armarConvenio();
 $('#nc-casos').addEventListener('change', e => { if (!e.target.classList.contains('nc-caso')) return;
   e.target.checked ? casosNota.add(e.target.value) : casosNota.delete(e.target.value); armarNotaCaso(); });
 $('#form-costo').addEventListener('input', calcularCosto);
+$('#form-convenio').addEventListener('input', e => { if (e.target.id !== 'cv-texto') armarConvenio(); });
+$('#form-convenio').addEventListener('change', e => { if (e.target.id !== 'cv-texto') armarConvenio(); });
 $('#costo-copiar').addEventListener('click', () => { const t = resumenCosto(); if (!t) { toast('Completá los montos primero.'); return; }
   (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Resumen copiado'), () => toast('No se pudo copiar: seleccionalo a mano.')); });
 $('#costo-rse').addEventListener('click', () => { const t = resumenCosto(); if (!t) { toast('Completá los montos primero.'); return; }
