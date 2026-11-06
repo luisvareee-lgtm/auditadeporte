@@ -44,8 +44,10 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
     if (nombre === 'celular') {
       const foto = await p.locator('#lista-juris > li').first().screenshot({ type: 'jpeg', quality: 45 });
       console.log('FOTO_SIMPLE_INICIO'); console.log(foto.toString('base64')); console.log('FOTO_SIMPLE_FIN');
-      const foto2 = await p.locator('#simple-deportista').screenshot({ type: 'jpeg', quality: 35 });
-      console.log('FOTO_DEPORTISTA_INICIO'); console.log(foto2.toString('base64')); console.log('FOTO_DEPORTISTA_FIN');
+      const foto2 = (await p.locator('#simple-deportista').screenshot({ type: 'jpeg', quality: 30 })).toString('base64');
+      console.log('FOTO_DEPORTISTA_INICIO');
+      for (let i = 0; i < foto2.length; i += 8000) console.log(foto2.slice(i, i + 8000));
+      console.log('FOTO_DEPORTISTA_FIN');
     }
     await p.locator('#simple-deportista [data-action="pedir-rse"]').click(); await p.waitForTimeout(500);
     console.log(`[${nombre}] pedido rse`, JSON.stringify(await p.evaluate(() => ({
