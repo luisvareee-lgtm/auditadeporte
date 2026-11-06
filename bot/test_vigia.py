@@ -51,3 +51,21 @@ class Extractores(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Ejecuciones(unittest.TestCase):
+    def test_credito_y_modificaciones(self):
+        import rafam, os
+        D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pruebas_rafam")
+        es = []
+        for n, f in enumerate(["gastos_funcion.txt", "gastos_caracter.txt"]):
+            r = rafam.analizar(open(os.path.join(D, f), encoding="utf-8").read())
+            es.append({"juris_slug": "muni-almirante-brown", "url": f"u{n}", "sha256": str(n) * 64, **{k: r.get(k) for k in
+                       ("tipo", "clasificacion", "ejercicio", "desde", "hasta", "totales", "credito")}})
+        c = v.regla_credito(es)
+        self.assertEqual(len(c), 2)
+        self.assertTrue(any("A instituciones privadas" in a["explicacion"]["que"] and a["gravedad"] == "alta" for a in c))
+        m = v.regla_modificaciones(es)
+        self.assertEqual(len(m), 1)
+        self.assertIn("clasificaciones distintas", m[0]["explicacion"]["que"])
+        self.assertIn("4.827.786.439,60", m[0]["titulo"])

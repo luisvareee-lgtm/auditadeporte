@@ -34,9 +34,12 @@ def principal():
             res = a.analizar(pdf, d["url_original"], sha)
             import vigia
             vigia.registrar_estructura(cli, d["juris_slug"], d["url_original"], res["por_pagina"])
+            import rafam            # reportes de ejecución presupuestaria: se leen columna por columna y se controlan
+            ejec = rafam.registrar(cli, d["juris_slug"], d["url_original"], sha, d["titulo"], pdf)
             marcas = o.relevancia(res["texto"], alias_juris.get(d["juris_slug"], {}))
             relevante = bool(marcas) or a.es_relevante(res["hallazgos"])
-            resultado = {"formato": formato, "paginas": res["paginas"], "paginas_ocr": res["paginas_ocr"],
+            resultado = {"ejecucion_rafam": {k: ejec.get(k) for k in ("tipo", "clasificacion", "desde", "hasta", "lineas")} if ejec else None,
+                         "formato": formato, "paginas": res["paginas"], "paginas_ocr": res["paginas_ocr"],
                          "hallazgos": a.resumen_hallazgos(res["hallazgos"]), "temas": a.temas_de(res["hallazgos"])}
             if relevante:
                 caps = a.subir_capturas(cli, sha, res["capturas"])

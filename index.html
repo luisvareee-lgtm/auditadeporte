@@ -512,6 +512,10 @@
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Nómina vigente de autoridades y acta de designación"> Autoridades vigentes</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Norma (ordenanza o decreto) que crea o financia el equipo municipal de deporte adaptado, y los convenios firmados con clubes para ese equipo"> Norma y convenio del equipo</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Actas de entrega o de comodato de sillas deportivas, inventario de las sillas y quién está a cargo de su mantenimiento"> Actas de sillas y mantenimiento</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Ejecución presupuestaria del ejercicio en curso, por trimestre, por finalidad y función y por estructura programática (jurisdicción, programa y actividad), incluida la de los organismos descentralizados"> Ejecución por programa</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Norma de creación del organismo a cargo del deporte municipal (instituto, ente o dirección), su estructura y su presupuesto por programa, incluido el de deporte adaptado"> Organismo de deportes y su presupuesto</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Ordenanzas y decretos de modificación presupuestaria (ampliaciones y compensaciones de crédito) del ejercicio en curso"> Modificaciones del presupuesto</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Transferencias a instituciones privadas sin fines de lucro del ejercicio en curso: beneficiario, monto, fecha, norma de otorgamiento y estado de la rendición de cuentas"> Subsidios a clubes y asociaciones</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Seguro de los deportistas en entrenamientos, partidos y viajes: póliza vigente, aseguradora y cobertura"> Seguro de deportistas</label>
           </div>
         </fieldset>
@@ -1025,6 +1029,16 @@ function pintarJuris() {
         const ei = ESTADO_ITEM[i.estado] || ESTADO_ITEM.no_encontrado;
         return `<li class="flex gap-1.5 items-start min-w-0"><span aria-hidden="true">${ei.icono}</span><span class="min-w-0">${esc(i.texto)} <span class="${ei.cls} font-semibold">· ${ei.txt}</span></span></li>`;
       }).join('')}</ul>` : ''}
+      ${(j.presupuesto_deporte || []).length ? (() => { const p = j.presupuesto_deporte[0];
+        const pct = Math.min(100, Number(p.porcentaje_devengado) || 0), $$m = v => '$ ' + Number(v || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+        return `<div class="rounded-xl border-2 border-emerald-200 bg-emerald-50 p-3 space-y-2 text-sm">
+          <p class="font-black text-emerald-950">💰 Presupuesto de Deporte y recreación ${esc(p.ejercicio || '')}</p>
+          <p class="text-slate-700">Al ${fechaLinda(p.hasta)}: tenía <strong>${$$m(p.vigente)}</strong> para gastar en el año y gastó (devengado) <strong>${$$m(p.devengado)}</strong>, de los que pagó ${$$m(p.pagado)}.</p>
+          <div class="h-3 rounded-full bg-white border border-emerald-200 overflow-hidden" role="img" aria-label="Ejecutado ${pct}%"><div class="h-full bg-emerald-600" style="width:${pct}%"></div></div>
+          <p class="text-xs text-slate-600">Ejecutado: ${esc(p.porcentaje_devengado)} %${p.porcentaje_devengado_municipio ? ` · el municipio en total, ${esc(p.porcentaje_devengado_municipio)} %` : ''}${p.peso_en_presupuesto ? ` · es el ${esc(String(p.peso_en_presupuesto).replace('.', ','))} % del presupuesto municipal` : ''}.
+            Es solo la función "Deporte y recreación": un instituto o ente de deportes con presupuesto propio puede estar en otro reporte.
+            <a class="underline text-blue-800" href="${esc(urlSegura(p.url))}" target="_blank" rel="noopener">Ver el reporte oficial</a></p>
+        </div>`; })() : ''}
       ${j.juegos_bonaerenses ? (() => { const jb = j.juegos_bonaerenses;
         return `<div class="rounded-xl border-2 border-sky-200 bg-sky-50 p-3 space-y-2 text-sm">
           <p class="font-black text-sky-950">🏅 Juegos Bonaerenses</p>
@@ -1046,6 +1060,7 @@ function pintarJuris() {
           ${urlSegura(j.sitio_web) ? `<p><span class="font-bold">Sitio oficial:</span> <a class="underline text-blue-800 break-words" href="${esc(j.sitio_web)}" target="_blank" rel="noopener">${esc(j.sitio_web)}</a> (buscá "mesa de entradas", "acceso a la información" o "contacto").</p>` : ''}
         </div>
       </details>
+      ${j.tipo === 'municipio' ? `<button data-action="pedir-ejecucion" data-slug="${esc(j.slug)}" class="text-sm text-blue-800 font-bold underline">Pedir la ejecución completa del presupuesto de deporte</button>` : ''}
       <div class="flex flex-wrap items-center gap-2">
         <button data-action="pedir-juris" data-slug="${esc(j.slug)}" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">${j.estado === 'publica' ? 'Pedir más información' : 'Pedí esta información'}</button>
         <button data-action="ya-presente" data-slug="${esc(j.slug)}" ${yaPresente(j.slug) ? 'disabled' : ''} class="w-full sm:w-auto border-2 border-emerald-700 text-emerald-800 hover:bg-emerald-50 disabled:opacity-60 disabled:hover:bg-transparent font-bold px-4 py-2 rounded-xl text-sm">${yaPresente(j.slug) ? '✓ Ya lo presentaste' : 'Ya lo presenté'}</button>
@@ -1415,6 +1430,12 @@ document.addEventListener('click', e => {
   else if (act === 'pedir-deportista') {
     $$('.p-item').forEach(i => { i.checked = /^(Norma \(ordenanza|Actas de entrega|Seguro de los deportistas|Gastos de transporte)/.test(i.value); });
     $('#p-tipo').value = 'municipio'; armarPedido(); showTab('pedir'); $('#p-entidad').focus();
+  }
+  else if (act === 'pedir-ejecucion') {
+    const j = JURIS.find(x => x.slug === a.dataset.slug); if (!j) return;
+    marcoPedido = { entidad: j.nombre, esMunicipio: true, slug: j.slug, ...j.pedido };
+    $$('.p-item').forEach(i => { i.checked = /^(Ejecución presupuestaria del ejercicio|Norma de creación del organismo|Ordenanzas y decretos de modificación|Transferencias a instituciones privadas)/.test(i.value); });
+    $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
   }
   else if (act === 'pedir-jb') {
     const j = JURIS.find(x => x.slug === a.dataset.slug); if (!j) return;

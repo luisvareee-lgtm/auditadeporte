@@ -238,7 +238,8 @@ async function publicarCapturas(colaId, caps) {
 }
 
 // ---------------------------------------------------------------- alertas del vigía
-const REGLA = { huecos_numeracion: 'Huecos en la numeración', fraccionamiento: 'Posible fraccionamiento de compras' };
+const REGLA = { huecos_numeracion: 'Huecos en la numeración', fraccionamiento: 'Posible fraccionamiento de compras',
+  credito_excedido: 'Gasto por encima del crédito', modificaciones_presupuestarias: 'Modificaciones presupuestarias' };
 const GRAVEDAD = { alta: 'mal', media: 'obs', baja: '' };
 async function cargarAlertas() {
   let r;
@@ -302,6 +303,7 @@ async function cargarCargados() {
   let l = [];
   try { l = await rpc('panel_documentos_cargados'); }
   catch (e) { $('#t-cargados').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/16 y db/17 en Supabase: ' + e.message)); return; }
+  cargarEjecuciones();
   $('#t-cargados').replaceChildren(tabla([['Documento', x => el('span', {}, el('strong', {}, x.titulo), el('br'), enlace(x.url_original))],
     ['Lugar', x => x.juris_slug + (x.formato && x.formato !== 'pdf' ? ' · .' + x.formato : '')], ['Cargado', x => fecha(x.creado_en) + (x.cargado_por ? ' · ' + x.cargado_por : '')],
     ['Estado', x => el('span', { class: 'chip ' + ({ procesado: 'ok', error: 'mal' }[x.estado] || '') }, x.estado === 'pendiente' ? 'en espera (se analiza en menos de una hora)' : x.estado)],
@@ -327,6 +329,23 @@ $('#fc-archivo').addEventListener('change', () => {
   }));
   if (fs.length > 50) aviso('Se toman los primeros 50 archivos.', true);
 });
+
+const pesosAR = v => v === null || v === undefined ? '—' : '$ ' + Number(v).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+async function cargarEjecuciones() {
+  let l;
+  try { l = await rpc('panel_ejecuciones'); }
+  catch (e) { $('#t-ejecuciones').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/20 en Supabase: ' + e.message)); return; }
+  $('#t-ejecuciones').replaceChildren(tabla([
+    ['Reporte', x => el('span', {}, el('strong', {}, `${x.tipo} · ${(x.clasificacion || '').replace(/_/g, ' ')}`), el('br'), `${x.desde || '?'} al ${x.hasta || '?'} · ${x.juris_slug}`, el('br'), enlace(x.url))],
+    ['Control', x => el('span', {}, (x.cierre || []).length ? el('span', { class: 'chip mal' }, `${x.cierre.length} cuenta(s) no cierran`) : el('span', { class: 'chip ok' }, 'La aritmética cierra'),
+      (x.credito || []).length ? el('span', { class: 'chip obs' }, `${x.credito.length} línea(s) sobre el crédito`) : null)],
+    ['Deporte y recreación', x => x.deporte ? el('span', {}, `Vigente ${pesosAR(x.deporte.vigente)}`, el('br'), `Devengado ${pesosAR(x.deporte.devengado)} (${x.deporte.porcentaje_devengado ?? '—'} %)`, el('br'), `Pagado ${pesosAR(x.deporte.pagado)}`)
+      : x.tipo === 'gastos' ? 'No viene la línea (otra clasificación)' : (x.deporte_recursos || []).length ? `${x.deporte_recursos.length} ingreso(s) de deporte` : '—'],
+    ['', x => x.deporte ? el('button', { class: 'btn chico' + (x.publicado ? '' : ' primario'), onclick: async () => {
+      if (!x.publicado && !await confirmar('Publicar la línea de Deporte', 'Se va a mostrar en la tarjeta del municipio con enlace al reporte. ¿Comparaste los números con el PDF?', 'Publicar')) return;
+      try { await rpc('panel_publicar_ejecucion', { p_id: x.id, p_publicar: !x.publicado }); aviso(x.publicado ? 'Retirado.' : 'Publicado. Aparece en el sitio con la próxima actualización del resumen.'); cargarEjecuciones(); }
+      catch (e) { aviso(e.message, true); } } }, x.publicado ? 'Retirar del sitio' : 'Publicar línea de Deporte') : null]], l, 'Todavía no se leyó ningún reporte de ejecución.'));
+}
 
 async function subirPdf(ev) {
   ev.preventDefault();

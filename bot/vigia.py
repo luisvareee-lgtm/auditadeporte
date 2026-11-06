@@ -113,13 +113,92 @@ def regla_fraccionamiento(adjs: list, umbrales: dict = UMBRALES) -> list:
     return alertas
 
 
+def _pesos(v):
+    return "$ " + f"{v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def _periodo(e):
+    f = lambda x: "/".join(reversed((x or "").split("-")))
+    return f"del {f(e.get('desde'))} al {f(e.get('hasta'))}"
+
+
+def regla_credito(ejecs: list) -> list:
+    """Reportes RAFAM donde lo reservado y comprometido supera el crédito vigente, o hay gasto sin crédito."""
+    alertas = []
+    for e in ejecs:
+        cs = e.get("credito") or []
+        if e.get("tipo") != "gastos" or not cs:
+            continue
+        mayor = max(c["exceso"] for c in cs)
+        detalle = "; ".join(f"{c['linea']}: {'sin crédito vigente, ' if c['sin_credito'] else ''}excede en {_pesos(c['exceso'])}"
+                            + (f" (devengado por encima del crédito: {_pesos(c['devengado_sobre_credito'])})" if c["devengado_sobre_credito"] else "")
+                            for c in cs[:8])
+        alertas.append({
+            "regla": "credito_excedido", "juris_slug": e["juris_slug"], "gravedad": "alta" if mayor >= 1e9 else "media",
+            "clave": f"credito:{e['sha256']}",
+            "titulo": f"{len(cs)} línea(s) con gasto comprometido por encima del crédito ({_periodo(e)}, {e.get('clasificacion', '').replace('_', ' ')})",
+            "explicacion": {
+                "que": f"En la ejecución de gastos {_periodo(e)}: {detalle}.",
+                "por_que": "El crédito vigente es lo que el presupuesto autoriza a gastar en cada línea. Si lo reservado y comprometido "
+                           "lo supera, o se gasta en una línea sin crédito, hay gasto comprometido sin autorización presupuestaria suficiente "
+                           "a la fecha del reporte.",
+                "norma": "En principio, la Ley Orgánica de las Municipalidades (Decreto-Ley 6769/58) y el Reglamento de Contabilidad "
+                         "del Honorable Tribunal de Cuentas exigen crédito presupuestario suficiente antes de comprometer un gasto.",
+                "puede_explicarse": "Puede haber ampliaciones o compensaciones de crédito aprobadas que todavía no estaban registradas al "
+                                    "emitir el reporte, o diferencias en cómo el sistema RAFAM registra los preventivos.",
+                "que_hacer": "Pedí las normas de modificación presupuestaria del período y, para las líneas marcadas, el detalle de "
+                             "compromisos (expediente, beneficiario o proveedor, monto). Si es una transferencia a instituciones sin fines "
+                             "de lucro, pedí la lista de beneficiarios: es información pública (CSJN, caso CIPPEC)."},
+            "evidencia": [{"url": e["url"], "extracto": detalle[:500]}]})
+    return alertas
+
+
+def regla_modificaciones(ejecs: list) -> list:
+    """Entre dos reportes de gastos del mismo año, cuánto creció lo modificado: cada cambio necesita una norma."""
+    alertas, grupos = [], {}
+    for e in ejecs:
+        if e.get("tipo") == "gastos" and e.get("totales") and e.get("hasta"):
+            grupos.setdefault((e["juris_slug"], e.get("ejercicio")), []).append(e)
+    for (juris, anio), es in grupos.items():
+        es.sort(key=lambda x: x["hasta"])
+        for a, b in zip(es, es[1:]):
+            dm = (b["totales"].get("modificaciones") or 0) - (a["totales"].get("modificaciones") or 0)
+            if dm < 1e8 or a["hasta"] == b["hasta"]:
+                continue
+            distinta = a.get("clasificacion") != b.get("clasificacion")
+            alertas.append({
+                "regla": "modificaciones_presupuestarias", "juris_slug": juris, "gravedad": "media",
+                "clave": f"modif:{juris}:{anio}:{a['hasta']}:{b['hasta']}",
+                "titulo": f"{_pesos(dm)} de modificaciones presupuestarias entre el {a['hasta']} y el {b['hasta']}",
+                "explicacion": {
+                    "que": f"Las modificaciones acumuladas pasaron de {_pesos(a['totales']['modificaciones'])} a {_pesos(b['totales']['modificaciones'])}."
+                           + (" Además, los dos reportes usan clasificaciones distintas "
+                              f"({a.get('clasificacion', '').replace('_', ' ')} y {b.get('clasificacion', '').replace('_', ' ')}): "
+                              "no se puede seguir una misma línea, como Deporte y recreación, de un período al otro." if distinta else ""),
+                    "por_que": "Cada ampliación o cambio del presupuesto se aprueba con una ordenanza o un decreto. Si no aparecen en el "
+                               "boletín, no se puede saber de dónde salió y a dónde fue esa plata.",
+                    "norma": "Ley Orgánica de las Municipalidades (Decreto-Ley 6769/58): las modificaciones del presupuesto requieren norma; "
+                             "la Ley 14.491 regula su publicación en el Boletín Oficial Municipal.",
+                    "puede_explicarse": "Pueden ser ampliaciones por recursos afectados que llegaron (por ejemplo, fondos provinciales) "
+                                        "o compensaciones entre partidas.",
+                    "que_hacer": "Buscá en los boletines del período ordenanzas o decretos de 'modificación presupuestaria', 'ampliación' o "
+                                 "'compensación'. Si no están, pedilos." + (" Pedí también el mismo reporte con la otra clasificación." if distinta else "")},
+                "evidencia": [{"url": a["url"]}, {"url": b["url"]}]})
+    return alertas
+
+
 def evaluar(cli) -> list:
     normas = cli.table("normas_vistas").select("juris_slug,tipo,numero,anio,url").execute().data or []
     adjs = cli.table("adjudicaciones_vistas").select("juris_slug,proveedor,proveedor_n,monto,fecha,modalidad,url,pagina,extracto") \
         .execute().data or []
     for a in adjs:
         a["monto"] = float(a["monto"])
-    return regla_huecos(normas) + regla_fraccionamiento(adjs)
+    try:
+        ejecs = cli.table("ejecuciones_presupuestarias").select(
+            "juris_slug,url,sha256,tipo,clasificacion,ejercicio,desde,hasta,totales,credito").execute().data or []
+    except Exception:                    # sin db/20 todavía
+        ejecs = []
+    return regla_huecos(normas) + regla_fraccionamiento(adjs) + regla_credito(ejecs) + regla_modificaciones(ejecs)
 
 
 def guardar(cli, alertas: list) -> int:

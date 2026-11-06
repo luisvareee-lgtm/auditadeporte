@@ -582,6 +582,9 @@ def procesar_indice(f: dict, cap: Captura, vistas: dict, presupuesto: list, alia
         # para el vigía: números de normas y adjudicaciones de TODO lo leído (también lo que no habla de deporte)
         import vigia
         vigia.registrar_estructura(db(), _INST_SLUG.get(f.get("institucion_id")), u, res["por_pagina"] if res else [texto])
+        if es_pdf and "R.A.F.A.M" in texto[:5000].upper():
+            import rafam
+            rafam.registrar(db(), _INST_SLUG.get(f.get("institucion_id")), u, c2.sha256, nombre_desde_url(u), c2.contenido)
         marcas = relevancia(texto, alias)
         if hallazgos and analista.es_relevante(hallazgos):
             marcas = sorted(set(marcas) | {"tema:" + t for t in analista.temas_de(hallazgos)})

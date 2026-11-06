@@ -129,6 +129,20 @@ def construir(db=None, cat=None, marco=None) -> dict:
         docs = db.table("documentos_fuente").select("institucion_id,club_id,publicado,titulo,url_fuente,resumen,expediente_o_norma,"
                                                     "fecha_captura").execute().data or []
 
+    try:     # reportes de ejecución que una persona publicó (db/20)
+        ejecs = db.table("ejecuciones_presupuestarias").select("juris_slug,url,tipo,clasificacion,ejercicio,desde,hasta,deporte,publicado") \
+            .eq("publicado", True).execute().data or []
+    except Exception:
+        ejecs = []
+    deporte_por_juris = {}
+    for e in ejecs:
+        if e.get("publicado") and e.get("tipo") == "gastos" and e.get("deporte"):
+            d = e["deporte"]
+            deporte_por_juris.setdefault(e["juris_slug"], []).append({
+                "ejercicio": e.get("ejercicio"), "desde": e.get("desde"), "hasta": e.get("hasta"), "url": e.get("url"),
+                "linea": d.get("linea"), "aprobado": d.get("aprobado"), "vigente": d.get("vigente"), "devengado": d.get("devengado"),
+                "pagado": d.get("pagado"), "porcentaje_devengado": d.get("porcentaje_devengado"),
+                "peso_en_presupuesto": d.get("peso_en_presupuesto"), "porcentaje_devengado_municipio": d.get("porcentaje_devengado_municipio")})
     juris_por_club = cat.get("clubes", {})
     clubes_por_juris = {}
     for club_slug, js in juris_por_club.items():
@@ -193,6 +207,7 @@ def construir(db=None, cat=None, marco=None) -> dict:
             "ultima_revision": max(revs)[:10] if revs else None,
             "checklist": checklist(slug, fs, encontrados, publicados, j.get("boletin_oficial")),
             "documentos": [documento_publico(d) for d in sorted(docs_j, key=lambda d: d.get("fecha_captura") or "", reverse=True)[:10]],
+            "presupuesto_deporte": sorted(deporte_por_juris.get(slug, []), key=lambda x: x.get("hasta") or "", reverse=True),
             "juegos_bonaerenses": {"publicados": jb_docs, "en_revision": jb_revision} if es_pba else None,
             "pedido": pedido(slug, juris_de_un_club, marco),
         })
