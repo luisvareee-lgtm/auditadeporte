@@ -120,6 +120,26 @@
       <h3>Reportes de ejecución presupuestaria leídos</h3>
       <p class="nota">Cuando subís un reporte del sistema RAFAM (ejecución de gastos o de recursos), el bot lo lee columna por columna, controla la aritmética y el crédito, y saca la línea de Deporte y recreación. Compará los números con el PDF y recién ahí publicá la línea de Deporte en la tarjeta del municipio.</p>
       <div id="t-ejecuciones"></div>
+      <h3>Colectas relevadas (rifas, ventas, pedidos de fondos)</h3>
+      <p class="nota">El bot las encuentra en el sitio de FABA y en las cuentas oficiales que puede leer. Entran sin revisar: aprobá las que son pedidos de fondos de un club, institución o selección, y descartá las de salud o de una persona en particular. Solo se guardan rasgos (para qué, cómo se pidió, torneo, monto declarado), nunca textos, nombres ni alias.</p>
+      <details class="carga-colecta"><summary>Cargar a mano una colecta vista en una cuenta oficial</summary>
+        <form id="f-colecta" class="form">
+          <label>Cuenta (usuario, sin @)<input id="co-cuenta" required maxlength="60"></label>
+          <label>Nombre visible<input id="co-nombre" required maxlength="100"></label>
+          <label>Tipo de cuenta<select id="co-tipo"><option value="club">Club</option><option value="institucion">Institución o federación</option><option value="seleccion">Selección</option></select></label>
+          <label>Fecha de la publicación<input id="co-fecha" type="date" required></label>
+          <label>Enlace a la publicación<input id="co-url" type="url" required placeholder="https://www.instagram.com/p/…"></label>
+          <fieldset><legend>Para qué</legend><div id="co-fin" class="checks"></div></fieldset>
+          <fieldset><legend>Cómo se pidió</legend><div id="co-tipos" class="checks"></div></fieldset>
+          <fieldset><legend>A quién se pidió</legend><div id="co-dest" class="checks"></div></fieldset>
+          <fieldset><legend>Torneo</legend><div id="co-tor" class="checks"></div></fieldset>
+          <label>Monto declarado (opcional)<input id="co-monto" type="number" min="0" step="1"></label>
+          <label>Moneda<select id="co-moneda"><option>ARS</option><option>USD</option></select></label>
+          <label>Fecha límite (opcional)<input id="co-limite" type="date"></label>
+          <div class="acciones"><button class="btn primario">Guardar colecta</button></div>
+        </form>
+      </details>
+      <div id="t-colectas"></div>
     </div>
 
     <div id="p-fuentes" class="pestana" role="tabpanel" hidden>

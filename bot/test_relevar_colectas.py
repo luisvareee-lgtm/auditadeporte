@@ -30,5 +30,28 @@ class Clasificar(unittest.TestCase):
         self.assertEqual(a["montos_declarados"]["ARS"], {"cantidad": 1, "mayor": 100000.0})
 
 
+class TiposYPatrones(unittest.TestCase):
+    def test_tipos_destinatario_y_limite(self):
+        c = r.clasificar("Rifa y venta de empanadas para viajar al Nacional. Buscamos sponsors. Necesitamos juntarlo antes del 5 de junio",
+                         "2026-05-20")
+        self.assertIn("rifa_sorteo", c["tipos_pedido"]); self.assertIn("venta_comida", c["tipos_pedido"])
+        self.assertIn("pedido_empresas", c["tipos_pedido"]); self.assertIn("empresas", c["destinatarios"])
+        self.assertEqual(c["fecha_limite"], "2026-06-05")
+
+    def test_patrones_agrupa_parecidas(self):
+        import patrones_colectas as pc
+        base = {"tipos_pedido": ["rifa_sorteo"], "torneos": ["liga_nacional"], "montos": [], "destinatarios": ["personas"]}
+        cs = [dict(base, cuenta="a", fecha="2026-04-10", finalidades=["viaje_torneo"]),
+              dict(base, cuenta="b", fecha="2026-04-20", finalidades=["viaje_torneo"]),
+              dict(base, cuenta="c", fecha="2026-04-25", finalidades=["viaje_torneo"], montos=[{"moneda": "ARS", "valor": 500000.0}]),
+              {"cuenta": "d", "fecha": "2025-09-01", "finalidades": ["silla_equipamiento"], "tipos_pedido": ["transferencia"],
+               "torneos": [], "montos": [], "destinatarios": ["personas"]}]
+        ps = pc.patrones(cs)
+        self.assertEqual(ps[0]["colectas"], 3); self.assertEqual(ps[0]["cuentas"], 3)
+        self.assertEqual(ps[0]["necesidad"], "viajes a torneos"); self.assertEqual(ps[0]["rse"], "alta")
+        self.assertEqual(ps[0]["montos"]["ARS"]["mayor"], 500000.0)
+        self.assertEqual(len(ps), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -304,6 +304,7 @@ async function cargarCargados() {
   try { l = await rpc('panel_documentos_cargados'); }
   catch (e) { $('#t-cargados').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/16 y db/17 en Supabase: ' + e.message)); return; }
   cargarEjecuciones();
+  cargarColectas();
   $('#t-cargados').replaceChildren(tabla([['Documento', x => el('span', {}, el('strong', {}, x.titulo), el('br'), enlace(x.url_original))],
     ['Lugar', x => x.juris_slug + (x.formato && x.formato !== 'pdf' ? ' · .' + x.formato : '')], ['Cargado', x => fecha(x.creado_en) + (x.cargado_por ? ' · ' + x.cargado_por : '')],
     ['Estado', x => el('span', { class: 'chip ' + ({ procesado: 'ok', error: 'mal' }[x.estado] || '') }, x.estado === 'pendiente' ? 'en espera (se analiza en menos de una hora)' : x.estado)],
@@ -346,6 +347,50 @@ async function cargarEjecuciones() {
       try { await rpc('panel_publicar_ejecucion', { p_id: x.id, p_publicar: !x.publicado }); aviso(x.publicado ? 'Retirado.' : 'Publicado. Aparece en el sitio con la próxima actualización del resumen.'); cargarEjecuciones(); }
       catch (e) { aviso(e.message, true); } } }, x.publicado ? 'Retirar del sitio' : 'Publicar línea de Deporte') : null]], l, 'Todavía no se leyó ningún reporte de ejecución.'));
 }
+
+const OPC_COLECTA = {
+  'co-fin': { viaje_torneo: 'Viaje a torneo', inscripcion: 'Inscripción', silla_equipamiento: 'Silla o equipamiento', indumentaria: 'Indumentaria', general: 'Gastos generales' },
+  'co-tipos': { rifa_sorteo: 'Rifa o sorteo', venta_comida: 'Venta de comida', evento: 'Evento (peña, bingo, partido)', transferencia: 'Transferencia o alias',
+    campana_online: 'Campaña online', venta_merch: 'Venta de remeras u otros', pedido_empresas: 'Pedido a empresas', pedido_estado: 'Pedido al Estado' },
+  'co-dest': { personas: 'Personas', empresas: 'Empresas', estado: 'Estado' },
+  'co-tor': { liga_nacional: 'Liga o torneo nacional', juegos_bonaerenses: 'Juegos Bonaerenses', sudamericano: 'Sudamericano', copa_america: 'Copa América',
+    parapanamericanos: 'Parapanamericanos', mundial: 'Mundial', repechaje: 'Repechaje', paralimpicos: 'Paralímpicos' } };
+const ETIQ_COLECTA = Object.assign({}, ...Object.values(OPC_COLECTA));
+for (const [id, opts] of Object.entries(OPC_COLECTA)) {
+  const caja = document.getElementById(id);
+  if (caja) caja.replaceChildren(...Object.entries(opts).map(([v, t]) => el('label', { class: 'check' }, el('input', { type: 'checkbox', value: v }), ' ' + t)));
+}
+const marcados = id => [...document.querySelectorAll('#' + id + ' input:checked')].map(i => i.value);
+const etiquetas = l => (l || []).map(x => ETIQ_COLECTA[x] || x.replace(/_/g, ' ')).join(', ') || '—';
+
+async function cargarColectas() {
+  let l;
+  try { l = await rpc('panel_colectas'); }
+  catch (e) { $('#t-colectas').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/21 y db/22 en Supabase: ' + e.message)); return; }
+  $('#t-colectas').replaceChildren(tabla([
+    ['Publicación', x => el('span', {}, el('strong', {}, x.nombre_cuenta), ` · ${x.fecha} · ${x.fuente}`, el('br'), enlace(x.permalink))],
+    ['Para qué / cómo', x => el('span', {}, etiquetas(x.finalidades), el('br'), el('span', { class: 'meta' }, etiquetas(x.tipos_pedido)))],
+    ['Torneo y monto', x => el('span', {}, etiquetas(x.torneos), el('br'), (x.montos || []).map(m => `${m.moneda} ${Number(m.valor).toLocaleString('es-AR')}`).join(' · ') || '—')],
+    ['', x => x.revisada ? el('span', { class: 'chip ok' }, 'Aprobada') : el('span', {},
+      el('button', { class: 'btn chico primario', onclick: () => revisarColecta(x, true) }, 'Aprobar'), ' ',
+      el('button', { class: 'btn chico', onclick: () => revisarColecta(x, false) }, 'Descartar'))]], l, 'Todavía no hay colectas relevadas.'));
+}
+async function revisarColecta(x, ok) {
+  if (!ok && !await confirmar('Descartar la colecta', 'Se borra del relevamiento (por ejemplo, si es de salud o de una persona). ¿Seguro?', 'Descartar')) return;
+  try { await rpc('panel_colecta_revisar', { p_id: x.id, p_ok: ok }); aviso(ok ? 'Aprobada: entra en el próximo resumen.' : 'Descartada.'); cargarColectas(); }
+  catch (e) { aviso(e.message, true); }
+}
+$('#f-colecta')?.addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const monto = $('#co-monto').value;
+  try {
+    await rpc('panel_cargar_colecta', { p_cuenta: $('#co-cuenta').value.replace(/^@/, ''), p_nombre: $('#co-nombre').value, p_tipo_cuenta: $('#co-tipo').value,
+      p_fecha: $('#co-fecha').value, p_permalink: $('#co-url').value, p_finalidades: marcados('co-fin'), p_tipos_pedido: marcados('co-tipos'),
+      p_destinatarios: marcados('co-dest'), p_torneos: marcados('co-tor'), p_monto: monto ? Number(monto) : null, p_moneda: $('#co-moneda').value,
+      p_fecha_limite: $('#co-limite').value || null });
+    aviso('Colecta guardada.'); ev.target.reset(); cargarColectas();
+  } catch (e) { aviso(e.message, true); }
+});
 
 async function subirPdf(ev) {
   ev.preventDefault();

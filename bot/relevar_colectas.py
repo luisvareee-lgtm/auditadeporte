@@ -28,8 +28,31 @@ SELECCIONES = {"laslobasbasquet": "Selección argentina femenina (Las Lobas)"}  
 PAGINAS_MAX = 12                      # 12 x 50 posteos por cuenta como máximo
 AQUI = os.path.dirname(os.path.abspath(__file__))
 
-RE_COLECTA = re.compile(r"\b(rifas?|bono contribucion|colectas?|alias|cbu|cvu|ayudanos|ayudenos|donacion(es)?|dona(r|nos)?|"
-                        r"aporte solidario|campana solidaria|vaquita|mercado pago|necesitamos (juntar|recaudar)|recaudar)\b")
+RE_COLECTA = re.compile(r"\b(rifas?|bonos? contribucion|colectas?|alias|cbu|cvu|ayudanos|ayudenos|donacion(es)?|dona(r|nos)?|"
+                        r"aporte solidario|campana solidaria|vaquita|mercado pago|necesitamos (juntar|recaudar)|recaudar|sorteos?|"
+                        r"a beneficio|beneficio para|pena solidaria|bingo|gofundme|cafecito|link de pago|buscamos (sponsors?|patrocin\w*)|"
+                        r"venta solidaria|se venden|vendemos)\b")
+# cómo se pide la plata
+TIPOS_PEDIDO = {
+    "rifa_sorteo": r"\b(rifas?|sorteos?|bonos? contribucion|numeros? a la venta)\b",
+    "venta_comida": r"\b(empanadas?|pizzas?|locro|pastelitos?|tortas?|choripan\w*|asado|pollos?|bonos? de comida)\b",
+    "evento": r"\b(pena|bingo|cena|show|torneo de truco|festival|kermes\w*|evento solidario|partido a beneficio)\b",
+    "transferencia": r"\b(alias|cbu|cvu|mercado pago|transferencia)\b",
+    "campana_online": r"\b(gofundme|cafecito|link de pago|vaki|campana online|https?://\S*(gofundme|cafecito|mpago|mercadopago)\S*)\b",
+    "venta_merch": r"\b(remeras?|buzos?|gorras?|merch\w*|camisetas? a la venta)\b",
+    "pedido_empresas": r"\b(sponsors?|patrocin\w*|empresas?|comercios?|pymes?)\b",
+    "pedido_estado": r"\b(municipio|municipalidad|intendente|secretaria de deportes|subsecretaria|gobierno|enard)\b",
+}
+# a quién se le pide
+DESTINATARIOS = {
+    "personas": r"\b(todos|cada uno|tu aporte|colabora(r|s)?|compart\w*|cualquier monto)\b",
+    "empresas": TIPOS_PEDIDO["pedido_empresas"],
+    "estado": TIPOS_PEDIDO["pedido_estado"],
+}
+MESES = {m: i for i, m in enumerate(["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+                                     "septiembre", "octubre", "noviembre", "diciembre"], 1)}
+RE_LIMITE = re.compile(r"\b(?:antes del?|hasta el|para el|el)\s+(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|"
+                       r"octubre|noviembre|diciembre)\b")
 RE_SALUD = re.compile(r"\b(operacion|cirugia|tratamiento|internad[oa]|medicamentos?|rehabilitacion|protesis|enfermedad)\b")
 FINALIDADES = {
     "viaje_torneo": r"\b(viajes?|viajar|pasajes?|traslados?|micros?|alojamiento|hotel|estadia|vuelos?)\b",
@@ -54,19 +77,31 @@ def _monto(m):
     return {"moneda": mon, "valor": v}
 
 
-def clasificar(caption: str):
-    """None si no es una colecta (o si habla de la salud de una persona). Si lo es: finalidades, torneos y montos."""
+def clasificar(caption: str, fecha: str = None):
+    """None si no es una colecta (o si habla de la salud de una persona). Si lo es: finalidades, cómo se pide,
+    a quién, torneos, montos y fecha límite (si la dice)."""
     t = o._norm(caption or "")
     if not RE_COLECTA.search(t) or RE_SALUD.search(t):
         return None
     fin = [k for k, rx in FINALIDADES.items() if re.search(rx, t)] or ["general"]
+    tipos = [k for k, rx in TIPOS_PEDIDO.items() if re.search(rx, t)] or ["otro"]
+    dest = [k for k, rx in DESTINATARIOS.items() if re.search(rx, t)] or ["personas"]
     tor = [k for k, rx in TORNEOS.items() if re.search(rx, t)]
+    limite = None
+    ml = RE_LIMITE.search(t)
+    if ml and fecha:
+        try:
+            anio = int(fecha[:4]); d = date(anio, MESES[ml.group(2)], int(ml.group(1)))
+            limite = (d if d >= date.fromisoformat(fecha[:10]) else date(anio + 1, d.month, d.day)).isoformat()
+        except ValueError:
+            limite = None
     montos = []
     for m in RE_MONTO.finditer(caption or ""):
         x = _monto(m)
         if x["valor"] >= 1000 and x not in montos:
             montos.append(x)
-    return {"finalidades": fin, "torneos": tor, "montos": montos[:4]}
+    return {"finalidades": fin, "tipos_pedido": tipos, "destinatarios": dest, "torneos": tor, "montos": montos[:4],
+            "fecha_limite": limite}
 
 
 def leer_historial(usuario: str, propia: str, desde: date):
@@ -90,19 +125,48 @@ def leer_historial(usuario: str, propia: str, desde: date):
     return [p for p in out if p.get("timestamp") and ar._fecha(p["timestamp"]) >= desde]
 
 
+FABA_WP = "https://basquetadaptado.com.ar/wp-json/wp/v2/posts"
+PALABRAS_WEB = ["rifa", "colecta", "ayuda", "donacion", "alias", "sorteo", "beneficio", "solidari", "sponsor"]
+
+
+def leer_faba_web(desde: date):
+    """Noticias del sitio oficial de FABA que mencionan pedidos de fondos (API pública de WordPress, sin clave)."""
+    import html, urllib.parse
+    vistos, out = set(), []
+    for kw in PALABRAS_WEB:
+        url = FABA_WP + "?" + urllib.parse.urlencode({"search": kw, "per_page": 50, "after": f"{desde.isoformat()}T00:00:00",
+                                                       "_fields": "date,link,title,content"})
+        c = o.capturar(url)
+        if c.estado != 200 or not c.contenido:
+            print(f"  faba web '{kw}': {c.estado}"); continue
+        try:
+            items = json.loads(c.contenido.decode("utf-8", "ignore"))
+        except ValueError:
+            continue
+        for it in items if isinstance(items, list) else []:
+            if it.get("link") in vistos:
+                continue
+            vistos.add(it.get("link"))
+            texto = html.unescape(re.sub(r"<[^>]+>", " ", (it.get("title") or {}).get("rendered", "") + " " +
+                                         (it.get("content") or {}).get("rendered", "")))
+            out.append({"timestamp": it.get("date", "")[:10], "permalink": it.get("link"), "caption": texto, "fuente": "faba_web"})
+        time.sleep(1)
+    return out
+
+
 def relevar_cuenta(usuario, nombre, tipo, posts):
     filas = []
     for p in posts:
-        c = clasificar(p.get("caption"))
+        c = clasificar(p.get("caption"), p.get("timestamp"))
         if not c or not p.get("permalink"):
             continue
         filas.append({"cuenta": usuario.lower(), "nombre_cuenta": nombre, "tipo_cuenta": tipo, "fecha": p["timestamp"][:10],
-                      "permalink": p["permalink"], **c})
+                      "permalink": p["permalink"], "fuente": p.get("fuente", "instagram"), **c})
     return filas
 
 
 def agregar(filas: list) -> dict:
-    por_anio, por_fin, por_torneo, por_cuenta, montos = {}, {}, {}, {}, {}
+    por_anio, por_fin, por_torneo, por_cuenta, montos, por_tipo, por_dest = {}, {}, {}, {}, {}, {}, {}
     for f in filas:
         a = f["fecha"][:4]
         por_anio[a] = por_anio.get(a, 0) + 1
@@ -110,6 +174,10 @@ def agregar(filas: list) -> dict:
             por_fin[x] = por_fin.get(x, 0) + 1
         for x in f["torneos"]:
             por_torneo[x] = por_torneo.get(x, 0) + 1
+        for x in f.get("tipos_pedido") or []:
+            por_tipo[x] = por_tipo.get(x, 0) + 1
+        for x in f.get("destinatarios") or []:
+            por_dest[x] = por_dest.get(x, 0) + 1
         k = f["nombre_cuenta"]
         c = por_cuenta.setdefault(k, {"cuenta": f["cuenta"], "tipo": f["tipo_cuenta"], "colectas": 0, "ultima": None, "finalidades": {}})
         c["colectas"] += 1
@@ -119,6 +187,7 @@ def agregar(filas: list) -> dict:
         for m in f["montos"]:
             montos.setdefault(m["moneda"], []).append(m["valor"])
     return {"total": len(filas), "por_anio": dict(sorted(por_anio.items())), "por_finalidad": por_fin, "por_torneo": por_torneo,
+            "por_tipo_pedido": por_tipo, "por_destinatario": por_dest,
             "por_cuenta": dict(sorted(por_cuenta.items(), key=lambda kv: -kv[1]["colectas"])),
             "montos_declarados": {k: {"cantidad": len(v), "mayor": max(v)} for k, v in montos.items()}}
 
@@ -137,9 +206,14 @@ def cuentas():
 def publicar(cli=None):
     """datos/colectas.json: solo agregados y enlaces a posteos de cuentas oficiales."""
     cli = cli or o.db()
-    filas = cli.table("colectas_relevadas").select("cuenta,nombre_cuenta,tipo_cuenta,fecha,permalink,finalidades,torneos,montos") \
-        .execute().data or []
-    datos = {"actualizado": datetime.now(timezone.utc).strftime("%Y-%m-%d"), **agregar(filas),
+    try:
+        filas = cli.table("colectas_relevadas").select("cuenta,nombre_cuenta,tipo_cuenta,fecha,permalink,finalidades,torneos,montos,"
+                                                       "tipos_pedido,destinatarios,fecha_limite,fuente").eq("revisada", True).execute().data or []
+    except Exception:                         # antes de db/22
+        filas = cli.table("colectas_relevadas").select("cuenta,nombre_cuenta,tipo_cuenta,fecha,permalink,finalidades,torneos,montos") \
+            .execute().data or []
+    import patrones_colectas as pc
+    datos = {"actualizado": datetime.now(timezone.utc).strftime("%Y-%m-%d"), **agregar(filas), "patrones": pc.patrones(filas),
              "recientes": [{k: f[k] for k in ("nombre_cuenta", "tipo_cuenta", "fecha", "permalink", "finalidades", "torneos")}
                            for f in sorted(filas, key=lambda x: x["fecha"], reverse=True)[:30]]}
     ruta = os.path.join(AQUI, "..", "datos", "colectas.json")
@@ -162,6 +236,14 @@ def main():
     prueba = "--prueba" in sys.argv
     propia = ar.graph(os.environ["IG_USER_ID"], "username").get("username")
     todas, estados = [], {}
+    try:                                     # el sitio de FABA no depende del permiso de Meta
+        web = leer_faba_web(desde)
+        fw = relevar_cuenta("faba_web", "FABA (sitio oficial)", "institucion", web)
+        del web
+        todas += fw
+        estados["faba_web"] = f"ok ({len(fw)} colectas)"
+    except Exception as e:
+        estados["faba_web"] = f"error: {str(e)[:80]}"
     for usuario, nombre, tipo in cuentas():
         try:
             posts = leer_historial(usuario, propia, desde)
@@ -174,13 +256,22 @@ def main():
         time.sleep(ar.PAUSA)
     print("CUENTAS:", json.dumps(estados, ensure_ascii=False))
     print("AGREGADO:", json.dumps(agregar(todas), ensure_ascii=False))
+    import patrones_colectas as pc
+    print("PATRONES:\n" + pc.resumen_texto(pc.patrones(todas)))
     if prueba or not todas:
         return
-    try:
+    try:                                     # entran sin revisar (db/22): una persona las aprueba en el panel
         o.db().table("colectas_relevadas").upsert(todas, on_conflict="permalink").execute()
         print("guardadas:", len(todas))
     except Exception as e:
-        print("no se pudo guardar (¿falta db/21?):", str(e)[:150])
+        print("sin db/22, se guardan solo las columnas de db/21:", str(e)[:120])
+        viejas = [{k: f[k] for k in ("cuenta", "nombre_cuenta", "tipo_cuenta", "fecha", "permalink", "finalidades", "torneos", "montos")}
+                  for f in todas if "instagram.com" in f["permalink"]]
+        try:
+            if viejas:
+                o.db().table("colectas_relevadas").upsert(viejas, on_conflict="permalink").execute()
+        except Exception as e2:
+            print("no se pudo guardar (¿falta db/21?):", str(e2)[:150])
 
 
 if __name__ == "__main__":
