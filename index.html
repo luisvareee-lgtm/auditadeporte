@@ -315,6 +315,7 @@
       <nav aria-label="En esta página" class="flex flex-wrap gap-2 pt-1 text-sm">
         <a href="#dep-casos" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3 py-2 rounded-xl">¿Cuál es tu situación?</a>
         <a href="#dep-convenio" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Pedir un convenio</a>
+        <a href="#dep-camino" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">¿Convenio o patrocinio?</a>
         <a href="#dep-costo" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">¿Cuánto te cuesta jugar?</a>
         <a href="#dep-corresponde" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Qué me corresponde</a>
         <a href="#dep-otros" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Beneficios que no dependen del municipio</a>
@@ -436,6 +437,7 @@
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" value="el pago de las inscripciones y fichajes ante la federación">Inscripciones y fichajes</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" value="una ayuda de traslado para quienes viajan a entrenar desde lejos">Ayuda de traslado a los entrenamientos</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" checked value="un lugar y horarios de entrenamiento accesibles y estables">Lugar y horario accesibles</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-pide" checked value="que el equipo pueda sumar patrocinadores privados en espacios acordados de la indumentaria y del material, sin exclusividad para el municipio">Permitir patrocinadores privados</label>
           </div>
         </fieldset>
         <fieldset>
@@ -443,7 +445,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1">
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-da" checked value="representar al municipio con su nombre y escudo en las competencias oficiales">Representar al municipio con su nombre</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-da" checked value="participar en actividades de difusión del deporte adaptado (clínicas, exhibiciones, escuelas)">Clínicas y exhibiciones</label>
-            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-da" checked value="autorizar el uso institucional de su imagen como equipo, en las condiciones que fije el convenio y con consentimiento de cada integrante">Uso de imagen, con reglas y consentimiento</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-da" checked value="autorizar el uso de su imagen como equipo solo con fines institucionales y nunca partidarios, en las condiciones que fije el convenio y con consentimiento de cada integrante">Uso de imagen, con reglas y consentimiento</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 cv-da" checked value="rendir cuentas por escrito de lo que reciba">Rendir cuentas de lo recibido</label>
           </div>
         </fieldset>
@@ -465,6 +467,41 @@
         <li>Mientras tanto, pedí por acceso a la información <strong>los convenios que ya tiene el municipio</strong> con otros equipos o clubes, y los de otros municipios que sí dan indumentaria: son el mejor argumento.</li>
       </ol>
       <p class="text-xs text-slate-500">Orientación general, no asesoramiento legal. Los plazos de la Ordenanza General 267/80 se cuentan en días hábiles; revisá si tu municipio tiene una ordenanza de procedimiento propia.</p>
+    </div>
+
+    <div id="dep-camino" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 scroll-mt-24">
+      <h3 class="text-xl font-black">¿Convenio con el municipio o patrocinio? Se pueden combinar</h3>
+      <div class="overflow-x-auto rounded-xl border border-slate-200 hidden md:block">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-100 text-left"><tr><th scope="col" class="p-3"></th><th scope="col" class="p-3">Convenio con el municipio</th><th scope="col" class="p-3">Patrocinio de una empresa</th></tr></thead>
+          <tbody class="divide-y divide-slate-200 align-top">
+            <tr><th scope="row" class="p-3">Rapidez</th><td class="p-3">Lento: expediente, firma del intendente y, en general, aprobación del Concejo.</td><td class="p-3">Rápido: depende de que una empresa diga que sí.</td></tr>
+            <tr><th scope="row" class="p-3">Libertad</th><td class="p-3">Hay reglas del municipio (camiseta, imagen, actividades).</td><td class="p-3">Elegís con quién y qué das a cambio.</td></tr>
+            <tr><th scope="row" class="p-3">Continuidad</th><td class="p-3">Tiene plazo y presupuesto: no depende de una persona.</td><td class="p-3">Por temporada: si la empresa se va, se corta.</td></tr>
+            <tr><th scope="row" class="p-3">Qué das a cambio</th><td class="p-3">Representación y uso institucional de la imagen.</td><td class="p-3">Marca en la indumentaria o el material, menciones en redes.</td></tr>
+            <tr><th scope="row" class="p-3">Papeles</th><td class="p-3">Norma pública y rendición de cuentas de lo recibido.</td><td class="p-3">Contrato privado; la plata a tu nombre puede requerir facturar.</td></tr>
+            <tr><th scope="row" class="p-3">Sirve para</th><td class="p-3">Lo básico que corresponde a quien representa a la ciudad: seguro, transporte a torneos oficiales, indumentaria oficial.</td><td class="p-3">Lo que el municipio no cubre: arreglos de la silla propia, preparación física, viajes extra.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="md:hidden space-y-2 text-sm">
+        <li class="rounded-xl border border-slate-200 p-3"><p class="font-black">Convenio con el municipio</p><p>Más lento (expediente, firma del intendente y en general el Concejo), con reglas del municipio, pero <strong>con plazo y presupuesto</strong>: no depende de una persona. Sirve para lo básico: seguro, transporte a torneos oficiales, indumentaria oficial.</p></li>
+        <li class="rounded-xl border border-slate-200 p-3"><p class="font-black">Patrocinio de una empresa</p><p><strong>Más rápido y con más libertad</strong>, pero por temporada: si la empresa se va, se corta. Sirve para lo que el municipio no cubre: arreglos de la silla propia, preparación física, viajes extra. La plata a tu nombre puede requerir facturar.</p></li>
+      </ul>
+      <div class="rounded-xl bg-emerald-50 border border-emerald-300 p-4 text-sm text-emerald-950 space-y-1">
+        <p class="font-bold">Lo que conviene: las dos cosas a la vez</p>
+        <p>Pedí el convenio para lo básico, con una cláusula que <strong>permita patrocinadores privados</strong> (ya está marcada en la plantilla). Y mientras el expediente avanza, publicá el pedido de patrocinio para lo urgente. Una cosa no impide la otra, salvo que firmes algo que diga lo contrario: leé siempre la letra chica de cualquier convenio antes de firmar.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <div class="rounded-xl border border-slate-200 p-4 space-y-1">
+          <p class="font-bold">¿Quién firma el convenio?</p>
+          <p>Un convenio lo firma una entidad con personería, en general el <strong>club o una asociación civil</strong>. Si el equipo es municipal y no tiene entidad propia, se puede pedir que el municipio lo resuelva con una ordenanza o un decreto del programa, o con acuerdos individuales con cada deportista. Consultá cuál conviene antes de firmar.</p>
+        </div>
+        <div class="rounded-xl border border-slate-200 p-4 space-y-1">
+          <p class="font-bold">¿Por qué pasa por el Concejo?</p>
+          <p>En los municipios bonaerenses, los convenios que firma el intendente se convalidan por ordenanza del Concejo Deliberante (art. 41 de la Ley Orgánica de las Municipalidades). Por ejemplo, Berazategui convalidó así un convenio con un club en 2023 (Ordenanza 6486). Por eso conviene mandar copia al Concejo desde el principio.</p>
+        </div>
+      </div>
     </div>
 
     <div id="dep-costo" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 scroll-mt-24">
