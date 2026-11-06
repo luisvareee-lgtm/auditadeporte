@@ -305,6 +305,7 @@ async function cargarCargados() {
   catch (e) { $('#t-cargados').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/16 y db/17 en Supabase: ' + e.message)); return; }
   cargarEjecuciones();
   cargarColectas();
+  cargarConvocatoriasPanel();
   $('#t-cargados').replaceChildren(tabla([['Documento', x => el('span', {}, el('strong', {}, x.titulo), el('br'), enlace(x.url_original))],
     ['Lugar', x => x.juris_slug + (x.formato && x.formato !== 'pdf' ? ' · .' + x.formato : '')], ['Cargado', x => fecha(x.creado_en) + (x.cargado_por ? ' · ' + x.cargado_por : '')],
     ['Estado', x => el('span', { class: 'chip ' + ({ procesado: 'ok', error: 'mal' }[x.estado] || '') }, x.estado === 'pendiente' ? 'en espera (se analiza en menos de una hora)' : x.estado)],
@@ -374,6 +375,19 @@ async function cargarColectas() {
     ['', x => x.revisada ? el('span', { class: 'chip ok' }, 'Aprobada') : el('span', {},
       el('button', { class: 'btn chico primario', onclick: () => revisarColecta(x, true) }, 'Aprobar'), ' ',
       el('button', { class: 'btn chico', onclick: () => revisarColecta(x, false) }, 'Descartar'))]], l, 'Todavía no hay colectas relevadas.'));
+}
+async function cargarConvocatoriasPanel() {
+  let l;
+  try { l = await rpc('panel_convocatorias'); }
+  catch (e) { $('#t-convocatorias').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/23 en Supabase: ' + e.message)); return; }
+  const dias = x => Math.round((new Date(x.fecha_torneo) - new Date(x.fecha_aviso)) / 864e5);
+  $('#t-convocatorias').replaceChildren(tabla([
+    ['Club', x => x.club_id], ['Aviso → torneo', x => `${x.fecha_aviso} → ${x.fecha_torneo} (${dias(x)} días)${x.cambio_fecha ? ' · cambió' : ''}`],
+    ['Canal', x => x.canal], ['Municipio / viajaron', x => `${x.cobertura} · ${x.viajaron}`], ['Cargado', x => fecha(x.creado_en)],
+    ['', x => el('button', { class: 'btn chico', onclick: async () => {
+      if (!await confirmar('Borrar el aviso', 'Se quita del promedio público. ¿Seguro?', 'Borrar')) return;
+      try { await rpc('panel_borrar_convocatoria', { p_id: x.id }); aviso('Borrado.'); cargarConvocatoriasPanel(); } catch (e) { aviso(e.message, true); } } }, 'Borrar')]],
+    l, 'Todavía no hay convocatorias cargadas.'));
 }
 async function revisarColecta(x, ok) {
   if (!ok && !await confirmar('Descartar la colecta', 'Se borra del relevamiento (por ejemplo, si es de salud o de una persona). ¿Seguro?', 'Descartar')) return;

@@ -318,6 +318,7 @@
         <a href="#dep-camino" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">¿Convenio o patrocinio?</a>
         <a href="#dep-costo" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">¿Cuánto te cuesta jugar?</a>
         <a href="#dep-colectas" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Colectas</a>
+        <a href="#dep-convocatorias" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Convocatorias</a>
         <a href="#dep-simulador" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Simulador: ¿quién paga?</a>
         <a href="#dep-trabas" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Trabas y propuestas</a>
         <a href="#dep-corresponde" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Qué me corresponde</a>
@@ -571,6 +572,25 @@
         <p class="text-slate-600"><strong>Primer resultado (noviembre de 2026):</strong> en el sitio de FABA no hay ninguna convocatoria a colecta desde 2018: las 3 noticias que coincidían con las palabras clave eran un sorteo de grupos, un concurso y un curso. Los pedidos de fondos se hacen en Instagram, que hoy Meta solo nos deja leer en la cuenta de Almirante Brown (una colecta de julio de 2026 para sillas y equipamiento). Para las demás cuentas falta que Meta apruebe el acceso avanzado; mientras tanto se pueden cargar a mano desde el panel.</p>
         <div id="colectas-patrones" class="space-y-2" aria-live="polite"></div>
       </div>
+    </div>
+
+    <div id="dep-convocatorias" class="bg-white rounded-2xl border-2 border-amber-300 p-6 space-y-4 scroll-mt-24">
+      <div>
+        <h3 class="text-xl font-black">¿Con cuánta anticipación te avisaron el torneo?</h3>
+        <p class="text-sm text-slate-700">FABA comunica fechas, formato y jueces por grupos de WhatsApp y por correo a cada club, y las fechas cambian durante el año. Cuando un torneo afuera se confirma con un mes o menos, no hay tiempo de pedir pasajes ni de juntar plata, y viaja solo una parte del plantel. Contanos cada convocatoria de tu club: con varios clubes cargando, queda medido el problema para llevarlo a la asamblea de FABA y pedir un calendario público con plazo mínimo.</p>
+        <p class="text-xs text-slate-500 mt-1">Es anónimo: no guardamos tu nombre, correo ni ningún texto. Solo el club y las fechas. Se muestran únicamente totales y promedios.</p>
+      </div>
+      <form id="form-convocatoria" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+        <label class="font-bold">Club<select id="cv-club" required class="mt-1 w-full border-2 border-slate-300 rounded-lg p-2 font-normal"><option value="">Elegí el club</option></select></label>
+        <label class="font-bold">¿Cómo les avisaron?<select id="cv-canal" class="mt-1 w-full border-2 border-slate-300 rounded-lg p-2 font-normal"><option value="whatsapp">Grupo de WhatsApp</option><option value="mail">Correo al club</option><option value="ambos">Las dos cosas</option><option value="otro">Otro</option></select></label>
+        <label class="font-bold">Día en que confirmaron la fecha<input id="cv-aviso" type="date" required class="mt-1 w-full border-2 border-slate-300 rounded-lg p-2 font-normal"></label>
+        <label class="font-bold">Día en que empezaba el torneo<input id="cv-torneo" type="date" required class="mt-1 w-full border-2 border-slate-300 rounded-lg p-2 font-normal"></label>
+        <label class="font-bold">¿Cuánto cubrió el municipio del viaje?<select id="cv-cobertura" class="mt-1 w-full border-2 border-slate-300 rounded-lg p-2 font-normal"><option value="total">Todo</option><option value="parcial">Una parte</option><option value="ninguna">Nada</option><option value="no_aplica">No hacía falta viajar</option></select></label>
+        <label class="font-bold">¿Viajó todo el plantel?<select id="cv-viajaron" class="mt-1 w-full border-2 border-slate-300 rounded-lg p-2 font-normal"><option value="todos">Sí, todos</option><option value="parte">Solo una parte</option><option value="nadie">No pudimos ir</option></select></label>
+        <label class="flex items-center gap-2 font-bold sm:col-span-2"><input id="cv-cambio" type="checkbox" class="w-5 h-5"> La fecha cambió después de anunciada</label>
+        <div class="sm:col-span-2"><button class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-black px-4 py-2 rounded-xl">Sumar esta convocatoria</button></div>
+      </form>
+      <div id="cv-resumen" class="space-y-2 text-sm" aria-live="polite"></div>
     </div>
 
     <div id="dep-simulador" class="bg-white rounded-2xl border-2 border-blue-300 p-6 space-y-4 scroll-mt-24">
@@ -1182,6 +1202,36 @@ const ESTADO_ITEM = {
 };
 const yaPresente = slug => { try { return localStorage.getItem('ad_presente_' + slug) === '1'; } catch (e) { return false; } };
 
+// Registro anónimo de convocatorias a torneos (db/23)
+function llenarClubesConvocatoria() {
+  const sel = $('#cv-club'); if (!sel || sel.options.length > 1) return;
+  [...CLUBES].sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(c => sel.add(new Option(c.nombre, c.id)));
+}
+async function cargarConvocatorias() {
+  const caja = $('#cv-resumen'); if (!caja || !sb) return;
+  let d;
+  try { const r = await sb.rpc('resumen_convocatorias'); if (r.error) return; d = r.data; } catch (e) { return; }
+  if (!d || !d.total) { caja.innerHTML = '<p class="text-slate-600">Todavía no hay convocatorias cargadas. Sumá la primera de tu club.</p>'; return; }
+  const pct = n => Math.round(100 * n / d.total) + ' %';
+  const nombre = id => (CLUBES.find(c => c.id === id) || {}).nombre || id;
+  const dato = (v, t) => `<div class="rounded-xl bg-amber-50 p-3"><p class="text-2xl font-black">${esc(v)}</p><p class="text-xs font-semibold">${t}</p></div>`;
+  caja.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-4 gap-2">${dato(d.promedio_dias + ' días', 'de anticipación promedio')}${dato(pct(d.menos_30), 'avisadas con menos de 30 días')}${dato(pct(d.cambios), 'cambiaron de fecha')}${dato(pct(d.no_viajaron_todos), 'no viajó todo el plantel')}</div>
+    <p class="text-slate-600">${esc(d.total)} convocatoria(s) cargadas. En ${esc(pct(d.sin_cobertura_total))} el municipio cubrió solo una parte del viaje o nada.</p>
+    <details><summary class="cursor-pointer font-bold">Por club</summary><ul class="mt-2 space-y-1">${(d.por_club || []).map(g => `<li>${esc(nombre(g.club_id))}: ${esc(g.n)} convocatoria(s), ${esc(g.prom)} días promedio (la más corta: ${esc(g.minimo)})</li>`).join('')}</ul></details>`;
+}
+$('#cv-club')?.addEventListener('focus', llenarClubesConvocatoria);
+$('#form-convocatoria')?.addEventListener('submit', async ev => {
+  ev.preventDefault();
+  if (!sb) { toast('No hay conexión con la base ahora.'); return; }
+  const fila = { club_id: $('#cv-club').value, fecha_aviso: $('#cv-aviso').value, fecha_torneo: $('#cv-torneo').value, cambio_fecha: $('#cv-cambio').checked,
+    canal: $('#cv-canal').value, cobertura: $('#cv-cobertura').value, viajaron: $('#cv-viajaron').value };
+  if (!fila.club_id) { toast('Elegí el club.'); return; }
+  if (fila.fecha_torneo < fila.fecha_aviso) { toast('El torneo no puede empezar antes del aviso.'); return; }
+  const { error } = await sb.from('convocatorias').insert(fila, { returning: 'minimal' });
+  if (error) { toast(/Demasiados|futura/.test(error.message) ? error.message : 'No pudimos sumarla ahora. Probá más tarde.'); return; }
+  toast('¡Gracias! Sumamos la convocatoria.'); ev.target.reset(); cargarConvocatorias();
+});
+
 async function cargarPresentados() {
   if (!sb) return;
   try {
@@ -1271,7 +1321,7 @@ async function cargarSimple() {
         : `<p><strong>Hasta hoy no apareció ningún documento que hable de deporte adaptado.</strong> Eso no prueba que no haya plata: quiere decir que en lo que estos lugares publican, y se puede leer, no está escrito. Por eso es importante pedir la información.</p>`}
       <p><strong>${esc(t.no_publica)} lugares no publican datos abiertos:</strong> no podemos ver sus papeles. Abajo te mostramos cuáles son y cómo pedírselos.</p>`;
     pintarJuris();
-    cargarPresentados();
+    cargarPresentados(); cargarConvocatorias();
   } catch (e) {
     $('#simple-lectura').innerHTML = '<p>No pudimos cargar el resumen en este momento. Probá de nuevo en un rato.</p>';
   }
