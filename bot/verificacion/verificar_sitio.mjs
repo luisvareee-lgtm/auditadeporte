@@ -49,7 +49,18 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
       for (let i = 0; i < foto2.length; i += 8000) console.log(foto2.slice(i, i + 8000));
       console.log('FOTO_DEPORTISTA_FIN');
     }
-    await p.locator('#simple-deportista [data-action="pedir-rse"]').click(); await p.waitForTimeout(500);
+    await p.click('#t-deportistas'); await p.waitForTimeout(500);
+    await p.locator('#dep-corresponde [data-action="pedir-deportista"]').click(); await p.waitForTimeout(500);
+    console.log(`[${nombre}] pedido deportista`, JSON.stringify(await p.evaluate(() => ({ pestana: document.querySelector('[role=tab][aria-selected=true]')?.textContent.trim(),
+      items: [...document.querySelectorAll('.p-item:checked')].map(i => i.value.slice(0, 30)) }))));
+    await p.fill('#p-entidad', 'Municipalidad de Prueba'); await p.fill('#r-fecha', '2026-10-01'); await p.fill('#r-exp', '4012-1/2026');
+    await p.locator('details:has(#r-armar) summary').click(); await p.click('#r-armar'); await p.waitForTimeout(300);
+    console.log(`[${nombre}] reclamo`, JSON.stringify((await p.inputValue('#p-texto')).slice(0, 160)));
+    await p.click('#t-transp'); await p.waitForTimeout(400);
+    console.log(`[${nombre}] documentos`, JSON.stringify(await p.evaluate(() => ({ tarjetas: document.querySelectorAll('#cards-transp > li').length,
+      ancho: document.documentElement.scrollWidth }))));
+    await p.click('#t-deportistas'); await p.waitForTimeout(300);
+    await p.locator('#s-deportistas #simple-deportista [data-action="pedir-rse"]').click(); await p.waitForTimeout(500);
     console.log(`[${nombre}] pedido rse`, JSON.stringify(await p.evaluate(() => ({
       pestana: document.querySelector('[role=tab][aria-selected=true]')?.textContent.trim(), tipo: document.querySelector('#d-tipo').value,
       rseVisible: !document.querySelector('#d-rse-wrap').classList.contains('hidden'),

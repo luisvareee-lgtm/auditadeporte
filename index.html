@@ -75,6 +75,7 @@
     <div role="tablist" class="max-w-7xl mx-auto px-2 flex overflow-x-auto text-sm">
       <button role="tab" id="t-mapa" data-tab="mapa" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="map" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Mapa y clubes</button>
       <button role="tab" id="t-simple" data-tab="simple" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="lightbulb" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Explicado fácil</button>
+      <button role="tab" id="t-deportistas" data-tab="deportistas" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="accessibility" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Deportistas</button>
       <button role="tab" id="t-transp" data-tab="transp" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="file-search" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Documentos públicos</button>
       <button role="tab" id="t-inst" data-tab="inst" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="landmark" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Instituciones</button>
       <button role="tab" id="t-pedir" data-tab="pedir" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="mail-open" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Pedir información</button>
@@ -96,6 +97,7 @@
           <p class="text-slate-300 text-sm md:text-base max-w-2xl">Ubicá a los equipos en el mapa, mirá qué información pública existe, pedí la que falta y ayudá a que las sillas, los viajes y las becas sean más claros para todos.</p>
           <div class="flex flex-wrap gap-2 pt-1">
             <button data-tab="pedir" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-sm">Pedir información</button>
+            <button data-tab="deportistas" class="bg-blue-500 hover:bg-blue-400 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Soy deportista: mis derechos</button>
             <button data-tab="dato" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-4 py-2.5 rounded-xl text-sm">Enviar un dato</button>
             <button data-tab="rse" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-4 py-2.5 rounded-xl text-sm">Patrocinar a un equipo</button>
           </div>
@@ -285,11 +287,82 @@
       </div>
     </div>
 
-    <!-- 6. Deportistas -->
-    <div id="simple-deportista" class="bg-white rounded-2xl border-2 border-blue-300 p-6 space-y-5">
+    <!-- 6. Deportistas: ahora tiene su pestaña -->
+    <div class="rounded-2xl border-2 border-blue-300 bg-blue-50 p-6 flex flex-col md:flex-row md:items-center gap-3 justify-between">
+      <div><h3 class="text-xl font-black text-blue-950">6. ¿Jugás representando a un municipio?</h3>
+        <p class="text-slate-700">Qué te corresponde, quién paga el arreglo de la silla y cómo buscar patrocinio: está todo en la pestaña Deportistas.</p></div>
+      <button data-tab="deportistas" class="shrink-0 bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Ir a Deportistas</button>
+    </div>
+  </section>
+
+  <!-- ===== DEPORTISTAS ===== -->
+  <section id="s-deportistas" role="tabpanel" aria-labelledby="t-deportistas" class="hidden space-y-6">
+    <div class="rounded-2xl bg-gradient-to-br from-blue-900 via-slate-900 to-slate-900 text-white p-6 md:p-8 shadow-lg space-y-3">
+      <p class="inline-block bg-blue-300 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wide">Para jugadoras y jugadores</p>
+      <h2 class="text-2xl md:text-3xl font-black leading-tight">Si jugás representando a tu ciudad</h2>
+      <p class="text-slate-200 max-w-3xl">Lo que te corresponde, de dónde sale, qué papeles pedir, quién paga el arreglo de la silla y cómo buscar una empresa que te apoye.</p>
+      <nav aria-label="En esta página" class="flex flex-wrap gap-2 pt-1 text-sm">
+        <a href="#dep-corresponde" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Qué me corresponde</a>
+        <a href="#dep-otros" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Beneficios que no dependen del municipio</a>
+        <a href="#simple-deportista" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Silla y patrocinio</a>
+      </nav>
+    </div>
+
+    <div id="dep-corresponde" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 scroll-mt-24">
+      <h3 class="text-xl font-black">¿Qué me corresponde por representar al municipio?</h3>
+      <div class="rounded-xl bg-amber-50 border border-amber-300 p-4 text-amber-950">
+        <p class="font-bold">Lo primero que tenés que saber</p>
+        <p class="text-sm mt-1">No hay una ley general que obligue a un municipio a darte cosas concretas por jugar en su equipo. <strong>Lo que te corresponde sale de los papeles que creó el propio municipio.</strong> Por eso, si no los tenés, el primer paso es pedirlos.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <article class="rounded-2xl border-2 border-blue-200 bg-blue-50/50 p-4 space-y-2">
+          <h4 class="font-black text-blue-900">De dónde salen tus derechos</h4>
+          <ul class="list-disc pl-5 space-y-1.5 text-sm text-slate-800">
+            <li><strong>La ordenanza o el decreto que crea el equipo</strong> o el programa municipal de deporte adaptado.</li>
+            <li><strong>El convenio</strong> entre el municipio y tu club, si el equipo es de un club.</li>
+            <li><strong>El acta de entrega o de préstamo (comodato)</strong> de tu silla.</li>
+            <li><strong>La resolución de una beca o ayuda</strong>, si te dieron alguna.</li>
+            <li><strong>El presupuesto municipal:</strong> si hay una partida para el equipo, ahí dice cuánto.</li>
+          </ul>
+        </article>
+        <article class="rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 p-4 space-y-2">
+          <h4 class="font-black text-emerald-900">Qué buscar en esos papeles</h4>
+          <ul class="list-disc pl-5 space-y-1.5 text-sm text-slate-800">
+            <li><strong>Seguro</strong> en entrenamientos, partidos y viajes: quién lo paga y qué cubre.</li>
+            <li><strong>Traslados, alojamiento y viáticos</strong> para torneos y para los Juegos Bonaerenses.</li>
+            <li><strong>Inscripciones</strong> a la liga y a los torneos.</li>
+            <li><strong>Indumentaria</strong> y equipamiento.</li>
+            <li><strong>Mantenimiento de la silla:</strong> quién paga cubiertas, rayos, ejes y roturas.</li>
+            <li><strong>Lugar de entrenamiento accesible</strong>, horarios y cuerpo técnico.</li>
+          </ul>
+        </article>
+      </div>
+      <p class="text-sm text-slate-700">Si el papel dice que el municipio se hace cargo de algo y no lo cumple, podés reclamarlo por escrito citando ese papel. Si el papel no existe, eso también es información: quiere decir que nada está garantizado y conviene pedir que se formalice.</p>
+      <button data-action="pedir-deportista" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Pedir los papeles de mi equipo</button>
+    </div>
+
+    <div id="dep-otros" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 scroll-mt-24">
+      <h3 class="text-xl font-black">Beneficios que no dependen del municipio</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <article class="rounded-2xl border border-slate-200 p-4 space-y-2">
+          <h4 class="font-black">Viajar gratis con el CUD</h4>
+          <p class="text-sm text-slate-700">Con el <strong>Certificado Único de Discapacidad</strong>, la Ley 22.431 (art. 22) da derecho a viajar gratis en el transporte terrestre de jurisdicción nacional, de corta, media y larga distancia, y también a un acompañante si el certificado lo indica. Para larga distancia, el pasaje se pide antes en la boletería. En las líneas provinciales o municipales depende de la norma de cada lugar.</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 p-4 space-y-2">
+          <h4 class="font-black">Becas del ENARD</h4>
+          <p class="text-sm text-slate-700">El ENARD da becas a deportistas de alto rendimiento, también paralímpicos, que se suman a la cobertura médica. <strong>Las propone la federación nacional</strong> según los resultados en competencias internacionales. Si estás en la selección o cerca, preguntale a la federación cómo se arma la lista.</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 p-4 space-y-2">
+          <h4 class="font-black">Becas y ayudas provinciales</h4>
+          <p class="text-sm text-slate-700">Algunas provincias y municipios tienen becas deportivas propias, con convocatoria y requisitos. Cambian todos los años. Preguntá en el área de Deportes de tu provincia y pedí por escrito las bases, los criterios y la lista de becados (sin datos sensibles).</p>
+        </article>
+      </div>
+    </div>
+
+    <!-- detalle para deportistas -->
+    <div id="simple-deportista" class="bg-white rounded-2xl border-2 border-blue-300 p-6 space-y-5 scroll-mt-24">
       <div class="space-y-1">
-        <p class="inline-block bg-blue-100 text-blue-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wide">Para jugadoras y jugadores</p>
-        <h3 class="text-xl font-black">6. Si jugás representando a un municipio</h3>
+                <h3 class="text-xl font-black">Tus papeles, tu silla y tus patrocinadores</h3>
         <p class="text-slate-700 max-w-3xl">Llevás la camiseta de tu ciudad. Eso no siempre te hace empleado del municipio, pero sí te da derecho a saber <strong>qué te dieron, en qué condiciones y quién se hace cargo de qué</strong>. Lo primero es tener los papeles.</p>
       </div>
 
@@ -301,7 +374,7 @@
           <li>Si hay <strong>seguro</strong> para entrenamientos, partidos y viajes, y qué cubre.</li>
           <li>Quién paga <strong>viajes, alojamiento e inscripciones</strong> a los torneos.</li>
         </ul>
-        <p class="text-sm text-slate-700">Podés usar el pedido de información de este sitio: elegí tu municipio en el punto 3 y marcá los ítems que te interesan.</p>
+        <p class="text-sm text-slate-700">Te armamos el pedido: tocá <button data-action="pedir-deportista" class="underline font-bold text-blue-800">Pedir los papeles de mi equipo</button>, escribí el nombre del municipio y completá tus datos.</p>
       </div>
 
       <div class="space-y-3">
@@ -363,7 +436,8 @@
       <p class="text-slate-700 text-sm max-w-3xl">Registramos si cada club o entidad tiene publicados cuatro documentos básicos. <strong>Cada estado lleva fecha de revisión y enlace a la fuente.</strong> “Sin revisar” significa que todavía no lo miramos; no significa que el documento no exista. Si encontrás uno, enviálo desde “Enviar un dato”.</p>
       <p id="meta-resumen" class="text-sm font-semibold text-blue-800"></p>
     </div>
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+    <ul id="cards-transp" class="md:hidden space-y-3"></ul>
+    <div class="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-x-auto">
       <table class="w-full text-sm text-left">
         <caption class="sr-only">Estado de documentos públicos por club</caption>
         <thead class="bg-slate-900 text-white">
@@ -418,13 +492,16 @@
           <legend class="text-sm font-bold mb-2">¿Qué información querés pedir?</legend>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Partidas del presupuesto destinadas a deporte y a deporte adaptado, y su ejecución: lo presupuestado, lo comprometido, lo devengado y lo pagado"> Presupuesto de deporte adaptado</label>
-            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Balances y memorias anuales de los últimos 3 ejercicios" checked> Balances y memorias</label>
-            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Subsidios, convenios o transferencias recibidas para el equipo de básquet adaptado" checked> Subsidios y convenios</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Balances y memorias anuales de los últimos 3 ejercicios"> Balances y memorias</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Subsidios, convenios o transferencias recibidas para el equipo de básquet adaptado"> Subsidios y convenios</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y registros de asignación de sillas deportivas, cubiertas, cámaras, ejes, rayos y repuestos"> Sillas y repuestos</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Gastos de transporte y alojamiento para competencias y su forma de contratación"> Transporte y alojamiento</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Juegos Bonaerenses de los últimos 2 años: gasto total del municipio y su detalle (traslados, alojamiento, inscripciones, indumentaria, viáticos), disciplinas y categorías con participación de deporte adaptado, y los decretos o expedientes de esas contrataciones"> Juegos Bonaerenses</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Criterios y listado de becas o viáticos otorgados, sin datos personales sensibles"> Becas y viáticos</label>
             <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Nómina vigente de autoridades y acta de designación"> Autoridades vigentes</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Norma (ordenanza o decreto) que crea o financia el equipo municipal de deporte adaptado, y los convenios firmados con clubes para ese equipo"> Norma y convenio del equipo</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Actas de entrega o de comodato de sillas deportivas, inventario de las sillas y quién está a cargo de su mantenimiento"> Actas de sillas y mantenimiento</label>
+            <label class="flex gap-2 items-start"><input type="checkbox" class="mt-1 p-item" value="Seguro de los deportistas en entrenamientos, partidos y viajes: póliza vigente, aseguradora y cobertura"> Seguro de deportistas</label>
           </div>
         </fieldset>
         <fieldset class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -442,6 +519,32 @@
           <button type="button" id="p-mailto" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-3 rounded-xl text-sm">Abrir en mi correo</button>
         </div>
         <p class="text-xs text-slate-500">Modelo orientativo, no es asesoramiento legal. Ajustalo a la norma que corresponda a cada organismo.</p>
+
+        <div class="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 space-y-3">
+          <h3 class="font-black text-emerald-950 text-lg">Y después de copiarlo, ¿qué hago?</h3>
+          <ol class="list-decimal pl-5 space-y-1.5 text-sm text-slate-800">
+            <li><strong>Presentalo</strong> por el canal oficial: mesa de entradas (llevá dos copias y pedí que te sellen una), el formulario web de acceso a la información o el correo oficial del organismo.</li>
+            <li><strong>Guardá el comprobante:</strong> número de expediente, copia sellada o el correo con su respuesta automática. Sin eso no podés reclamar.</li>
+            <li><strong>Anotá la fecha</strong> y contá el plazo<span id="p-plazo-txt"></span>.</li>
+            <li><strong>Si no contestan a tiempo</strong>, presentá el reclamo que te armamos abajo, por el mismo canal.</li>
+            <li><strong>Si tampoco responden</strong>, el paso siguiente es judicial (amparo por mora o amparo por acceso a la información). Muchos colegios de abogados y defensorías tienen atención gratuita.</li>
+          </ol>
+          <div id="p-presente-wrap" class="hidden flex flex-wrap items-center gap-2">
+            <button type="button" id="p-presente" class="border-2 border-emerald-700 text-emerald-800 hover:bg-white font-bold px-4 py-2 rounded-xl text-sm">Ya lo presenté</button>
+            <span class="text-xs text-slate-600">Suma 1 al contador de <span id="p-presente-lugar"></span>. Sin nombre ni datos.</span>
+          </div>
+          <details class="rounded-xl bg-white border border-emerald-200 p-3 text-sm">
+            <summary class="font-bold cursor-pointer">No me contestaron: armar el reclamo</summary>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+              <div><label for="r-fecha" class="block text-xs font-bold mb-1">Fecha en que lo presentaste</label>
+                <input id="r-fecha" type="date" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"></div>
+              <div><label for="r-exp" class="block text-xs font-bold mb-1">Número de expediente o comprobante</label>
+                <input id="r-exp" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="Ej.: 4012-12345/2026"></div>
+            </div>
+            <button type="button" id="r-armar" class="mt-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Armar el reclamo en el cuadro de texto</button>
+            <p class="text-xs text-slate-500 mt-2">Reemplaza el texto del pedido por el del reclamo. Usa tu nombre, DNI y correo de arriba.</p>
+          </details>
+        </div>
       </form>
     </div>
   </section>
@@ -604,6 +707,7 @@
         <ul id="club-novedades" class="space-y-2 text-sm"></ul>
       </div>
       <div id="club-links" class="flex flex-wrap gap-2 text-sm"></div>
+      <p class="text-sm"><button data-tab="deportistas" class="underline font-bold text-blue-800">¿Jugás en este equipo? Mirá qué te corresponde y quién paga el arreglo de la silla</button></p>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-200">
         <button id="club-pedir" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-3 rounded-xl text-sm">Pedir información</button>
         <button id="club-dato" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-3 py-3 rounded-xl text-sm">Enviar un dato</button>
@@ -760,15 +864,30 @@ function renderTransp() {
         const fuente = r && r.fuente && /^https?:\/\//.test(r.fuente)
           ? ` <a class="underline text-blue-700 text-xs font-semibold ml-1" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">fuente ↗</a>`
           : '';
-        const notaExplicada = r && r.nota
+        const notaExplicada = r && r.nota && r.estado && r.estado !== 'sv'
           ? `<p class="text-xs text-slate-600 mt-1 leading-snug max-w-[230px]">${esc(r.nota)}</p>`
           : '';
         return `<td class="p-3"><span class="inline-block text-xs font-bold px-2 py-1 rounded-lg border ${e.cls}">${esc(e.txt)}</span>${fuente}${notaExplicada}</td>`;
       }).join('')}
       <td class="p-3"><button data-action="club" data-id="${esc(c.id)}" class="text-blue-800 font-bold underline text-sm">Ver resumen</button></td>
     </tr>`).join('');
+  // en el celular: una tarjeta por club, sin repetir la nota de lo que todavía no se revisó
+  $('#cards-transp').innerHTML = l.map(c => `
+    <li class="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
+      <div class="flex justify-between items-start gap-2">
+        <div class="min-w-0"><p class="font-black leading-tight">${esc(c.nombre)}</p><p class="text-xs text-slate-600">${esc(c.ciudad)} · ${esc(c.division)}</p></div>
+        <button data-action="club" data-id="${esc(c.id)}" class="shrink-0 text-blue-800 font-bold underline text-sm">Ver ficha</button>
+      </div>
+      <ul class="grid grid-cols-2 gap-2 text-xs">${CRITERIOS.map(k => {
+        const r = c.rev[k.k], e = estadoDoc(r), visto = r && r.estado && r.estado !== 'sv';
+        const fuente = visto && r.fuente && /^https?:\/\//.test(r.fuente) ? ` <a class="underline text-blue-700 font-semibold" href="${esc(r.fuente)}" target="_blank" rel="noopener noreferrer">fuente ↗</a>` : '';
+        return `<li class="rounded-lg bg-slate-50 border border-slate-200 p-2"><p class="font-semibold text-slate-800">${esc(k.t)}</p>
+          <p class="mt-1"><span class="inline-block font-bold px-1.5 py-0.5 rounded border ${e.cls}">${esc(e.txt)}</span>${fuente}</p>
+          ${visto && r.nota ? `<p class="text-slate-600 mt-1">${esc(r.nota)}</p>` : ''}</li>`;
+      }).join('')}</ul>
+    </li>`).join('');
   const rev = CLUBES.filter(revisado).length;
-  $('#meta-resumen').textContent = `${rev} de ${CLUBES.length} clubes con auditoría documental verificada por el sistema multi-agente.`;
+  $('#meta-resumen').textContent = `${rev} de ${CLUBES.length} clubes tienen al menos un documento revisado por una persona.`;
   $('#stat-clubes').textContent = CLUBES.length;
   $('#stat-rev').textContent = rev;
 }
@@ -921,7 +1040,7 @@ function pintarJuris() {
 }
 
 /* ============ TABS ============ */
-const TABS = ['mapa','simple','transp','inst','pedir','dato','rse'];
+const TABS = ['mapa','simple','deportistas','transp','inst','pedir','dato','rse'];
 function showTab(t, push = true) {
   if (!TABS.includes(t)) t = 'mapa';
   TABS.forEach(x => {
@@ -1071,7 +1190,58 @@ async function cargarNovedades(c) {
 }
 
 /* ============ PEDIDO DE INFORMACIÓN ============ */
+const ITEMS_POR_TIPO = {
+  municipio: [/^Partidas del presupuesto/, /^Subsidios, convenios/],
+  club: [/^Balances y memorias/, /^Subsidios, convenios/],
+  federacion: [/^Balances y memorias/, /^Subsidios, convenios/, /^Nómina vigente/]
+};
+function itemsPorTipo() {
+  const rx = ITEMS_POR_TIPO[$('#p-tipo').value] || [];
+  $$('.p-item').forEach(i => { i.checked = rx.some(r => r.test(i.value)); });
+}
+
+function armarReclamo() {
+  const ent = $('#p-entidad').value.trim() || '[Entidad destinataria]';
+  const f = $('#r-fecha').value, exp = $('#r-exp').value.trim() || '[número de expediente o comprobante]';
+  const fecha = f ? f.split('-').reverse().join('/') : '[fecha de presentación]';
+  const mp = (marcoPedido && marcoPedido.entidad === $('#p-entidad').value.trim()) ? marcoPedido : null;
+  const nom = $('#p-nom').value.trim() || '[Nombre y apellido]', dni = $('#p-dni').value.trim() || '[DNI]', mail = $('#p-mail').value.trim() || '[Correo electrónico]';
+  $('#p-texto').value =
+`Asunto: Reclamo por falta de respuesta a un pedido de acceso a la información pública (pronto despacho)
+
+A: ${ent}
+
+El ${fecha} presenté una solicitud de acceso a la información pública, registrada como ${exp}. Venció el plazo para responder${mp ? ` (${mp.plazo})` : ''} y no recibí respuesta.
+
+Por eso solicito el pronto despacho de mi pedido y la entrega de la información solicitada. Si alguna parte no puede entregarse, pido que se me informe por escrito el motivo y la norma que lo justifica, y que se entregue el resto.
+
+Dejo constancia de que, si no obtengo respuesta, recurriré a ${mp && mp.reclamo ? mp.reclamo.replace(/^ante el silencio, /, '') : 'la vía judicial (amparo por mora)'}.
+
+Datos del solicitante:
+Nombre: ${nom}
+DNI: ${dni}
+Correo para la respuesta: ${mail}
+
+Saludo atentamente.`;
+  $('#p-texto').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  toast('Reclamo armado. Revisalo y copialo.');
+}
+
+function pintarPasosPedido() {
+  const mp = (marcoPedido && marcoPedido.entidad === $('#p-entidad').value.trim()) ? marcoPedido : null;
+  $('#p-plazo-txt').textContent = mp && mp.plazo ? `: ${mp.plazo}` : ': si no sabés cuál es, como referencia, 15 días hábiles (Ley 27.275)';
+  const slugJ = mp && mp.slug;
+  $('#p-presente-wrap').classList.toggle('hidden', !slugJ);
+  if (slugJ) {
+    $('#p-presente-lugar').textContent = mp.entidad;
+    const ya = yaPresente(slugJ);
+    $('#p-presente').disabled = ya; $('#p-presente').textContent = ya ? '✓ Ya lo presentaste' : 'Ya lo presenté';
+    $('#p-presente').dataset.slug = slugJ;
+  }
+}
+
 function armarPedido() {
+  pintarPasosPedido();
   const tipo = $('#p-tipo').value;
   const ent = $('#p-entidad').value.trim() || '[Entidad destinataria]';
   const items = $$('.p-item:checked').map(i => '  - ' + i.value);
@@ -1217,14 +1387,18 @@ document.addEventListener('click', e => {
   else if (act === 'copiar') { const t = $('#' + a.dataset.target); t.select(); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.resolve(document.execCommand('copy'))).then(() => toast('Texto copiado')); }
   else if (act === 'pedir-juris') {
     const j = JURIS.find(x => x.slug === a.dataset.slug); if (!j) return;
-    marcoPedido = { entidad: j.nombre, esMunicipio: j.tipo === 'municipio', ...j.pedido };
+    marcoPedido = { entidad: j.nombre, esMunicipio: j.tipo === 'municipio', slug: j.slug, ...j.pedido };
     $$('.p-item').forEach(i => { i.checked = ITEMS_MUNICIPIO.some(k => i.value.startsWith(k) || i.value.includes(k)); });
     $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
   }
-  else if (act === 'pedir-inst') { $('#p-tipo').value = 'federacion'; $('#p-entidad').value = a.dataset.nombre; armarPedido(); showTab('pedir'); }
+  else if (act === 'pedir-inst') { $('#p-tipo').value = 'federacion'; $('#p-entidad').value = a.dataset.nombre; itemsPorTipo(); armarPedido(); showTab('pedir'); }
+  else if (act === 'pedir-deportista') {
+    $$('.p-item').forEach(i => { i.checked = /^(Norma \(ordenanza|Actas de entrega|Seguro de los deportistas|Gastos de transporte)/.test(i.value); });
+    $('#p-tipo').value = 'municipio'; armarPedido(); showTab('pedir'); $('#p-entidad').focus();
+  }
   else if (act === 'pedir-jb') {
     const j = JURIS.find(x => x.slug === a.dataset.slug); if (!j) return;
-    marcoPedido = { entidad: j.nombre, esMunicipio: true, ...j.pedido };
+    marcoPedido = { entidad: j.nombre, esMunicipio: true, slug: j.slug, ...j.pedido };
     $$('.p-item').forEach(i => { i.checked = i.value.startsWith('Juegos Bonaerenses') || i.value.startsWith('Partidas del presupuesto'); });
     $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
   }
@@ -1233,12 +1407,15 @@ document.addEventListener('click', e => {
   else if (act === 'postular') { $('#post-cod').textContent = a.dataset.cod; $('#post-estado').textContent = ''; $('#dlg-post').showModal(); }
 });
 $$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
-$('#club-pedir').onclick = () => { $('#dlg-club').close(); const c = clubActivo; $('#p-tipo').value = /Municipal|Estatal/i.test(c.tipo) ? 'municipio' : 'club'; $('#p-entidad').value = c.nombre; armarPedido(); showTab('pedir'); };
+$('#club-pedir').onclick = () => { $('#dlg-club').close(); const c = clubActivo; $('#p-tipo').value = /Municipal|Estatal/i.test(c.tipo) ? 'municipio' : 'club'; $('#p-entidad').value = c.nombre; itemsPorTipo(); armarPedido(); showTab('pedir'); };
 $('#club-dato').onclick = () => { $('#dlg-club').close(); $('#d-club').value = clubActivo.id; showTab('dato'); };
 $('#club-rse').onclick = () => { $('#dlg-club').close(); showTab('rse'); };
 $('#buscador').addEventListener('input', () => { refrescar(); });
 $('#filtro-div').addEventListener('change', refrescar);
-$('#form-pedido').addEventListener('input', armarPedido);
+$('#form-pedido').addEventListener('input', e => { if (!e.target.closest('details')) armarPedido(); });
+$('#p-tipo').addEventListener('change', () => { itemsPorTipo(); armarPedido(); });
+$('#r-armar').addEventListener('click', armarReclamo);
+$('#p-presente').addEventListener('click', e => marcarPresentado(e.currentTarget.dataset.slug, e.currentTarget).then(pintarPasosPedido));
 $$('.filtro-juris').forEach(b => b.addEventListener('click', () => {
   filtroJuris = b.dataset.filtroJuris; $$('.filtro-juris').forEach(x => x.setAttribute('aria-pressed', x === b)); pintarJuris();
 }));
@@ -1360,6 +1537,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   cargarPliegosDb();
   renderDirectorio();
   renderTransp();
+  itemsPorTipo();
   armarPedido();
   iniciarMapa();
   showTab((location.hash || '#mapa').slice(1), false);
