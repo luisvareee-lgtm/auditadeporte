@@ -7,7 +7,7 @@ concurrency: { group: cargados, cancel-in-progress: false }
 jobs:
   analizar:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -24,11 +24,12 @@ jobs:
       - name: Lectores de PDF y OCR en español
         if: steps.hay.outputs.pendientes != '0' || github.event_name == 'workflow_dispatch'
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-spa fonts-dejavu-core > /dev/null
-          pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12"
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends tesseract-ocr tesseract-ocr-spa fonts-dejavu-core \
+            libreoffice-writer-nogui libreoffice-calc-nogui > /dev/null
+          pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12" "openpyxl>=3.1,<4" "python-docx>=1,<2"
       - name: Tests
         if: steps.hay.outputs.pendientes != '0' || github.event_name == 'workflow_dispatch'
-        run: python -m unittest test_supa test_analista_pdf test_vigia
+        run: python -m unittest test_supa test_analista_pdf test_vigia test_convertir
         working-directory: bot
       - name: Analizar (página por página, con OCR) y proponer a la cola de revisión
         if: steps.hay.outputs.pendientes != '0'

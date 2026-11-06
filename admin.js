@@ -303,31 +303,65 @@ async function cargarCargados() {
   try { l = await rpc('panel_documentos_cargados'); }
   catch (e) { $('#t-cargados').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/16 y db/17 en Supabase: ' + e.message)); return; }
   $('#t-cargados').replaceChildren(tabla([['Documento', x => el('span', {}, el('strong', {}, x.titulo), el('br'), enlace(x.url_original))],
-    ['Lugar', x => x.juris_slug], ['Cargado', x => fecha(x.creado_en) + (x.cargado_por ? ' · ' + x.cargado_por : '')],
+    ['Lugar', x => x.juris_slug + (x.formato && x.formato !== 'pdf' ? ' · .' + x.formato : '')], ['Cargado', x => fecha(x.creado_en) + (x.cargado_por ? ' · ' + x.cargado_por : '')],
     ['Estado', x => el('span', { class: 'chip ' + ({ procesado: 'ok', error: 'mal' }[x.estado] || '') }, x.estado === 'pendiente' ? 'en espera (se analiza en menos de una hora)' : x.estado)],
     ['Resultado', x => x.error ? x.error : x.estado === 'procesado' ? `${x.paginas || '?'} páginas · ${x.hallazgos} hallazgo(s)` : '—']], l, 'Todavía no cargaste documentos.'));
 }
+const FORMATOS_OK = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'xls', 'xlsx', 'ods', 'csv', 'txt', 'jpg', 'jpeg', 'png', 'tif', 'tiff', 'webp'];
+const MIME = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  odt: 'application/vnd.oasis.opendocument.text', rtf: 'application/rtf', xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ods: 'application/vnd.oasis.opendocument.spreadsheet',
+  csv: 'text/csv', txt: 'text/plain', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', tif: 'image/tiff', tiff: 'image/tiff', webp: 'image/webp' };
+const extDe = n => { const e = (n.split('.').pop() || '').toLowerCase(); return e === 'jpeg' ? 'jpg' : e === 'tiff' ? 'tif' : e; };
+const tituloDe = n => n.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+// al elegir archivos: una fila por archivo con título editable y enlace directo opcional
+$('#fc-archivo').addEventListener('change', () => {
+  const fs = [...$('#fc-archivo').files];
+  $('#fc-lista').replaceChildren(...fs.slice(0, 50).map((f, i) => {
+    const e = extDe(f.name), mal = !FORMATOS_OK.includes(e) ? 'formato no admitido' : f.size > 50 * 1024 * 1024 ? 'supera 50 MB' : '';
+    return el('div', { class: 'fila-lote' + (mal ? ' mal' : '') },
+      el('span', { class: 'meta' }, `${i + 1}. ${f.name} · ${(f.size / 1048576).toFixed(1)} MB${mal ? ' · ' + mal : ''}`),
+      el('input', { class: 'fl-titulo', maxlength: 200, value: tituloDe(f.name), 'aria-label': 'Título de ' + f.name, disabled: !!mal }),
+      el('input', { class: 'fl-url', type: 'url', placeholder: 'Enlace directo al archivo (opcional)', 'aria-label': 'Enlace directo de ' + f.name, disabled: !!mal }));
+  }));
+  if (fs.length > 50) aviso('Se toman los primeros 50 archivos.', true);
+});
+
 async function subirPdf(ev) {
   ev.preventDefault();
-  const f = $('#fc-archivo').files[0], url = $('#fc-url').value.trim(), titulo = $('#fc-titulo').value.trim(), juris = $('#fc-juris').value, club = $('#fc-club').value;
-  if (!juris) { aviso('Elegí el municipio o la provincia donde está publicado.', true); return; }
-  if (!f || f.type !== 'application/pdf') { aviso('Elegí un archivo PDF.', true); return; }
-  if (f.size > 50 * 1024 * 1024) { aviso('El PDF supera 50 MB.', true); return; }
-  if (!urlSegura(url)) { aviso('Pegá el enlace del sitio oficial donde está publicado (https://…).', true); return; }
-  if (titulo.length < 3) { aviso('Poné un título (por ejemplo: Boletín Oficial agosto 2026 - decretos).', true); return; }
-  const btn = $('#fc-enviar'); btn.disabled = true; $('#fc-estado').textContent = 'Calculando la huella…';
-  try {
-    const buf = await f.arrayBuffer();
-    if (new TextDecoder().decode(buf.slice(0, 5)) !== '%PDF-') throw new Error('El archivo no es un PDF válido.');
-    const sha = await sha256Hex(buf), ruta = `${juris}/${sha}.pdf`;
-    $('#fc-estado').textContent = 'Subiendo…';
-    const up = await sb.storage.from('documentos-cargados').upload(ruta, new Blob([buf], { type: 'application/pdf' }), { contentType: 'application/pdf', upsert: false });
-    if (up.error && !/exists|duplicate/i.test(up.error.message || '')) throw up.error;
-    await rpc('panel_cargar_documento', { p_juris: juris, p_url: url, p_titulo: titulo, p_ruta: ruta, p_sha: sha, p_club: club || null });
-    aviso('Cargado. El analista lo lee en menos de una hora y, si encuentra algo, aparece en la Bandeja.');
-    ev.target.reset(); $('#fc-estado').textContent = 'SHA-256: ' + sha; cargarCargados();
-  } catch (e) { aviso(e.message || String(e), true); $('#fc-estado').textContent = ''; }
-  finally { btn.disabled = false; }
+  const fs = [...$('#fc-archivo').files].slice(0, 50), url = $('#fc-url').value.trim(), juris = $('#fc-juris').value, club = $('#fc-club').value;
+  if (!juris) { aviso('Elegí el municipio o la provincia donde están publicados.', true); return; }
+  if (!fs.length) { aviso('Elegí uno o más archivos.', true); return; }
+  if (!urlSegura(url) || !/^https?:\/\/[^/]+\/[^?#]+/i.test(url)) { aviso('Pegá el enlace de la página donde están publicados (no la portada del sitio).', true); return; }
+  const filas = [...$('#fc-lista').children];
+  const lote = 'lote-' + new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+  const btn = $('#fc-enviar'); btn.disabled = true;
+  let ok = 0, repetidos = 0; const errores = [];
+  for (let i = 0; i < fs.length; i++) {
+    const f = fs[i], e = extDe(f.name), fila = filas[i];
+    if (!FORMATOS_OK.includes(e) || f.size > 50 * 1024 * 1024) { errores.push(`${f.name}: formato o tamaño no admitido`); continue; }
+    const titulo = ((fila && fila.querySelector('.fl-titulo').value) || tituloDe(f.name)).trim();
+    const directo = ((fila && fila.querySelector('.fl-url').value) || '').trim();
+    $('#fc-estado').textContent = `Subiendo ${i + 1} de ${fs.length}: ${f.name}…`;
+    try {
+      const buf = await f.arrayBuffer();
+      if (e === 'pdf' && new TextDecoder().decode(buf.slice(0, 5)) !== '%PDF-') throw new Error('no es un PDF válido');
+      const sha = await sha256Hex(buf), ruta = `${juris}/${sha}.${e}`;
+      const up = await sb.storage.from('documentos-cargados').upload(ruta, new Blob([buf], { type: MIME[e] || 'application/octet-stream' }),
+        { contentType: MIME[e] || 'application/octet-stream', upsert: false });
+      if (up.error) { if (/exists|duplicate/i.test(up.error.message || '')) repetidos++; else throw up.error; }
+      await rpc('panel_cargar_documento', { p_juris: juris, p_url: urlSegura(directo) ? directo : url, p_titulo: titulo.length >= 3 ? titulo : 'Documento ' + (i + 1),
+        p_ruta: ruta, p_sha: sha, p_club: club || null, p_formato: e, p_lote: lote });
+      ok++;
+      if (fila) fila.classList.add('ok');
+    } catch (err) { errores.push(`${f.name}: ${err.message || err}`); if (fila) fila.classList.add('mal'); }
+  }
+  btn.disabled = false;
+  $('#fc-estado').textContent = `Listo: ${ok} cargado(s)${repetidos ? ` (${repetidos} ya estaban: se vuelven a analizar)` : ''}${errores.length ? ` · ${errores.length} con error` : ''}.`;
+  if (errores.length) aviso('No se cargaron: ' + errores.slice(0, 5).join(' · ') + (errores.length > 5 ? '…' : ''), true);
+  else { aviso(`${ok} documento(s) cargado(s). El analista los lee en la próxima hora y lo que encuentre aparece en la Bandeja.`); ev.target.reset(); $('#fc-lista').replaceChildren(); }
+  cargarCargados();
 }
 
 async function hacer(fn, args, ok, recargar = true) {

@@ -24,7 +24,7 @@ MAX_CAPTURAS = 4
 TIEMPO_MAX_SEG = 150
 VENTANA = 250
 
-RX = lambda p: re.compile(p)
+RX = lambda p: re.compile(p.replace(" ", r"\s+"))     # el texto de un PDF puede traer saltos de línea entre palabras
 T_FUERTE = RX(r"\b(basquet(bol)? adaptado|basquet(bol)? (en|sobre) sillas?|sillas? de ruedas|paralimpic\w*|"
               r"deporte adaptado|deportes adaptados|deporte inclusivo|actividad fisica adaptada)\b")
 T_DISCAP = RX(r"\b(discapacidad\w*|personas? con discapacidad)\b")
@@ -54,7 +54,7 @@ def _n1(c: str) -> str:
 
 
 def normalizar(t: str) -> str:
-    return "".join(_n1(c) for c in t)
+    return "".join(" " if c in "\r\n\t\f\v\xa0" else _n1(c) for c in t)
 
 
 def _cerca(t, ra, rb, dist=VENTANA):

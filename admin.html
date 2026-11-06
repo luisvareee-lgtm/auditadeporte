@@ -106,14 +106,15 @@
     </div>
 
     <div id="p-cargar" class="pestana" role="tabpanel" hidden>
-      <p class="nota">Para sitios que rechazan las consultas automáticas (por ejemplo Almirante Brown). Bajá el PDF desde el sitio oficial como cualquier vecino, pegá el enlace donde está publicado y subilo. El analista lo lee página por página (con OCR si es un escaneo), arma capturas con el pasaje resaltado y, si encuentra algo, lo deja en la Bandeja. Nada se publica sin que lo apruebes.</p>
+      <p class="nota">Para sitios que rechazan las consultas automáticas (por ejemplo Almirante Brown). Bajá los documentos desde el sitio oficial como cualquier vecino, pegá el enlace de la página donde están publicados y subilos. Podés elegir <strong>varios a la vez</strong> (hasta 50): PDF, Word (.doc, .docx), OpenDocument (.odt, .ods), RTF, planillas (.xls, .xlsx, .csv), texto o imágenes escaneadas (.jpg, .png, .tif). El analista lo lee página por página (con OCR si es un escaneo), arma capturas con el pasaje resaltado y, si encuentra algo, lo deja en la Bandeja. Nada se publica sin que lo apruebes.</p>
       <form id="f-cargar" class="tarjeta grilla" novalidate>
         <label>Municipio o provincia donde se publicó<select id="fc-juris" required><option value="">Cargando…</option></select></label>
         <label>Club (opcional, si el documento es de un club)<select id="fc-club"><option value="">— Ninguno en particular —</option></select></label>
-        <label>Enlace donde está publicado<input id="fc-url" type="url" required placeholder="https://www.brown.gob.ar/boletin-oficial-2026/"></label>
-        <label>Título<input id="fc-titulo" required maxlength="200" placeholder="Boletín Oficial julio 2026 - decretos"></label>
-        <label>Archivo PDF (hasta 50 MB)<input id="fc-archivo" type="file" accept="application/pdf" required></label>
-        <div class="acciones"><button id="fc-enviar" class="btn primario">Subir y analizar</button> <span id="fc-estado" class="meta"></span></div>
+        <label>Enlace de la página donde están publicados<input id="fc-url" type="url" required placeholder="https://www.brown.gob.ar/boletin-oficial-2026/"></label>
+        <label>Archivos (hasta 50, de hasta 50 MB cada uno)<input id="fc-archivo" type="file" multiple required
+          accept=".pdf,.doc,.docx,.odt,.rtf,.xls,.xlsx,.ods,.csv,.txt,.jpg,.jpeg,.png,.tif,.tiff,.webp"></label>
+        <div id="fc-lista" class="lote"></div>
+        <div class="acciones"><button id="fc-enviar" class="btn primario">Subir y analizar</button> <span id="fc-estado" class="meta" role="status" aria-live="polite"></span></div>
       </form>
       <div id="t-cargados"></div>
     </div>

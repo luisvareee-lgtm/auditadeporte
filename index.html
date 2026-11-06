@@ -72,15 +72,15 @@
   </div>
 
   <nav class="bg-white text-slate-700 border-b border-slate-200" aria-label="Secciones">
-    <div role="tablist" class="max-w-7xl mx-auto px-2 flex overflow-x-auto text-sm">
-      <button role="tab" id="t-mapa" data-tab="mapa" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="map" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Mapa y clubes</button>
-      <button role="tab" id="t-simple" data-tab="simple" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="lightbulb" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Explicado fácil</button>
-      <button role="tab" id="t-deportistas" data-tab="deportistas" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="accessibility" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Deportistas</button>
-      <button role="tab" id="t-transp" data-tab="transp" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="file-search" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Documentos públicos</button>
-      <button role="tab" id="t-inst" data-tab="inst" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="landmark" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Instituciones</button>
-      <button role="tab" id="t-pedir" data-tab="pedir" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="mail-open" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Pedir información</button>
-      <button role="tab" id="t-dato" data-tab="dato" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="shield-check" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Enviar un dato</button>
-      <button role="tab" id="t-rse" data-tab="rse" class="tab-btn px-4 py-3 border-b-4 border-transparent whitespace-nowrap hover:bg-slate-50"><i data-lucide="handshake" class="inline w-4 h-4 mr-1.5 -mt-0.5" aria-hidden="true"></i>Patrocinar</button>
+    <div role="tablist" class="max-w-7xl mx-auto px-1 md:px-2 grid grid-cols-4 md:flex md:overflow-x-auto">
+      <button role="tab" id="t-mapa" data-tab="mapa" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="map" class="w-4 h-4" aria-hidden="true"></i><span>Mapa<span class="hidden md:inline"> y clubes</span></span></button>
+      <button role="tab" id="t-simple" data-tab="simple" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="lightbulb" class="w-4 h-4" aria-hidden="true"></i><span>Explicado<span class="hidden md:inline"> fácil</span></span></button>
+      <button role="tab" id="t-deportistas" data-tab="deportistas" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="accessibility" class="w-4 h-4" aria-hidden="true"></i><span>Deportistas</span></button>
+      <button role="tab" id="t-pedir" data-tab="pedir" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="mail-open" class="w-4 h-4" aria-hidden="true"></i><span>Pedir<span class="hidden md:inline"> información</span></span></button>
+      <button role="tab" id="t-transp" data-tab="transp" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="file-search" class="w-4 h-4" aria-hidden="true"></i><span>Documentos<span class="hidden md:inline"> públicos</span></span></button>
+      <button role="tab" id="t-inst" data-tab="inst" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="landmark" class="w-4 h-4" aria-hidden="true"></i><span>Instituciones</span></button>
+      <button role="tab" id="t-dato" data-tab="dato" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="shield-check" class="w-4 h-4" aria-hidden="true"></i><span><span class="hidden md:inline">Enviar un </span>Dato</span></button>
+      <button role="tab" id="t-rse" data-tab="rse" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="handshake" class="w-4 h-4" aria-hidden="true"></i><span>Patrocinar</span></button>
     </div>
   </nav>
 </header>
@@ -154,6 +154,16 @@
       <p id="simple-actualizado" class="text-sm text-emerald-200"></p>
     </div>
 
+    <nav aria-label="¿Qué querés hacer?" class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+      <p class="font-black text-lg">¿Qué querés hacer?</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <a href="#simple-ruta" class="rounded-xl border-2 border-slate-200 hover:border-emerald-400 p-3 font-bold">💸 Entender a dónde va la plata</a>
+        <button data-action="ir-mi-lugar" class="text-left rounded-xl border-2 border-slate-200 hover:border-emerald-400 p-3 font-bold">📍 Ver qué publica mi municipio</button>
+        <button data-tab="pedir" class="text-left rounded-xl border-2 border-slate-200 hover:border-emerald-400 p-3 font-bold">✉️ Pedir información</button>
+        <button data-tab="deportistas" class="text-left rounded-xl border-2 border-slate-200 hover:border-emerald-400 p-3 font-bold">♿ Soy deportista: qué me corresponde</button>
+      </div>
+    </nav>
+
     <!-- 1. Lo que encontramos -->
     <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
       <h3 class="text-xl font-black">1. Lo que encontramos hasta hoy</h3>
@@ -162,7 +172,7 @@
     </div>
 
     <!-- 2. La ruta de la plata -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
+    <div id="simple-ruta" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5 scroll-mt-28">
       <div class="space-y-1">
         <h3 class="text-xl font-black">2. La ruta de la plata</h3>
         <p class="text-slate-700 max-w-3xl">La plata para el deporte adaptado puede salir de tres lugares. En cada paso, el Estado tiene que dejar un papel público: una ley, un decreto, una resolución o una rendición. <strong>Si falta un papel, la ruta se corta y ya no se puede seguir la plata.</strong></p>
@@ -210,7 +220,7 @@
     </div>
 
     <!-- 3. Quién muestra sus papeles -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+    <div id="simple-lugares" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 scroll-mt-28">
       <div class="space-y-1">
         <h3 class="text-xl font-black">3. ¿Quién muestra sus papeles?</h3>
         <p class="text-slate-700 max-w-3xl">Estos son los municipios y provincias donde juegan los equipos. <strong>"No publica datos abiertos"</strong> significa que no encontramos sus documentos de forma pública y revisable. Puede que los tenga y no los publique, o que su página no deje consultarlos. En los dos casos, cualquier persona puede pedirlos: es un derecho.</p>
@@ -224,6 +234,7 @@
       <label class="block max-w-md"><span class="sr-only">Buscar por club o lugar</span>
         <input id="buscar-juris" type="search" placeholder="Buscá tu club o tu ciudad" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm"></label>
       <ul id="lista-juris" class="grid grid-cols-1 md:grid-cols-2 gap-3" aria-live="polite"></ul>
+      <button id="ver-todos-juris" class="hidden w-full border-2 border-slate-300 hover:bg-slate-50 font-bold px-4 py-3 rounded-xl text-sm"></button>
     </div>
 
     <!-- 4. Cómo ayudar -->
@@ -900,7 +911,8 @@ const ESTADO_JURIS = {
   no_publica: { txt: 'No publica datos abiertos', cls: 'bg-red-100 text-red-900 border-red-300' }
 };
 const TIPO_JURIS = { municipio: 'Municipio', provincia: 'Provincia', nacion: 'Nación', universidad: 'Universidad nacional' };
-let JURIS = [], filtroJuris = '', marcoPedido = null, PRESENTADOS = {};
+let JURIS = [], filtroJuris = '', marcoPedido = null, PRESENTADOS = {}, verTodosJuris = false;
+const JURIS_A_LA_VISTA = 6;
 const ESTADO_ITEM = {
   completo:      { icono: '✅', txt: 'Lo publica', cls: 'text-emerald-900' },
   parcial:       { icono: '🟡', txt: 'A medias', cls: 'text-amber-900' },
@@ -985,8 +997,13 @@ async function cargarSimple() {
 
 function pintarJuris() {
   const q = (($('#buscar-juris') || {}).value || '').trim().toLowerCase();
-  const lista = JURIS.filter(j => (!filtroJuris || j.estado === filtroJuris) &&
+  const todas = JURIS.filter(j => (!filtroJuris || j.estado === filtroJuris) &&
     (!q || (j.nombre + ' ' + j.clubes.join(' ')).toLowerCase().includes(q)));
+  const plegar = !q && !filtroJuris && !verTodosJuris && todas.length > JURIS_A_LA_VISTA;
+  const lista = plegar ? todas.slice(0, JURIS_A_LA_VISTA) : todas;
+  const bt = $('#ver-todos-juris');
+  bt.classList.toggle('hidden', !plegar);
+  bt.textContent = `Ver los ${todas.length} lugares`;
   $('#lista-juris').innerHTML = lista.length ? lista.map(j => {
     const e = ESTADO_JURIS[j.estado] || ESTADO_JURIS.no_publica;
     const p = j.pedido || {};
@@ -1392,6 +1409,9 @@ document.addEventListener('click', e => {
     $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
   }
   else if (act === 'pedir-inst') { $('#p-tipo').value = 'federacion'; $('#p-entidad').value = a.dataset.nombre; itemsPorTipo(); armarPedido(); showTab('pedir'); }
+  else if (act === 'ir-mi-lugar') {
+    $('#simple-lugares').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => $('#buscar-juris').focus({ preventScroll: true }), 400);
+  }
   else if (act === 'pedir-deportista') {
     $$('.p-item').forEach(i => { i.checked = /^(Norma \(ordenanza|Actas de entrega|Seguro de los deportistas|Gastos de transporte)/.test(i.value); });
     $('#p-tipo').value = 'municipio'; armarPedido(); showTab('pedir'); $('#p-entidad').focus();
@@ -1412,6 +1432,7 @@ $('#club-dato').onclick = () => { $('#dlg-club').close(); $('#d-club').value = c
 $('#club-rse').onclick = () => { $('#dlg-club').close(); showTab('rse'); };
 $('#buscador').addEventListener('input', () => { refrescar(); });
 $('#filtro-div').addEventListener('change', refrescar);
+$('#ver-todos-juris').addEventListener('click', () => { verTodosJuris = true; pintarJuris(); });
 $('#form-pedido').addEventListener('input', e => { if (!e.target.closest('details')) armarPedido(); });
 $('#p-tipo').addEventListener('change', () => { itemsPorTipo(); armarPedido(); });
 $('#r-armar').addEventListener('click', armarReclamo);

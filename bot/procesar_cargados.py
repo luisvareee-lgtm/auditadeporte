@@ -1,4 +1,4 @@
-"""Procesa los PDFs que el equipo cargó a mano en el panel (sitios que rechazan consultas desde servidores).
+"""Procesa los documentos (PDF, Word, planillas, imágenes) que el equipo cargó a mano en el panel (sitios que rechazan consultas desde servidores).
 
 Para cada documento pendiente: lo baja del depósito privado, verifica la huella SHA-256, lo lee página por página
 (OCR si es un escaneo), sube capturas de las páginas con hallazgos al depósito privado 'capturas' y lo propone
@@ -18,24 +18,29 @@ def principal():
     insts = {i["slug"]: i for i in cli.table("instituciones").select("id,slug,nombre").execute().data or []}
     alias_juris, _, club_por_slug = o.contexto_jurisdicciones()
     print(f"documentos pendientes: {len(pend)}")
-    for d in pend:
+    import time
+    fin = time.monotonic() + 100 * 60          # lo que no entra en 100 minutos se analiza en la corrida siguiente
+    for d in sorted(pend, key=lambda x: x.get("creado_en") or ""):
+        if time.monotonic() > fin:
+            print("tiempo agotado: el resto queda para la próxima corrida"); break
         try:
             datos = cli.bajar_archivo("documentos-cargados", d["ruta"])
             sha = hashlib.sha256(datos).hexdigest()
             if sha != d["sha256"]:
                 raise ValueError("la huella del archivo no coincide con la registrada")
-            if datos[:5] != b"%PDF-":
-                raise ValueError("no es un PDF")
-            res = a.analizar(datos, d["url_original"], sha)
+            import convertir
+            formato = d.get("formato") or convertir.formato_de(d["ruta"], datos)
+            pdf = convertir.a_pdf(datos, formato)          # Word, planillas e imágenes se leen como PDF
+            res = a.analizar(pdf, d["url_original"], sha)
             import vigia
             vigia.registrar_estructura(cli, d["juris_slug"], d["url_original"], res["por_pagina"])
             marcas = o.relevancia(res["texto"], alias_juris.get(d["juris_slug"], {}))
             relevante = bool(marcas) or a.es_relevante(res["hallazgos"])
-            resultado = {"paginas": res["paginas"], "paginas_ocr": res["paginas_ocr"],
+            resultado = {"formato": formato, "paginas": res["paginas"], "paginas_ocr": res["paginas_ocr"],
                          "hallazgos": a.resumen_hallazgos(res["hallazgos"]), "temas": a.temas_de(res["hallazgos"])}
             if relevante:
                 caps = a.subir_capturas(cli, sha, res["capturas"])
-                cap = o.Captura(d["url_original"], 200, contenido=datos, sha256=sha)
+                cap = o.Captura(d["url_original"], 200, contenido=pdf, sha256=sha)
                 ind, requiere, motivo = o.analizar_contenido(cap)
                 ind.update({"caracteres": len(res["texto"]), "expedientes": o.extraer_expedientes(res["texto"]),
                             "cuits_entidades": o.extraer_cuits_entidades(res["texto"])})
