@@ -1,0 +1,13 @@
+name: Diagnóstico robots.txt (solo lectura)
+on: { workflow_dispatch: { inputs: { urls: { description: "URLs separadas por espacio", required: true } } } }
+permissions: { contents: read }
+jobs:
+  ver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - run: python diagnostico_robots.py ${{ inputs.urls }}
+        working-directory: bot
