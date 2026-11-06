@@ -65,6 +65,15 @@ for (const [nombre, vista] of [['escritorio', { width: 1280, height: 900 }], ['c
       ensayo.push({ id, nota: nota.includes('Municipalidad de Prueba') && nota.includes('Solicitamos'), items, rubro });
     }
     console.log(`[${nombre}] ensayo casos`, JSON.stringify(ensayo));
+    // ensayo de la calculadora: 3 viajes x $2.000 x 44 semanas + cubiertas 120.000 + arreglos 80.000 + indumentaria 60.000
+    // + torneos 150.000 + silla 3.000.000 / 5 años = $ 1.274.000 por año
+    await p.click('#t-deportistas');
+    for (const [k, v] of [['costo_viaje', 2000], ['cubiertas', 120000], ['arreglos', 80000], ['indumentaria', 60000], ['torneos', 150000], ['silla_precio', 3000000]])
+      await p.fill(`[data-costo="${k}"]`, String(v));
+    const total = await p.locator('#costo-resultado').innerText();
+    await p.click('#costo-rse'); await p.waitForTimeout(300);
+    console.log(`[${nombre}] ensayo calculadora`, JSON.stringify({ ok: total.includes('1.274.000'), tipo: await p.inputValue('#d-tipo'),
+      texto: (await p.inputValue('#d-texto')).slice(0, 90) }));
     if (nombre === 'celular') {
       await p.click('#t-deportistas'); await p.click('[data-action="caso"][data-caso="sillas-municipio"]'); await p.waitForTimeout(300);
       const fc = (await p.locator('#dep-casos').screenshot({ type: 'jpeg', quality: 30 })).toString('base64');

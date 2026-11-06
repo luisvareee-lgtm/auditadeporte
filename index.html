@@ -314,6 +314,7 @@
       <p class="text-slate-200 max-w-3xl">Lo que te corresponde, de dónde sale, qué papeles pedir, quién paga el arreglo de la silla y cómo buscar una empresa que te apoye.</p>
       <nav aria-label="En esta página" class="flex flex-wrap gap-2 pt-1 text-sm">
         <a href="#dep-casos" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3 py-2 rounded-xl">¿Cuál es tu situación?</a>
+        <a href="#dep-costo" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">¿Cuánto te cuesta jugar?</a>
         <a href="#dep-corresponde" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Qué me corresponde</a>
         <a href="#dep-otros" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Beneficios que no dependen del municipio</a>
         <a href="#simple-deportista" class="bg-white/10 hover:bg-white/20 border border-white/30 font-bold px-3 py-2 rounded-xl">Silla y patrocinio</a>
@@ -386,12 +387,36 @@
       </div>
     </div>
 
+
+    <div id="dep-costo" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 scroll-mt-24">
+      <div class="space-y-1">
+        <h3 class="text-xl font-black">¿Cuánto te cuesta jugar?</h3>
+        <p class="text-slate-700 max-w-3xl">Muchos deportistas pagan todo de su bolsillo: la silla, los arreglos, el viaje al club, la camiseta. Ponerle número ayuda a pedir apoyo y a mostrar lo que no se cubre. <strong>Lo que escribas acá no se guarda ni se envía:</strong> queda solo en tu pantalla.</p>
+      </div>
+      <form id="form-costo" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm" novalidate>
+        <label class="block"><span class="font-bold">Viajes al club por semana (ida y vuelta)</span><input data-costo="viajes" type="number" inputmode="numeric" min="0" step="1" value="3" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+        <label class="block"><span class="font-bold">Costo de cada ida y vuelta ($)</span><input data-costo="costo_viaje" type="number" inputmode="numeric" min="0" step="100" value="0" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+        <label class="block"><span class="font-bold">Semanas de entrenamiento al año</span><input data-costo="semanas" type="number" inputmode="numeric" min="0" max="52" step="1" value="44" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+        <label class="block"><span class="font-bold">Cubiertas y cámaras por año ($)</span><input data-costo="cubiertas" type="number" inputmode="numeric" min="0" step="1000" value="0" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+        <label class="block"><span class="font-bold">Arreglos de la silla por año ($): rayos, ejes, rulemanes, soldaduras</span><input data-costo="arreglos" type="number" inputmode="numeric" min="0" step="1000" value="0" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+        <label class="block"><span class="font-bold">Indumentaria por año ($)</span><input data-costo="indumentaria" type="number" inputmode="numeric" min="0" step="1000" value="0" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+        <label class="block"><span class="font-bold">Torneos por año ($): viajes, comida, inscripción</span><input data-costo="torneos" type="number" inputmode="numeric" min="0" step="1000" value="0" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+        <label class="block"><span class="font-bold">Precio de una silla deportiva nueva ($)</span><input data-costo="silla_precio" type="number" inputmode="numeric" min="0" step="10000" value="0" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+        <label class="block"><span class="font-bold">¿Cada cuántos años la cambiás?</span><input data-costo="silla_anios" type="number" inputmode="numeric" min="1" max="20" step="1" value="5" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+      </form>
+      <div id="costo-resultado" class="rounded-2xl bg-slate-900 text-white p-4 space-y-2" aria-live="polite"></div>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" id="costo-copiar" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Copiar el resumen</button>
+        <button type="button" id="costo-rse" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-sm">Usarlo en un pedido de patrocinio</button>
+      </div>
+    </div>
+
     <div id="dep-otros" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 scroll-mt-24">
       <h3 class="text-xl font-black">Beneficios que no dependen del municipio</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <article class="rounded-2xl border border-slate-200 p-4 space-y-2">
           <h4 class="font-black">Viajar gratis con el CUD</h4>
-          <p class="text-sm text-slate-700">Con el <strong>Certificado Único de Discapacidad</strong>, la Ley 22.431 (art. 22) da derecho a viajar gratis en el transporte terrestre de jurisdicción nacional, de corta, media y larga distancia, y también a un acompañante si el certificado lo indica. Para larga distancia, el pasaje se pide antes en la boletería. En la Provincia de Buenos Aires, además, la Ley 10.592 (art. 22, texto de la Ley 13.877) obliga a las empresas de transporte colectivo que operan en la provincia a llevar gratis (o con sistemas especiales) a las personas con discapacidad, y a quien las acompañe si lo necesitan. En otras provincias depende de su norma.</p>
+          <p class="text-sm text-slate-700">Con el <strong>Certificado Único de Discapacidad</strong>, la Ley 22.431 (art. 22) da derecho a viajar gratis en el transporte terrestre de jurisdicción nacional, de corta, media y larga distancia, y también a un acompañante si el certificado lo indica. Para larga distancia, el pasaje se pide antes en la boletería. En la Provincia de Buenos Aires, además, la Ley 10.592 (art. 22) da transporte público gratis en las líneas provinciales, urbanas e interurbanas; se viaja con el <strong>Pase Libre Multimodal</strong>, que se tramita con el CUD (Resolución 55/2020 del Ministerio de Transporte bonaerense). En las líneas municipales y en otras provincias depende de su norma.</p>
         </article>
         <article class="rounded-2xl border border-slate-200 p-4 space-y-2">
           <h4 class="font-black">Becas del ENARD</h4>
@@ -1143,7 +1168,7 @@ const CASOS = [
   { id: 'traslados', icono: '🚌', titulo: 'Pago mi traslado al club y a los partidos: no hay viáticos',
     regla: [
       'No hay una ley que obligue a pagar viáticos por entrenar. Depende de lo que diga la norma o el convenio del equipo, o de una beca.',
-      'Con el CUD podés viajar gratis: en el transporte de jurisdicción nacional (Ley 22.431, art. 22) y, en la Provincia de Buenos Aires, en las empresas de transporte colectivo que operan en la provincia (Ley 10.592, art. 22). También tu acompañante, si lo necesitás.',
+      'Con el CUD podés viajar gratis: en el transporte de jurisdicción nacional (Ley 22.431, art. 22) y, en la Provincia de Buenos Aires, en las líneas provinciales con el Pase Libre Multimodal, que se tramita con el CUD (Ley 10.592, art. 22). Si el certificado lo indica, también viaja gratis tu acompañante en las líneas nacionales.',
       'Para partidos y torneos oficiales en los que representás al municipio, es razonable pedir que provea el transporte.'],
     pasos: ['Si no tenés el pase de transporte con el CUD, tramitalo: es lo que más rápido te baja el gasto diario.',
       'Pidan por nota transporte para los partidos y torneos oficiales, con el calendario de la temporada adjunto.',
@@ -1168,9 +1193,46 @@ const CASOS = [
       'Pidan por acceso a la información el inventario y las compras de los últimos 3 años.',
       'Publiquen un pedido de patrocinio de preparación física.'],
     items: /^(Inventario de elementos de entrenamiento)/, rse: 'fisico',
-    nota: 'la provisión de elementos de entrenamiento para el cuerpo técnico del equipo (pelotas, conos y elementos de preparación física), según la lista y el presupuesto que adjuntamos' }
+    nota: 'la provisión de elementos de entrenamiento para el cuerpo técnico del equipo (pelotas, conos y elementos de preparación física), según la lista y el presupuesto que adjuntamos' },
+  { id: 'viajes-torneos', icono: '🧳', titulo: 'Viajamos a torneos y no sabemos quién pagó el micro, el hotel o la comida',
+    regla: [
+      'Cada gasto del municipio deja un expediente: pedido, presupuestos, orden de compra, factura y orden de pago. Lo que no sale en el boletín igual existe y se puede pedir.',
+      'Si el viaje fue para representar al municipio (liga, Juegos Bonaerenses), el gasto es público y la información también, aunque lo haya contratado un organismo de deportes.',
+      'Un pedido concreto (fecha, destino, delegación) es mucho más difícil de esquivar que uno general.'],
+    pasos: ['Armen la lista de viajes de la temporada con fecha, destino y torneo (sirven las publicaciones de las redes del equipo).',
+      'Pidan por acceso a la información, viaje por viaje: modalidad de contratación y proveedor del transporte, alojamiento de deportistas, cuerpo técnico y choferes, comidas, viáticos, montos, facturas y órdenes de pago.',
+      'Si un viaje lo pagaron ustedes, guarden los comprobantes: muestran lo que el municipio no cubrió.'],
+    items: /^(Gastos de transporte y alojamiento|Juegos Bonaerenses de los últimos)/, rse: 'gira',
+    nota: 'información y, en adelante, la cobertura del transporte, el alojamiento y las comidas de la delegación en los viajes a torneos oficiales en los que el equipo representa al municipio' }
 ];
 let casoActual = null;
+
+// ---- ¿Cuánto te cuesta jugar? (todo queda en la pantalla: no se guarda ni se envía)
+const fmtPesos = v => '$ ' + Math.round(v).toLocaleString('es-AR');
+function calcularCosto() {
+  const v = k => Math.max(0, Number(($(`[data-costo="${k}"]`) || {}).value) || 0);
+  const partes = [
+    ['Traslados al club', v('viajes') * v('costo_viaje') * v('semanas')],
+    ['Cubiertas y cámaras', v('cubiertas')],
+    ['Arreglos de la silla', v('arreglos')],
+    ['Indumentaria', v('indumentaria')],
+    ['Torneos', v('torneos')],
+    ['Silla (precio repartido en los años de uso)', v('silla_anios') ? v('silla_precio') / v('silla_anios') : 0]];
+  const total = partes.reduce((a, [, x]) => a + x, 0);
+  $('#costo-resultado').innerHTML = total ? `
+    <p class="text-sm text-slate-300">Por año, jugar te cuesta aproximadamente</p>
+    <p class="text-3xl font-black text-amber-300">${fmtPesos(total)} <span class="text-base font-bold text-slate-300">· ${fmtPesos(total / 12)} por mes</span></p>
+    <ul class="text-sm space-y-0.5">${partes.filter(([, x]) => x).map(([t, x]) => `<li class="flex justify-between gap-3"><span>${esc(t)}</span><span class="font-bold">${fmtPesos(x)}</span></li>`).join('')}</ul>
+    <p class="text-xs text-slate-400">Es una estimación con tus números. Si representás al municipio, compará esto con lo que el municipio aporta al equipo.</p>`
+    : '<p class="text-sm text-slate-300">Completá los montos para ver cuánto te cuesta por año.</p>';
+  return { partes, total };
+}
+function resumenCosto() {
+  const { partes, total } = calcularCosto();
+  if (!total) return '';
+  return `Lo que me cuesta jugar al básquet en silla de ruedas, por año (estimado): ${fmtPesos(total)} (${fmtPesos(total / 12)} por mes).\n` +
+    partes.filter(([, x]) => x).map(([t, x]) => `- ${t}: ${fmtPesos(x)}`).join('\n');
+}
 
 function pintarCasos() {
   $('#casos-botones').innerHTML = CASOS.map(c => `<button role="tab" aria-selected="${casoActual && casoActual.id === c.id}" data-action="caso" data-caso="${c.id}"
@@ -1622,8 +1684,16 @@ $('#buscador').addEventListener('input', () => { refrescar(); });
 $('#filtro-div').addEventListener('change', refrescar);
 ['nc-muni', 'nc-equipo', 'nc-nom', 'nc-dni', 'nc-detalle'].forEach(id => $('#' + id).addEventListener('input', armarNotaCaso));
 pintarCasos();
+calcularCosto();
 $('#nc-casos').addEventListener('change', e => { if (!e.target.classList.contains('nc-caso')) return;
   e.target.checked ? casosNota.add(e.target.value) : casosNota.delete(e.target.value); armarNotaCaso(); });
+$('#form-costo').addEventListener('input', calcularCosto);
+$('#costo-copiar').addEventListener('click', () => { const t = resumenCosto(); if (!t) { toast('Completá los montos primero.'); return; }
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Resumen copiado'), () => toast('No se pudo copiar: seleccionalo a mano.')); });
+$('#costo-rse').addEventListener('click', () => { const t = resumenCosto(); if (!t) { toast('Completá los montos primero.'); return; }
+  showTab('dato'); $('#d-tipo').value = 'solicitud_rse'; ajustarTipoDato(); $('#d-para').value = 'personal'; $('#d-rubro').value = 'silla';
+  $('#d-texto').value = (t + '\n\nQué necesito que cubra una empresa: [completá: por ejemplo, cubiertas y arreglos de la silla durante la temporada, con presupuesto del proveedor].').slice(0, 2000);
+  $('#d-texto').dispatchEvent(new Event('input')); $('#d-texto').focus(); });
 $('#ver-todos-juris').addEventListener('click', () => { verTodosJuris = true; pintarJuris(); });
 $('#form-pedido').addEventListener('input', e => { if (!e.target.closest('details')) armarPedido(); });
 $('#p-tipo').addEventListener('change', () => { itemsPorTipo(); armarPedido(); });
