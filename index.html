@@ -549,7 +549,11 @@
             <ul class="list-disc pl-5 space-y-1"><li>La resolución o el expediente con el monto que la Secretaría comprometió, y si después se pagó.</li><li>Si "no alcanzaba" el presupuesto o fue una demora: con lo publicado no se puede saber.</li><li>Una rendición pública de lo recaudado y gastado en la colecta.</li></ul></div>
         </div>
         <button data-action="pedir-seleccion" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">Pedir la información a la Nación y a la federación</button>
-        <p class="text-xs text-slate-500">Fuentes: El Litoral (28/1/2026), Aire de Santa Fe (20/5/2026), Pausa (24/5/2026), Sport Digital (30/5/2026), El Litoral (1/6/2026).</p>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-sm space-y-1">
+          <p class="font-bold">El problema de fondo: de dónde sale la plata de las selecciones</p>
+          <p>Las selecciones dependen de dos fuentes nacionales: los subsidios de la Subsecretaría de Deportes, que se otorgan caso por caso, y el ENARD, que financia planes de alto rendimiento y becas. Desde 2018 el ENARD ya no tiene un recurso propio: depende de lo que le asigne el presupuesto cada año. En 2026 el presupuesto nacional de deporte es de unos $ 39.621 millones para la Subsecretaría y $ 18.400 millones para el ENARD. En el primer semestre, lo ejecutado por el ENARD fue un 49 % menor en términos reales que en 2023, y un pedido de fondos extra del ENARD seguía sin respuesta en octubre (La Nación y Ámbito, con datos de Táctica). Ninguna norma fija cuánto le corresponde a una selección para inscripciones o pasajes, así que cuando la plata no alcanza o se demora, lo cubren las colectas.</p>
+        </div>
+        <p class="text-xs text-slate-500">Fuentes: El Litoral (28/1/2026), Aire de Santa Fe (20/5/2026), Pausa (24/5/2026), Sport Digital (30/5/2026), El Litoral (1/6/2026), FABA en Instagram (1/9/2026), Ámbito (4/9/2026), La Nación (29/10/2026).</p>
       </article>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
         <article class="rounded-2xl border border-slate-200 p-4 space-y-1">
@@ -557,8 +561,8 @@
           <p>La selección Sub-21 de básquet para sordos (mayo de 2026): la Subsecretaría de Deportes había prometido pasajes y alojamiento, llegaron $ 4 millones y faltaban unos $ 10 millones. La diferencia: la federación juntó la plata en una <strong>cuenta institucional</strong> y pidió patrocinios a empresas. (Hoy Día, 27/5/2026)</p>
         </article>
         <article class="rounded-2xl border border-slate-200 p-4 space-y-1">
-          <p class="font-black">Selección masculina</p>
-          <p>Clasificó directo al Mundial de Ottawa (septiembre de 2026) como subcampeona de la Copa América. Una nota de mayo menciona incertidumbre por los fondos nacionales, pero <strong>no encontramos publicada una colecta</strong>. Si la hubo, el relevamiento automático la va a encontrar cuando Meta habilite el acceso.</p>
+          <p class="font-black">Selección masculina · Mundial de Ottawa, septiembre de 2026</p>
+          <p>Clasificó como subcampeona de la Copa América. El 1 de septiembre, a una semana del Mundial, la federación (FABA) publicó un video del plantel: agradecen la ayuda recibida y dicen que <strong>todavía necesitan US$ 15.000 para pagar la inscripción</strong>, con un alias para aportar. El video no explica por qué la inscripción no estaba cubierta. <a class="underline text-blue-800" href="https://www.instagram.com/p/DcwdAc7N6ac/" target="_blank" rel="noopener">Ver la publicación de FABA</a></p>
         </article>
       </div>
       <p class="text-sm text-slate-700"><strong>Nuestro relevamiento automático de Instagram</strong> lee las convocatorias a colectas de las cuentas oficiales (para qué eran, para qué torneo y qué monto declaran), sin guardar textos, nombres ni datos de cuentas bancarias. Hoy Meta solo nos deja leer la cuenta del equipo de Almirante Brown, donde encontró una colecta de julio de 2026 para sillas y equipamiento. Para leer las demás cuentas falta que Meta apruebe el acceso avanzado de la aplicación.</p>
@@ -1531,8 +1535,8 @@ $('#sim-agregar').addEventListener('click', () => { SIM.push(['Nuevo gasto', 0, 
 const TRABAS = [
   { nivel: 'Nación', icono: '🇦🇷', items: [
     { traba: 'Los fondos prometidos a las selecciones llegan tarde o no llegan.',
-      evidencia: 'Las Lobas (2026): los pasajes a cargo de la Secretaría de Deportes no llegaron y se pagaron con una colecta. Selección Sub-21 de sordos (2026): de lo prometido llegaron $ 4 millones.',
-      propuesta: 'Que cada apoyo a una selección salga por una resolución publicada, con monto y fecha de pago, y que haya un cronograma público por competencia.',
+      evidencia: 'Las Lobas (2026): los pasajes a cargo de la Secretaría de Deportes no llegaron y se pagaron con una colecta. Selección masculina (2026): a una semana del Mundial faltaban US$ 15.000 de la inscripción. Selección Sub-21 de sordos (2026): de lo prometido llegaron $ 4 millones. Lo ejecutado por el ENARD en el primer semestre de 2026 fue 49 % menor que en 2023, en términos reales.',
+      propuesta: 'Que las inscripciones y pasajes de las selecciones clasificadas a un Mundial o a los Juegos tengan una partida asegurada en el presupuesto, que cada apoyo salga por una resolución publicada con monto y fecha de pago, y que haya un cronograma público por competencia.',
       base: 'Ley 27.275 (obliga a la Subsecretaría y, por los fondos públicos que recibe, a la federación). Ley 27.202, art. 3. Convención sobre los Derechos de las Personas con Discapacidad, art. 30.5. Corte Suprema, "CIPPEC" (2014).',
       quien: 'Subsecretaría de Deportes de la Nación; comisiones de Deportes del Congreso.' },
     { traba: 'Si una empresa dona a un club, en general no puede descontarlo de Ganancias.',
