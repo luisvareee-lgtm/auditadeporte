@@ -1,13 +1,70 @@
 {
- "actualizado": "2026-11-06",
- "total": 0,
- "por_anio": {},
- "por_finalidad": {},
+ "actualizado": "2026-11-07",
+ "total": 1,
+ "por_anio": {
+  "2026": 1
+ },
+ "por_finalidad": {
+  "silla_equipamiento": 1
+ },
  "por_torneo": {},
- "por_tipo_pedido": {},
- "por_destinatario": {},
- "por_cuenta": {},
+ "por_tipo_pedido": {
+  "otro": 1
+ },
+ "por_destinatario": {
+  "personas": 1
+ },
+ "por_cuenta": {
+  "Instituto Municipal del Deporte Almirante Brown": {
+   "cuenta": "alte.brown1rabsr",
+   "tipo": "club",
+   "colectas": 1,
+   "ultima": "2026-07-30",
+   "finalidades": {
+    "silla_equipamiento": 1
+   }
+  }
+ },
  "montos_declarados": {},
- "patrones": [],
- "recientes": []
+ "patrones": [
+  {
+   "necesidad": "sillas y equipamiento",
+   "finalidad": "silla_equipamiento",
+   "colectas": 1,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "otro"
+   ],
+   "torneos": [],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "07": 1
+   },
+   "montos": {},
+   "dias_de_anticipacion": null,
+   "rse": "alta",
+   "por_que_rse": "Es un bien o servicio concreto: una empresa puede pagar directo al proveedor y mostrar su marca.",
+   "desde": "2026-07-30",
+   "hasta": "2026-07-30"
+  }
+ ],
+ "recientes": [
+  {
+   "nombre_cuenta": "Instituto Municipal del Deporte Almirante Brown",
+   "tipo_cuenta": "club",
+   "fecha": "2026-07-30",
+   "permalink": "https://www.instagram.com/p/DbZtLl1Ru0H/",
+   "finalidades": [
+    "silla_equipamiento"
+   ],
+   "torneos": [],
+   "tipos_pedido": [
+    "otro"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  }
+ ]
 }

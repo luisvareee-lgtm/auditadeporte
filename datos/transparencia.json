@@ -1,13 +1,13 @@
 {
- "actualizado": "2026-11-06",
+ "actualizado": "2026-11-07",
  "totales": {
   "publica": 14,
   "a_medias": 6,
   "no_publica": 16,
   "jurisdicciones": 36,
   "clubes": 25,
-  "documentos_leidos": 212,
-  "encontrados_para_revisar": 4,
+  "documentos_leidos": 217,
+  "encontrados_para_revisar": 5,
   "publicados": 0
  },
  "fuente_marco_legal": "https://www.fundacionapolo.org/wp-content/uploads/2023/08/INFORME-Leyes-de-ACCESO-A-LA-INFO-PUBLICA.pdf",
@@ -1028,10 +1028,12 @@
    "presupuesto_deporte": [],
    "juegos_bonaerenses": null,
    "pedido": {
-    "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
-    "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
-    "reclamo": "ante el silencio, amparo por mora ante la justicia",
+    "norma": "Ordenanza 7249/2001 de acceso a la información pública municipal",
+    "plazo": "10 días hábiles administrativos, prorrogables una sola vez por 10 más con resolución fundada (art. 8)",
+    "reclamo": "si no responde en plazo o responde en forma parcial o ambigua, se considera negativa (art. 9) y queda habilitado el amparo",
     "provincial": "Decretos 692/09 y 1774/09 de acceso a la información (la ley provincial tuvo media sanción, sin vigencia a la fecha de esta guía) (Poder Ejecutivo provincial)",
+    "fuente": "https://www.opengovpartnership.org/wp-content/uploads/gravity_forms/28-aa56230a9d14aae5a8c65bfaa422aad8/2023/03/Ordenanza-7249-2001.pdf",
+    "ordenanza": true,
     "base": "Constitución Nacional (arts. 1, 14, 33 y 75 inc. 22), art. 13 de la Convención Americana sobre Derechos Humanos y la doctrina de la Corte Suprema de Justicia de la Nación (\"CIPPEC c/ EN – Ministerio de Desarrollo Social\", 2014: los datos de quienes reciben subsidios o ayudas del Estado son información pública)"
    }
   },
@@ -1460,7 +1462,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-06",
+   "ultima_revision": "2026-11-07",
    "checklist": [
     {
      "clave": "boletin",
@@ -1531,7 +1533,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-06",
+   "ultima_revision": "2026-11-07",
    "checklist": [
     {
      "clave": "boletin",
@@ -1687,7 +1689,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-06",
+   "ultima_revision": "2026-11-07",
    "checklist": [
     {
      "clave": "boletin",
@@ -1740,10 +1742,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 16,
-   "encontrados_para_revisar": 0,
+   "documentos_leidos": 17,
+   "encontrados_para_revisar": 1,
    "publicados": 0,
-   "ultima_revision": "2026-11-06",
+   "ultima_revision": "2026-11-07",
    "checklist": [
     {
      "clave": "boletin",
@@ -1763,7 +1765,7 @@
     {
      "clave": "deporte_adaptado",
      "texto": "Documentos sobre deporte adaptado",
-     "estado": "no_encontrado"
+     "estado": "parcial"
     }
    ],
    "documentos": [],
@@ -1800,7 +1802,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-06",
+   "ultima_revision": "2026-11-07",
    "checklist": [
     {
      "clave": "boletin",
@@ -1902,10 +1904,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 19,
+   "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-06",
+   "ultima_revision": "2026-11-07",
    "checklist": [
     {
      "clave": "boletin",
@@ -1963,7 +1965,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-06",
+   "ultima_revision": "2026-11-07",
    "checklist": [
     {
      "clave": "boletin",
@@ -2043,6 +2045,7 @@
     "plazo": "no hay plazo legal provincial: se pide respuesta en un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
     "reclamo": "ante el silencio, amparo",
     "alcance": "Estado provincial",
+    "fuente_jurisprudencia": "CSJT, 'Robles, Juan Roberto c/ Provincia de Tucumán', 03/10/2018: el derecho no requiere demostrar un interés particular",
     "base": "Constitución Nacional (arts. 1, 14, 33 y 75 inc. 22), art. 13 de la Convención Americana sobre Derechos Humanos y la doctrina de la Corte Suprema de Justicia de la Nación (\"CIPPEC c/ EN – Ministerio de Desarrollo Social\", 2014: los datos de quienes reciben subsidios o ayudas del Estado son información pública)"
    }
   },
@@ -2151,22 +2154,22 @@
    "boletin_oficial": null,
    "fuentes": [
     {
-     "nombre": "Presupuesto Abierto: datos abiertos de ejecución",
-     "url": "https://www.presupuestoabierto.gob.ar/sici/datos-abiertos",
-     "tipo": "Datos oficiales",
-     "responde": true
-    },
-    {
      "nombre": "Boletín Oficial de la República Argentina",
      "url": "https://www.boletinoficial.gob.ar/",
      "tipo": "Boletín oficial",
      "responde": false
+    },
+    {
+     "nombre": "Presupuesto Abierto: datos abiertos de ejecución",
+     "url": "https://www.presupuestoabierto.gob.ar/sici/datos-abiertos",
+     "tipo": "Datos oficiales",
+     "responde": true
     }
    ],
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-06",
+   "ultima_revision": "2026-11-07",
    "checklist": [
     {
      "clave": "boletin",
