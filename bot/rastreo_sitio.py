@@ -74,8 +74,17 @@ def temas(texto: str) -> list:
     return hs
 
 
-def es_relevante(hs: list) -> bool:
-    return bool({h["tema"] for h in hs} & TEMAS_RELEVANTES)
+RE_PROPIO = re.compile(r"\b(faba|basquet\w*|paralimp\w*|sillas? de ruedas|copar)\b")
+
+
+def es_relevante(hs: list, texto: str = "") -> bool:
+    """Las federaciones solas no alcanzan (las noticias de deporte nombran al ENARD a cada rato): tiene que aparecer
+    el básquet, FABA, lo paralímpico o la silla de ruedas."""
+    ts = {h["tema"] for h in hs} & TEMAS_RELEVANTES
+    if ts == {"federaciones"}:
+        import analista_pdf as ap
+        return bool(RE_PROPIO.search(ap.normalizar(texto)))
+    return bool(ts)
 
 
 # ---------------------------------------------------------------- avance (db/26)
@@ -123,7 +132,7 @@ def rastrear(sitio: str, maximo: int = 150, prueba: bool = False, capturar=None)
             inst = r[0]["id"] if r else None
         except Exception:
             pass
-    res = {"leidas": 0, "nuevas_en_cola": 0, "bloqueadas": 0, "propuestas": 0, "temas": {}, "pendientes": 0}
+    res = {"leidas": 0, "nuevas_en_cola": 0, "bloqueadas": 0, "propuestas": 0, "temas": {}, "pendientes": 0, "fuera": {}}
     while cola and res["leidas"] < maximo and not o.tiempo_agotado():
         url, prof = cola.pop(0)
         cap = capturar(url)
@@ -148,13 +157,17 @@ def rastrear(sitio: str, maximo: int = 150, prueba: bool = False, capturar=None)
         nuevas = []
         if not es_pdf and clase(url, cfg) == "seccion" and prof < cfg["profundidad"]:
             for u in enlaces(cap.contenido.decode("utf-8", "ignore"), url):
+                if not clase(u, cfg):
+                    p = urlsplit(u)
+                    clave = p.netloc + "/" + p.path.strip("/").split("/")[0] + ("/" + p.path.strip("/").split("/")[1] if p.path.count("/") > 1 else "")
+                    res["fuera"][clave] = res["fuera"].get(clave, 0) + 1
                 if u not in vistos and clase(u, cfg):
                     vistos.add(u)
                     cola.append((u, prof + 1))
                     nuevas.append({"sitio": sitio, "url": u, "profundidad": prof + 1, "estado": "pendiente"})
         res["nuevas_en_cola"] += len(nuevas)
         guardar(sitio, [fila] + nuevas, prueba)
-        if es_relevante(hs):
+        if es_relevante(hs, texto):
             titulo = re.search(r"<title[^>]*>(.*?)</title>", cap.contenido.decode("utf-8", "ignore"), re.I | re.S)
             titulo = re.sub(r"\s+", " ", titulo.group(1)).strip() if titulo and not es_pdf else o.nombre_desde_url(url)
             print(f"  HALLAZGO {url} → {', '.join(fila['temas'])}", flush=True)
@@ -167,6 +180,7 @@ def rastrear(sitio: str, maximo: int = 150, prueba: bool = False, capturar=None)
                 res["propuestas"] += r == "nuevo"
         time.sleep(o.PAUSA_SEG)
     res["pendientes"] = len(cola)
+    res["fuera"] = dict(sorted(res["fuera"].items(), key=lambda x: -x[1])[:25])   # para ajustar el alcance
     return res
 
 

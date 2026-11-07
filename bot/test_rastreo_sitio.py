@@ -32,6 +32,8 @@ class Rastreo(unittest.TestCase):
         self.assertIn("seleccion_fondos", {h["tema"] for h in hs})
         self.assertTrue(r.es_relevante(hs))
         self.assertFalse(r.es_relevante(r.temas("Juegos Evita: inscripciones abiertas para futbol y hockey")))
+        t = "Los Juegos Evita contaron con apoyo del ENARD para el boxeo"
+        self.assertFalse(r.es_relevante(r.temas(t), t))
 
     def test_recorre_seccion_sin_salir_del_alcance(self):
         sitio = {"https://www.argentina.gob.ar/jefatura/deportes":
