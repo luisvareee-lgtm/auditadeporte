@@ -1,0 +1,27 @@
+name: Rastreo de sitios oficiales (Subsecretaría de Deportes)
+on:
+  workflow_dispatch:
+    inputs:
+      prueba: { description: "Solo leer y mostrar (no escribe en la base)", type: boolean, default: true }
+      max: { description: "Páginas por corrida", default: "150" }
+  schedule: [{ cron: "15 9 * * *" }]      # todos los días: sigue donde quedó
+permissions: { contents: read }
+concurrency: { group: rastreo-sitios, cancel-in-progress: false }
+jobs:
+  rastrear:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - run: pip install "pypdf>=4,<7"
+      - name: Tests
+        run: python -m unittest test_supa test_rastreo_sitio test_mesa_ingesta
+        working-directory: bot
+      - name: Rastrear (respeta robots.txt y bloqueos)
+        run: python rastreo_sitio.py --sitio subsecretaria-deportes --max "${{ inputs.max || '150' }}" ${{ (github.event_name == 'schedule' || !inputs.prueba) && ' ' || '--prueba' }}
+        working-directory: bot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
