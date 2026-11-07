@@ -25,7 +25,7 @@ import orquestador_bots_audita as o
 
 AGENTE = "relevar_colectas"
 SELECCIONES = {"laslobasbasquet": "Selección argentina femenina (Las Lobas)"}   # cuentas oficiales de equipos nacionales
-LLAMADAS_POR_CORRIDA = 150            # Meta permite 200 consultas por hora: se deja margen
+LLAMADAS_POR_CORRIDA = 60             # por corrida, cada 3 horas: Meta frena antes de las 200 por hora con cuentas grandes
 DESDE_TOTAL = date(2010, 1, 1)        # barrido exhaustivo: toda la historia de la cuenta
 AQUI = os.path.dirname(os.path.abspath(__file__))
 
@@ -155,6 +155,7 @@ def barrer(usuario: str, propia: str, desde: date, presupuesto: list, prueba=Fal
     completo, after = bool(prog.get("completo")), (None if prog.get("completo") else prog.get("cursor"))
     hasta_fecha = date.fromisoformat(prog["mas_nuevo"]) if completo and prog.get("mas_nuevo") else None
     leidos, mas_nuevo, posts_clasif = int(prog.get("posts_leidos") or 0), prog.get("mas_nuevo"), []
+    corte = None
     while presupuesto[0] > 0:
         pag = f".after({after})" if after else ""
         presupuesto[0] -= 1
@@ -167,7 +168,10 @@ def barrer(usuario: str, propia: str, desde: date, presupuesto: list, prueba=Fal
         except ar.ErrorMeta as e:
             if e.estado == "error" and after and after == prog.get("cursor"):
                 after = None; continue          # cursor guardado vencido: se empieza de nuevo
-            raise
+            if e.estado != "limite_meta" or not leidos:
+                raise
+            corte = str(e)                      # límite de Meta: se guarda el avance y se sigue en la próxima corrida
+            break
         posts = [p for p in d.get("data") or [] if p.get("timestamp")]
         leidos += len(posts)
         for p in posts:
@@ -186,6 +190,9 @@ def barrer(usuario: str, propia: str, desde: date, presupuesto: list, prueba=Fal
     if not prueba:
         _guardar_progreso({"cuenta": usuario.lower(), "cursor": after, "completo": completo, "posts_leidos": leidos,
                            "mas_nuevo": mas_nuevo, "actualizado": datetime.now(timezone.utc).isoformat()})
+    if corte:
+        presupuesto[0] = 0                      # no seguir con otras cuentas en esta corrida
+        print(f"  {usuario}: límite de Meta, avance guardado ({corte[:120]})", flush=True)
     return posts_clasif, completo
 
 
@@ -310,7 +317,8 @@ def cuentas():
     for u, n, t in out:
         if u.lower() not in vistos:
             vistos.add(u.lower()); res.append((u, n, t))
-    return res
+    # primero federación, comité y selecciones (son las que lanzan las colectas grandes), después los clubes
+    return sorted(res, key=lambda x: {"institucion": 0, "seleccion": 1}.get(x[2], 2))
 
 
 def publicar(cli=None):
@@ -368,8 +376,8 @@ def main():
             todas += filas
             estados[usuario] = f"ok ({len(filas)} colectas{'' if completo else ', barrido a medias'})"
         except ar.ErrorMeta as e:
-            estados[usuario] = e.estado
-            if e.estado == "limite_meta":
+            estados[usuario] = f"{e.estado}: {str(e)[:160]}"
+            if e.estado in ("limite_meta", "token_vencido"):
                 break
         time.sleep(ar.PAUSA)
     sen = {}

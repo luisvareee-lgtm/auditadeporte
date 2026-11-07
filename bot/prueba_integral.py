@@ -136,7 +136,7 @@ def meta():
         propia = d.get("username")
         d2, err2 = _graph(ig, {"fields": f"business_discovery.username({propia}){{username,media_count}}"})
         nota("OK" if d2 else "FALLA", "Business Discovery sobre la cuenta propia",
-             "la consulta de otras cuentas funciona; falta solo el permiso para terceros" if d2 else (err2 or {}).get("message", "")[:140])
+             "la consulta de otras cuentas funciona" if d2 else (err2 or {}).get("message", "")[:140])
     else:
         nota("FALLA", "leer la cuenta propia", (err or {}).get("message", "")[:120])
     for otra in ("basquetadaptadofaba", "comiteparalimpicoargentino"):
