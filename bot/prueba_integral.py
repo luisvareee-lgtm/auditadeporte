@@ -148,14 +148,35 @@ def meta():
             nota("BLOQUEADO", f"leer @{otra}", f"código {err.get('code')}: {err.get('message', '')[:140]}")
 
 
+def fuentes(srv):
+    """Qué fuentes se pueden leer solas y cuáles hay que cargar a mano (bloqueadas o caídas)."""
+    print("\n== 4. Fuentes que lee el bot ==")
+    try:
+        fs = srv.table("fuentes_monitoreadas").select("nombre,url,tipo,estado,ultimo_status,ultima_revision,fallos_consecutivos") \
+            .limit(1000).execute().data or []
+    except SupaError as e:
+        nota("FALTA", "tabla fuentes_monitoreadas", str(e)[:80]); return
+    por = {}
+    for f in fs:
+        por.setdefault(f["estado"], []).append(f)
+    nota("OK", "fuentes registradas", ", ".join(f"{k}: {len(v)}" for k, v in sorted(por.items())))
+    for est in ("bloqueada_robots", "caida"):
+        for f in por.get(est, []):
+            nota("A MANO", f"{f['nombre']}", f"{est} (HTTP {f.get('ultimo_status')}) · {f['url'][:90]}")
+    nunca = [f for f in por.get("activa", []) if not f.get("ultima_revision")]
+    if nunca:
+        nota("AVISO", f"{len(nunca)} fuente(s) activas que todavía no se leyeron nunca", ", ".join(f["nombre"] for f in nunca[:10]))
+
+
 def main():
     srv = Cliente(os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_SERVICE_ROLE_KEY"))
     anon = Cliente(os.environ.get("SUPABASE_URL"), clave_publica())
     base(srv)
     publico(srv, anon)
     meta()
+    fuentes(srv)
     print("\n== Resumen ==")
-    for e in ("OK", "AVISO", "BLOQUEADO", "FALTA", "FALLA"):
+    for e in ("OK", "AVISO", "BLOQUEADO", "A MANO", "FALTA", "FALLA"):
         print(f"{e}: {sum(1 for r in RES if r[0] == e)}")
 
 
