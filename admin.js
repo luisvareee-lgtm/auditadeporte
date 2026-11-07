@@ -378,7 +378,7 @@ async function cargarColectas() {
       el('button', { class: 'btn chico', onclick: () => revisarColecta(x, false) }, 'Descartar'))]], l, 'Todavía no hay colectas relevadas.'));
 }
 const ETQ_SENAL = { apoyo_estado: 'Agradece al Estado', apoyo_empresas: 'Agradece a empresas', viaje: 'Viaje', equipamiento_nuevo: 'Equipamiento nuevo',
-  reclamo: 'Reclamo', convocatoria_torneo: 'Aviso de torneo' };
+  reclamo: 'Reclamo', convocatoria_torneo: 'Aviso de torneo', promesa_estado: 'Promesa de la Subsecretaría' };
 async function cargarBarrido() {
   let d;
   try { d = await rpc('panel_barrido_redes'); }

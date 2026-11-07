@@ -82,6 +82,7 @@ class Barrido(unittest.TestCase):
         self.assertIn("apoyo_estado", r.senales("Gracias al Instituto Municipal del Deporte por los pasajes"))
         self.assertIn("convocatoria_torneo", r.senales("Confirmado el fixture del torneo nacional en Rio Gallegos"))
         self.assertEqual(r.senales("Gracias al municipio por acompanar la cirugia de nuestro jugador"), [])
+        self.assertIn("promesa_estado", r.senales("Los pasajes que nos iban a dar desde la Secretaria de Deportes no llegaron"))
 
     def test_barre_todas_las_paginas_y_respeta_presupuesto(self):
         import os, actualidad_redes as ar

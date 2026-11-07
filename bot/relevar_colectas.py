@@ -119,6 +119,8 @@ SENALES = {
     "viaje": r"\b(viajamos|viaje a|partimos (hacia|rumbo)|llegamos a|rumbo a|de gira)\b",
     "equipamiento_nuevo": r"\b(nuevas? sillas?|entrega de sillas?|recibimos (las|nuevas)|nueva indumentaria|nuevas camisetas)\b",
     "reclamo": r"\b(sin apoyo|falta de apoyo|no tenemos sillas|sillas rotas|nadie nos ayuda|abandon\w*|reclam\w*)\b",
+    "promesa_estado": r"\b(secretaria|subsecretaria) de deportes?\b.{0,120}\b(prometi\w*|compromet\w*|iban a|no lleg\w*|todavia no|nunca lleg\w*|esperamos)\b|"
+                      r"\b(prometi\w*|compromet\w*|iban a|no lleg\w*)\b.{0,120}\b(secretaria|subsecretaria) de deportes?\b",
     "convocatoria_torneo": r"\b(confirmad[oa]s?|fixture|cronograma|sede)\b.{0,60}\b(torneo|fecha|liga|nacional|cuadrangular)\b",
 }
 

@@ -1124,6 +1124,11 @@ const INSTITUCIONES = [
     buscar:["Padrón actualizado de clubes afiliados","Reglamentos y calendario de competencias","Balances y memorias de la federación","Criterios de cobertura de viajes y pasajes"] },
   { sigla:"COPAR", nombre:"Comité Paralímpico Argentino", rol:"Representa al deporte paralímpico argentino y articula con federaciones y organismos de financiamiento.",
     buscar:["Autoridades vigentes y mandatos","Balances y memorias anuales","Convenios con federaciones y con el ENARD","Criterios de selección y apoyo a deportistas"] },
+  { sigla:"SUBSECRETARÍA", slug:"subsecretaria-deportes", nombre:"Subsecretaría de Deportes de la Nación", estado:true,
+    rol:"Es el organismo del Estado nacional a cargo del deporte. Según lo que informaron jugadoras y cuerpos técnicos en 2026, por esta vía se esperaban los pasajes y apoyos de las selecciones de básquet adaptado, que en parte no llegaron y se cubrieron con colectas. Está alcanzada por la Ley 27.275 de acceso a la información.",
+    nota:'Desde el 20/07/2026 depende de la Secretaría de Ambiente y Turismo. Su titular renunció el 31/07/2026 (<a class="underline text-blue-700" href="https://www.lanacion.com.ar/politica/el-subsecretario-de-deportes-renuncio-por-sus-diferencias-con-daniel-scioli-nid31072026/" target="_blank" rel="noopener noreferrer">La Nación</a>); no encontramos publicado quién la conduce desde entonces.',
+    buscar:["Fondos comprometidos y pagados a FABA en 2026 para las selecciones (pasajes, inscripciones, alojamiento)","Becas y apoyos económicos a deportistas de básquet adaptado: criterios y montos, sin datos personales","Expedientes y fechas de pago de cada compromiso","Rendiciones presentadas por la federación"],
+    items:[/^Fondos comprometidos y transferidos/, /^Rendición de cuentas presentada/, /^Criterios y listado de becas/] },
   { sigla:"ENARD", nombre:"Ente Nacional de Alto Rendimiento Deportivo", rol:"Financia el alto rendimiento mediante becas, programas y apoyos a federaciones.",
     buscar:["Padrón público de becas (sin datos sensibles)","Rendiciones por federación","Convenios y programas vigentes","Criterios de asignación de recursos"] }
 ];
@@ -2084,11 +2089,12 @@ function renderInst() {
       <span class="inline-block bg-blue-900 text-white text-xs font-extrabold px-3 py-1 rounded-full">${esc(i.sigla)}</span>
       <h3 class="font-extrabold text-lg leading-tight">${esc(i.nombre)}</h3>
       <p class="text-sm text-slate-700">${esc(i.rol)}</p>
+      ${i.nota ? `<p class="text-xs text-slate-600 bg-amber-50 rounded-lg p-2">${i.nota}</p>` : ''}
       <div><p class="text-sm font-bold mb-1">Documentos para buscar</p>
       <ul class="text-sm text-slate-700 list-disc pl-5 space-y-1">${i.buscar.map(b => `<li>${esc(b)}</li>`).join('')}</ul></div>
       <div><p class="text-sm font-bold mb-1">Autoridades publicadas</p>
       <ul class="space-y-1">${(i.autoridades || []).map(autLi).join('') || '<li class="text-sm text-slate-500">Todavía no hay autoridades cargadas con fuente.</li>'}</ul></div>
-      <button data-action="pedir-inst" data-nombre="${esc(i.sigla)}" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm">Preparar pedido de información</button>
+      <button data-action="pedir-inst" data-nombre="${esc(i.estado ? i.nombre : i.sigla)}" data-sigla="${esc(i.sigla)}" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm">Preparar pedido de información</button>
     </article>`).join('');
 }
 
@@ -2138,7 +2144,12 @@ document.addEventListener('click', e => {
     $$('.p-item').forEach(i => { i.checked = ITEMS_MUNICIPIO.some(k => i.value.startsWith(k) || i.value.includes(k)); });
     $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
   }
-  else if (act === 'pedir-inst') { $('#p-tipo').value = 'federacion'; $('#p-entidad').value = a.dataset.nombre; itemsPorTipo(); armarPedido(); showTab('pedir'); }
+  else if (act === 'pedir-inst') {
+    const inst = INSTITUCIONES.find(i => i.sigla === a.dataset.sigla) || {};
+    $('#p-tipo').value = inst.estado ? 'municipio' : 'federacion'; $('#p-entidad').value = a.dataset.nombre; itemsPorTipo();
+    if (inst.items) $$('.p-item').forEach(i => { i.checked = inst.items.some(r => r.test(i.value)); });
+    armarPedido(); showTab('pedir');
+  }
   else if (act === 'ir-mi-lugar') {
     $('#simple-lugares').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => $('#buscar-juris').focus({ preventScroll: true }), 400);
   }
@@ -2264,7 +2275,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const instPorId = {};
       (instDb || []).forEach(i => { instPorId[i.id] = i; });
       INSTITUCIONES.forEach(inst => {
-        const enDb = (autDb || []).filter(a => a.vigente !== false && a.institucion_id && (instPorId[a.institucion_id] || {}).slug === inst.sigla.toLowerCase());
+        const enDb = (autDb || []).filter(a => a.vigente !== false && a.institucion_id && (instPorId[a.institucion_id] || {}).slug === (inst.slug || inst.sigla.toLowerCase()));
         if (enDb.length) inst.autoridades = enDb.map(a => ({ cargo: a.cargo, nombre: a.nombre, fuente: a.fuente_url, fecha: a.fecha_fuente }));
       });
       AUT_CRUCE = { aut: autDb || [], inst: instPorId, clubes: clubesDb || [] };
