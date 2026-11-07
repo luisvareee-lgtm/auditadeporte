@@ -6,7 +6,7 @@ import extractores as ex
 
 class Huecos(unittest.TestCase):
     def test_hueco_largo_si_numero_suelto_no(self):
-        ns = [{"juris_slug": "muni-x", "tipo": "decreto", "numero": n, "anio": 2026, "url": "u"} for n in range(800, 830)
+        ns = [{"juris_slug": "muni-x", "tipo": "decreto", "numero": n, "anio": 2026, "url": f"u{n // 6}"} for n in range(800, 830)
               if n not in (805, 810, 811, 812, 813)]
         a = v.regla_huecos(ns)
         self.assertEqual(len(a), 1)
@@ -16,6 +16,17 @@ class Huecos(unittest.TestCase):
     def test_pocos_numeros_no_alcanza(self):
         ns = [{"juris_slug": "muni-x", "tipo": "decreto", "numero": n, "anio": 2026, "url": "u"} for n in (1, 2, 50, 51)]
         self.assertEqual(v.regla_huecos(ns), [])
+
+
+    def test_una_sola_edicion_no_alcanza(self):
+        # caso Jujuy: 33 decretos de una sola edición del boletín, del 29 al 6093 → no es un hueco del boletín
+        ns = [{"juris_slug": "prov-jujuy", "tipo": "decreto", "numero": n, "anio": 2026, "url": "133-2026.pdf"}
+              for n in [29, 30, 31, 36, 634] + list(range(6064, 6094))]
+        self.assertEqual(v.regla_huecos(ns), [])
+
+    def test_norma_segun_jurisdiccion(self):
+        self.assertIn("art. 5", v.norma_publicacion("prov-jujuy"))
+        self.assertNotIn("14.491", v.norma_publicacion("prov-jujuy"))
 
 
 class Fraccionamiento(unittest.TestCase):

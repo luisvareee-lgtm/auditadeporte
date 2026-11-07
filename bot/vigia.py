@@ -20,6 +20,31 @@ UMBRALES = json.load(open(os.path.join(AQUI, "umbrales_compras.json"), encoding=
 
 MIN_VISTAS_PARA_HUECOS = 15      # con pocos números vistos no se sabe si falta algo o si no se leyó
 MIN_HUECO = 3                    # un número suelto que falta puede ser una anulación: se marca desde 3 seguidos
+MIN_EDICIONES = 5                # con menos ediciones leídas, un hueco dice más de lo que no leímos que de lo que falta
+MIN_DENSIDAD = 0.2               # al menos 1 de cada 5 números del rango tiene que estar visto
+
+
+def _es_pba(juris: str) -> bool:
+    """Un municipio es bonaerense si su pedido de acceso cita la ley de la provincia (datos/transparencia.json)."""
+    import json
+    import os
+    try:
+        d = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "datos", "transparencia.json"), encoding="utf-8"))
+        j = next((x for x in d.get("jurisdicciones") or [] if x["slug"] == juris), None)
+        return bool(j) and ("12.475" in json.dumps(j.get("pedido") or {}, ensure_ascii=False) or "14.491" in json.dumps(j, ensure_ascii=False))
+    except Exception:
+        return False
+
+
+def norma_publicacion(juris: str) -> str:
+    if juris.startswith("muni-") and _es_pba(juris):
+        return ("En la Provincia de Buenos Aires, la Ley 14.491 (que modifica la Ley Orgánica de las Municipalidades) regula la "
+                "publicación de las normas municipales en el Boletín Oficial Municipal.")
+    if juris.startswith("prov-") or juris.startswith("nac-"):
+        return ("Las normas de alcance general rigen después de su publicación oficial (Código Civil y Comercial, art. 5). "
+                "Las de alcance particular (por ejemplo, designaciones de personal) pueden no publicarse.")
+    return ("Las normas municipales de alcance general se publican en el boletín oficial del municipio, según su carta orgánica "
+            "o la ley orgánica provincial que corresponda.")
 VENTANA_DIAS = 60
 
 
@@ -43,6 +68,9 @@ def regla_huecos(normas: list) -> list:
         nums = sorted({n["numero"] for n in ns})
         if len(nums) < MIN_VISTAS_PARA_HUECOS:
             continue
+        ediciones = len({n["url"] for n in ns})
+        if ediciones < MIN_EDICIONES or len(nums) / (nums[-1] - nums[0] + 1) < MIN_DENSIDAD:
+            continue                # leímos pocas ediciones: el hueco es nuestro, no del boletín
         faltan = sorted(set(range(nums[0], nums[-1] + 1)) - set(nums))
         bloques = [r for r in rangos(faltan) if r[1] - r[0] + 1 >= MIN_HUECO]
         if not bloques:
@@ -58,8 +86,7 @@ def regla_huecos(normas: list) -> list:
                 "que": f"Leímos {len(nums)} {plural} de {anio} publicados, del {nums[0]} al {nums[-1]}. No encontramos estos números: {txt}.",
                 "por_que": "La numeración de las normas es correlativa. Un salto de varios números seguidos indica normas que existen "
                            "pero no están en lo que leímos del boletín.",
-                "norma": "En la Provincia de Buenos Aires, la Ley 14.491 (que modifica la Ley Orgánica de las Municipalidades) regula la "
-                         "publicación de las normas municipales en el Boletín Oficial Municipal.",
+                "norma": norma_publicacion(juris),
                 "puede_explicarse": "Puede que esos números sean de alcance particular (por ejemplo, de personal) y la norma no exija "
                                     "publicarlos; que estén en otra edición del boletín que todavía no leímos; o que se hayan anulado.",
                 "que_hacer": "1) Revisá si hay ediciones del boletín que falten cargar. 2) Si no, pedí por acceso a la información "
