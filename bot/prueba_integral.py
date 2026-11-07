@@ -124,8 +124,9 @@ def meta():
         nota("OK" if info.get("is_valid") else "FALLA", "token de Meta válido",
              f"tipo {info.get('type')}, vence {'nunca' if not vence else __import__('datetime').datetime.utcfromtimestamp(vence).date()}")
         alcances = set(info.get("scopes") or [])
-        for p in ("instagram_basic", "pages_read_engagement", "pages_show_list", "business_management"):
+        for p in ("instagram_basic", "instagram_manage_insights", "pages_read_engagement", "pages_show_list", "business_management"):
             nota("OK" if p in alcances else "AVISO", f"permiso {p} en el token", "" if p in alcances else "no está en el token")
+        print("  todos los permisos del token:", ", ".join(sorted(alcances)), "| app:", info.get("application"), info.get("app_id"))
     else:
         nota("FALLA", "token de Meta", (err or {}).get("message", "")[:120])
     ig = os.environ.get("IG_USER_ID", "")
