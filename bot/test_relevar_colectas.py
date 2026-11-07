@@ -60,6 +60,23 @@ class TiposYPatrones(unittest.TestCase):
         self.assertEqual(len(ps), 2)
 
 
+class Contraste(unittest.TestCase):
+    def test_usa_la_ejecucion_anterior_a_la_colecta(self):
+        cs = [{"cuenta": "alte.brown1rabsr", "fecha": "2026-07-15", "permalink": "https://www.instagram.com/p/x/"},
+              {"cuenta": "otro", "fecha": "2026-07-15", "permalink": "https://www.instagram.com/p/y/"}]
+        dep = lambda pct: {"linea": "346 Deporte y recreacion", "vigente": 100.0, "devengado": pct, "pagado": pct, "porcentaje_devengado": pct}
+        ej = [{"juris_slug": "muni-almirante-brown", "hasta": "2026-03-31", "deporte": dep(20.0), "url": "u1"},
+              {"juris_slug": "muni-almirante-brown", "hasta": "2026-06-30", "deporte": dep(41.0), "url": "u2"},
+              {"juris_slug": "muni-almirante-brown", "hasta": "2026-09-30", "deporte": dep(70.0), "url": "u3"}]
+        cx = r.contraste(cs, {"alte.brown1rabsr": "muni-almirante-brown"}, ej)
+        self.assertEqual(cx["https://www.instagram.com/p/x/"]["hasta"], "2026-06-30")
+        self.assertEqual(cx["https://www.instagram.com/p/x/"]["porcentaje_devengado"], 41.0)
+        self.assertEqual(cx["https://www.instagram.com/p/x/"]["momento"], "antes")
+        self.assertNotIn("https://www.instagram.com/p/y/", cx)
+        cx2 = r.contraste([dict(cs[0], fecha="2026-01-10")], {"alte.brown1rabsr": "muni-almirante-brown"}, ej)
+        self.assertEqual(cx2["https://www.instagram.com/p/x/"]["momento"], "despues")
+
+
 class Barrido(unittest.TestCase):
     def test_senales(self):
         self.assertIn("apoyo_estado", r.senales("Gracias al Instituto Municipal del Deporte por los pasajes"))

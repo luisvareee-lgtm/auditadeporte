@@ -99,6 +99,8 @@ def pedido(slug: str, juris_de_club: list, marco: dict) -> dict:
             m["provincial"] = f"{marco[prov]['norma']} ({marco[prov]['alcance']})"
         if prov == "prov-buenos-aires":
             m["extra"] = marco["municipio_pba"]["extra"]
+        if slug in marco.get("municipios_con_ordenanza", {}):
+            m.update(marco["municipios_con_ordenanza"][slug]); m["ordenanza"] = True
     elif t == "universidad":
         m = dict(marco["nac-nacion"])
     else:

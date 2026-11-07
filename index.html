@@ -738,6 +738,7 @@
       <p class="text-sm text-slate-700 max-w-3xl">Qué hace cada entidad y qué documentos conviene buscar. Los cargos de sus autoridades se publican <strong>solo con fuente oficial y fecha</strong> (acta, resolución, sitio institucional), redactados como hechos verificables y sin adjetivos.</p>
     </div>
     <div id="inst-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
+    <div id="inst-cruces" class="hidden bg-white rounded-2xl border-2 border-blue-200 p-6 space-y-3"></div>
   </section>
 
   <!-- ===== PEDIR INFORMACIÓN ===== -->
@@ -1293,7 +1294,17 @@ async function cargarPatronesColectas() {
     ps.map(p => `<div class="rounded-xl bg-white border border-slate-200 p-3"><p class="font-bold">${esc(p.necesidad.charAt(0).toUpperCase() + p.necesidad.slice(1))}: ${esc(p.colectas)} colecta(s) en ${esc(p.cuentas)} cuenta(s)
       <span class="ml-1 text-xs font-bold px-2 py-0.5 rounded-full ${NEC_COLOR[p.rse] || ''}">patrocinio: ${esc(p.rse)}</span></p>
       <p class="text-slate-600">Cómo se pidió: ${esc(lst(p.tipos_pedido))} · Torneos: ${esc(lst(p.torneos))} · ${esc(fechaLinda(p.desde))} a ${esc(fechaLinda(p.hasta))}</p>
-      <p class="text-xs text-slate-500">${esc(p.por_que_rse)}</p></div>`).join('');
+      <p class="text-xs text-slate-500">${esc(p.por_que_rse)}</p></div>`).join('') + contrasteHtml(d.recientes || []);
+}
+// Cada colecta de un club junto a la ejecución de Deporte de su municipio (publicada desde el panel): dos hechos con su fuente.
+function contrasteHtml(rs) {
+  const cx = rs.filter(r => r.presupuesto_municipio);
+  if (!cx.length) return '';
+  const $$ = v => v == null ? '—' : '$ ' + Number(v).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+  return `<p class="font-bold mt-3">Colectas y presupuesto de Deporte del municipio</p>` + cx.map(r => { const p = r.presupuesto_municipio;
+    return `<div class="rounded-xl bg-white border border-slate-200 p-3"><p><a class="underline font-bold" href="${esc(r.permalink)}" target="_blank" rel="noopener noreferrer">${esc(r.nombre_cuenta)}, colecta del ${esc(fechaLinda(r.fecha))}</a></p>
+      <p class="text-slate-700">${p.momento === 'antes' ? 'Al' : 'Primer dato disponible, al'} ${esc(fechaLinda(p.hasta))}, la línea ${esc(p.linea || 'Deporte')} del municipio tenía ${$$(p.vigente)} de crédito vigente y llevaba ${$$(p.devengado)} gastados (${esc(p.porcentaje_devengado ?? '—')} %).
+      ${p.fuente ? `<a class="underline text-blue-700" href="${esc(p.fuente)}" target="_blank" rel="noopener noreferrer">Reporte de ejecución</a>` : ''}</p></div>`; }).join('');
 }
 
 async function cargarSimple() {
@@ -2038,7 +2049,36 @@ async function enviarDato(ev) {
 const autLi = a => `<li class="text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><span class="font-bold">${esc(a.cargo)}:</span> ${esc(a.nombre)}${a.fuente && /^https?:\/\//.test(a.fuente) ? ` <a class="underline text-blue-700 text-xs" href="${esc(a.fuente)}" target="_blank" rel="noopener noreferrer">fuente</a>` : ''}</li>`;
 const docLi = d => `<li class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"><p class="font-semibold">${esc(d.titulo)}</p>${d.norma ? `<p class="text-xs text-slate-600">${esc(d.norma)}</p>` : ''}${d.resumen ? `<p class="mt-1">${esc(d.resumen)}</p>` : ''}</li>`;
 
+let AUT_CRUCE = null;
+// Personas que figuran con cargo vigente en más de una entidad. Solo el hecho y las fuentes: tener dos cargos no es irregular en sí.
+const normNombre = n => (n || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
+function cargosSimultaneos(d) {
+  if (!d) return [];
+  const clubPorId = {}; d.clubes.forEach(c => { clubPorId[c.id] = c.nombre; });
+  const por = {};
+  d.aut.filter(a => a.vigente !== false && a.publicable !== false && a.nombre).forEach(a => {
+    const ent = a.institucion_id ? ((d.inst[a.institucion_id] || {}).slug || '').toUpperCase() : clubPorId[a.club_id];
+    if (!ent) return;
+    const k = normNombre(a.nombre);
+    (por[k] = por[k] || { nombre: a.nombre, cargos: [] }).cargos.push({ ent, cargo: a.cargo, fuente: a.fuente_url, fecha: a.fecha_fuente });
+  });
+  return Object.values(por).filter(p => new Set(p.cargos.map(c => c.ent)).size > 1);
+}
+function renderCruces() {
+  const caja = $('#inst-cruces'); if (!caja) return;
+  const l = cargosSimultaneos(AUT_CRUCE);
+  if (!l.length) { caja.classList.add('hidden'); return; }
+  const dominio = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
+  caja.classList.remove('hidden');
+  caja.innerHTML = `<h3 class="text-lg font-black">Personas con cargo en más de una entidad</h3>
+    <p class="text-sm text-slate-700">Cruce automático de las nóminas cargadas con fuente. Muestra solo el hecho y de dónde sale cada dato. Ocupar dos cargos no es irregular en sí; sirve para saber quién decide en cada lugar y para pedir las actas de designación.</p>
+    <ul class="space-y-2">${l.map(p => `<li class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-sm"><p class="font-bold">${esc(p.nombre)}</p>
+      <ul class="mt-1 space-y-0.5">${p.cargos.map(c => `<li>${esc(c.ent)}: ${esc(c.cargo)}${c.fecha ? ` (fuente del ${esc(fechaLinda(c.fecha))})` : ''}${c.fuente && /^https?:\/\//.test(c.fuente) ? ` · <a class="underline text-blue-700" href="${esc(c.fuente)}" target="_blank" rel="noopener noreferrer">${esc(dominio(c.fuente))}</a>` : ''}</li>`).join('')}</ul></li>`).join('')}</ul>
+    <p class="text-xs text-slate-500">Si una fuente es una nota de prensa y no un acta o un sitio oficial, conviene pedir la nómina oficial a la entidad.</p>`;
+}
+
 function renderInst() {
+  renderCruces();
   $('#inst-grid').innerHTML = INSTITUCIONES.map(i => `
     <article class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
       <span class="inline-block bg-blue-900 text-white text-xs font-extrabold px-3 py-1 rounded-full">${esc(i.sigla)}</span>
@@ -2213,12 +2253,21 @@ $('#d-tipo').addEventListener('change', ajustarTipoDato);
 window.addEventListener('DOMContentLoaded', async () => {
   if (sb) {
     try {
-      const [{ data: clubesDb }, { data: revDb }, { data: autDb }, { data: docsDb }] = await Promise.all([
+      const [{ data: clubesDb }, { data: revDb }, { data: autDb }, { data: docsDb }, { data: instDb }] = await Promise.all([
         sb.from('clubes').select('*'),
         sb.from('revisiones_documentales').select('*'),
         sb.from('autoridades').select('*'),
-        sb.from('documentos_fuente').select('*')
+        sb.from('documentos_fuente').select('*'),
+        sb.from('instituciones').select('id,slug,nombre')
       ]);
+      // autoridades de FABA, COPAR y ENARD cargadas en la base (con fuente y fecha) → tarjetas de Instituciones
+      const instPorId = {};
+      (instDb || []).forEach(i => { instPorId[i.id] = i; });
+      INSTITUCIONES.forEach(inst => {
+        const enDb = (autDb || []).filter(a => a.vigente !== false && a.institucion_id && (instPorId[a.institucion_id] || {}).slug === inst.sigla.toLowerCase());
+        if (enDb.length) inst.autoridades = enDb.map(a => ({ cargo: a.cargo, nombre: a.nombre, fuente: a.fuente_url, fecha: a.fecha_fuente }));
+      });
+      AUT_CRUCE = { aut: autDb || [], inst: instPorId, clubes: clubesDb || [] };
 
       if (clubesDb && clubesDb.length > 0) {
         const revPorClub = {};

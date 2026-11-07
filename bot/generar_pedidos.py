@@ -27,7 +27,8 @@ def texto_pedido(j: dict) -> str:
     la ley provincial (en la Provincia de Buenos Aires, la 12.475 solo alcanza al Ejecutivo provincial)."""
     p = j["pedido"]
     if j.get("tipo", "municipio") == "municipio":
-        base = BASE_CARTA + ", y por la ordenanza municipal de acceso a la información pública que corresponda"
+        base = BASE_CARTA + (f", y por la {p['norma']}" if p.get("ordenanza") else
+                             ", y por la ordenanza municipal de acceso a la información pública que corresponda")
     else:
         base = BASE_CARTA + ("" if p["norma"].startswith("sin ley") else f", y por la {p['norma']}")
     prov = ""

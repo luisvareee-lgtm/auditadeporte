@@ -321,6 +321,44 @@ def cuentas():
     return sorted(res, key=lambda x: {"institucion": 0, "seleccion": 1}.get(x[2], 2))
 
 
+def contraste(colectas: list, cuenta_a_juris: dict, ejecuciones: list) -> dict:
+    """Para cada colecta de un club, la ejecución de Deporte de su municipio más cercana ANTES de la fecha de la colecta
+    (si no hay, la primera posterior, marcada así). Dos hechos con su fuente, uno al lado del otro: no se opina.
+    Devuelve {permalink: {...}}. Solo usa ejecuciones publicadas por una persona desde el panel."""
+    por_juris = {}
+    for e in ejecuciones:
+        if e.get("deporte") and e.get("hasta"):
+            por_juris.setdefault(e["juris_slug"], []).append(e)
+    out = {}
+    for c in colectas:
+        j = cuenta_a_juris.get((c.get("cuenta") or "").lower())
+        es = sorted(por_juris.get(j) or [], key=lambda e: e["hasta"])
+        if not es:
+            continue
+        antes = [e for e in es if e["hasta"] <= c["fecha"]]
+        e, momento = (antes[-1], "antes") if antes else (es[0], "despues")
+        d = e["deporte"]
+        out[c["permalink"]] = {"juris_slug": j, "hasta": e["hasta"], "momento": momento, "linea": d.get("linea"),
+                               "vigente": d.get("vigente"), "devengado": d.get("devengado"), "pagado": d.get("pagado"),
+                               "porcentaje_devengado": d.get("porcentaje_devengado"), "fuente": e.get("url")}
+    return out
+
+
+def _cuenta_a_juris(cli):
+    """Cuenta de Instagram del club → municipio (según la lista de clubes de cada jurisdicción en datos/transparencia.json)."""
+    try:
+        t = json.load(open(os.path.join(AQUI, "..", "datos", "transparencia.json"), encoding="utf-8"))
+        clubes = cli.table("clubes").select("nombre,instagram").execute().data or []
+    except Exception:
+        return {}
+    nombre_a_juris = {}
+    for j in t.get("jurisdicciones") or []:
+        if j["slug"].startswith("muni-"):
+            for n in j.get("clubes") or []:
+                nombre_a_juris[n] = j["slug"]
+    return {c["instagram"].lower(): nombre_a_juris[c["nombre"]] for c in clubes if c.get("instagram") and c["nombre"] in nombre_a_juris}
+
+
 def publicar(cli=None):
     """datos/colectas.json: solo agregados y enlaces a posteos de cuentas oficiales."""
     cli = cli or o.db()
@@ -331,8 +369,16 @@ def publicar(cli=None):
         filas = cli.table("colectas_relevadas").select("cuenta,nombre_cuenta,tipo_cuenta,fecha,permalink,finalidades,torneos,montos") \
             .execute().data or []
     import patrones_colectas as pc
+    try:
+        ejec = cli.table("ejecuciones_presupuestarias").select("juris_slug,hasta,deporte,url").eq("publicado", True) \
+            .eq("tipo", "gastos").execute().data or []
+    except Exception:
+        ejec = []
+    cx = contraste(filas, _cuenta_a_juris(cli), ejec)
     datos = {"actualizado": datetime.now(timezone.utc).strftime("%Y-%m-%d"), **agregar(filas), "patrones": pc.patrones(filas),
-             "recientes": [{k: f[k] for k in ("nombre_cuenta", "tipo_cuenta", "fecha", "permalink", "finalidades", "torneos")}
+             "recientes": [{**{k: f.get(k) for k in ("nombre_cuenta", "tipo_cuenta", "fecha", "permalink", "finalidades", "torneos",
+                                                     "tipos_pedido", "montos")},
+                            "presupuesto_municipio": cx.get(f["permalink"])}
                            for f in sorted(filas, key=lambda x: x["fecha"], reverse=True)[:30]]}
     ruta = os.path.join(AQUI, "..", "datos", "colectas.json")
     nuevo = json.dumps(datos, ensure_ascii=False, indent=1)
