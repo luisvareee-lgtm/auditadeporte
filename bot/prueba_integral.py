@@ -163,6 +163,10 @@ def fuentes(srv):
     for est in ("bloqueada_robots", "caida"):
         for f in por.get(est, []):
             nota("A MANO", f"{f['nombre']}", f"{est} (HTTP {f.get('ultimo_status')}) · {f['url'][:90]}")
+    for f in por.get("activa", []):
+        if f.get("ultimo_status") not in (200, None):
+            nota("A MANO", f"{f['nombre']}", f"responde HTTP {f.get('ultimo_status')} · {f['url'][:90]}")
+    print("  todas:", "; ".join(f"{f['nombre']} [{f['estado']}, {f.get('ultimo_status')}]" for f in fs))
     nunca = [f for f in por.get("activa", []) if not f.get("ultima_revision")]
     if nunca:
         nota("AVISO", f"{len(nunca)} fuente(s) activas que todavía no se leyeron nunca", ", ".join(f["nombre"] for f in nunca[:10]))
