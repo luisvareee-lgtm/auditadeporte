@@ -5,5 +5,5 @@ const errores = []; p.on('pageerror', e => errores.push(e.message));
 await p.goto('https://auditadeporte.vercel.app/', { waitUntil: 'networkidle' });
 await p.click('#t-inst'); await p.waitForTimeout(1500);
 console.log('CRUCES:', (await p.locator('#inst-cruces').innerText()).slice(0, 1500));
-console.log('INST:', (await p.locator('#inst-grid').innerText()).slice(0, 1200));
+console.log('INST:', (await p.locator('#inst-grid').innerText()).slice(0, 4000));
 console.log('errores:', JSON.stringify(errores)); await b.close();
