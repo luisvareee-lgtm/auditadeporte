@@ -52,6 +52,8 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
           SUPABASE_ANON_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
           SITIO_URL: https://auditadeporte.vercel.app/      # el sitio está en Vercel (antes GitHub Pages)
-      - name: Avisar alertas nuevas del vigía
+      - name: "AVISO, no es una falla: hay alertas nuevas del vigía (revisalas en el panel)"
         if: steps.vigia.outcome == 'failure'
-        run: echo "Hay alertas nuevas del vigía. Entrá al panel, pestaña Alertas." && exit 1
+        run: |
+          echo "::warning title=Alertas nuevas del vigía::No es un error de los bots: todos los pasos anteriores terminaron bien. Hay alertas nuevas para revisar en el panel, pestaña Alertas. La corrida queda en rojo a propósito para que GitHub te mande el correo."
+          exit 1
