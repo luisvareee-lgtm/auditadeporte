@@ -22,8 +22,12 @@ SITIOS = {
         "nombre": "Subsecretaría de Deportes de la Nación",
         "semillas": ["https://www.argentina.gob.ar/jefatura/deportes"],
         # se recorre todo lo que cuelga de estas rutas; lo demás del mismo sitio solo se lee si la sección lo enlaza
-        "prefijos": ["https://www.argentina.gob.ar/jefatura/deportes", "https://www.argentina.gob.ar/deportes"],
-        "hojas": [r"^https://www\.argentina\.gob\.ar/(noticias|normativa)/", r"^https://(www\.)?boletinoficial\.gob\.ar/",
+        # la sección se mudó varias veces (Interior, Jefatura, Turismo y Ambiente): se recorren todas sus ubicaciones
+        "prefijos": ["https://www.argentina.gob.ar/jefatura/deportes", "https://www.argentina.gob.ar/deportes",
+                     "https://www.argentina.gob.ar/interior/deportes", "https://www.argentina.gob.ar/jefatura/turismo-ambiente-y-deportes",
+                     "https://www.argentina.gob.ar/turismoyambiente/deportes", "https://www.argentina.gob.ar/juegosevita",
+                     "https://www.argentina.gob.ar/juegosadultos", "https://www.argentina.gob.ar/predios-nacionales/centro-nacional-de-alto-rendimiento-deportivo-cenard"],
+        "hojas": [r"^https://www\.argentina\.gob\.ar/(noticias|normativa|node)/", r"^https://(www\.)?boletinoficial\.gob\.ar/",
                   r"^https://servicios\.infoleg\.gob\.ar/", r"\.pdf(\?|$)"],
         "profundidad": 6,
     },
