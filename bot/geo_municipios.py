@@ -124,11 +124,9 @@ def cuadros_indec():
                     print("   FILA", i, [c for c in r][:9])
             continue
         tabla = {}
-        for f in filas:
-            txt = next((c for c in f if isinstance(c, str) and c.strip()), None)
-            nums = [c for c in f if isinstance(c, (int, float)) and not isinstance(c, bool)]
-            if txt and nums and max(nums) >= 500:
-                tabla[" ".join(norm(txt))] = int(max(nums))   # la población total es el mayor número de la fila
+        for f in filas:              # columnas: jurisdicción, código, categoría, Gobierno local (4), Viviendas (5), Población (6)
+            if len(f) > 6 and isinstance(f[4], str) and isinstance(f[6], (int, float)):
+                tabla[" ".join(norm(f[4]))] = int(f[6])
         res[prov_archivo] = tabla
     print("provincias leídas:", sorted(res))
     return res
