@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 fs.mkdirSync('capturas', { recursive: true });
 const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'] });
-for (const [n, vp] of [['celular', { width: 390, height: 844 }], ['escritorio', { width: 1366, height: 900 }]]) {
+for (const [n, vp] of [['escritorio', { width: 1366, height: 900 }], ['celular', { width: 390, height: 844 }]]) {
   const p = await b.newPage({ viewport: vp, deviceScaleFactor: 1 }); const err = [];
   p.on('pageerror', e => err.push(e.message)); p.on('console', m => m.type() === 'error' && err.push(m.text()));
   await p.goto('https://auditadeporte.vercel.app/#tablero', { waitUntil: 'load', timeout: 60000 });
@@ -13,7 +13,9 @@ for (const [n, vp] of [['celular', { width: 390, height: 844 }], ['escritorio', 
   const ancho = await p.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2);
   console.log(n, 'se sale del ancho:', ancho, '| errores:', JSON.stringify(err));
   await p.screenshot({ path: `capturas/tablero-${n}.png`, fullPage: true });
-  await p.locator('[data-tb3="clubes"]').click(); await p.waitForTimeout(2500);
+  console.log(n, 'semáforo:', await p.locator('#tb-semaforo > div').count(), 'filas · respuestas:', (await p.locator('#tb-respuestas').innerText()).slice(0, 80));
+  await p.locator('[data-tb3="m_transparencia"]').click(); await p.waitForTimeout(3500);
+  console.log(n, 'municipios:', await p.locator('#tb-3d-nota').innerText());
   await p.locator('#tb-3d').screenshot({ path: `capturas/mapa3d-${n}.png` });
   for (const [nom, buf] of [[`tablero-${n}`, await p.screenshot({ type: 'jpeg', quality: 55, fullPage: true })], [`mapa3d-${n}`, await p.locator('#tb-3d').screenshot({ type: 'jpeg', quality: 70 })]]) {
     const b64 = buf.toString('base64');
