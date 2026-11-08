@@ -116,6 +116,13 @@ def cuadros_indec():
         titulo = " ".join(str(c) for f in filas[:8] for c in f if c)
         if os.environ.get("MUESTRA") or prov_archivo in ("bsas", "santafe", "cordoba"):
             print("  ", prov_archivo, "|", titulo[:160])
+        if os.environ.get("DIAGNOSTICO") and prov_archivo in ("bsas", "santafe"):
+            for ws in wb.worksheets:
+                print("   HOJA", ws.title)
+                for i, r in enumerate(ws.iter_rows(values_only=True)):
+                    if i > 22: break
+                    print("   FILA", i, [c for c in r][:9])
+            continue
         tabla = {}
         for f in filas:
             txt = next((c for c in f if isinstance(c, str) and c.strip()), None)
