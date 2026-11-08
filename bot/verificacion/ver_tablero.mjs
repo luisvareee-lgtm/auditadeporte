@@ -6,7 +6,7 @@ const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-webgl
 for (const [n, vp] of [['celular', { width: 390, height: 844 }], ['escritorio', { width: 1366, height: 900 }]]) {
   const p = await b.newPage({ viewport: vp, deviceScaleFactor: 1 }); const err = [];
   p.on('pageerror', e => err.push(e.message)); p.on('console', m => m.type() === 'error' && err.push(m.text()));
-  await p.goto('https://auditadeporte.vercel.app/#tablero', { waitUntil: 'networkidle' });
+  await p.goto('https://auditadeporte.vercel.app/#tablero', { waitUntil: 'load', timeout: 60000 });
   await p.waitForTimeout(6000);
   console.log(n, 'KPIs:', (await p.locator('#tb-kpis').innerText()).replace(/\s+/g, ' '));
   console.log(n, 'mapa 3D:', await p.locator('#tb-3d canvas').count(), 'lienzo(s) ·', await p.locator('#tb-3d-nota').innerText());
