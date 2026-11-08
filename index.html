@@ -384,6 +384,14 @@
           <legend class="font-bold">¿Te pasa más de una? Sumalas a la misma nota</legend>
           <div id="nc-casos" class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1"></div>
         </fieldset>
+        <details class="rounded-xl bg-white border border-slate-200 p-3 text-sm" id="nc-seguimiento">
+          <summary class="cursor-pointer font-bold">Si ya la presentaste y no responden: datos para la reiteración y los reclamos</summary>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+            <label class="block"><span class="font-bold">Fecha en que presentaste la nota</span><input id="nc-fecha" type="date" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+            <label class="block"><span class="font-bold">Número de expediente o comprobante</span><input id="nc-exp" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+            <label class="flex items-center gap-2 font-bold sm:col-span-2"><input id="nc-pba" type="checkbox" checked class="w-5 h-5"> El municipio es de la Provincia de Buenos Aires</label>
+          </div>
+        </details>
         <label for="nc-texto" class="block text-sm font-bold">Texto de la nota</label>
         <textarea id="nc-texto" rows="14" class="w-full bg-slate-950 text-emerald-200 font-mono text-sm rounded-xl p-3 border border-slate-700"></textarea>
         <div class="flex flex-wrap gap-2">
@@ -1426,7 +1434,7 @@ const EJEMPLO_DETALLE = {
 };
 let casosNota = new Set();
 const CASOS = [
-  { id: 'silla-propia', icono: '♿', titulo: 'Uso mi propia silla y los arreglos los pago yo',
+  { id: 'silla-propia', control: ['obra_social', 'defensoria'], icono: '♿', titulo: 'Uso mi propia silla y los arreglos los pago yo',
     regla: [
       'Si la silla es tuya, en principio el arreglo es tuyo, salvo que el municipio o el club se hayan comprometido por escrito.',
       'Nada impide pedirle al municipio que colabore con repuestos o reparaciones del equipo que lo representa. Es un pedido, no una obligación: por eso conviene hacerlo por escrito y como equipo.',
@@ -1436,7 +1444,7 @@ const CASOS = [
       'En paralelo, publicá un pedido de patrocinio para la mecánica de las sillas: la empresa paga directo al proveedor.'],
     items: /^(Criterios y registros de asignación de sillas|Partidas del presupuesto)/, rse: 'silla',
     nota: 'colaboración con repuestos y reparaciones de las sillas deportivas que usamos para representar al municipio (cubiertas, cámaras, rayos, ejes y rulemanes)' },
-  { id: 'sillas-municipio', icono: '🔧', titulo: 'El municipio tiene sillas, pero no son a medida y están rotas o con faltantes',
+  { id: 'sillas-municipio', control: ['defensoria'], icono: '🔧', titulo: 'El municipio tiene sillas, pero no son a medida y están rotas o con faltantes',
     regla: [
       'Las sillas compradas por el municipio son bienes públicos: tienen que estar inventariadas y alguien es responsable de conservarlas.',
       'Si te las prestaron, quien usa la silla paga el desgaste común (cubiertas, cámaras); las roturas grandes y la conservación extraordinaria corresponden al dueño (Código Civil y Comercial, arts. 1536, 1538 y 1540).',
@@ -1447,7 +1455,7 @@ const CASOS = [
       'Si quieren que el equipo lo vea, envíen la lista y las fotos por "Enviar un dato": queda privado y se usa solo si se puede respaldar.'],
     items: /^(Actas de entrega o de comodato|Criterios y registros de asignación de sillas)/, rse: 'silla', dato: true,
     nota: 'la reparación y el recambio de las sillas deportivas del equipo, que hoy están rotas o incompletas, y la incorporación de sillas a medida o adaptables al plan de compras' },
-  { id: 'traslados', icono: '🚌', titulo: 'Pago mi traslado al club y a los partidos: no hay viáticos',
+  { id: 'traslados', control: ['transporte', 'defensoria'], icono: '🚌', titulo: 'Pago mi traslado al club y a los partidos: no hay viáticos',
     regla: [
       'No hay una ley que obligue a pagar viáticos por entrenar. Depende de lo que diga la norma o el convenio del equipo, o de una beca.',
       'Con el CUD podés viajar gratis: en el transporte de jurisdicción nacional (Ley 22.431, art. 22) y, en la Provincia de Buenos Aires, en las líneas provinciales con el Pase Libre Multimodal, que se tramita con el CUD (Ley 10.592, art. 22). Si el certificado lo indica, también viaja gratis tu acompañante en las líneas nacionales.',
@@ -1457,7 +1465,7 @@ const CASOS = [
       'Pidan por acceso a la información los criterios y el presupuesto de viáticos o ayuda de traslado.'],
     items: /^(Criterios y presupuesto para viáticos|Gastos de transporte y alojamiento)/, rse: 'gira',
     nota: 'transporte para los partidos y torneos oficiales en los que el equipo representa al municipio, según el calendario que adjuntamos' },
-  { id: 'indumentaria', icono: '👕', titulo: 'Las camisetas y la indumentaria las pagamos nosotros',
+  { id: 'indumentaria', control: ['defensoria'], icono: '👕', titulo: 'Las camisetas y la indumentaria las pagamos nosotros',
     regla: [
       'Ninguna ley general obliga al municipio a dar indumentaria, pero si el equipo juega con su nombre y su escudo, es razonable pedirlo. Fijate si la norma o el convenio del equipo dice algo; si no hay convenio, pedilo (plantilla más abajo).',
       'Si el municipio compró indumentaria para el equipo, esa compra tiene que estar registrada: se puede pedir cuándo fue la última y qué se compró.'],
@@ -1466,7 +1474,7 @@ const CASOS = [
       'Publiquen un pedido de patrocinio de indumentaria: la empresa puede poner su marca y pagar directo al proveedor.'],
     items: /^(Compras de indumentaria deportiva)/, rse: 'indumentaria',
     nota: 'la renovación de la indumentaria oficial del equipo (camisetas y conjuntos), que el municipio no renueva desde hace tiempo y hoy pagamos las y los deportistas' },
-  { id: 'elementos', icono: '🏀', titulo: 'Los profes no tienen elementos de trabajo',
+  { id: 'elementos', control: ['defensoria'], icono: '🏀', titulo: 'Los profes no tienen elementos de trabajo',
     regla: [
       'Los elementos de entrenamiento comprados por el municipio también son bienes públicos inventariados.',
       'Pedir el inventario y las compras permite saber qué hay, qué se compró y qué falta.'],
@@ -1476,7 +1484,7 @@ const CASOS = [
       'Publiquen un pedido de patrocinio de preparación física.'],
     items: /^(Inventario de elementos de entrenamiento)/, rse: 'fisico',
     nota: 'la provisión de elementos de entrenamiento para el cuerpo técnico del equipo (pelotas, conos y elementos de preparación física), según la lista y el presupuesto que adjuntamos' },
-  { id: 'viajes-torneos', icono: '🧳', titulo: 'Viajamos a torneos y no sabemos quién pagó el micro, el hotel o la comida',
+  { id: 'viajes-torneos', control: ['defensoria'], icono: '🧳', titulo: 'Viajamos a torneos y no sabemos quién pagó el micro, el hotel o la comida',
     regla: [
       'Cada gasto del municipio deja un expediente: pedido, presupuestos, orden de compra, factura y orden de pago. Lo que no sale en el boletín igual existe y se puede pedir.',
       'Si el viaje fue para representar al municipio (liga, Juegos Bonaerenses), el gasto es público y la información también, aunque lo haya contratado un organismo de deportes.',
@@ -1729,7 +1737,120 @@ function pintarCasos() {
       <button data-action="caso-rse" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-sm">Publicar pedido de patrocinio</button>
       ${c.dato ? '<button data-action="caso-dato" class="border-2 border-emerald-700 text-emerald-800 hover:bg-white font-bold px-4 py-2 rounded-xl text-sm">Enviar la lista y las fotos (privado)</button>' : ''}
     </div>
+    ${escaleraHtml(c)}
     <p class="text-xs text-slate-600">Orientación general, no asesoramiento legal. Para un caso concreto, consultá a un abogado (muchos colegios de abogados tienen consultorios gratuitos).</p>`;
+}
+
+// ---- Escalera de reclamos: qué hacer si la nota no tiene respuesta. Modelos en borrador hasta que los revise un abogado.
+const CONTROL = {
+  defensoria: { nombre: 'Defensoría del Pueblo', boton: 'Armar la queja ante la Defensoría del Pueblo',
+    que: 'Recibe quejas gratis contra organismos públicos que no responden o no cumplen, y puede pedirles explicaciones. En la Provincia de Buenos Aires es la Defensoría del Pueblo provincial (defensorba.org.ar); algunos municipios tienen la suya.' },
+  obra_social: { nombre: 'Obra social y Superintendencia de Servicios de Salud', boton: 'Armar el pedido a la obra social',
+    que: 'Primero se pide la cobertura por escrito a la obra social o prepaga, con prescripción médica y presupuesto (Ley 24.901). Si la rechaza o no responde, el reclamo va a la Superintendencia de Servicios de Salud, que controla a obras sociales y prepagas: por Trámites a Distancia (TAD), con turno presencial por Mi Argentina o al 0800-222-72583, o por correo postal a Bartolomé Mitre 434, CABA, con el formulario de denuncia firmado.' },
+  transporte: { nombre: 'CNRT (transporte nacional)', boton: 'Armar el reclamo por el pasaje gratuito',
+    que: 'Si una empresa de micros de larga distancia te niega el pasaje gratuito con el CUD (Ley 22.431, art. 22), el reclamo va a la Comisión Nacional de Regulación del Transporte (CNRT): 0800-333-0300, de lunes a viernes de 8 a 20, o en Maipú 88, CABA. Anotá empresa, fecha, lugar y, si podés, número de unidad o patente. Para colectivos de la provincia rige el Pase Libre Multimodal (Ley 10.592).' }
+};
+const PRUEBAS = ['Copia sellada de cada nota, con fecha y número de expediente', 'Capturas o copias de cada respuesta (o constancia de que no hubo)',
+  'Presupuestos y facturas de lo que pagaste vos (silla, repuestos, traslados, indumentaria)', 'Fotos fechadas del estado de las sillas o del equipamiento',
+  'Constancias de que representás al municipio: planillas de la federación, fotos oficiales, publicaciones del municipio con el equipo', 'CUD y, si corresponde, prescripción médica'];
+function escaleraHtml(c) {
+  const ctl = (c.control || ['defensoria']).map(k => CONTROL[k]);
+  return `<div class="rounded-2xl bg-white border-2 border-slate-300 p-4 space-y-3">
+    <div class="flex flex-wrap items-center gap-2"><p class="font-black">Si no responden: paso a paso</p>
+      <span class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-900">Borrador: modelos no revisados por un abogado</span></div>
+    <ol class="space-y-3 text-sm">
+      <li><p class="font-bold">1. La nota al municipio</p><p class="text-slate-700">Presentala con dos copias y pedí que te sellen una. Desde ese día corre el plazo${''}: en la Provincia de Buenos Aires, 30 días hábiles (Ordenanza General 267/80, art. 77).</p></li>
+      <li><p class="font-bold">2. Reiteración con pronto despacho</p><p class="text-slate-700">Si vence el plazo sin respuesta, se reitera por escrito citando el expediente. En la Provincia de Buenos Aires, si pasan 2 meses más sin respuesta, se presume que el pedido fue denegado (art. 79), y eso abre otras vías.</p>
+        <button data-action="caso-reiterar" class="mt-1 bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-2 rounded-xl text-xs">Armar la reiteración</button></li>
+      <li><p class="font-bold">3. Reclamo ante quien controla</p>${ctl.map((x, i) => `<p class="text-slate-700 mt-1"><strong>${esc(x.nombre)}:</strong> ${esc(x.que)}</p>
+        <button data-action="caso-control" data-control="${(c.control || ['defensoria'])[i]}" class="mt-1 bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-2 rounded-xl text-xs">${esc(x.boton)}</button>`).join('')}</li>
+      <li><p class="font-bold">4. Consultar con un abogado</p><p class="text-slate-700">Si nada de lo anterior funciona, la vía judicial (por ejemplo, un amparo, que puede ser colectivo si el problema es de todo el equipo) la tiene que evaluar un abogado. Hay consultorios jurídicos gratuitos de colegios de abogados y facultades de Derecho. Llevá esta carpeta:</p>
+        <ul class="list-disc pl-5 mt-1 text-slate-700">${PRUEBAS.map(x => `<li>${esc(x)}</li>`).join('')}</ul></li>
+    </ol></div>`;
+}
+function datosSeguimiento() {
+  const v = id => $('#' + id).value.trim(), f = v('nc-fecha');
+  return { muni: v('nc-muni') || '[Municipalidad de …]', eq: v('nc-equipo') || '[equipo de básquet en silla de ruedas de …]',
+    nom: v('nc-nom') || '[Nombre y apellido, o "Las y los integrantes del plantel"]', dni: v('nc-dni') || '[DNI y contacto]',
+    fecha: f ? f.split('-').reverse().join('/') : '[fecha en que presentaste la nota]', exp: v('nc-exp') || '[número de expediente o comprobante]',
+    pba: $('#nc-pba').checked, det: v('nc-detalle') };
+}
+function abrirPanelNota() {
+  $('#nota-caso').classList.remove('hidden'); $('#nc-seguimiento').open = true; pintarCasosNota();
+  $('#nota-caso').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function armarReiteracion() {
+  const c = casoActual; if (!c) return; const d = datosSeguimiento();
+  $('#nc-texto').value =
+`Asunto: Reiteración y pedido de pronto despacho — ${c.titulo}
+
+A: ${d.muni}
+Secretaría / Dirección de Deportes
+
+Quienes integramos el ${d.eq} presentamos el ${d.fecha} una nota, registrada como ${d.exp}, en la que solicitamos ${c.nota}.
+
+A la fecha no recibimos respuesta${d.pba ? ', y venció el plazo de 30 días hábiles previsto en el art. 77 de la Ordenanza General 267/80' : ''}. Por eso reiteramos el pedido y solicitamos su pronto despacho${d.pba ? ', conforme al art. 79 de la misma norma' : ''}.
+
+Pedimos que se nos informe por escrito qué se resuelve, en qué plazo y qué área es responsable. Si el pedido no puede atenderse, pedimos que se nos comunique el motivo y la norma que lo fundamenta.
+
+Fundamos esta presentación en el derecho de peticionar a las autoridades (art. 14 de la Constitución Nacional) y en el art. 30.5 de la Convención sobre los Derechos de las Personas con Discapacidad (Ley 26.378, con jerarquía constitucional por la Ley 27.044), que compromete al Estado a asegurar que las personas con discapacidad participen en actividades deportivas en igualdad de condiciones, con los recursos adecuados.
+
+${d.nom}
+${d.dni}`;
+  abrirPanelNota();
+}
+function armarControl(k) {
+  const c = casoActual; if (!c) return; const d = datosSeguimiento();
+  const firma = `${d.nom}\n${d.dni}`;
+  const textos = {
+    defensoria:
+`Asunto: Queja por falta de respuesta — ${c.titulo}
+
+A: Defensoría del Pueblo de ${d.pba ? 'la Provincia de Buenos Aires' : '[provincia o municipio]'}
+
+Quienes integramos el ${d.eq}, que representa a ${d.muni} en competencias oficiales de básquet en silla de ruedas, presentamos el ${d.fecha} una nota, registrada como ${d.exp}, en la que solicitamos ${c.nota}. ${d.pba ? 'Venció el plazo de respuesta de la Ordenanza General 267/80 (art. 77) y reiteramos el pedido con pronto despacho (art. 79), sin respuesta.' : 'No recibimos respuesta, a pesar de haber reiterado el pedido.'}
+${d.det ? `\nDetalle de la situación:\n${d.det}\n` : ''}
+Solicitamos que la Defensoría intervenga ante el municipio para que responda por escrito y, si corresponde, atienda lo pedido.
+
+Fundamos la queja en el derecho de peticionar a las autoridades (art. 14 de la Constitución Nacional), en el art. 30.5 de la Convención sobre los Derechos de las Personas con Discapacidad (Ley 26.378, con jerarquía constitucional por la Ley 27.044) y en la Ley 27.202, que incluye al deporte adaptado en la política deportiva.
+
+Adjuntamos copia de las notas presentadas y de la documentación que respalda lo pedido.
+
+${firma}`,
+    obra_social:
+`Asunto: Solicitud de cobertura — silla de ruedas deportiva y su mantenimiento
+
+A: [Nombre de la obra social o prepaga]
+Afiliado/a: [nombre y número de afiliado]
+
+Solicito la cobertura de [la silla de ruedas deportiva / los repuestos y reparaciones de mi silla deportiva], según la prescripción médica y el presupuesto que adjunto.
+
+Fundo el pedido en la Ley 24.901 (sistema de prestaciones básicas para personas con discapacidad), que obliga a obras sociales y prepagas a cubrir las ayudas técnicas que la persona necesita, y en mi Certificado Único de Discapacidad (que adjunto).
+
+Pido que se me responda por escrito. Si la cobertura se rechaza total o parcialmente, pido que se me informe el motivo y la norma que lo fundamenta. Ante el rechazo o la falta de respuesta, presentaré el reclamo ante la Superintendencia de Servicios de Salud.
+
+Adjunto: prescripción médica, presupuesto, copia del CUD.
+
+${firma}`,
+    transporte:
+`Asunto: Reclamo — negativa de pasaje gratuito con Certificado Único de Discapacidad
+
+A: Comisión Nacional de Regulación del Transporte (CNRT)
+
+El [fecha], la empresa [nombre de la empresa] no me entregó el pasaje gratuito para viajar de [origen] a [destino], a pesar de presentar mi Certificado Único de Discapacidad [y el de mi acompañante].
+
+El viaje era para [participar en una competencia oficial de básquet en silla de ruedas / otro motivo].
+
+Fundo el reclamo en la Ley 22.431, art. 22, que obliga a las empresas de transporte colectivo terrestre de jurisdicción nacional a trasladar gratuitamente a las personas con discapacidad y, cuando corresponde, a un acompañante.
+
+Solicito que la CNRT intervenga y, si corresponde, aplique las sanciones previstas.
+
+Adjunto: copia del CUD, constancia o captura de la negativa (si la tengo), datos del servicio.
+
+${firma}`
+  };
+  $('#nc-texto').value = textos[k] || '';
+  abrirPanelNota();
 }
 
 function pintarCasosNota() {
@@ -2182,6 +2303,8 @@ document.addEventListener('click', e => {
     $('#p-tipo').value = 'municipio'; $('#p-entidad').value = j.nombre; armarPedido(); showTab('pedir');
   }
   else if (act === 'pedir-rse') { showTab('dato'); $('#d-tipo').value = 'solicitud_rse'; ajustarTipoDato(); $('#d-texto').focus(); }
+  else if (act === 'caso-reiterar') armarReiteracion();
+  else if (act === 'caso-control') armarControl(a.dataset.control);
   else if (act === 'caso') { casoActual = CASOS.find(c => c.id === a.dataset.caso); pintarCasos(); $('#caso-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
   else if (act === 'caso-nota') {
     casosNota.delete(casoActual.id); pintarCasosNota();
