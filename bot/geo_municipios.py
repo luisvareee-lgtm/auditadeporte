@@ -94,40 +94,40 @@ def formas():
 
 
 def cuadros_indec():
-    """{provincia normalizada: {departamento normalizado: población 2022}} leyendo los cuadros 'variación ... por departamento'."""
+    """{provincia normalizada: {gobierno local normalizado: población 2022}} desde los cuadros 'gobierno_local_c1'
+    del Censo 2022 (uno por provincia). Imprime una muestra para poder verificarla."""
     import io
     import openpyxl  # noqa
     html = bajar(INDEC, 120).decode("utf-8", "ignore")
-    links = sorted(set(re.findall(r'href="([^"]+\.xlsx?)"', html, re.I)))
-    print("cuadros xlsx en la página del INDEC:", len(links))
-    if os.environ.get("DIAGNOSTICO"):
-        for l in links:
-            if re.search(r"(?i)bsas|mendoza|tucum|corrien", l) and not re.search(r"(?i)fecund|educ|salud|hogar|vivien|migra|etni|afro|indig|disca|activ|prevision|religi", l):
-                print("  LINK", l)
-        raise SystemExit
+    links = sorted(set(re.findall(r'href="([^"]+gobierno_local_c1\.xlsx)"', html, re.I)))
+    print("cuadros por gobierno local:", len(links))
     res = {}
     for l in links:
-        u = urllib.parse.urljoin(INDEC, l)
-        if not re.search(r"(?i)c1_|cuadro.?1|variaci|_c1", u):
-            continue
+        u = urllib.parse.urljoin(INDEC, l.strip())
+        prov_archivo = re.search(r"c2022_([a-z_]+?)_gobierno", u).group(1)
         try:
             wb = openpyxl.load_workbook(io.BytesIO(bajar(u, 120)), read_only=True, data_only=True)
         except Exception as e:
             print("  no se pudo leer", u, str(e)[:60]); continue
-        for ws in wb.worksheets:
-            filas = [list(r) for r in ws.iter_rows(values_only=True)]
-            titulo = " ".join(str(c) for f in filas[:6] for c in f if c)
-            m = re.search(r"(?i)provincia de ([A-Za-zÁÉÍÓÚáéíóúñÑ .]+?)[,.]|ciudad aut[oó]noma", titulo)
-            if not m or not re.search(r"(?i)departamento|partido|comuna", titulo):
-                continue
-            prov = "caba" if "ciudad aut" in titulo.lower() else " ".join(norm(m.group(1)))
-            for f in filas:
-                if f and isinstance(f[0], str) and len(f) > 2:
-                    nums = [c for c in f[1:] if isinstance(c, (int, float))]
-                    if len(nums) >= 2:      # población 2010 y 2022 (y variaciones)
-                        res.setdefault(prov, {})[" ".join(norm(f[0]))] = int(nums[1])
+        ws = wb.worksheets[0]
+        filas = [list(r) for r in ws.iter_rows(values_only=True)]
+        titulo = " ".join(str(c) for f in filas[:8] for c in f if c)
+        if os.environ.get("MUESTRA") or prov_archivo in ("bsas", "santafe", "cordoba"):
+            print("  ", prov_archivo, "|", titulo[:160])
+        tabla = {}
+        for f in filas:
+            txt = next((c for c in f if isinstance(c, str) and c.strip()), None)
+            nums = [c for c in f if isinstance(c, (int, float)) and not isinstance(c, bool)]
+            if txt and nums and max(nums) >= 500:
+                tabla[" ".join(norm(txt))] = int(max(nums))   # la población total es el mayor número de la fila
+        res[prov_archivo] = tabla
     print("provincias leídas:", sorted(res))
     return res
+
+
+PROV_ARCHIVO = {"Buenos Aires": "bsas", "Córdoba": "cordoba", "Río Negro": "rionegro", "Corrientes": "corrientes",
+                "Mendoza": "mendoza", "Entre Ríos": "entrerios", "Santa Fe": "santafe", "Santa Cruz": "santacruz",
+                "Tucumán": "tucuman", "Jujuy": "jujuy"}
 
 
 def poblacion(nombre, provincia):
@@ -156,18 +156,16 @@ def main():
     except Exception as e:
         print("no se pudo leer el INDEC:", str(e)[:120]); cen = {}
     out = {"fuente_formas": "Unidades territoriales del Estado nacional (georef, datos.gob.ar)",
-           "fuente_poblacion": "Censo Nacional 2022 (INDEC), cuadros por partido o departamento", "municipios": {}}
+           "fuente_poblacion": "Censo Nacional 2022 (INDEC), población por gobierno local", "municipios": {}}
     for slug, (nom, prov) in MUNICIPIOS.items():
         cand = [f for f in fs if norm(f["properties"].get("nombre")) == norm(nom)
                 and norm((f["properties"].get("provincia") or {}).get("nombre") if isinstance(f["properties"].get("provincia"), dict)
                          else f["properties"].get("provincia_nombre") or f["properties"].get("provincia")) == norm(prov)]
         geo = geometria(cand[0]["geometry"], 0.0006) if cand and cand[0].get("geometry") else None
-        pob = None
-        if slug in DEPARTAMENTO:
-            pob = (cen.get(" ".join(norm(prov))) or {}).get(" ".join(norm(DEPARTAMENTO[slug])))
-        out["municipios"][slug] = {"nombre": nom, "provincia": prov, "poblacion_2022": pob,
-                                   "nota_poblacion": None if slug in DEPARTAMENTO else "el departamento del censo incluye otras localidades",
-                                   "geometria": geo}
+        tabla = cen.get(PROV_ARCHIVO.get(prov, ""), {})
+        clave = " ".join(norm("Mendoza" if slug == "muni-mendoza" else nom))
+        pob = tabla.get(clave) or next((v for k, v in tabla.items() if k.endswith(clave) or k.startswith(clave + " ")), None)
+        out["municipios"][slug] = {"nombre": nom, "provincia": prov, "poblacion_2022": pob, "geometria": geo}
         print(f"{slug:30} forma={'sí' if geo else 'NO'} ({sum(len(r) for p in geo['coordinates'] for r in p) if geo else 0} puntos)  población 2022={pob or '—'}")
     json.dump(out, open(os.path.join(AQUI, "..", "datos", "municipios_geo.json"), "w", encoding="utf-8"), ensure_ascii=False,
               separators=(",", ":"))
