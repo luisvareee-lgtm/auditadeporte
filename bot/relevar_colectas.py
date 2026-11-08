@@ -274,6 +274,8 @@ def senales_cuenta(usuario, nombre, tipo, posts):
     out = []
     for p in posts:
         sn = senales(p.get("caption"))
+        if tipo == "institucion":           # ENARD, COPAR y otras agradecen a sus sponsors en cada posteo: no es un dato nuevo
+            sn = [x for x in sn if x != "apoyo_empresas"]
         if sn and p.get("permalink") and not clasificar(p.get("caption"), p.get("timestamp")):
             t = o._norm(p.get("caption") or "")
             out.append({"cuenta": usuario.lower(), "nombre_cuenta": nombre, "tipo_cuenta": tipo, "fecha": p["timestamp"][:10],
@@ -425,6 +427,8 @@ def main():
         for cta in RECAUDACION_PROPIA:
             try:
                 o.db().table("colectas_relevadas").delete().eq("cuenta", cta).eq("revisada", False).execute()
+                o.db().table("publicaciones_relevantes").delete().eq("cuenta", "enardinfo").eq("revisada", False) \
+                    .eq("senales", "{apoyo_empresas}").execute()
             except Exception as e:
                 print("no se pudo limpiar", cta, str(e)[:80])
     for usuario, nombre, tipo in cuentas():
