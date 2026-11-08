@@ -15,6 +15,10 @@ for (const [n, vp] of [['celular', { width: 390, height: 844 }], ['escritorio', 
   await p.screenshot({ path: `capturas/tablero-${n}.png`, fullPage: true });
   await p.locator('[data-tb3="clubes"]').click(); await p.waitForTimeout(2500);
   await p.locator('#tb-3d').screenshot({ path: `capturas/mapa3d-${n}.png` });
+  for (const [nom, buf] of [[`tablero-${n}`, await p.screenshot({ type: 'jpeg', quality: 55, fullPage: true })], [`mapa3d-${n}`, await p.locator('#tb-3d').screenshot({ type: 'jpeg', quality: 70 })]]) {
+    const b64 = buf.toString('base64');
+    for (let i = 0; i < b64.length; i += 8000) console.log(`IMG ${nom} ${i / 8000} ${b64.slice(i, i + 8000)}`);
+  }
   await p.close();
 }
 await b.close();
