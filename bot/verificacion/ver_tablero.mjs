@@ -16,6 +16,7 @@ for (const [n, vp] of [['escritorio', { width: 1366, height: 900 }], ['celular',
   console.log(n, 'semáforo:', await p.locator('#tb-semaforo > div').count(), 'filas · respuestas:', (await p.locator('#tb-respuestas').innerText()).slice(0, 80));
   await p.locator('[data-tb3="m_transparencia"]').click(); await p.waitForTimeout(3500);
   console.log(n, 'municipios:', await p.locator('#tb-3d-nota').innerText());
+  await p.locator('[data-tbzoom^="-58.45"]').click(); await p.waitForTimeout(3500);
   await p.locator('#tb-3d').screenshot({ path: `capturas/mapa3d-${n}.png` });
   for (const [nom, buf] of [[`tablero-${n}`, await p.screenshot({ type: 'jpeg', quality: 55, fullPage: true })], [`mapa3d-${n}`, await p.locator('#tb-3d').screenshot({ type: 'jpeg', quality: 70 })]]) {
     const b64 = buf.toString('base64');

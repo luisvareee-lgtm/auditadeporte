@@ -793,6 +793,15 @@
         </div>
       </div>
       <div id="tb-3d" class="relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200"><p class="p-4 text-sm text-slate-600">Cargando el mapa 3D…</p></div>
+      <div class="flex flex-wrap gap-2 text-xs">
+        <span class="font-bold text-slate-600 self-center">Acercar:</span>
+        <button data-tbzoom="-63.6,-36.5,4.1" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Todo el país</button>
+        <button data-tbzoom="-58.45,-34.78,8.6" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">AMBA</button>
+        <button data-tbzoom="-57.95,-34.92,9.6" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">La Plata y Ensenada</button>
+        <button data-tbzoom="-64.3,-31.6,7.2" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Córdoba</button>
+        <button data-tbzoom="-60.7,-32.3,7.4" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Rosario y Santa Fe</button>
+        <button data-tbzoom="-68.8,-32.9,9.2" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Mendoza</button>
+      </div>
       <p id="tb-3d-nota" class="text-xs text-slate-500"></p>
     </div>
 
@@ -1493,6 +1502,10 @@ async function mapa3D() {
   $('#tb-3d-nota').textContent = `${con} de ${unidades.length} ${muni ? 'municipios' : 'clubes'} con dato de ${nombres[tbVista]}.` + (con ? '' : ' Todavía no hay datos de este tipo: se completan a medida que se aprueban en el panel, se publican reportes de ejecución o cargan los usuarios.')
     + (muni ? ' Formas: unidades territoriales del Estado nacional (datos.gob.ar). Población: Censo 2022 (INDEC).' : '');
 }
+document.addEventListener('click', ev => { const z = ev.target.closest('[data-tbzoom]'); if (!z || !tbDeck) return;
+  const [lon, lat, zoom] = z.dataset.tbzoom.split(',').map(Number);
+  tbDeck.setProps({ initialViewState: { longitude: lon, latitude: lat, zoom: window.innerWidth < 640 ? zoom - 0.8 : zoom, pitch: 50, bearing: -10, transitionDuration: 900,
+    transitionInterpolator: new deck.FlyToInterpolator() } }); });
 document.addEventListener('click', ev => { const b = ev.target.closest('[data-tb3]'); if (!b) return;
   tbVista = b.dataset.tb3;
   $$('.tb3').forEach(x => { const on = x === b; x.classList.toggle('bg-slate-900', on); x.classList.toggle('text-white', on); x.classList.toggle('border-slate-900', on); x.classList.toggle('border-slate-300', !on); });
