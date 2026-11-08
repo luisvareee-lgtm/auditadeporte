@@ -762,17 +762,34 @@
       </div>
     </div>
 
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">Semáforo de transparencia</h3>
+        <p class="text-xs text-slate-600">Qué publica cada jurisdicción de los 4 o 5 documentos básicos (boletín, compras, presupuesto, normas, deporte adaptado). Completo cuenta entero; a medias, la mitad.</p>
+        <div id="tb-semaforo" class="mt-3 space-y-1.5"></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">¿Quién responde los pedidos?</h3>
+        <p class="text-xs text-slate-600">Lo cargan, sin nombre, quienes presentaron un pedido de acceso a la información (pestaña Pedir información). "Vencido": más de 42 días corridos sin respuesta.</p>
+        <div id="tb-respuestas" class="mt-3"></div>
+      </div>
+    </div>
+
     <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
       <div class="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h3 class="font-black">Mapa 3D por club</h3>
-          <p class="text-xs text-slate-600">La altura de cada columna es el dato elegido. Arrastrá para mover, con dos dedos (o clic derecho) para girar e inclinar.</p>
+          <h3 class="font-black">Mapa 3D</h3>
+          <p class="text-xs text-slate-600">Por club, columnas; por municipio, su forma real levantada según el dato. Arrastrá para mover, con dos dedos (o clic derecho) para girar e inclinar.</p>
         </div>
         <div class="flex flex-wrap gap-2 text-sm" role="group" aria-label="Dato del mapa 3D">
           <button data-tb3="colectas" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-900 bg-slate-900 text-white font-bold">Colectas</button>
           <button data-tb3="convocatorias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Convocatorias</button>
           <button data-tb3="dias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Días de aviso</button>
           <button data-tb3="clubes" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Clubes</button>
+          <span class="w-px bg-slate-300 mx-1"></span>
+          <button data-tb3="m_transparencia" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: transparencia</button>
+          <button data-tb3="m_porhab" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: Deporte por habitante</button>
+          <button data-tb3="m_pedidos" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: pedidos presentados</button>
         </div>
       </div>
       <div id="tb-3d" class="relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200"><p class="p-4 text-sm text-slate-600">Cargando el mapa 3D…</p></div>
@@ -901,6 +918,18 @@
             <button type="button" id="p-presente" class="border-2 border-emerald-700 text-emerald-800 hover:bg-white font-bold px-4 py-2 rounded-xl text-sm">Ya lo presenté</button>
             <span class="text-xs text-slate-600">Suma 1 al contador de <span id="p-presente-lugar"></span>. Sin nombre ni datos.</span>
           </div>
+          <details id="resp-box" class="rounded-xl bg-white border border-emerald-200 p-3 text-sm">
+            <summary class="font-bold cursor-pointer">¿Te respondieron? Contalo (sin nombre)</summary>
+            <p class="text-xs text-slate-600 mt-2">Con esto el Tablero muestra cuánto tarda y cuánto responde cada organismo. No guardamos tu nombre ni el contenido de la respuesta.</p>
+            <form id="form-respuesta" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+              <label class="text-xs font-bold">Organismo<select id="rp-juris" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"><option value="">Elegí</option></select></label>
+              <label class="text-xs font-bold">Fecha en que lo presentaste<input id="rp-pres" type="date" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"></label>
+              <label class="text-xs font-bold">¿Qué pasó?<select id="rp-res" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal">
+                <option value="completa">Respondieron todo</option><option value="parcial">Respondieron una parte</option><option value="denegada">Lo negaron</option><option value="sin_respuesta">Todavía no respondieron</option></select></label>
+              <label class="text-xs font-bold" id="rp-fecha-wrap">Fecha de la respuesta<input id="rp-fecha" type="date" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"></label>
+              <div class="sm:col-span-2"><button class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-sm">Sumar mi caso</button></div>
+            </form>
+          </details>
           <details class="rounded-xl bg-white border border-emerald-200 p-3 text-sm">
             <summary class="font-bold cursor-pointer">No me contestaron: armar el reclamo</summary>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
@@ -1003,6 +1032,7 @@
 
   <!-- ===== PATROCINAR ===== -->
   <section id="s-rse" role="tabpanel" aria-labelledby="t-rse" class="hidden space-y-5">
+    <div id="rse-calendario" class="hidden bg-white rounded-2xl border-2 border-emerald-300 p-5 space-y-2"></div>
     <div class="bg-slate-900 text-white rounded-2xl p-6 md:p-8 space-y-3">
       <p class="inline-block bg-emerald-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase">Inspirado en esquemas de liga de España, Serie A de Italia y de Brasil</p>
       <h2 class="text-2xl md:text-3xl font-black">Patrocinio por rubro, con pago directo al proveedor</h2>
@@ -1410,6 +1440,7 @@ async function cargarTablero() {
   // tabla accesible
   $('#tb-tabla').innerHTML = `<table class="text-sm min-w-[320px]"><thead><tr><th class="text-left pr-6">Mes</th><th class="text-right">Colectas</th></tr></thead><tbody>${dm.map(d => `<tr><td class="pr-6">${d.k}</td><td class="text-right tabular-nums">${d.v}</td></tr>`).join('')}</tbody></table>
     <table class="text-sm mt-4 min-w-[320px]"><thead><tr><th class="text-left pr-6">Destino</th><th class="text-right">Colectas</th></tr></thead><tbody>${fs.map(([k, v]) => `<tr><td class="pr-6">${esc(NOM_FIN[k] || k)}</td><td class="text-right tabular-nums">${v}</td></tr>`).join('')}</tbody></table>`;
+  await semaforoYRespuestas();
   mapa3D();
 }
 
@@ -1429,16 +1460,27 @@ async function mapa3D() {
   const caja = $('#tb-3d');
   try { await cargarScript('https://unpkg.com/deck.gl@8.9.36/dist.min.js'); }
   catch (e) { caja.innerHTML = vacio('No se pudo cargar el mapa 3D. Probá recargar la página.'); return; }
-  const datos = puntos3D(), nombres = { colectas: 'colectas', convocatorias: 'convocatorias cargadas', dias: 'días de aviso promedio', clubes: 'club' };
-  const max = Math.max(1, ...datos.map(d => d[tbVista]));
+  const muni = tbVista.startsWith('m_');
+  const datos = muni ? await capaMunicipios(tbVista) : puntos3D(), nombres = { colectas: 'colectas', convocatorias: 'convocatorias cargadas', dias: 'días de aviso promedio', clubes: 'club',
+    m_transparencia: 'transparencia', m_porhab: 'gasto en Deporte por habitante', m_pedidos: 'pedidos presentados' };
+  const val = d => muni ? d.v : d[tbVista];
+  const max = Math.max(1, ...datos.map(val));
   const color = v => { const k = v / max; return [Math.round(215 - 173 * k), Math.round(232 - 112 * k), Math.round(250 - 36 * k), 235]; };
+  const capaDatos = muni
+    ? new deck.PolygonLayer({ id: 'municipios', data: datos, extruded: true, pickable: true, wireframe: true, getPolygon: d => d.poly,
+        getElevation: d => d.v ? 8000 + 120000 * d.v / max : 1500, getFillColor: d => d.v ? color(d.v) : [180, 180, 180, 140], getLineColor: [255, 255, 255],
+        updateTriggers: { getElevation: tbVista, getFillColor: tbVista } })
+    : null;
   const capas = [
     new deck.TileLayer({ id: 'base', data: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', minZoom: 0, maxZoom: 12, tileSize: 256,
       renderSubLayers: p => { const b = p.tile.bbox; return new deck.BitmapLayer(p, { data: null, image: p.data, bounds: [b.west, b.south, b.east, b.north] }); } }),
     new deck.ColumnLayer({ id: 'columnas', data: datos, diskResolution: 24, radius: 22000, extruded: true, pickable: true, elevationScale: 1,
       getPosition: d => d.pos, getElevation: d => d[tbVista] ? 40000 + 260000 * d[tbVista] / max : 0,
       getFillColor: d => d[tbVista] ? color(d[tbVista]) : [160, 160, 160, 120], updateTriggers: { getElevation: tbVista, getFillColor: tbVista } })];
-  const tooltip = ({ object: d }) => d && { html: `<b>${esc(d.nombre)}</b><br>${esc(d.ciudad)}<br>Colectas: ${d.colectas} · Convocatorias: ${d.convocatorias}${d.dias ? ` · ${d.dias} días de aviso` : ''}`,
+  if (muni) capas[1] = capaDatos;
+  const tooltip = ({ object: d }) => d && { html: d.slug
+      ? `<b>${esc(d.nombre)}</b><br>Transparencia: ${d.transp} %<br>Pedidos presentados: ${d.pedidos}<br>${d.porhab ? `Deporte: $ ${d.porhab.toLocaleString('es-AR')} gastados por habitante (al ${esc(fechaLinda(d.hasta))})` : d.pob ? 'Sin ejecución de Deporte publicada' : 'Sin población del municipio por separado en el censo'}`
+      : `<b>${esc(d.nombre)}</b><br>${esc(d.ciudad)}<br>Colectas: ${d.colectas} · Convocatorias: ${d.convocatorias}${d.dias ? ` · ${d.dias} días de aviso` : ''}`,
     style: { background: '#0f172a', color: '#fff', fontSize: '12px', borderRadius: '8px', padding: '8px 10px' } };
   if (!tbDeck) {
     caja.innerHTML = '';
@@ -1447,13 +1489,80 @@ async function mapa3D() {
     const atr = document.createElement('div'); atr.className = 'absolute bottom-1 right-2 text-[10px] text-slate-700 bg-white/80 px-1 rounded';
     atr.innerHTML = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'; caja.appendChild(atr);
   } else tbDeck.setProps({ layers: capas });
-  const con = datos.filter(d => d[tbVista]).length;
-  $('#tb-3d-nota').textContent = `${con} de ${datos.length} clubes con dato de ${nombres[tbVista]}.` + (con ? '' : ' Todavía no hay datos de este tipo: se completan a medida que se aprueban en el panel o cargan los clubes.');
+  const unidades = muni ? [...new Set(datos.map(d => d.slug))] : datos, con = muni ? new Set(datos.filter(d => d.v).map(d => d.slug)).size : datos.filter(d => d[tbVista]).length;
+  $('#tb-3d-nota').textContent = `${con} de ${unidades.length} ${muni ? 'municipios' : 'clubes'} con dato de ${nombres[tbVista]}.` + (con ? '' : ' Todavía no hay datos de este tipo: se completan a medida que se aprueban en el panel, se publican reportes de ejecución o cargan los usuarios.')
+    + (muni ? ' Formas: unidades territoriales del Estado nacional (datos.gob.ar). Población: Censo 2022 (INDEC).' : '');
 }
 document.addEventListener('click', ev => { const b = ev.target.closest('[data-tb3]'); if (!b) return;
   tbVista = b.dataset.tb3;
   $$('.tb3').forEach(x => { const on = x === b; x.classList.toggle('bg-slate-900', on); x.classList.toggle('text-white', on); x.classList.toggle('border-slate-900', on); x.classList.toggle('border-slate-300', !on); });
   if (TB) mapa3D(); });
+
+// ---- Semáforo, respuestas, municipios 3D y calendario de necesidades
+const NIVEL = { publica: ['Publica', 'bg-emerald-100 text-emerald-900', '●'], a_medias: ['A medias', 'bg-amber-100 text-amber-900', '◐'], no_publica: ['No publica', 'bg-rose-100 text-rose-900', '○'] };
+const puntajeJuris = j => { const c = j.checklist || []; if (!c.length) return 0;
+  return Math.round(100 * c.reduce((a, i) => a + (i.estado === 'completo' ? 1 : i.estado === 'parcial' ? 0.5 : 0), 0) / c.length); };
+async function jurisTablero() {
+  if (typeof JURIS !== 'undefined' && JURIS.length) return JURIS;
+  try { const r = await fetch('datos/transparencia.json', { cache: 'no-store' }); return (await r.json()).jurisdicciones || []; } catch (e) { return []; }
+}
+async function semaforoYRespuestas() {
+  const js = await jurisTablero(); TB.juris = js;
+  const orden = [...js].sort((a, b) => puntajeJuris(b) - puntajeJuris(a));
+  $('#tb-semaforo').innerHTML = orden.map(j => { const n = NIVEL[j.estado] || NIVEL.no_publica, p = puntajeJuris(j);
+    return `<div class="flex items-center gap-2 text-sm"><span class="w-40 sm:w-56 truncate" title="${esc(j.nombre)}">${esc(j.nombre.replace(/^Municipalidad de (la Ciudad de )?/, ''))}</span>
+      <div class="flex-1 h-2.5 bg-slate-100 rounded" title="${p} %"><div class="h-2.5 rounded" style="width:${p}%;background:var(--s1)"></div></div>
+      <span class="text-[11px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${n[1]}">${n[2]} ${n[0]}</span></div>`; }).join('');
+  let rs = [];
+  try { if (sb) { const r = await sb.rpc('resumen_respuestas'); if (!r.error) rs = r.data || []; } } catch (e) {}
+  TB.respuestas = rs;
+  const nom = s => ((js.find(j => j.slug === s) || {}).nombre || s).replace(/^Municipalidad de (la Ciudad de )?/, '');
+  $('#tb-respuestas').innerHTML = !rs.length ? vacio('Todavía nadie contó si le respondieron. Se carga desde la pestaña Pedir información, después de "Ya lo presenté".')
+    : `<table class="w-full text-sm"><thead><tr class="text-left text-xs text-slate-600"><th>Organismo</th><th class="text-right">Pedidos</th><th class="text-right">Respondidos</th><th class="text-right">Vencidos</th><th class="text-right">Días</th></tr></thead><tbody>
+      ${rs.map(r => `<tr class="border-t border-slate-100"><td class="py-1">${esc(nom(r.juris_slug))}</td><td class="text-right tabular-nums">${r.total}</td><td class="text-right tabular-nums">${r.respondidos} (${Math.round(100 * r.respondidos / r.total)} %)</td><td class="text-right tabular-nums">${r.vencidos}</td><td class="text-right tabular-nums">${r.dias_promedio ?? '—'}</td></tr>`).join('')}</tbody></table>`;
+}
+async function capaMunicipios(vista) {
+  if (!TB.geo) { try { const r = await fetch('datos/municipios_geo.json', { cache: 'no-store' }); TB.geo = r.ok ? await r.json() : { municipios: {} }; } catch (e) { TB.geo = { municipios: {} }; } }
+  const js = TB.juris || [], datos = [];
+  for (const [slug, m] of Object.entries(TB.geo.municipios || {})) {
+    if (!m.geometria) continue;
+    const j = js.find(x => x.slug === slug) || {}, ej = (j.presupuesto_deporte || [])[0];
+    const porhab = ej && ej.devengado && m.poblacion_2022 ? Math.round(ej.devengado / m.poblacion_2022) : 0;
+    const v = { m_transparencia: puntajeJuris(j), m_porhab: porhab, m_pedidos: Number((PRESENTADOS[slug] || {}).total || 0) }[vista] || 0;
+    for (const poly of m.geometria.coordinates) datos.push({ slug, nombre: j.nombre || m.nombre, poly, v, porhab, pob: m.poblacion_2022,
+      transp: puntajeJuris(j), pedidos: Number((PRESENTADOS[slug] || {}).total || 0), hasta: ej && ej.hasta });
+  }
+  return datos;
+}
+function calendarioNecesidades(col) {
+  const caja = $('#rse-calendario'); if (!caja) return;
+  const pm = col.por_mes || {}, tot = Object.values(pm).reduce((a, b) => a + b, 0);
+  if (tot < 3) { caja.classList.add('hidden'); return; }
+  const top = Object.entries(pm).sort((a, b) => b[1] - a[1]).slice(0, 3).filter(x => x[1] > 0);
+  const hoy = new Date().getMonth() + 1, prox = [0, 1, 2].map(k => String(((hoy - 1 + k) % 12) + 1).padStart(2, '0'));
+  caja.classList.remove('hidden');
+  caja.innerHTML = `<p class="font-black text-lg">Cuándo hace falta el apoyo</p>
+    <p class="text-sm text-slate-700">Según ${tot} colectas revisadas, los equipos salen a juntar plata sobre todo en <strong>${top.map(([m, n]) => `${MESES[+m - 1]} (${n})`).join(', ')}</strong>. Un patrocinio que llega antes evita la rifa de último momento.</p>
+    <div class="flex flex-wrap gap-2 text-sm">${prox.map(m => `<span class="px-3 py-1.5 rounded-xl border ${pm[m] >= (top[top.length - 1] || [0, 1])[1] ? 'border-emerald-600 bg-emerald-50 font-bold' : 'border-slate-200'}">${MESES[+m - 1]}: ${pm[m] || 0} colecta${pm[m] === 1 ? '' : 's'} en años anteriores</span>`).join('')}</div>`;
+}
+document.addEventListener('focusin', ev => {
+  if (ev.target.id !== 'rp-juris' || ev.target.options.length > 1) return;
+  (typeof JURIS !== 'undefined' ? JURIS : []).forEach(j => ev.target.add(new Option(j.nombre, j.slug)));
+});
+document.addEventListener('change', ev => { if (ev.target.id === 'rp-res') $('#rp-fecha-wrap').classList.toggle('hidden', ev.target.value === 'sin_respuesta'); });
+document.addEventListener('submit', async ev => {
+  if (ev.target.id !== 'form-respuesta') return;
+  ev.preventDefault();
+  if (!sb) { toast('No hay conexión con la base ahora.'); return; }
+  const res = $('#rp-res').value, fila = { juris_slug: $('#rp-juris').value, fecha_presentado: $('#rp-pres').value, resultado: res,
+    fecha_respuesta: res === 'sin_respuesta' ? null : ($('#rp-fecha').value || null) };
+  if (!fila.juris_slug) { toast('Elegí el organismo.'); return; }
+  if (res !== 'sin_respuesta' && !fila.fecha_respuesta) { toast('Poné la fecha de la respuesta.'); return; }
+  if (fila.fecha_respuesta && fila.fecha_respuesta < fila.fecha_presentado) { toast('La respuesta no puede ser anterior al pedido.'); return; }
+  const { error } = await sb.from('respuestas_pedidos').insert(fila, { returning: 'minimal' });
+  if (error) { toast(/Demasiadas|futuras/.test(error.message) ? error.message : 'No pudimos sumarlo ahora. Probá más tarde.'); return; }
+  toast('¡Gracias! Sumamos tu caso.'); ev.target.reset(); if (TB) { TB.respuestas = null; }
+});
 
 async function cargarPresentados() {
   if (!sb) return;
@@ -2103,6 +2212,7 @@ function showTab(t, push = true) {
   if (push) history.replaceState(null, '', '#' + t);
   if (t === 'mapa' && map) setTimeout(() => map.invalidateSize(), 150);
   if (t === 'tablero') cargarTablero();
+  if (t === 'rse') fetch('datos/colectas.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(calendarioNecesidades).catch(() => {});
   window.scrollTo({ top: 0 });
 }
 
