@@ -13,3 +13,6 @@ jobs:
         working-directory: bot/verificacion
       - run: node ${{ inputs.script || 'verificar_sitio.mjs' }}
         working-directory: bot/verificacion
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: capturas, path: bot/verificacion/capturas/, if-no-files-found: ignore, retention-days: 7 }

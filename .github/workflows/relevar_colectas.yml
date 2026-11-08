@@ -20,6 +20,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
+      - name: Transcriptor de audio para videos (modelo chico, en la CPU)
+        run: pip install "faster-whisper>=1,<2" || echo "sin transcriptor: los videos se clasifican solo por su texto"
       - name: Tests
         run: python -m unittest test_supa test_relevar_colectas
         working-directory: bot

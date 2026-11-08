@@ -72,7 +72,7 @@
   </div>
 
   <nav class="bg-white text-slate-700 border-b border-slate-200" aria-label="Secciones">
-    <div role="tablist" class="max-w-7xl mx-auto px-1 md:px-2 grid grid-cols-4 md:flex md:overflow-x-auto">
+    <div role="tablist" class="max-w-7xl mx-auto px-1 md:px-2 grid grid-cols-3 md:flex md:overflow-x-auto">
       <button role="tab" id="t-mapa" data-tab="mapa" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="map" class="w-4 h-4" aria-hidden="true"></i><span>Mapa<span class="hidden md:inline"> y clubes</span></span></button>
       <button role="tab" id="t-simple" data-tab="simple" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="lightbulb" class="w-4 h-4" aria-hidden="true"></i><span>Explicado<span class="hidden md:inline"> fácil</span></span></button>
       <button role="tab" id="t-deportistas" data-tab="deportistas" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="accessibility" class="w-4 h-4" aria-hidden="true"></i><span>Deportistas</span></button>
@@ -81,6 +81,7 @@
       <button role="tab" id="t-inst" data-tab="inst" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="landmark" class="w-4 h-4" aria-hidden="true"></i><span>Instituciones</span></button>
       <button role="tab" id="t-dato" data-tab="dato" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="shield-check" class="w-4 h-4" aria-hidden="true"></i><span><span class="hidden md:inline">Enviar un </span>Dato</span></button>
       <button role="tab" id="t-rse" data-tab="rse" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="handshake" class="w-4 h-4" aria-hidden="true"></i><span>Patrocinar</span></button>
+      <button role="tab" id="t-tablero" data-tab="tablero" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-4 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="bar-chart-3" class="w-4 h-4" aria-hidden="true"></i><span>Tablero</span></button>
     </div>
   </nav>
 </header>
@@ -720,6 +721,71 @@
     </div>
   </section>
 
+  <!-- ===== TABLERO ===== -->
+  <section id="s-tablero" role="tabpanel" aria-labelledby="t-tablero" class="hidden space-y-5 tablero">
+    <style>
+      .tablero { --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --tx:#0b0b0b; --tx2:#52514e; --grid:#e7e6e2; --sup:#fcfcfb; }
+      .tablero .barra { fill: var(--s1); }
+      .tablero .barra:hover, .tablero .barra.activa { fill: #1d5fae; }
+      .tablero svg text { fill: var(--tx2); font-size: 11px; }
+      .tablero .eje { stroke: var(--grid); stroke-width: 1; }
+      #tb-tip { position: fixed; pointer-events: none; z-index: 60; }
+      #tb-3d { height: 460px; touch-action: none; }
+    </style>
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 md:p-6">
+      <h2 class="text-2xl font-black">Tablero: lo que muestran los datos</h2>
+      <p class="text-sm text-slate-700 mt-1">Colectas que publicaron cuentas oficiales, convocatorias que cargaron los clubes y menciones públicas de promesas del Estado y becas atrasadas. Todo dato pasó por revisión humana antes de aparecer acá. Pasá el dedo o el mouse por cada barra o punto para ver el detalle.</p>
+      <p id="tb-actualizado" class="text-xs text-slate-500 mt-1"></p>
+    </div>
+    <div id="tb-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">¿En qué meses se sale a juntar plata?</h3>
+        <p class="text-xs text-slate-600">Colectas revisadas según el mes en que se publicaron, todos los años juntos.</p>
+        <div id="tb-meses" class="mt-3"></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">¿Para qué se junta?</h3>
+        <p class="text-xs text-slate-600">Cada colecta puede tener más de un destino. Al lado, qué tan fácil es cubrirlo con patrocinio.</p>
+        <div id="tb-fines" class="mt-3 space-y-2"></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">¿Con cuánta anticipación avisan los torneos?</h3>
+        <p class="text-xs text-slate-600">Promedio de días entre el aviso y el torneo, por club. La línea marca 30 días: con menos, casi no hay tiempo de conseguir pasajes ni patrocinio.</p>
+        <div id="tb-anticip" class="mt-3"></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">Promesas del Estado, becas y reclamos en el tiempo</h3>
+        <p class="text-xs text-slate-600">Cada punto es una publicación oficial revisada. Tocá un punto para abrirla.</p>
+        <div id="tb-hitos" class="mt-3"></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h3 class="font-black">Mapa 3D por club</h3>
+          <p class="text-xs text-slate-600">La altura de cada columna es el dato elegido. Arrastrá para mover, con dos dedos (o clic derecho) para girar e inclinar.</p>
+        </div>
+        <div class="flex flex-wrap gap-2 text-sm" role="group" aria-label="Dato del mapa 3D">
+          <button data-tb3="colectas" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-900 bg-slate-900 text-white font-bold">Colectas</button>
+          <button data-tb3="convocatorias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Convocatorias</button>
+          <button data-tb3="dias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Días de aviso</button>
+          <button data-tb3="clubes" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Clubes</button>
+        </div>
+      </div>
+      <div id="tb-3d" class="relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200"><p class="p-4 text-sm text-slate-600">Cargando el mapa 3D…</p></div>
+      <p id="tb-3d-nota" class="text-xs text-slate-500"></p>
+    </div>
+
+    <details class="bg-white rounded-2xl border border-slate-200 p-5 text-sm">
+      <summary class="font-bold cursor-pointer">Ver los datos como tabla</summary>
+      <div id="tb-tabla" class="mt-3 overflow-x-auto"></div>
+    </details>
+    <div id="tb-tip" class="hidden bg-slate-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs"></div>
+  </section>
+
   <!-- ===== DOCUMENTOS PÚBLICOS ===== -->
   <section id="s-transp" role="tabpanel" aria-labelledby="t-transp" class="hidden space-y-5">
     <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-2">
@@ -1245,6 +1311,149 @@ $('#form-convocatoria')?.addEventListener('submit', async ev => {
   if (error) { toast(/Demasiados|futura/.test(error.message) ? error.message : 'No pudimos sumarla ahora. Probá más tarde.'); return; }
   toast('¡Gracias! Sumamos la convocatoria.'); ev.target.reset(); cargarConvocatorias();
 });
+
+/* ============ TABLERO ============ */
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const NOM_FIN = { viaje_torneo:'Viajes a torneos', inscripcion:'Inscripciones', silla_equipamiento:'Sillas y equipamiento', indumentaria:'Indumentaria', general:'Gastos generales' };
+const RSE_FIN = { viaje_torneo:'alta', silla_equipamiento:'alta', indumentaria:'alta', inscripcion:'media', general:'baja' };
+const HITOS = { promesa_estado:['Promesa del Estado','var(--s1)'], beca_atrasada:['Beca atrasada','var(--s2)'], reclamo:['Reclamo','var(--s3)'] };
+let TB = null, tbVista = 'colectas', tbDeck = null;
+const tip = (ev, html) => { const t = $('#tb-tip'); if (!html) { t.classList.add('hidden'); return; }
+  t.innerHTML = html; t.classList.remove('hidden');
+  const x = Math.min(ev.clientX + 14, window.innerWidth - t.offsetWidth - 8), y = Math.max(8, ev.clientY - t.offsetHeight - 12);
+  t.style.left = x + 'px'; t.style.top = y + 'px'; };
+const vacio = msg => `<p class="text-sm text-slate-500 bg-slate-50 rounded-xl p-4">${msg}</p>`;
+const kpi = (v, t, nota) => `<div class="bg-white rounded-2xl border border-slate-200 p-4"><p class="text-3xl font-black tabular-nums">${esc(v)}</p><p class="text-xs font-semibold text-slate-700">${t}</p>${nota ? `<p class="text-[11px] text-slate-500 mt-1">${nota}</p>` : ''}</div>`;
+
+// Barras verticales con extremo redondeado, hover y etiqueta solo en el máximo
+function barrasSVG(datos, { alto = 200, formato = v => v, unidad = '', ref = null, refTxt = '' } = {}) {
+  const W = 640, H = alto, m = { t: 18, r: 8, b: 26, l: 30 }, n = datos.length;
+  const max = Math.max(1, ...datos.map(d => d.v), ref || 0), iw = W - m.l - m.r, ih = H - m.t - m.b, bw = iw / n;
+  const y = v => m.t + ih - (v / max) * ih, top = Math.max(...datos.map(d => d.v));
+  let g = '';
+  for (const k of [0, 0.5, 1]) { const v = Math.round(max * k); g += `<line class="eje" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`; }
+  datos.forEach((d, i) => {
+    const x = m.l + i * bw + bw * 0.18, w = bw * 0.64, yy = y(d.v), h = m.t + ih - yy;
+    if (d.v > 0) g += `<path class="barra" data-i="${i}" d="M${x},${m.t + ih} V${yy + Math.min(4, h)} q0,-4 4,-4 h${w - 8} q4,0 4,4 V${m.t + ih} Z"/>`;
+    g += `<rect data-i="${i}" x="${m.l + i * bw}" y="${m.t}" width="${bw}" height="${ih}" fill="transparent" class="hit"/>`;
+    g += `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle">${esc(d.k)}</text>`;
+    if (d.v === top && top > 0) g += `<text x="${x + w / 2}" y="${yy - 5}" text-anchor="middle" style="fill:var(--tx);font-weight:700">${formato(d.v)}</text>`;
+  });
+  if (ref != null) g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(ref)}" y2="${y(ref)}" stroke="#e34948" stroke-width="2" stroke-dasharray="5 4"/><text x="${W - m.r}" y="${y(ref) - 5}" text-anchor="end" style="fill:#b42318;font-weight:700">${refTxt}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" role="img">${g}</svg>`;
+}
+function conHover(caja, datos, html) {
+  caja.querySelectorAll('.hit').forEach(r => {
+    const i = +r.dataset.i, b = caja.querySelector(`.barra[data-i="${i}"]`);
+    r.addEventListener('pointermove', ev => { b && b.classList.add('activa'); tip(ev, html(datos[i])); });
+    r.addEventListener('pointerleave', ev => { b && b.classList.remove('activa'); tip(ev, null); });
+  });
+}
+
+async function cargarTablero() {
+  if (!TB) {
+    let col = {}, conv = null;
+    try { const r = await fetch('datos/colectas.json', { cache: 'no-store' }); if (r.ok) col = await r.json(); } catch (e) {}
+    try { if (sb) { const r = await sb.rpc('resumen_convocatorias'); if (!r.error) conv = r.data; } } catch (e) {}
+    TB = { col, conv };
+  }
+  const { col, conv } = TB;
+  $('#tb-actualizado').textContent = col.actualizado ? `Colectas actualizadas el ${fechaLinda(col.actualizado)}.` : '';
+  const hitos = col.hitos_estado || [];
+  $('#tb-kpis').innerHTML = kpi(col.total || 0, 'colectas revisadas', 'de cuentas oficiales') +
+    kpi(conv && conv.total ? conv.total : 0, 'convocatorias cargadas', 'por los clubes') +
+    kpi(conv && conv.total ? conv.promedio_dias + ' días' : '—', 'de aviso promedio', conv && conv.total ? `${Math.round(100 * conv.menos_30 / conv.total)} % con menos de 30 días` : 'todavía sin datos') +
+    kpi(hitos.filter(h => h.senal !== 'reclamo').length, 'menciones de promesas o becas', 'en publicaciones oficiales');
+
+  // meses
+  const pm = col.por_mes || {}, dm = MESES.map((k, i) => ({ k, v: pm[String(i + 1).padStart(2, '0')] || 0 }));
+  const cm = $('#tb-meses');
+  if (!col.total) cm.innerHTML = vacio('Todavía no hay colectas revisadas. Aparecen cuando se aprueban en el panel.');
+  else { cm.innerHTML = barrasSVG(dm); conHover(cm, dm, d => `<b>${d.k}</b>: ${d.v} colecta${d.v === 1 ? '' : 's'}`); }
+
+  // finalidades: barras horizontales con porcentaje (comparar partes)
+  const pf = col.por_finalidad || {}, totF = Object.values(pf).reduce((a, b) => a + b, 0);
+  const fs = Object.entries(pf).sort((a, b) => b[1] - a[1]);
+  $('#tb-fines').innerHTML = !fs.length ? vacio('Sin datos todavía.') : fs.map(([k, v]) => {
+    const pct = Math.round(100 * v / totF), nivel = RSE_FIN[k] || 'baja';
+    return `<div class="tb-fin" data-txt="${esc(NOM_FIN[k] || k)}: ${v} (${pct} %). Patrocinio: ${nivel}">
+      <div class="flex justify-between text-sm"><span class="font-semibold">${esc(NOM_FIN[k] || k)}</span><span class="tabular-nums text-slate-700">${v} · ${pct} %</span></div>
+      <div class="flex items-center gap-2"><div class="h-3 flex-1 bg-slate-100 rounded"><div class="h-3 rounded" style="width:${pct}%;background:var(--s1)"></div></div>
+      <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${nivel === 'alta' ? 'bg-emerald-100 text-emerald-900' : nivel === 'media' ? 'bg-amber-100 text-amber-900' : 'bg-slate-200 text-slate-800'}">patrocinio ${nivel}</span></div></div>`; }).join('');
+
+  // anticipación por club
+  const ca = $('#tb-anticip');
+  const nombreClub = id => (CLUBES.find(c => c.id === id) || {}).nombre || id;
+  const pc = ((conv && conv.por_club) || []).map(g => ({ k: nombreClub(g.club_id), v: g.prom, n: g.n, min: g.minimo })).sort((a, b) => a.v - b.v).slice(0, 12);
+  if (!pc.length) ca.innerHTML = vacio('Todavía no hay convocatorias cargadas. Los clubes las suman desde la pestaña Deportistas.');
+  else { const dd = pc.map(d => ({ ...d, k: d.k.length > 10 ? d.k.slice(0, 9) + '…' : d.k, nombre: d.k }));
+    ca.innerHTML = barrasSVG(dd, { ref: 30, refTxt: '30 días', formato: v => v + ' d' });
+    conHover(ca, dd, d => `<b>${esc(d.nombre)}</b><br>${d.v} días de aviso en promedio · ${d.n} convocatoria${d.n === 1 ? '' : 's'} · la más corta: ${d.min} días`); }
+
+  // hitos en el tiempo (puntos, máx. 3 categorías)
+  const ch = $('#tb-hitos'), hs = hitos.filter(h => HITOS[h.senal]);
+  if (!hs.length) ch.innerHTML = vacio('Todavía no hay publicaciones revisadas con promesas, becas atrasadas o reclamos.');
+  else {
+    const W = 640, H = 170, m = { l: 12, r: 12 }, t0 = +new Date(hs[0].fecha), t1 = Math.max(+new Date(hs[hs.length - 1].fecha), t0 + 864e5 * 30);
+    const x = f => m.l + ((+new Date(f) - t0) / (t1 - t0)) * (W - m.l - m.r), filas = Object.keys(HITOS);
+    let g = filas.map((k, i) => `<line class="eje" x1="${m.l}" x2="${W - m.r}" y1="${30 + i * 45}" y2="${30 + i * 45}"/><text x="${m.l}" y="${22 + i * 45}">${HITOS[k][0]}</text>`).join('');
+    hs.forEach((h, i) => { g += `<a href="${esc(h.permalink)}" target="_blank" rel="noopener noreferrer"><circle data-i="${i}" cx="${x(h.fecha)}" cy="${30 + filas.indexOf(h.senal) * 45}" r="6" fill="${HITOS[h.senal][1]}" stroke="#fff" stroke-width="2" style="cursor:pointer"/></a>`; });
+    const anios = []; for (let a = new Date(t0).getFullYear(); a <= new Date(t1).getFullYear(); a++) anios.push(a);
+    anios.forEach(a => { const xx = x(`${a}-01-01`); if (xx >= m.l && xx <= W - m.r) g += `<text x="${xx}" y="${H - 6}" text-anchor="middle">${a}</text>`; });
+    ch.innerHTML = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" role="img">${g}</svg>
+      <div class="flex flex-wrap gap-3 text-xs mt-1">${filas.map(k => `<span class="inline-flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background:${HITOS[k][1]}"></span>${HITOS[k][0]} (${hs.filter(h => h.senal === k).length})</span>`).join('')}</div>`;
+    ch.querySelectorAll('circle').forEach(c => { const h = hs[+c.dataset.i];
+      c.addEventListener('pointermove', ev => tip(ev, `<b>${esc(h.cuenta)}</b> · ${esc(fechaLinda(h.fecha))}<br>${HITOS[h.senal][0]}. Tocá para abrir la publicación.`));
+      c.addEventListener('pointerleave', ev => tip(ev, null)); });
+  }
+
+  // tabla accesible
+  $('#tb-tabla').innerHTML = `<table class="text-sm min-w-[320px]"><thead><tr><th class="text-left pr-6">Mes</th><th class="text-right">Colectas</th></tr></thead><tbody>${dm.map(d => `<tr><td class="pr-6">${d.k}</td><td class="text-right tabular-nums">${d.v}</td></tr>`).join('')}</tbody></table>
+    <table class="text-sm mt-4 min-w-[320px]"><thead><tr><th class="text-left pr-6">Destino</th><th class="text-right">Colectas</th></tr></thead><tbody>${fs.map(([k, v]) => `<tr><td class="pr-6">${esc(NOM_FIN[k] || k)}</td><td class="text-right tabular-nums">${v}</td></tr>`).join('')}</tbody></table>`;
+  mapa3D();
+}
+
+// ---- Mapa 3D (deck.gl, se carga recién al abrir el tablero) ----
+function puntos3D() {
+  const { col, conv } = TB, porCuenta = {};
+  Object.values((col && col.por_cuenta) || {}).forEach(c => { porCuenta[(c.cuenta || '').toLowerCase()] = c.colectas; });
+  const porClub = {}; ((conv && conv.por_club) || []).forEach(g => { porClub[g.club_id] = g; });
+  return CLUBES.filter(c => c.lat && c.lng).map(c => ({
+    nombre: c.nombre, ciudad: c.ciudad || '', pos: [c.lng, c.lat],
+    colectas: porCuenta[(c.instagram || '').toLowerCase()] || 0,
+    convocatorias: (porClub[c.id] || {}).n || 0, dias: (porClub[c.id] || {}).prom || 0, clubes: 1 }));
+}
+function cargarScript(src) { return new Promise((ok, mal) => { if ([...document.scripts].some(x => x.src === src)) return ok();
+  const e = document.createElement('script'); e.src = src; e.onload = ok; e.onerror = mal; document.head.appendChild(e); }); }
+async function mapa3D() {
+  const caja = $('#tb-3d');
+  try { await cargarScript('https://unpkg.com/deck.gl@8.9.36/dist.min.js'); }
+  catch (e) { caja.innerHTML = vacio('No se pudo cargar el mapa 3D. Probá recargar la página.'); return; }
+  const datos = puntos3D(), nombres = { colectas: 'colectas', convocatorias: 'convocatorias cargadas', dias: 'días de aviso promedio', clubes: 'club' };
+  const max = Math.max(1, ...datos.map(d => d[tbVista]));
+  const color = v => { const k = v / max; return [Math.round(215 - 173 * k), Math.round(232 - 112 * k), Math.round(250 - 36 * k), 235]; };
+  const capas = [
+    new deck.TileLayer({ id: 'base', data: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', minZoom: 0, maxZoom: 12, tileSize: 256,
+      renderSubLayers: p => { const b = p.tile.bbox; return new deck.BitmapLayer(p, { data: null, image: p.data, bounds: [b.west, b.south, b.east, b.north] }); } }),
+    new deck.ColumnLayer({ id: 'columnas', data: datos, diskResolution: 18, radius: 9000, extruded: true, pickable: true, elevationScale: 1,
+      getPosition: d => d.pos, getElevation: d => d[tbVista] ? 40000 + 260000 * d[tbVista] / max : 0,
+      getFillColor: d => d[tbVista] ? color(d[tbVista]) : [160, 160, 160, 120], updateTriggers: { getElevation: tbVista, getFillColor: tbVista } })];
+  const tooltip = ({ object: d }) => d && { html: `<b>${esc(d.nombre)}</b><br>${esc(d.ciudad)}<br>Colectas: ${d.colectas} · Convocatorias: ${d.convocatorias}${d.dias ? ` · ${d.dias} días de aviso` : ''}`,
+    style: { background: '#0f172a', color: '#fff', fontSize: '12px', borderRadius: '8px', padding: '8px 10px' } };
+  if (!tbDeck) {
+    caja.innerHTML = '';
+    tbDeck = new deck.Deck({ parent: caja, width: '100%', height: '100%', controller: true, getTooltip: tooltip, layers: capas,
+      initialViewState: { longitude: -63.6, latitude: -36.5, zoom: window.innerWidth < 640 ? 3.2 : 3.9, pitch: 50, bearing: -12 } });
+    const atr = document.createElement('div'); atr.className = 'absolute bottom-1 right-2 text-[10px] text-slate-700 bg-white/80 px-1 rounded';
+    atr.innerHTML = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'; caja.appendChild(atr);
+  } else tbDeck.setProps({ layers: capas });
+  const con = datos.filter(d => d[tbVista]).length;
+  $('#tb-3d-nota').textContent = `${con} de ${datos.length} clubes con dato de ${nombres[tbVista]}.` + (con ? '' : ' Todavía no hay datos de este tipo: se completan a medida que se aprueban en el panel o cargan los clubes.');
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-tb3]'); if (!b) return;
+  tbVista = b.dataset.tb3;
+  $$('.tb3').forEach(x => { const on = x === b; x.classList.toggle('bg-slate-900', on); x.classList.toggle('text-white', on); x.classList.toggle('border-slate-900', on); x.classList.toggle('border-slate-300', !on); });
+  if (TB) mapa3D(); });
 
 async function cargarPresentados() {
   if (!sb) return;
@@ -1884,7 +2093,7 @@ ${dni}`;
 }
 
 /* ============ TABS ============ */
-const TABS = ['mapa','simple','deportistas','transp','inst','pedir','dato','rse'];
+const TABS = ['mapa','simple','deportistas','transp','inst','pedir','dato','rse','tablero'];
 function showTab(t, push = true) {
   if (!TABS.includes(t)) t = 'mapa';
   TABS.forEach(x => {
@@ -1893,6 +2102,7 @@ function showTab(t, push = true) {
   });
   if (push) history.replaceState(null, '', '#' + t);
   if (t === 'mapa' && map) setTimeout(() => map.invalidateSize(), 150);
+  if (t === 'tablero') cargarTablero();
   window.scrollTo({ top: 0 });
 }
 

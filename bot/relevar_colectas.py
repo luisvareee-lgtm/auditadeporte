@@ -121,6 +121,8 @@ SENALES = {
     "reclamo": r"\b(sin apoyo|falta de apoyo|no tenemos sillas|sillas rotas|nadie nos ayuda|abandon\w*|reclam\w*)\b",
     "promesa_estado": r"\b(secretaria|subsecretaria) de deportes?\b.{0,120}\b(prometi\w*|compromet\w*|iban a|no lleg\w*|todavia no|nunca lleg\w*|esperamos)\b|"
                       r"\b(prometi\w*|compromet\w*|iban a|no lleg\w*)\b.{0,120}\b(secretaria|subsecretaria) de deportes?\b",
+    "beca_atrasada": r"\bbecas?\b.{0,80}\b(atrasad\w*|adeud\w*|impag\w*|no (cobr|pag|lleg|deposit)\w*|sin cobrar|demor\w*|recort\w*|"
+                     r"dad[oa]s? de baja|suspend\w*|congelad\w*)\b|\b(no cobramos|adeudan|nos deben|seguimos sin cobrar)\b.{0,60}\bbecas?\b",
     "convocatoria_torneo": r"\b(confirmad[oa]s?|fixture|cronograma|sede)\b.{0,60}\b(torneo|fecha|liga|nacional|cuadrangular)\b",
 }
 
@@ -152,7 +154,7 @@ def barrer(usuario: str, propia: str, desde: date, presupuesto: list, prueba=Fal
     texto. Guarda el cursor en barrido_redes para seguir en la próxima corrida si se agota el presupuesto de consultas.
     Una vez completo, las corridas siguientes solo leen lo nuevo. presupuesto = [consultas que quedan] (se descuenta)."""
     import actualidad_redes as ar
-    ig, campos = os.environ["IG_USER_ID"], "timestamp,permalink,caption"
+    ig, campos = os.environ["IG_USER_ID"], "timestamp,permalink,caption,media_type,media_url"
     prog = {} if prueba else _progreso(usuario.lower())
     completo, after = bool(prog.get("completo")), (None if prog.get("completo") else prog.get("cursor"))
     hasta_fecha = date.fromisoformat(prog["mas_nuevo"]) if completo and prog.get("mas_nuevo") else None
@@ -183,7 +185,14 @@ def barrer(usuario: str, propia: str, desde: date, presupuesto: list, prueba=Fal
             f = ar._fecha(p["timestamp"])
             mas_nuevo = max(mas_nuevo or f.isoformat(), f.isoformat())
             if f >= desde and (not hasta_fecha or f >= hasta_fecha):
-                posts_clasif.append({"timestamp": p["timestamp"], "permalink": p.get("permalink"), "caption": p.get("caption")})
+                cap = p.get("caption") or ""
+                import transcribir as tr
+                if tr.conviene(p):                 # el audio del video se suma al texto solo para clasificar; no se guarda
+                    hablado = tr.transcribir(p["media_url"])
+                    if hablado:
+                        cap = f"{cap}\n{hablado}"
+                        print(f"  video transcripto: {p.get('permalink')}", flush=True)
+                posts_clasif.append({"timestamp": p["timestamp"], "permalink": p.get("permalink"), "caption": cap})
         nuevo = ((d.get("paging") or {}).get("cursors") or {}).get("after")
         after = nuevo if nuevo and nuevo != after else None
         viejo = posts and ar._fecha(posts[-1]["timestamp"]) < (hasta_fecha or desde)
@@ -387,7 +396,19 @@ def publicar(cli=None):
     except Exception:
         ejec = []
     cx = contraste(filas, _cuenta_a_juris(cli), ejec)
+    try:
+        pubs = cli.table("publicaciones_relevantes").select("nombre_cuenta,tipo_cuenta,fecha,permalink,senales") \
+            .eq("revisada", True).execute().data or []
+    except Exception:
+        pubs = []
+    por_mes = {f"{m:02d}": 0 for m in range(1, 13)}
+    for f in filas:
+        por_mes[f["fecha"][5:7]] = por_mes.get(f["fecha"][5:7], 0) + 1
+    hitos = sorted([{"fecha": p["fecha"], "cuenta": p["nombre_cuenta"], "senal": sn, "permalink": p["permalink"]}
+                    for p in pubs for sn in p["senales"] if sn in ("promesa_estado", "beca_atrasada", "reclamo", "apoyo_estado")],
+                   key=lambda x: x["fecha"])
     datos = {"actualizado": datetime.now(timezone.utc).strftime("%Y-%m-%d"), **agregar(filas), "patrones": pc.patrones(filas),
+             "por_mes": por_mes, "hitos_estado": hitos[-200:],
              "recientes": [{**{k: f.get(k) for k in ("nombre_cuenta", "tipo_cuenta", "fecha", "permalink", "finalidades", "torneos",
                                                      "tipos_pedido", "montos")},
                             "presupuesto_municipio": cx.get(f["permalink"])}
