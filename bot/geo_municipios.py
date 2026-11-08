@@ -100,6 +100,11 @@ def cuadros_indec():
     html = bajar(INDEC, 120).decode("utf-8", "ignore")
     links = sorted(set(re.findall(r'href="([^"]+\.xlsx?)"', html, re.I)))
     print("cuadros xlsx en la página del INDEC:", len(links))
+    if os.environ.get("DIAGNOSTICO"):
+        for l in links:
+            if re.search(r"(?i)bsas|mendoza|tucum|corrien", l) and not re.search(r"(?i)fecund|educ|salud|hogar|vivien|migra|etni|afro|indig|disca|activ|prevision|religi", l):
+                print("  LINK", l)
+        raise SystemExit
     res = {}
     for l in links:
         u = urllib.parse.urljoin(INDEC, l)
@@ -156,7 +161,7 @@ def main():
         cand = [f for f in fs if norm(f["properties"].get("nombre")) == norm(nom)
                 and norm((f["properties"].get("provincia") or {}).get("nombre") if isinstance(f["properties"].get("provincia"), dict)
                          else f["properties"].get("provincia_nombre") or f["properties"].get("provincia")) == norm(prov)]
-        geo = geometria(cand[0]["geometry"]) if cand and cand[0].get("geometry") else None
+        geo = geometria(cand[0]["geometry"], 0.0006) if cand and cand[0].get("geometry") else None
         pob = None
         if slug in DEPARTAMENTO:
             pob = (cen.get(" ".join(norm(prov))) or {}).get(" ".join(norm(DEPARTAMENTO[slug])))
