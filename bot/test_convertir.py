@@ -37,5 +37,27 @@ class Convertir(unittest.TestCase):
         self.assertIn("juegos_bonaerenses", a.temas_de(r["hallazgos"]))
 
 
+class MarkItDown(unittest.TestCase):
+    def test_word_con_tabla_sin_libreoffice(self):
+        try:
+            import markitdown  # noqa: F401
+            from docx import Document
+        except ImportError:
+            self.skipTest("sin markitdown o python-docx")
+        import io
+        d = Document(); d.add_paragraph("Decreto 1234/2026. Otórgase un subsidio al club de básquet adaptado.")
+        t = d.add_table(rows=2, cols=3)
+        for i, fila in enumerate([("Beneficiario", "Concepto", "Monto"), ("Club Deportivo", "Sillas deportivas", "$ 1.800.000")]):
+            for j, v in enumerate(fila):
+                t.cell(i, j).text = v
+        buf = io.BytesIO(); d.save(buf)
+        pdf = c.a_pdf(buf.getvalue(), "docx")
+        self.assertEqual(pdf[:5], b"%PDF-")
+        import orquestador_bots_audita as o
+        texto = o.texto_pdf(pdf) or ""
+        self.assertIn("Sillas deportivas", texto)          # texto real, sin OCR
+        self.assertIn("1.800.000", texto)
+
+
 if __name__ == "__main__":
     unittest.main()

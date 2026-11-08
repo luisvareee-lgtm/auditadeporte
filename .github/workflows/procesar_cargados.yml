@@ -26,7 +26,8 @@ jobs:
           except Exception:
               filas = []
           print(f"pendientes={len(filas)}")
-          print(f"oficina={sum(1 for f in filas if (f.get('formato') or 'pdf') not in ('pdf','jpg','png','tif','webp'))}")
+          # LibreOffice solo para formatos viejos: Word, Excel, PowerPoint y HTML nuevos los lee MarkItDown
+          print(f"oficina={sum(1 for f in filas if (f.get('formato') or 'pdf') in ('doc','xls','odt','ods','rtf'))}")
           PY
           cat "$GITHUB_OUTPUT"
       - name: Lectores de PDF y OCR en español
@@ -35,12 +36,12 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
           timeout 300 sudo -E apt-get -o DPkg::Lock::Timeout=120 update -qq
           timeout 600 sudo -E apt-get -o DPkg::Lock::Timeout=120 install -y -qq --no-install-recommends tesseract-ocr tesseract-ocr-spa fonts-dejavu-core poppler-utils > /dev/null
-          # LibreOffice solo si hay Word, planillas o texto pendientes (o al probarlo a mano): tarda en instalarse
+          # LibreOffice solo si hay .doc, .xls, .odt, .ods o .rtf pendientes (o al probarlo a mano): tarda en instalarse
           if [ "${{ steps.hay.outputs.oficina }}" != "0" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             timeout 900 sudo -E apt-get -o DPkg::Lock::Timeout=120 install -y -qq --no-install-recommends -o Dpkg::Options::="--force-confnew" \
               libreoffice-writer-nogui libreoffice-calc-nogui > /dev/null && soffice --version || echo "LibreOffice no se instaló: esos formatos quedan con error y se reintentan"
           fi
-          pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12" "openpyxl>=3.1,<4" "python-docx>=1,<2"
+          pip install "pypdf>=4,<7" "pypdfium2>=4,<6" "pytesseract>=0.3,<0.4" "pillow>=10,<12" "openpyxl>=3.1,<4" "python-docx>=1,<2" "markitdown[docx,xlsx,pptx]>=0.1,<0.2" "reportlab>=4,<6"
       - name: Tests
         if: steps.hay.outputs.pendientes != '0' || github.event_name == 'workflow_dispatch'
         run: python -m unittest test_supa test_analista_pdf test_vigia test_convertir test_rafam

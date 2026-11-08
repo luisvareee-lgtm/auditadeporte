@@ -158,16 +158,19 @@ def barrer(usuario: str, propia: str, desde: date, presupuesto: list, prueba=Fal
     hasta_fecha = date.fromisoformat(prog["mas_nuevo"]) if completo and prog.get("mas_nuevo") else None
     leidos, mas_nuevo, posts_clasif = int(prog.get("posts_leidos") or 0), prog.get("mas_nuevo"), []
     corte = None
+    lim = 50
     while presupuesto[0] > 0:
         pag = f".after({after})" if after else ""
         presupuesto[0] -= 1
         try:
             if usuario.lower() == (propia or "").lower():
-                d = ar.graph(ig, f"media{pag}.limit(50){{{campos}}}").get("media") or {}
+                d = ar.graph(ig, f"media{pag}.limit({lim}){{{campos}}}").get("media") or {}
             else:
-                d = (ar.graph(ig, f"business_discovery.username({usuario}){{media{pag}.limit(50){{{campos}}}}}")
+                d = (ar.graph(ig, f"business_discovery.username({usuario}){{media{pag}.limit({lim}){{{campos}}}}}")
                      .get("business_discovery") or {}).get("media") or {}
         except ar.ErrorMeta as e:
+            if e.estado == "error" and lim > 10 and re.search(r"timed out|Extra data|Expecting|reduce the amount", str(e)):
+                lim = max(10, lim // 2); continue      # respuesta demasiado grande (cuentas con textos largos): páginas más chicas
             if e.estado == "error" and after and after == prog.get("cursor"):
                 after = None; continue          # cursor guardado vencido: se empieza de nuevo
             if e.estado != "limite_meta" or not leidos:
@@ -259,6 +262,11 @@ def leer_faba_web(desde: date):
         time.sleep(1)
     print(f"  faba web: {len(out)} noticias con alguna palabra clave")
     return out
+
+
+# Organizaciones que viven de campañas de donación: sus pedidos son su forma de financiarse, no colectas de deportistas
+# o equipos por falta de fondos. Se leen igual (otras señales), pero no cuentan como colectas.
+RECAUDACION_PROPIA = {"cilsaong": "ONG que se financia con campañas de donación permanentes"}
 
 
 def senales_cuenta(usuario, nombre, tipo, posts):
@@ -413,12 +421,18 @@ def main():
     except Exception as e:
         estados["faba_web"] = f"error: {str(e)[:80]}"
     presupuesto, otras = [LLAMADAS_POR_CORRIDA], []
+    if not prueba:                                   # lo que ya se había guardado de esas cuentas sin revisar, se quita
+        for cta in RECAUDACION_PROPIA:
+            try:
+                o.db().table("colectas_relevadas").delete().eq("cuenta", cta).eq("revisada", False).execute()
+            except Exception as e:
+                print("no se pudo limpiar", cta, str(e)[:80])
     for usuario, nombre, tipo in cuentas():
         if presupuesto[0] <= 0:
             estados[usuario] = "pendiente (sigue en la próxima corrida)"; continue
         try:
             posts, completo = barrer(usuario, propia, desde, presupuesto, prueba)
-            filas = relevar_cuenta(usuario, nombre, tipo, posts)
+            filas = [] if usuario.lower() in RECAUDACION_PROPIA else relevar_cuenta(usuario, nombre, tipo, posts)
             otras += senales_cuenta(usuario, nombre, tipo, posts)
             del posts                                  # los textos no se conservan
             todas += filas

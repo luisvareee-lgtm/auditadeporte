@@ -1,6 +1,8 @@
 """Convierte un documento cargado a PDF para que el analista lo lea página por página y saque capturas.
-PDF: tal cual. Imágenes (escaneos): a PDF con Pillow. Word, OpenDocument, RTF, planillas y texto: con LibreOffice
-sin interfaz. El archivo original no se modifica: su huella SHA-256 es la que se registra."""
+PDF: tal cual. Imágenes (escaneos): a PDF con Pillow. Word (.docx), Excel (.xlsx), PowerPoint (.pptx), HTML y texto:
+primero con MarkItDown (Microsoft, código abierto), que conserva las tablas y no necesita LibreOffice. Planillas
+(.xlsx, .csv): fila por fila como "Encabezado: valor". El texto se pasa a un PDF con texto real (reportlab). Formatos viejos (.doc, .xls, .odt, .ods, .rtf) o si MarkItDown falla:
+LibreOffice sin interfaz. El archivo original no se modifica: su huella SHA-256 es la que se registra."""
 import io
 import os
 import shutil
@@ -8,7 +10,58 @@ import subprocess
 import tempfile
 
 IMAGENES = {"jpg", "jpeg", "png", "tif", "tiff", "webp"}
-OFICINA = {"doc", "docx", "odt", "rtf", "xls", "xlsx", "ods", "csv", "txt"}
+OFICINA = {"doc", "docx", "odt", "rtf", "xls", "xlsx", "ods", "csv", "txt", "pptx", "html", "htm"}
+CON_MARKITDOWN = {"docx", "pptx", "html", "htm"}   # las planillas siguen fila por fila ("Encabezado: valor")
+
+
+def texto_markitdown(datos: bytes, ext: str):
+    """Texto en Markdown (tablas incluidas) o None si MarkItDown no está o no pudo."""
+    try:
+        from markitdown import MarkItDown
+    except ImportError:
+        return None
+    with tempfile.TemporaryDirectory() as d:
+        ruta = os.path.join(d, "documento." + ext)
+        open(ruta, "wb").write(datos)
+        try:
+            t = MarkItDown().convert(ruta).text_content or ""
+        except Exception:
+            return None
+    t = t.strip()
+    return t if len(t) >= 20 else None
+
+
+def texto_a_pdf(texto: str) -> bytes:
+    """PDF A4 con texto real (seleccionable, sin OCR) usando reportlab. Si no está reportlab, LibreOffice."""
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        from reportlab.pdfgen import canvas
+    except ImportError:
+        return _convertir(texto.encode("utf-8"), "txt", "pdf")
+    import textwrap
+    fuente = "Helvetica"
+    for ruta in ("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "DejaVuSans.ttf"):
+        try:
+            pdfmetrics.registerFont(TTFont("DejaVu", ruta)); fuente = "DejaVu"; break
+        except Exception:
+            continue
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=A4)
+    ancho, alto = A4
+    y = alto - 50
+    for ln in texto.replace("\r", "").split("\n"):
+        for parte in textwrap.wrap(ln, 105, break_long_words=True, replace_whitespace=False) or [""]:
+            if y < 50:
+                c.showPage(); y = alto - 50
+            c.setFont(fuente, 8.5)
+            c.drawString(40, y, parte)
+            y -= 11
+    c.save()
+    return buf.getvalue()
+
+
 FORMATOS = {"pdf"} | IMAGENES | OFICINA
 
 
@@ -63,7 +116,7 @@ def planilla_a_pdf(datos: bytes, ext: str) -> bytes:
             continue
         pares = [f"{(enc[i] if enc and i < len(enc) and enc[i] else f'Col {i + 1}')}: {v}" for i, v in enumerate(f) if v]
         lineas.append(f"Fila {n + 1} | " + " | ".join(pares))
-    return _convertir("\n".join(lineas).encode("utf-8"), "txt", "pdf")
+    return texto_a_pdf("\n".join(lineas))
 
 
 def _convertir(datos: bytes, ext: str, destino: str, timeout=180) -> bytes:
@@ -91,6 +144,12 @@ def a_pdf(datos: bytes, formato: str) -> bytes:
         return datos
     if f in IMAGENES:
         return imagen_a_pdf(datos)
+    if f == "txt":
+        return texto_a_pdf(datos.decode("utf-8", "ignore"))
+    if f in CON_MARKITDOWN:
+        t = texto_markitdown(datos, f)
+        if t:
+            return texto_a_pdf(t)
     if f in PLANILLAS:
         return planilla_a_pdf(datos, f)
     if f in OFICINA:

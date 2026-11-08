@@ -172,6 +172,23 @@ def fuentes(srv):
         nota("AVISO", f"{len(nunca)} fuente(s) activas que todavía no se leyeron nunca", ", ".join(f["nombre"] for f in nunca[:10]))
 
 
+def barrido(srv):
+    """Cuánto se leyó de cada cuenta de Instagram y qué se encontró (solo conteos)."""
+    print("\n== 5. Barrido de redes ==")
+    try:
+        bs = srv.table("barrido_redes").select("cuenta,posts_leidos,completo,mas_nuevo").limit(100).execute().data or []
+        cs = srv.table("colectas_relevadas").select("cuenta,revisada,fecha").limit(5000).execute().data or []
+        ps = srv.table("publicaciones_relevantes").select("cuenta,senales").limit(5000).execute().data or []
+    except SupaError as e:
+        nota("FALTA", "tablas del barrido", str(e)[:80]); return
+    for b in sorted(bs, key=lambda x: x["cuenta"]):
+        c = [x for x in cs if x["cuenta"] == b["cuenta"]]
+        p = [x for x in ps if x["cuenta"] == b["cuenta"]]
+        nota("OK" if b["completo"] else "AVISO", f"@{b['cuenta']}",
+             f"{b['posts_leidos']} posteos leídos, {'completa' if b['completo'] else 'en curso'} · colectas: {len(c)} "
+             f"({sum(1 for x in c if x['revisada'])} aprobadas) · otras publicaciones marcadas: {len(p)}")
+
+
 def main():
     srv = Cliente(os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_SERVICE_ROLE_KEY"))
     anon = Cliente(os.environ.get("SUPABASE_URL"), clave_publica())
@@ -179,6 +196,7 @@ def main():
     publico(srv, anon)
     meta()
     fuentes(srv)
+    barrido(srv)
     print("\n== Resumen ==")
     for e in ("OK", "AVISO", "BLOQUEADO", "A MANO", "FALTA", "FALLA"):
         print(f"{e}: {sum(1 for r in RES if r[0] == e)}")
