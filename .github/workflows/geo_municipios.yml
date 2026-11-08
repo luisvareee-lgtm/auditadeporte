@@ -1,5 +1,5 @@
 name: Población y forma de los municipios (Censo 2022 y georef)
-on: { workflow_dispatch: {} }
+on: { workflow_dispatch: { inputs: { diagnostico: { description: "Solo listar cuadros del INDEC", type: boolean, default: false } } } }
 permissions: { contents: write }
 jobs:
   geo:
@@ -12,6 +12,7 @@ jobs:
       - run: pip install "openpyxl>=3.1,<4"
       - run: python geo_municipios.py
         working-directory: bot
+        env: { DIAGNOSTICO: "${{ inputs.diagnostico && '1' || '' }}" }
       - run: |
           git config user.name "auditadeporte-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
