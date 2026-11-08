@@ -1356,7 +1356,7 @@ const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov'
 const NOM_FIN = { viaje_torneo:'Viajes a torneos', inscripcion:'Inscripciones', silla_equipamiento:'Sillas y equipamiento', indumentaria:'Indumentaria', general:'Gastos generales' };
 const RSE_FIN = { viaje_torneo:'alta', silla_equipamiento:'alta', indumentaria:'alta', inscripcion:'media', general:'baja' };
 const HITOS = { promesa_estado:['Promesa del Estado','var(--s1)'], beca_atrasada:['Beca atrasada','var(--s2)'], reclamo:['Reclamo','var(--s3)'] };
-let TB = null, tbVista = 'colectas', tbDeck = null;
+let TB = null, tbVista = 'colectas', tbDeck = null, tbEscala = 1;
 const tip = (ev, html) => { const t = $('#tb-tip'); if (!html) { t.classList.add('hidden'); return; }
   t.innerHTML = html; t.classList.remove('hidden');
   const x = Math.min(ev.clientX + 14, window.innerWidth - t.offsetWidth - 8), y = Math.max(8, ev.clientY - t.offsetHeight - 12);
@@ -1476,14 +1476,14 @@ async function mapa3D() {
   const max = Math.max(1, ...datos.map(val));
   const color = v => { const k = v / max; return [Math.round(215 - 173 * k), Math.round(232 - 112 * k), Math.round(250 - 36 * k), 235]; };
   const capaDatos = muni
-    ? new deck.PolygonLayer({ id: 'municipios', data: datos, extruded: true, pickable: true, wireframe: true, getPolygon: d => d.poly,
+    ? new deck.PolygonLayer({ id: 'municipios', data: datos, extruded: true, pickable: true, wireframe: true, getPolygon: d => d.poly, elevationScale: tbEscala,
         getElevation: d => d.v ? 8000 + 120000 * d.v / max : 1500, getFillColor: d => d.v ? color(d.v) : [180, 180, 180, 140], getLineColor: [255, 255, 255],
         updateTriggers: { getElevation: tbVista, getFillColor: tbVista } })
     : null;
   const capas = [
     new deck.TileLayer({ id: 'base', data: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', minZoom: 0, maxZoom: 12, tileSize: 256,
       renderSubLayers: p => { const b = p.tile.bbox; return new deck.BitmapLayer(p, { data: null, image: p.data, bounds: [b.west, b.south, b.east, b.north] }); } }),
-    new deck.ColumnLayer({ id: 'columnas', data: datos, diskResolution: 24, radius: 22000, extruded: true, pickable: true, elevationScale: 1,
+    new deck.ColumnLayer({ id: 'columnas', data: datos, diskResolution: 24, radius: 22000 * Math.max(tbEscala, 0.08), extruded: true, pickable: true, elevationScale: tbEscala,
       getPosition: d => d.pos, getElevation: d => d[tbVista] ? 40000 + 260000 * d[tbVista] / max : 0,
       getFillColor: d => d[tbVista] ? color(d[tbVista]) : [160, 160, 160, 120], updateTriggers: { getElevation: tbVista, getFillColor: tbVista } })];
   if (muni) capas[1] = capaDatos;
@@ -1504,6 +1504,7 @@ async function mapa3D() {
 }
 document.addEventListener('click', ev => { const z = ev.target.closest('[data-tbzoom]'); if (!z || !tbDeck) return;
   const [lon, lat, zoom] = z.dataset.tbzoom.split(',').map(Number);
+  tbEscala = zoom >= 9 ? 0.06 : zoom >= 8 ? 0.1 : zoom >= 7 ? 0.25 : 1; if (TB) mapa3D();
   tbDeck.setProps({ initialViewState: { longitude: lon, latitude: lat, zoom: window.innerWidth < 640 ? zoom - 0.8 : zoom, pitch: 50, bearing: -10, transitionDuration: 900,
     transitionInterpolator: new deck.FlyToInterpolator() } }); });
 document.addEventListener('click', ev => { const b = ev.target.closest('[data-tb3]'); if (!b) return;
