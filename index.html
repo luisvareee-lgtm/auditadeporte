@@ -2133,10 +2133,27 @@ async function sha256(txt) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
+// Datos personales en el texto: DNI/CUIL, teléfonos y correos se tachan solos; si menciona la salud de alguien, se avisa antes.
+const RX_PERSONALES = [
+  [/\b(?:dni|d\.n\.i\.?|cuil|cuit)\s*(?:n[°º.]?\s*)?:?\s*[\d.\- ]{7,13}\d/gi, '[DNI tachado]'],
+  [/(?<!(?:\$|usd|u\$s|ars)\s?)\b\d{2}[.\- ]?\d{3}[.\- ]?\d{3}\b(?!\s*(?:pesos|millones|d[oó]lares))/gi, '[número tachado]'],
+  [/(?:\+?54\s*9?\s*)?\b(?:11|15|\d{3,4})[\s\-]?\d{4}[\s\-]?\d{4}\b/g, '[teléfono tachado]'],
+  [/[\w.+-]+@[\w-]+\.[\w.]+/g, '[correo tachado]']];
+const RX_SALUD = /\b(paraplej\w*|cuadriplej\w*|tetraplej\w*|amput\w*|lesi[oó]n medular|diagn[oó]stic\w*|historia cl[ií]nica|enfermedad|tratamiento|medicaci[oó]n|cirug[ií]a|internad[oa]|discapacidad (?:motriz|visual|intelectual))\b/i;
+function tacharPersonales(t) { let out = t; for (const [rx, rep] of RX_PERSONALES) out = out.replace(rx, rep); return out; }
+let avisoSaludDado = false;
+
 async function enviarDato(ev) {
   ev.preventDefault();
   const est = $('#d-estado'); est.className = 'text-sm font-semibold text-slate-700';
-  const texto = $('#d-texto').value.trim();
+  const original = $('#d-texto').value.trim();
+  const texto = tacharPersonales(original);
+  if (texto !== original) { $('#d-texto').value = texto; }
+  if (RX_SALUD.test(texto) && !avisoSaludDado) {
+    avisoSaludDado = true;
+    est.textContent = 'Tu mensaje menciona la salud o el diagnóstico de una persona. No hace falta para revisar el dato: sacalo si podés. Si igual querés mandarlo así, tocá "Enviar" de nuevo.';
+    est.classList.add('text-amber-800'); $('#d-texto').focus(); return;
+  }
   const url = $('#d-url').value.trim();
   const tipo = $('#d-tipo').value;
   if ($('#d-web').value) return;                           // honeypot
@@ -2163,6 +2180,7 @@ async function enviarDato(ev) {
   const { error } = await sb.from('tips').insert(fila, { returning: 'minimal' });
   $('#d-enviar').disabled = false;
   if (error) { est.textContent = 'No pudimos enviarlo. Probá más tarde.'; est.classList.add('text-rose-700'); return; }
+  avisoSaludDado = false;
   localStorage.setItem('ad_ultimo_envio', String(Date.now()));
   const h = await sha256(texto);
   est.textContent = 'Recibido. Gracias.'; est.classList.add('text-emerald-800');

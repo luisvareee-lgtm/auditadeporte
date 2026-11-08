@@ -128,12 +128,16 @@ async function revisarTexto(p, esc, nombre, t, debe = [], noDebe = []) {
   const p = await pagina();
   await p.click('#t-dato'); await p.selectOption('#d-tipo', 'dato');
   await p.fill('#d-texto', 'Mi DNI es 30.123.456 y mi teléfono 11 5555-1234. Tengo paraplejia y la silla del club está rota desde marzo.');
-  await p.check('#d-ok'); await p.click('#d-enviar'); await p.waitForTimeout(1200);
+  await p.check('#d-ok'); await p.click('#d-enviar'); await p.waitForTimeout(800);
   const est = await p.locator('#d-estado').innerText();
+  (/salud/.test(est) && !(p.envios || []).some(e => /tips/.test(e.url)) ? ok(E, 'avisa antes de enviar que el texto menciona la salud') : anotar('alta', E, 'no avisa por datos de salud: ' + est));
+  const visible = await texto(p, '#d-texto');
+  (/30\.123\.456|5555-1234/.test(visible) ? anotar('alta', E, 'no tacha DNI ni teléfono') : ok(E, 'tacha DNI y teléfono en el texto: ' + visible.slice(0, 80)));
+  await p.click('#d-enviar'); await p.waitForTimeout(1200);
   const envio = (p.envios || []).find(e => /tips/.test(e.url));
-  if (envio && /30\.123\.456|5555-1234|paraplejia/.test(envio.cuerpo || ''))
-    anotar('alta', E, 'el formulario envía DNI, teléfono y salud sin advertir; quedan en la Bandeja del panel');
-  else ok(E, 'advierte o no envía los datos personales: ' + est);
+  if (!envio) anotar('media', E, 'con el segundo clic no se envía: ' + await p.locator('#d-estado').innerText());
+  else (/30\.123\.456|5555-1234/.test(envio.cuerpo || '') ? anotar('alta', E, 'el envío lleva DNI o teléfono') : ok(E, 'lo que llega a la Bandeja va sin DNI ni teléfono'));
+  await p.evaluate(() => localStorage.removeItem('ad_ultimo_envio'));
   await p.selectOption('#d-tipo', 'solicitud_rse'); await p.fill('#d-texto', 'Necesitamos cubiertas y rulemanes para las sillas del equipo antes del torneo de diciembre.');
   await p.check('#d-ok'); await p.click('#d-enviar'); await p.waitForTimeout(800);
   const e2 = await p.locator('#d-estado').innerText();
