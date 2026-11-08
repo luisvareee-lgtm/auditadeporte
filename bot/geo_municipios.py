@@ -109,8 +109,10 @@ def cuadros_indec():
             wb = openpyxl.load_workbook(io.BytesIO(bajar(u, 120)), read_only=True, data_only=True)
         except Exception as e:
             print("  no se pudo leer", u, str(e)[:60]); continue
-        ws = wb.worksheets[0]
-        filas = [list(r) for r in ws.iter_rows(values_only=True)]
+        filas = []
+        for ws in wb.worksheets:                 # la primera hoja son definiciones; los datos están en las siguientes
+            if not re.search(r"(?i)defin|nota|metod", ws.title):
+                filas += [list(r) for r in ws.iter_rows(values_only=True)]
         titulo = " ".join(str(c) for f in filas[:8] for c in f if c)
         if os.environ.get("MUESTRA") or prov_archivo in ("bsas", "santafe", "cordoba"):
             print("  ", prov_archivo, "|", titulo[:160])
@@ -158,14 +160,22 @@ def main():
     out = {"fuente_formas": "Unidades territoriales del Estado nacional (georef, datos.gob.ar)",
            "fuente_poblacion": "Censo Nacional 2022 (INDEC), población por gobierno local", "municipios": {}}
     for slug, (nom, prov) in MUNICIPIOS.items():
-        cand = [f for f in fs if norm(f["properties"].get("nombre")) == norm(nom)
+        alias = {"muni-mendoza": ["Capital", "Mendoza", "Ciudad de Mendoza"], "muni-rio-gallegos": ["Río Gallegos", "Rio Gallegos"]}.get(slug, [nom])
+        cand = [f for f in fs if norm(f["properties"].get("nombre")) in [norm(a) for a in alias]
                 and norm((f["properties"].get("provincia") or {}).get("nombre") if isinstance(f["properties"].get("provincia"), dict)
                          else f["properties"].get("provincia_nombre") or f["properties"].get("provincia")) == norm(prov)]
         geo = geometria(cand[0]["geometry"], 0.0006) if cand and cand[0].get("geometry") else None
+        if not geo:
+            pv = [f["properties"].get("nombre") for f in fs if norm(str(f["properties"].get("provincia"))) and
+                  any(w in norm(str(f["properties"])) for w in norm(prov))][:0]
+            print("   sin forma; ejemplos de nombres en georef para", prov, ":",
+                  [f["properties"].get("nombre") for f in fs if norm(prov)[0] in norm(json.dumps(f["properties"], ensure_ascii=False))][:12])
         tabla = cen.get(PROV_ARCHIVO.get(prov, ""), {})
         clave = " ".join(norm("Mendoza" if slug == "muni-mendoza" else nom))
         pob = tabla.get(clave) or next((v for k, v in tabla.items() if k.endswith(clave) or k.startswith(clave + " ")), None)
         out["municipios"][slug] = {"nombre": nom, "provincia": prov, "poblacion_2022": pob, "geometria": geo}
+        if not pob:
+            print("   sin población; parecidos en el cuadro:", [k for k in tabla if clave.split()[0] in k][:6])
         print(f"{slug:30} forma={'sí' if geo else 'NO'} ({sum(len(r) for p in geo['coordinates'] for r in p) if geo else 0} puntos)  población 2022={pob or '—'}")
     json.dump(out, open(os.path.join(AQUI, "..", "datos", "municipios_geo.json"), "w", encoding="utf-8"), ensure_ascii=False,
               separators=(",", ":"))
