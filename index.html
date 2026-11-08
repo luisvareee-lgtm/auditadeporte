@@ -2096,7 +2096,7 @@ function armarPedido() {
   // En la carta: la base constitucional y la norma que obliga A ESE organismo (a un municipio no se le cita la ley provincial)
   const marco = mp
     ? `en ejercicio del derecho de acceso a la información pública garantizado por ${BASE_CARTA}${mp.esMunicipio
-        ? ', y por la ordenanza municipal de acceso a la información pública que corresponda'
+        ? (mp.ordenanza ? ', y por la ' + mp.norma : ', y por la ordenanza municipal de acceso a la información pública que corresponda')
         : /^sin ley/.test(mp.norma) ? '' : ', y por la ' + mp.norma}`
     : tipo === 'municipio'
     ? 'en ejercicio del derecho de acceso a la información pública reconocido por la normativa aplicable en mi jurisdicción'

@@ -91,8 +91,13 @@ async function revisarTexto(p, esc, nombre, t, debe = [], noDebe = []) {
     await revisarTexto(p, E, `Pedido a ${s}`, t, debe, s.startsWith('muni-') ? ['12.475 de acceso a documentos administrativos (Poder Ejecutivo'] : []);
     if (!/\[Nombre|\[DNI|\[Correo/.test(t)) anotar('baja', E, `Pedido a ${s}: no deja marcados los datos personales a completar`);
   }
+  await p.click('#t-pedir'); await p.evaluate(() => { for (let a = document.querySelector('#r-fecha'); a; a = a.parentElement) if (a.tagName === 'DETAILS') a.open = true; });
+  await p.locator('#r-fecha').scrollIntoViewIfNeeded();
+  if (!(await p.locator('#r-fecha').isVisible())) { anotar('media', E, 'el formulario de pronto despacho no se ve sin pasos previos'); }
+  else {
   await p.fill('#r-fecha', '2026-08-01'); await p.fill('#r-exp', 'Expte. 99/2026'); await p.click('#r-armar');
   await revisarTexto(p, E, 'Pronto despacho del pedido', await texto(p, '#p-texto'), ['01/08/2026', 'Expte. 99/2026', 'pronto despacho']);
+  }
   if (p.errores.length) anotar('alta', E, 'errores: ' + p.errores.join(' | '));
 }
 
