@@ -1132,7 +1132,7 @@
 <footer class="bg-slate-900 text-slate-300 mt-10">
   <div class="max-w-7xl mx-auto px-4 py-8 text-sm space-y-3">
     <p>AuditaDeporte reúne información de fuentes públicas con enlace y fecha. No afirma hechos sobre personas sin respaldo documental. Si algo es inexacto o incompleto, escribinos desde <button data-tab="dato" class="underline text-amber-300">“Enviar un dato” → Derecho a réplica</button> y lo revisamos.</p>
-    <p class="text-xs text-slate-400">Proyecto sin fines de lucro. Los logos pertenecen a cada club y se muestran con su autorización.</p>
+    <p class="text-xs text-slate-400">Proyecto sin fines de lucro. Los escudos pertenecen a cada club; se toman de su cuenta oficial pública solo para identificarlo. Si un club no quiere que se muestre el suyo, escribinos desde "Enviar un dato" y lo quitamos.</p>
   </div>
 </footer>
 
@@ -2627,11 +2627,40 @@ function abrirClub(id) {
 
   $('#club-novedades').innerHTML = '<li class="text-slate-500">Cargando…</li>';
   cargarNovedades(c);
+  fichaAuditada(c);
   const links = [];
   if (c.instagram) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.instagram.com/${encodeURIComponent(c.instagram)}/" target="_blank" rel="noopener noreferrer">Instagram @${esc(c.instagram)}</a>`);
   if (c.facebook) links.push(`<a class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold" href="https://www.facebook.com/${encodeURIComponent(c.facebook)}" target="_blank" rel="noopener noreferrer">Facebook</a>`);
   $('#club-links').innerHTML = links.join('') || '<p class="text-sm text-slate-500">Todavía no cargamos redes oficiales de este club.</p>';
   $('#dlg-club').showModal();
+}
+
+// Lo auditado hasta hoy sobre el club y su municipio, arriba de la ficha
+async function fichaAuditada(c) {
+  let caja = $('#club-auditado');
+  if (!caja) { caja = document.createElement('div'); caja.id = 'club-auditado'; caja.className = 'space-y-3'; $('#club-nota').after(caja); }
+  caja.innerHTML = '<p class="text-sm text-slate-500">Cargando lo auditado…</p>';
+  await datosTablero();
+  if (!TB.geo) { try { const r = await fetch('datos/municipios_geo.json', { cache: 'no-store' }); TB.geo = r.ok ? await r.json() : { municipios: {} }; } catch (e) { TB.geo = { municipios: {} }; } }
+  if (clubActivo !== c) return;
+  const cuenta = (c.instagram || '').toLowerCase();
+  const cs = Object.values((TB.col && TB.col.por_cuenta) || {}).find(x => (x.cuenta || '').toLowerCase() === cuenta);
+  const cv = ((TB.conv && TB.conv.por_club) || []).find(g => g.club_id === c.id || g.club_id === slugActual(c.id));
+  const pubs = [...((TB.col && TB.col.recientes) || []).filter(r => (r.cuenta || '').toLowerCase() === cuenta).map(r => ({ f: r.fecha, t: 'Colecta', l: r.permalink })),
+    ...((TB.col && TB.col.hitos_estado) || []).filter(h => (h.cuenta_usuario || '').toLowerCase() === cuenta).map(h => ({ f: h.fecha, t: (HITOS[h.senal] || [h.senal])[0], l: h.permalink }))]
+    .sort((a, b) => b.f.localeCompare(a.f)).slice(0, 5);
+  const { muni, prov } = jurisDeClub(c);
+  const sinAut = !(c.autoridades && c.autoridades.length);
+  caja.innerHTML = `<div class="rounded-xl border-2 border-blue-200 bg-blue-50/50 p-3 space-y-2 text-sm">
+      <p class="font-extrabold text-slate-900">Lo auditado hasta hoy</p>
+      <ul class="space-y-1">
+        <li>Colectas en su cuenta oficial (revisadas): <strong>${cs ? cs.colectas : 0}</strong>${cs && cs.ultima ? `, la última el ${esc(fechaLinda(cs.ultima))}` : ''}.</li>
+        <li>Convocatorias a torneos cargadas: <strong>${cv ? cv.n : 0}</strong>${cv ? `, con ${cv.prom} días de aviso en promedio` : ''}.</li>
+        ${sinAut ? '<li>Autoridades: no encontramos la nómina publicada. Si el club es una asociación civil, su comisión directiva consta en el registro de personas jurídicas de su provincia (en Buenos Aires, la DPPJ; en CABA, la IGJ). Si tenés un acta o una publicación oficial, mandala desde "Enviar un dato".</li>' : ''}
+        ${c.logo_fuente ? `<li class="text-xs text-slate-600">Escudo tomado de ${esc(c.logo_fuente.replace('instagram:', 'la cuenta oficial '))}${c.logo_fecha ? ' (' + esc(fechaLinda(c.logo_fecha)) + ')' : ''}.</li>` : ''}
+      </ul>
+      ${pubs.length ? `<p class="font-bold pt-1">Publicaciones oficiales revisadas</p><ul class="space-y-1">${pubs.map(x => `<li>${esc(fechaLinda(x.f))} · ${esc(x.t)} · <a class="underline text-blue-700" href="${esc(x.l)}" target="_blank" rel="noopener noreferrer">ver publicación</a></li>`).join('')}</ul>` : ''}
+    </div>${bloqueJuris(muni) || bloqueJuris(prov) || ''}`;
 }
 
 async function cargarNovedades(c) {
@@ -3081,6 +3110,7 @@ window.addEventListener('DOMContentLoaded', async () => {
               division: MAPA_DIVISION[d.division] || d.division || 'Desarrollo',
               tipo: MAPA_TIPO[d.tipo_entidad] || d.tipo_entidad || 'Asociación civil',
               logo: d.logo_url || "",
+              logo_fuente: d.logo_fuente || "", logo_fecha: d.logo_fecha || "",
               instagram: d.instagram || localMatch.instagram || "",
               facebook: d.facebook || localMatch.facebook || "",
               nota: localMatch.nota || d.estado_nota || "",

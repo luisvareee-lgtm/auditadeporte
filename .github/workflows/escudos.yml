@@ -1,0 +1,23 @@
+name: Escudos de los clubes (propuestas desde sus cuentas oficiales)
+on:
+  workflow_dispatch:
+    inputs:
+      todos: { description: "Volver a proponer aunque el club ya tenga escudo", type: boolean, default: false }
+  schedule: [{ cron: "0 12 1 * *" }]      # una vez por mes
+permissions: { contents: read }
+concurrency: { group: actualidad-redes, cancel-in-progress: false }
+jobs:
+  escudos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - run: python escudos_clubes.py ${{ inputs.todos && '--todos' || '' }}
+        working-directory: bot
+        env:
+          META_TOKEN: ${{ secrets.META_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}

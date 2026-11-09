@@ -307,6 +307,7 @@ async function cargarCargados() {
   cargarColectas();
   cargarConvocatoriasPanel();
   cargarBarrido();
+  cargarEscudos();
   $('#t-cargados').replaceChildren(tabla([['Documento', x => el('span', {}, el('strong', {}, x.titulo), el('br'), enlace(x.url_original))],
     ['Lugar', x => x.juris_slug + (x.formato && x.formato !== 'pdf' ? ' · .' + x.formato : '')], ['Cargado', x => fecha(x.creado_en) + (x.cargado_por ? ' · ' + x.cargado_por : '')],
     ['Estado', x => el('span', { class: 'chip ' + ({ procesado: 'ok', error: 'mal' }[x.estado] || '') }, x.estado === 'pendiente' ? 'en espera (se analiza en menos de una hora)' : x.estado)],
@@ -379,6 +380,31 @@ async function cargarColectas() {
 }
 const ETQ_SENAL = { apoyo_estado: 'Agradece al Estado', apoyo_empresas: 'Agradece a empresas', viaje: 'Viaje', equipamiento_nuevo: 'Equipamiento nuevo',
   reclamo: 'Reclamo', convocatoria_torneo: 'Aviso de torneo', promesa_estado: 'Promesa de la Subsecretaría', beca_atrasada: 'Beca atrasada' };
+async function cargarEscudos() {
+  let l;
+  try { l = await rpc('panel_escudos'); }
+  catch (e) { $('#t-escudos').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/28 en Supabase: ' + e.message)); return; }
+  const img = u => u ? el('img', { src: u, alt: '', style: 'width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #cbd5e1' }) : el('span', { class: 'meta' }, '—');
+  $('#t-escudos').replaceChildren(tabla([['Club', x => x.nombre], ['Actual', x => img(x.actual)], ['Propuesto', x => img(x.url)], ['De dónde', x => x.fuente],
+    ['', x => el('span', {}, el('button', { class: 'btn chico primario', onclick: () => decidirEscudo(x, true) }, 'Usar este escudo'), ' ',
+      el('button', { class: 'btn chico', onclick: () => decidirEscudo(x, false) }, 'Descartar'))]], l, 'No hay escudos para revisar.'));
+  const sel = $('#au-club');
+  if (sel && sel.options.length <= 1) {
+    try { const { data } = await sb.from('clubes').select('id,nombre').order('nombre'); (data || []).forEach(c => sel.add(new Option(c.nombre, c.id))); } catch (e) {}
+  }
+}
+async function decidirEscudo(x, ok) {
+  try { await rpc('panel_escudo_decidir', { p_club: x.club_id, p_ok: ok }); aviso(ok ? 'Escudo publicado.' : 'Descartado.'); cargarEscudos(); }
+  catch (e) { aviso(e.message, true); }
+}
+$('#f-autoridad')?.addEventListener('submit', async ev => {
+  ev.preventDefault();
+  try {
+    await rpc('panel_cargar_autoridad_club', { p_club: $('#au-club').value, p_cargo: $('#au-cargo').value, p_nombre: $('#au-nombre').value,
+      p_fuente: $('#au-fuente').value, p_fecha: $('#au-fecha').value });
+    aviso('Autoridad guardada.'); ev.target.reset();
+  } catch (e) { aviso(e.message, true); }
+});
 async function cargarBarrido() {
   let d;
   try { d = await rpc('panel_barrido_redes'); }

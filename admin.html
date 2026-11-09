@@ -140,6 +140,19 @@
         </form>
       </details>
       <div id="t-colectas"></div>
+      <h3>Escudos de los clubes</h3>
+      <p class="nota">El bot toma la foto de perfil de la cuenta oficial de Instagram de cada club y la propone como escudo. Aprobala solo si es el escudo (a veces es una foto de personas o de un evento).</p>
+      <div id="t-escudos"></div>
+      <h3>Autoridades de un club</h3>
+      <p class="nota">Presidente, secretario, delegado ante FABA… Siempre con un enlace público que lo respalde (acta, publicación oficial del club, nota) y la fecha de esa fuente. Si se carga otra persona en el mismo cargo, la anterior queda como histórica.</p>
+      <form id="f-autoridad" class="form">
+        <label>Club<select id="au-club" required><option value="">Elegí</option></select></label>
+        <label>Cargo<input id="au-cargo" required maxlength="60" placeholder="Presidente"></label>
+        <label>Nombre y apellido<input id="au-nombre" required maxlength="100"></label>
+        <label>Enlace a la fuente<input id="au-fuente" type="url" required placeholder="https://…"></label>
+        <label>Fecha de la fuente<input id="au-fecha" type="date" required></label>
+        <div class="acciones"><button class="btn primario">Guardar autoridad</button></div>
+      </form>
       <h3>Barrido de cuentas de Instagram</h3>
       <p class="nota">El bot recorre todos los posteos de cada cuenta oficial, 150 consultas por día (el límite de Meta), y sigue donde quedó. Además de colectas marca otras publicaciones útiles: agradecimientos al Estado o a empresas, viajes, equipamiento nuevo, reclamos y avisos de torneo. Aprobá las que sirvan y descartá las de personas o salud.</p>
       <div id="t-barrido"></div>
