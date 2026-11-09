@@ -43,6 +43,50 @@
   .filtro-juris[aria-pressed="true"] { background: #0f172a; color: #fff; border-color: #0f172a; }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
 </style>
+<style id="accesibilidad">
+  /* Texto más grande (todo el sitio usa rem, así que escala) */
+  html.texto-grande { font-size: 118.75%; }
+  html.texto-muy-grande { font-size: 137.5%; }
+  html.subrayar a { text-decoration: underline !important; text-underline-offset: 3px; }
+  *:focus-visible { outline: 3px solid #f59e0b !important; outline-offset: 2px; }
+  /* Modo oscuro: superficies oscuras, textos claros, contraste AA o más */
+  html.oscuro { color-scheme: dark; }
+  html.oscuro body, html.oscuro .bg-slate-100 { background-color: #0b1220 !important; color: #e5e7eb !important; }
+  html.oscuro .bg-white, html.oscuro dialog { background-color: #151d2e !important; color: #e5e7eb; }
+  html.oscuro .bg-slate-50, html.oscuro .bg-slate-50\/50 { background-color: #1b2538 !important; }
+  html.oscuro .bg-slate-200, html.oscuro .bg-slate-300 { background-color: #2a3650 !important; }
+  html.oscuro .hover\:bg-slate-50:hover, html.oscuro .hover\:bg-white:hover { background-color: #22304a !important; }
+  html.oscuro .text-slate-900, html.oscuro .text-slate-800 { color: #f1f5f9 !important; }
+  html.oscuro .text-slate-700, html.oscuro .text-slate-600 { color: #cbd5e1 !important; }
+  html.oscuro .text-slate-500, html.oscuro .text-slate-400 { color: #a3b1c6 !important; }
+  html.oscuro .border-slate-100, html.oscuro .border-slate-200, html.oscuro .border-slate-300, html.oscuro .divide-slate-200 > * { border-color: #334155 !important; }
+  html.oscuro .bg-amber-50, html.oscuro .bg-amber-50\/50, html.oscuro .bg-amber-100 { background-color: #3a2a0a !important; }
+  html.oscuro .bg-emerald-50, html.oscuro .bg-emerald-50\/50, html.oscuro .bg-emerald-100 { background-color: #0d3324 !important; }
+  html.oscuro .bg-blue-50, html.oscuro .bg-blue-50\/50, html.oscuro .bg-blue-100, html.oscuro .bg-sky-50 { background-color: #10264a !important; }
+  html.oscuro .bg-rose-50, html.oscuro .bg-rose-100, html.oscuro .bg-red-50, html.oscuro .bg-red-100 { background-color: #3d1418 !important; }
+  html.oscuro .text-amber-900, html.oscuro .text-amber-950, html.oscuro .text-amber-800 { color: #fcd34d !important; }
+  html.oscuro .text-emerald-900, html.oscuro .text-emerald-950, html.oscuro .text-emerald-800 { color: #6ee7b7 !important; }
+  html.oscuro .text-blue-900, html.oscuro .text-blue-950, html.oscuro .text-blue-800, html.oscuro .text-blue-700, html.oscuro .text-sky-900, html.oscuro .text-sky-950 { color: #93c5fd !important; }
+  html.oscuro .text-rose-700, html.oscuro .text-rose-900, html.oscuro .text-rose-950, html.oscuro .text-red-800, html.oscuro .text-red-900 { color: #fda4af !important; }
+  html.oscuro .border-amber-200, html.oscuro .border-amber-300 { border-color: #78590f !important; }
+  html.oscuro .border-emerald-200, html.oscuro .border-emerald-300 { border-color: #146c4a !important; }
+  html.oscuro .border-blue-200, html.oscuro .border-blue-300, html.oscuro .border-sky-200 { border-color: #1e4a8a !important; }
+  html.oscuro .border-rose-200, html.oscuro .border-rose-300, html.oscuro .border-red-300 { border-color: #7f1d2d !important; }
+  html.oscuro input, html.oscuro select, html.oscuro textarea { background-color: #0f172a !important; color: #f1f5f9 !important; border-color: #475569 !important; }
+  html.oscuro input::placeholder, html.oscuro textarea::placeholder { color: #94a3b8 !important; }
+  html.oscuro nav.bg-white { background-color: #0f172a !important; }
+  html.oscuro .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.95); }
+  html.oscuro .leaflet-popup-content-wrapper, html.oscuro .leaflet-popup-tip { background: #151d2e; color: #e5e7eb; }
+  html.oscuro .tablero { --s1:#3987e5; --s2:#d95926; --s3:#199e70; --tx:#f0efec; --tx2:#c3c2b7; --grid:#2c3a52; --sup:#1a1a19; }
+  html.oscuro .tablero .barra:hover, html.oscuro .tablero .barra.activa { fill: #6aa8f0; }
+  html.oscuro .shadow-lg, html.oscuro .shadow-xl { box-shadow: none !important; }
+</style>
+<script>
+  // antes de pintar: modo oscuro guardado o el del sistema, y tamaño de texto
+  (function () { try { var o = localStorage.getItem('ad_oscuro'), t = localStorage.getItem('ad_texto'), u = localStorage.getItem('ad_subrayar');
+    if (o === '1' || (o === null && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('oscuro');
+    if (t) document.documentElement.classList.add(t); if (u === '1') document.documentElement.classList.add('subrayar'); } catch (e) {} })();
+</script>
 </head>
 
 <body class="bg-slate-100 text-slate-900 antialiased">
@@ -66,14 +110,19 @@
                class="w-full bg-slate-800 border border-slate-600 focus:border-amber-400 rounded-xl pl-9 pr-3 py-2.5 text-sm placeholder-slate-400">
       </div>
     </div>
-    <button data-action="abrir" data-dialog="dlg-reglas" class="ml-auto text-sm font-semibold text-amber-300 hover:text-amber-200 underline underline-offset-4">
-      Cómo trabajamos
-    </button>
+    <div class="ml-auto flex items-center gap-3">
+      <button data-action="abrir" data-dialog="dlg-acc" class="inline-flex items-center gap-1.5 text-sm font-semibold bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl px-3 py-2" aria-label="Opciones de accesibilidad">
+        <i data-lucide="accessibility" class="w-4 h-4" aria-hidden="true"></i><span>Accesibilidad</span>
+      </button>
+      <button data-action="abrir" data-dialog="dlg-reglas" class="text-sm font-semibold text-amber-300 hover:text-amber-200 underline underline-offset-4">
+        Cómo trabajamos
+      </button>
+    </div>
   </div>
 
   <nav class="bg-white text-slate-700 border-b border-slate-200" aria-label="Secciones">
-    <div role="tablist" class="max-w-7xl mx-auto px-1 md:px-2 grid grid-cols-3 md:flex md:overflow-x-auto">
-      <button role="tab" id="t-mapa" data-tab="mapa" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-3 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="map" class="w-4 h-4" aria-hidden="true"></i><span>Mapa<span class="hidden md:inline"> y clubes</span></span></button>
+    <div role="tablist" class="max-w-7xl mx-auto px-1 md:px-2 grid grid-cols-4 md:flex md:overflow-x-auto">
+      <button role="tab" id="t-mapa" data-tab="mapa" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-3 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="home" class="w-4 h-4" aria-hidden="true"></i><span>Inicio</span></button>
       <button role="tab" id="t-simple" data-tab="simple" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-3 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="lightbulb" class="w-4 h-4" aria-hidden="true"></i><span>Explicado<span class="hidden md:inline"> fácil</span></span></button>
       <button role="tab" id="t-deportistas" data-tab="deportistas" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-3 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="accessibility" class="w-4 h-4" aria-hidden="true"></i><span>Deportistas</span></button>
       <button role="tab" id="t-pedir" data-tab="pedir" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-3 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="mail-open" class="w-4 h-4" aria-hidden="true"></i><span>Pedir<span class="hidden md:inline"> información</span></span></button>
@@ -81,7 +130,6 @@
       <button role="tab" id="t-inst" data-tab="inst" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-3 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="landmark" class="w-4 h-4" aria-hidden="true"></i><span>Instituciones</span></button>
       <button role="tab" id="t-dato" data-tab="dato" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-3 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="shield-check" class="w-4 h-4" aria-hidden="true"></i><span><span class="hidden md:inline">Enviar un </span>Dato</span></button>
       <button role="tab" id="t-rse" data-tab="rse" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-3 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="handshake" class="w-4 h-4" aria-hidden="true"></i><span>Patrocinar</span></button>
-      <button role="tab" id="t-tablero" data-tab="tablero" class="tab-btn flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1 md:px-3 py-2 md:py-3 border-b-4 border-transparent text-[11px] md:text-sm leading-tight text-center whitespace-nowrap hover:bg-slate-50"><i data-lucide="bar-chart-3" class="w-4 h-4" aria-hidden="true"></i><span>Tablero</span></button>
     </div>
   </nav>
 </header>
@@ -110,6 +158,18 @@
       </div>
     </div>
 
+
+    <div id="mi-lugar" class="bg-white rounded-2xl border-2 border-amber-300 p-5 space-y-3">
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="flex-1 min-w-[220px]">
+          <h2 class="text-xl font-black">Tu club o tu municipio</h2>
+          <p class="text-sm text-slate-600">Elegí uno y te mostramos lo que sabemos: qué publica su municipio, colectas, convocatorias y qué podés pedir.</p>
+        </div>
+        <label class="text-sm font-bold">Club<select id="ml-club" class="mt-1 block w-full sm:w-64 border-2 border-slate-300 rounded-xl px-3 py-2 font-normal"><option value="">Elegí tu club</option></select></label>
+        <label class="text-sm font-bold">o municipio / provincia<select id="ml-juris" class="mt-1 block w-full sm:w-64 border-2 border-slate-300 rounded-xl px-3 py-2 font-normal"><option value="">Elegí</option></select></label>
+      </div>
+      <div id="ml-ficha" aria-live="polite"></div>
+    </div>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div class="lg:col-span-8 bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-700">
         <div class="p-3 flex flex-wrap items-center gap-2 border-b border-slate-700">
@@ -143,6 +203,96 @@
         <ul id="dir" class="space-y-2.5 max-h-[470px] overflow-y-auto pr-1"></ul>
       </aside>
     </div>
+
+    <div id="inicio-tablero" class="tablero space-y-5 scroll-mt-24">
+    <style>
+      .tablero { --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --tx:#0b0b0b; --tx2:#52514e; --grid:#e7e6e2; --sup:#fcfcfb; }
+      .tablero .barra { fill: var(--s1); }
+      .tablero .barra:hover, .tablero .barra.activa { fill: #1d5fae; }
+      .tablero svg text { fill: var(--tx2); font-size: 11px; }
+      .tablero .eje { stroke: var(--grid); stroke-width: 1; }
+      #tb-tip { position: fixed; pointer-events: none; z-index: 60; }
+      #tb-3d { height: 460px; touch-action: none; }
+    </style>
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 md:p-6">
+      <h2 class="text-2xl font-black">Tablero: lo que muestran los datos</h2>
+      <p class="text-sm text-slate-700 mt-1">Colectas que publicaron cuentas oficiales, convocatorias que cargaron los clubes y menciones públicas de promesas del Estado y becas atrasadas. Todo dato pasó por revisión humana antes de aparecer acá. Pasá el dedo o el mouse por cada barra o punto para ver el detalle.</p>
+      <p id="tb-actualizado" class="text-xs text-slate-500 mt-1"></p>
+    </div>
+    <div id="tb-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">¿En qué meses se sale a juntar plata?</h3>
+        <p class="text-xs text-slate-600">Colectas revisadas según el mes en que se publicaron, todos los años juntos.</p>
+        <div id="tb-meses" class="mt-3"></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">¿Para qué se junta?</h3>
+        <p class="text-xs text-slate-600">Cada colecta puede tener más de un destino. Al lado, qué tan fácil es cubrirlo con patrocinio.</p>
+        <div id="tb-fines" class="mt-3 space-y-2"></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">¿Con cuánta anticipación avisan los torneos?</h3>
+        <p class="text-xs text-slate-600">Promedio de días entre el aviso y el torneo, por club. La línea marca 30 días: con menos, casi no hay tiempo de conseguir pasajes ni patrocinio.</p>
+        <div id="tb-anticip" class="mt-3"></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">Promesas del Estado, becas y reclamos en el tiempo</h3>
+        <p class="text-xs text-slate-600">Cada punto es una publicación oficial revisada. Tocá un punto para abrirla.</p>
+        <div id="tb-hitos" class="mt-3"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">Semáforo de transparencia</h3>
+        <p class="text-xs text-slate-600">Qué publica cada jurisdicción de los 4 o 5 documentos básicos (boletín, compras, presupuesto, normas, deporte adaptado). Completo cuenta entero; a medias, la mitad.</p>
+        <div id="tb-semaforo" class="mt-3 space-y-1.5"></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-black">¿Quién responde los pedidos?</h3>
+        <p class="text-xs text-slate-600">Lo cargan, sin nombre, quienes presentaron un pedido de acceso a la información (pestaña Pedir información). "Vencido": más de 42 días corridos sin respuesta.</p>
+        <div id="tb-respuestas" class="mt-3"></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h3 class="font-black">Mapa 3D</h3>
+          <p class="text-xs text-slate-600">Por club, columnas; por municipio, su forma real levantada según el dato. Arrastrá para mover, con dos dedos (o clic derecho) para girar e inclinar.</p>
+        </div>
+        <div class="flex flex-wrap gap-2 text-sm" role="group" aria-label="Dato del mapa 3D">
+          <button data-tb3="colectas" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-900 bg-slate-900 text-white font-bold">Colectas</button>
+          <button data-tb3="convocatorias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Convocatorias</button>
+          <button data-tb3="dias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Días de aviso</button>
+          <button data-tb3="clubes" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Clubes</button>
+          <span class="w-px bg-slate-300 mx-1"></span>
+          <button data-tb3="m_transparencia" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: transparencia</button>
+          <button data-tb3="m_porhab" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: Deporte por habitante</button>
+          <button data-tb3="m_pedidos" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: pedidos presentados</button>
+        </div>
+      </div>
+      <div id="tb-3d" class="relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200"><p class="p-4 text-sm text-slate-600">Cargando el mapa 3D…</p></div>
+      <div class="flex flex-wrap gap-2 text-xs">
+        <span class="font-bold text-slate-600 self-center">Acercar:</span>
+        <button data-tbzoom="-63.6,-36.5,4.1" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Todo el país</button>
+        <button data-tbzoom="-58.45,-34.78,8.6" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">AMBA</button>
+        <button data-tbzoom="-57.95,-34.92,9.6" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">La Plata y Ensenada</button>
+        <button data-tbzoom="-64.3,-31.6,7.2" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Córdoba</button>
+        <button data-tbzoom="-60.7,-32.3,7.4" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Rosario y Santa Fe</button>
+        <button data-tbzoom="-68.8,-32.9,9.2" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Mendoza</button>
+      </div>
+      <p id="tb-3d-nota" class="text-xs text-slate-500"></p>
+    </div>
+
+    <details class="bg-white rounded-2xl border border-slate-200 p-5 text-sm">
+      <summary class="font-bold cursor-pointer">Ver los datos como tabla</summary>
+      <div id="tb-tabla" class="mt-3 overflow-x-auto"></div>
+    </details>
+    <div id="tb-tip" class="hidden bg-slate-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs"></div>
+      </div>
   </section>
 
   <!-- ===== EXPLICADO FÁCIL ===== -->
@@ -721,96 +871,7 @@
     </div>
   </section>
 
-  <!-- ===== TABLERO ===== -->
-  <section id="s-tablero" role="tabpanel" aria-labelledby="t-tablero" class="hidden space-y-5 tablero">
-    <style>
-      .tablero { --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --tx:#0b0b0b; --tx2:#52514e; --grid:#e7e6e2; --sup:#fcfcfb; }
-      .tablero .barra { fill: var(--s1); }
-      .tablero .barra:hover, .tablero .barra.activa { fill: #1d5fae; }
-      .tablero svg text { fill: var(--tx2); font-size: 11px; }
-      .tablero .eje { stroke: var(--grid); stroke-width: 1; }
-      #tb-tip { position: fixed; pointer-events: none; z-index: 60; }
-      #tb-3d { height: 460px; touch-action: none; }
-    </style>
-    <div class="bg-white rounded-2xl border border-slate-200 p-5 md:p-6">
-      <h2 class="text-2xl font-black">Tablero: lo que muestran los datos</h2>
-      <p class="text-sm text-slate-700 mt-1">Colectas que publicaron cuentas oficiales, convocatorias que cargaron los clubes y menciones públicas de promesas del Estado y becas atrasadas. Todo dato pasó por revisión humana antes de aparecer acá. Pasá el dedo o el mouse por cada barra o punto para ver el detalle.</p>
-      <p id="tb-actualizado" class="text-xs text-slate-500 mt-1"></p>
-    </div>
-    <div id="tb-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      <div class="bg-white rounded-2xl border border-slate-200 p-5">
-        <h3 class="font-black">¿En qué meses se sale a juntar plata?</h3>
-        <p class="text-xs text-slate-600">Colectas revisadas según el mes en que se publicaron, todos los años juntos.</p>
-        <div id="tb-meses" class="mt-3"></div>
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-200 p-5">
-        <h3 class="font-black">¿Para qué se junta?</h3>
-        <p class="text-xs text-slate-600">Cada colecta puede tener más de un destino. Al lado, qué tan fácil es cubrirlo con patrocinio.</p>
-        <div id="tb-fines" class="mt-3 space-y-2"></div>
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-200 p-5">
-        <h3 class="font-black">¿Con cuánta anticipación avisan los torneos?</h3>
-        <p class="text-xs text-slate-600">Promedio de días entre el aviso y el torneo, por club. La línea marca 30 días: con menos, casi no hay tiempo de conseguir pasajes ni patrocinio.</p>
-        <div id="tb-anticip" class="mt-3"></div>
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-200 p-5">
-        <h3 class="font-black">Promesas del Estado, becas y reclamos en el tiempo</h3>
-        <p class="text-xs text-slate-600">Cada punto es una publicación oficial revisada. Tocá un punto para abrirla.</p>
-        <div id="tb-hitos" class="mt-3"></div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      <div class="bg-white rounded-2xl border border-slate-200 p-5">
-        <h3 class="font-black">Semáforo de transparencia</h3>
-        <p class="text-xs text-slate-600">Qué publica cada jurisdicción de los 4 o 5 documentos básicos (boletín, compras, presupuesto, normas, deporte adaptado). Completo cuenta entero; a medias, la mitad.</p>
-        <div id="tb-semaforo" class="mt-3 space-y-1.5"></div>
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-200 p-5">
-        <h3 class="font-black">¿Quién responde los pedidos?</h3>
-        <p class="text-xs text-slate-600">Lo cargan, sin nombre, quienes presentaron un pedido de acceso a la información (pestaña Pedir información). "Vencido": más de 42 días corridos sin respuesta.</p>
-        <div id="tb-respuestas" class="mt-3"></div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h3 class="font-black">Mapa 3D</h3>
-          <p class="text-xs text-slate-600">Por club, columnas; por municipio, su forma real levantada según el dato. Arrastrá para mover, con dos dedos (o clic derecho) para girar e inclinar.</p>
-        </div>
-        <div class="flex flex-wrap gap-2 text-sm" role="group" aria-label="Dato del mapa 3D">
-          <button data-tb3="colectas" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-900 bg-slate-900 text-white font-bold">Colectas</button>
-          <button data-tb3="convocatorias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Convocatorias</button>
-          <button data-tb3="dias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Días de aviso</button>
-          <button data-tb3="clubes" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Clubes</button>
-          <span class="w-px bg-slate-300 mx-1"></span>
-          <button data-tb3="m_transparencia" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: transparencia</button>
-          <button data-tb3="m_porhab" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: Deporte por habitante</button>
-          <button data-tb3="m_pedidos" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: pedidos presentados</button>
-        </div>
-      </div>
-      <div id="tb-3d" class="relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200"><p class="p-4 text-sm text-slate-600">Cargando el mapa 3D…</p></div>
-      <div class="flex flex-wrap gap-2 text-xs">
-        <span class="font-bold text-slate-600 self-center">Acercar:</span>
-        <button data-tbzoom="-63.6,-36.5,4.1" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Todo el país</button>
-        <button data-tbzoom="-58.45,-34.78,8.6" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">AMBA</button>
-        <button data-tbzoom="-57.95,-34.92,9.6" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">La Plata y Ensenada</button>
-        <button data-tbzoom="-64.3,-31.6,7.2" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Córdoba</button>
-        <button data-tbzoom="-60.7,-32.3,7.4" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Rosario y Santa Fe</button>
-        <button data-tbzoom="-68.8,-32.9,9.2" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Mendoza</button>
-      </div>
-      <p id="tb-3d-nota" class="text-xs text-slate-500"></p>
-    </div>
-
-    <details class="bg-white rounded-2xl border border-slate-200 p-5 text-sm">
-      <summary class="font-bold cursor-pointer">Ver los datos como tabla</summary>
-      <div id="tb-tabla" class="mt-3 overflow-x-auto"></div>
-    </details>
-    <div id="tb-tip" class="hidden bg-slate-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs"></div>
-  </section>
 
   <!-- ===== DOCUMENTOS PÚBLICOS ===== -->
   <section id="s-transp" role="tabpanel" aria-labelledby="t-transp" class="hidden space-y-5">
@@ -1125,6 +1186,26 @@
 </dialog>
 
 <!-- CÓMO TRABAJAMOS -->
+<dialog id="dlg-acc" aria-labelledby="acc-t" class="rounded-2xl p-0 w-[min(92vw,30rem)] backdrop:bg-black/60">
+  <div class="p-6 space-y-4 bg-white text-slate-900">
+    <div class="flex items-start justify-between gap-3"><h3 id="acc-t" class="text-xl font-black">Accesibilidad</h3>
+      <button data-action="cerrar" class="text-2xl leading-none px-2" aria-label="Cerrar">×</button></div>
+    <div class="space-y-3 text-sm">
+      <label class="flex items-center justify-between gap-3 font-bold">Modo oscuro <input id="acc-oscuro" type="checkbox" class="w-6 h-6"></label>
+      <fieldset><legend class="font-bold mb-1">Tamaño del texto</legend>
+        <div class="flex gap-2" role="radiogroup">
+          <label class="flex-1"><input type="radio" name="acc-texto" value="" class="mr-1">Normal</label>
+          <label class="flex-1 text-base"><input type="radio" name="acc-texto" value="texto-grande" class="mr-1">Grande</label>
+          <label class="flex-1 text-lg"><input type="radio" name="acc-texto" value="texto-muy-grande" class="mr-1">Muy grande</label></div></fieldset>
+      <label class="flex items-center justify-between gap-3 font-bold">Subrayar todos los enlaces <input id="acc-subrayar" type="checkbox" class="w-6 h-6"></label>
+    </div>
+    <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm space-y-2">
+      <p class="font-bold">Para personas sordas o hipoacúsicas</p>
+      <p>El sitio no usa audio: todo está escrito. La pestaña <button data-tab="simple" data-action="cerrar" class="underline font-semibold">Explicado fácil</button> resume cada tema en frases cortas, y cada sección importante tiene íconos y pasos numerados.</p>
+      <p>Estamos buscando intérpretes de Lengua de Señas Argentina (LSA) para grabar videos cortos de cada sección. Cuando estén, aparece el botón <strong>"Ver en LSA"</strong> arriba de cada tema. Si sos intérprete o integrás una asociación de personas sordas y querés colaborar, escribinos desde <button data-tab="dato" data-action="cerrar" class="underline font-semibold">Enviar un dato</button>.</p>
+    </div>
+  </div>
+</dialog>
 <dialog id="dlg-reglas" aria-labelledby="reglas-t">
   <div class="bg-white p-6 space-y-4 max-h-[80vh] overflow-y-auto">
     <div class="flex justify-between items-start gap-4">
@@ -1356,7 +1437,7 @@ const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov'
 const NOM_FIN = { viaje_torneo:'Viajes a torneos', inscripcion:'Inscripciones', silla_equipamiento:'Sillas y equipamiento', indumentaria:'Indumentaria', general:'Gastos generales' };
 const RSE_FIN = { viaje_torneo:'alta', silla_equipamiento:'alta', indumentaria:'alta', inscripcion:'media', general:'baja' };
 const HITOS = { promesa_estado:['Promesa del Estado','var(--s1)'], beca_atrasada:['Beca atrasada','var(--s2)'], reclamo:['Reclamo','var(--s3)'] };
-let TB = null, tbVista = 'colectas', tbDeck = null, tbEscala = 1;
+let TB = null, tbVista = 'colectas', tbDeck = null, tbEscala = 1, tbZoomRender = 4.1;
 const tip = (ev, html) => { const t = $('#tb-tip'); if (!html) { t.classList.add('hidden'); return; }
   t.innerHTML = html; t.classList.remove('hidden');
   const x = Math.min(ev.clientX + 14, window.innerWidth - t.offsetWidth - 8), y = Math.max(8, ev.clientY - t.offsetHeight - 12);
@@ -1390,12 +1471,7 @@ function conHover(caja, datos, html) {
 }
 
 async function cargarTablero() {
-  if (!TB) {
-    let col = {}, conv = null;
-    try { const r = await fetch('datos/colectas.json', { cache: 'no-store' }); if (r.ok) col = await r.json(); } catch (e) {}
-    try { if (sb) { const r = await sb.rpc('resumen_convocatorias'); if (!r.error) conv = r.data; } } catch (e) {}
-    TB = { col, conv };
-  }
+  await datosTablero();
   const { col, conv } = TB;
   $('#tb-actualizado').textContent = col.actualizado ? `Colectas actualizadas el ${fechaLinda(col.actualizado)}.` : '';
   const hitos = col.hitos_estado || [];
@@ -1483,7 +1559,7 @@ async function mapa3D() {
   const capas = [
     new deck.TileLayer({ id: 'base', data: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', minZoom: 0, maxZoom: 12, tileSize: 256,
       renderSubLayers: p => { const b = p.tile.bbox; return new deck.BitmapLayer(p, { data: null, image: p.data, bounds: [b.west, b.south, b.east, b.north] }); } }),
-    new deck.ColumnLayer({ id: 'columnas', data: datos, diskResolution: 24, radius: 22000 * Math.max(tbEscala, 0.08), extruded: true, pickable: true, elevationScale: tbEscala,
+    new deck.ColumnLayer({ id: 'columnas', data: datos, diskResolution: 24, radius: 22000 * tbEscala, extruded: true, pickable: true, elevationScale: tbEscala,
       getPosition: d => d.pos, getElevation: d => d[tbVista] ? 40000 + 260000 * d[tbVista] / max : 0,
       getFillColor: d => d[tbVista] ? color(d[tbVista]) : [160, 160, 160, 120], updateTriggers: { getElevation: tbVista, getFillColor: tbVista } })];
   if (muni) capas[1] = capaDatos;
@@ -1494,6 +1570,9 @@ async function mapa3D() {
   if (!tbDeck) {
     caja.innerHTML = '';
     tbDeck = new deck.Deck({ parent: caja, width: '100%', height: '100%', controller: true, getTooltip: tooltip, layers: capas,
+      // al acercar, las columnas y las formas mantienen su tamaño en pantalla (antes crecían hasta tapar todo)
+      onViewStateChange: ({ viewState }) => { const e = Math.min(1, Math.pow(2, 4.1 - viewState.zoom));
+        if (Math.abs(Math.log2(e) - Math.log2(tbEscala)) > 0.25) { tbEscala = e; clearTimeout(tbDeck._t); tbDeck._t = setTimeout(() => mapa3D(), 60); } },
       initialViewState: { longitude: -63.6, latitude: -36.5, zoom: window.innerWidth < 640 ? 3.3 : 4.1, pitch: 45, bearing: -10 } });
     const atr = document.createElement('div'); atr.className = 'absolute bottom-1 right-2 text-[10px] text-slate-700 bg-white/80 px-1 rounded';
     atr.innerHTML = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'; caja.appendChild(atr);
@@ -1504,7 +1583,7 @@ async function mapa3D() {
 }
 document.addEventListener('click', ev => { const z = ev.target.closest('[data-tbzoom]'); if (!z || !tbDeck) return;
   const [lon, lat, zoom] = z.dataset.tbzoom.split(',').map(Number);
-  tbEscala = zoom >= 9 ? 0.06 : zoom >= 8 ? 0.1 : zoom >= 7 ? 0.25 : 1; if (TB) mapa3D();
+  tbEscala = Math.min(1, Math.pow(2, 4.1 - (window.innerWidth < 640 ? zoom - 0.8 : zoom))); if (TB) mapa3D();
   tbDeck.setProps({ initialViewState: { longitude: lon, latitude: lat, zoom: window.innerWidth < 640 ? zoom - 0.8 : zoom, pitch: 50, bearing: -10, transitionDuration: 900,
     transitionInterpolator: new deck.FlyToInterpolator() } }); });
 document.addEventListener('click', ev => { const b = ev.target.closest('[data-tb3]'); if (!b) return;
@@ -1577,6 +1656,126 @@ document.addEventListener('submit', async ev => {
   if (error) { toast(/Demasiadas|futuras/.test(error.message) ? error.message : 'No pudimos sumarlo ahora. Probá más tarde.'); return; }
   toast('¡Gracias! Sumamos tu caso.'); ev.target.reset(); if (TB) { TB.respuestas = null; }
 });
+
+// El tablero se arma cuando el visitante llega con el scroll (no frena la carga inicial del mapa)
+let tableroVigilado = false;
+function vigilarTablero() {
+  if (tableroVigilado) return; tableroVigilado = true;
+  const obj = $('#inicio-tablero'); if (!obj) return;
+  if (!('IntersectionObserver' in window)) { cargarTablero(); return; }
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); cargarTablero(); } }, { rootMargin: '300px' });
+  io.observe(obj);
+}
+
+/* ============ MI LUGAR (inicio) ============ */
+async function datosTablero() {
+  if (!TB) {
+    let col = {}, conv = null;
+    try { const r = await fetch('datos/colectas.json', { cache: 'no-store' }); if (r.ok) col = await r.json(); } catch (e) {}
+    try { if (sb) { const r = await sb.rpc('resumen_convocatorias'); if (!r.error) conv = r.data; } } catch (e) {}
+    TB = { col, conv };
+  }
+  if (!TB.juris) TB.juris = await jurisTablero();
+  return TB;
+}
+const nombreCorto = n => (n || '').replace(/^Municipalidad de (la Ciudad de )?/, '');
+function jurisDeClub(c) {
+  const js = (TB && TB.juris) || [];
+  return { muni: js.find(j => j.tipo === 'municipio' && (j.clubes || []).includes(c.nombre)),
+           prov: js.find(j => j.slug.startsWith('prov-') && (j.clubes || []).includes(c.nombre)) };
+}
+function llenarMiLugar() {
+  const sc = $('#ml-club'), sj = $('#ml-juris');
+  if (sc && sc.options.length <= 1) [...CLUBES].sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(c => sc.add(new Option(c.nombre + (c.ciudad ? ' — ' + c.ciudad : ''), c.id)));
+  if (sj && sj.options.length <= 1 && TB && TB.juris) [...TB.juris].sort((a, b) => nombreCorto(a.nombre).localeCompare(nombreCorto(b.nombre))).forEach(j => sj.add(new Option(nombreCorto(j.nombre), j.slug)));
+}
+function bloqueJuris(j) {
+  if (!j) return '';
+  const n = NIVEL[j.estado] || NIVEL.no_publica, p = puntajeJuris(j), ej = (j.presupuesto_deporte || [])[0];
+  const geo = TB.geo && TB.geo.municipios && TB.geo.municipios[j.slug], pob = geo && geo.poblacion_2022;
+  const pres = Number((PRESENTADOS[j.slug] || {}).total || 0), resp = (TB.respuestas || []).find(r => r.juris_slug === j.slug);
+  const falta = (j.checklist || []).filter(i => i.estado !== 'completo').map(i => i.texto);
+  return `<div class="rounded-xl bg-slate-50 border border-slate-200 p-4 space-y-2">
+    <div class="flex flex-wrap items-center gap-2"><p class="font-black">${esc(j.nombre)}</p><span class="text-xs font-bold px-2 py-0.5 rounded-full ${n[1]}">${n[2]} ${n[0]} · ${p} %</span></div>
+    <ul class="text-sm space-y-1">
+      ${pob ? `<li>Población (Censo 2022): <strong>${pob.toLocaleString('es-AR')}</strong> habitantes.</li>` : ''}
+      ${ej ? `<li>Deporte (al ${esc(fechaLinda(ej.hasta))}): ${ej.porcentaje_devengado ?? '—'} % del crédito gastado${pob && ej.devengado ? `, <strong>$ ${Math.round(ej.devengado / pob).toLocaleString('es-AR')} por habitante</strong>` : ''}. <a class="underline text-blue-700" href="${esc(ej.url)}" target="_blank" rel="noopener noreferrer">Reporte</a></li>` : '<li>No hay ejecución de Deporte publicada.</li>'}
+      <li>Pedidos de información presentados desde el sitio: <strong>${pres}</strong>${resp ? `, respondidos ${resp.respondidos} de ${resp.total}` : ''}.</li>
+      ${falta.length ? `<li>No encontramos publicado: ${falta.map(esc).join('; ')}.</li>` : '<li>Publica los documentos básicos que revisamos.</li>'}
+    </ul>
+    <div class="flex flex-wrap gap-2 pt-1">
+      <button data-action="pedir-juris" data-slug="${esc(j.slug)}" class="bg-slate-900 text-white font-bold px-3 py-2 rounded-xl text-sm">Pedir lo que falta</button>
+      <button data-tab="simple" class="border-2 border-slate-300 font-bold px-3 py-2 rounded-xl text-sm">Ver el detalle</button>
+    </div></div>`;
+}
+async function mostrarMiLugar({ club, juris }) {
+  await datosTablero();
+  if (!TB.geo) { try { const r = await fetch('datos/municipios_geo.json', { cache: 'no-store' }); TB.geo = r.ok ? await r.json() : { municipios: {} }; } catch (e) { TB.geo = { municipios: {} }; } }
+  const caja = $('#ml-ficha');
+  if (club) {
+    const c = CLUBES.find(x => x.id === club); if (!c) return;
+    const { muni, prov } = jurisDeClub(c);
+    const cuenta = (c.instagram || '').toLowerCase(), cs = Object.values((TB.col && TB.col.por_cuenta) || {}).find(x => (x.cuenta || '').toLowerCase() === cuenta);
+    const cv = ((TB.conv && TB.conv.por_club) || []).find(g => g.club_id === c.id);
+    caja.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 space-y-2">
+        <p class="font-black text-lg">${esc(c.nombre)}</p>
+        <p class="text-sm text-slate-600">${esc([c.ciudad, c.prov].filter(Boolean).join(', '))}${c.division ? ' · ' + esc(c.division) : ''}</p>
+        <ul class="text-sm space-y-1">
+          <li>Colectas revisadas en su cuenta: <strong>${cs ? cs.colectas : 0}</strong>${cs && cs.ultima ? ` (la última, ${esc(fechaLinda(cs.ultima))})` : ''}.</li>
+          <li>Convocatorias cargadas: <strong>${cv ? cv.n : 0}</strong>${cv ? `, con ${cv.prom} días de aviso en promedio` : ''}.</li>
+        </ul>
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button data-action="club" data-id="${esc(c.id)}" class="bg-amber-400 text-slate-900 font-bold px-3 py-2 rounded-xl text-sm">Ficha completa y mapa</button>
+          <button class="border-2 border-slate-300 font-bold px-3 py-2 rounded-xl text-sm" data-tab="rse">Patrocinar a este equipo</button>
+          <button data-tab="deportistas" class="border-2 border-slate-300 font-bold px-3 py-2 rounded-xl text-sm">Soy de este equipo: mis derechos</button>
+        </div></div>
+      ${bloqueJuris(muni) || bloqueJuris(prov) || '<p class="text-sm text-slate-600">No tenemos cargado el municipio de este club.</p>'}</div>`;
+  } else if (juris) {
+    const j = (TB.juris || []).find(x => x.slug === juris);
+    const clubes = CLUBES.filter(c => j && (j.clubes || []).includes(c.nombre));
+    caja.innerHTML = bloqueJuris(j) + (clubes.length ? `<p class="text-sm mt-2">Clubes: ${clubes.map(c => `<button data-action="ml-ver-club" data-id="${esc(c.id)}" class="underline font-semibold text-blue-700 mr-2">${esc(c.nombre)}</button>`).join('')}</p>` : '');
+  }
+  try { localStorage.setItem('ad_mi_lugar', JSON.stringify({ club, juris })); } catch (e) {}
+}
+document.addEventListener('change', ev => {
+  if (ev.target.id === 'ml-club' && ev.target.value) { $('#ml-juris').value = ''; mostrarMiLugar({ club: ev.target.value }); }
+  if (ev.target.id === 'ml-juris' && ev.target.value) { $('#ml-club').value = ''; mostrarMiLugar({ juris: ev.target.value }); }
+});
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-action="ml-ver-club"]'); if (!b) return;
+  $('#ml-club').value = b.dataset.id; $('#ml-juris').value = ''; mostrarMiLugar({ club: b.dataset.id }); });
+async function iniciarMiLugar() {
+  await datosTablero(); llenarMiLugar();
+  try { const g = JSON.parse(localStorage.getItem('ad_mi_lugar') || 'null');
+    if (g && (g.club || g.juris)) { if (g.club) $('#ml-club').value = g.club; else $('#ml-juris').value = g.juris; mostrarMiLugar(g); } } catch (e) {}
+}
+
+/* ============ ACCESIBILIDAD ============ */
+function guardarPref(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+(function initAcc() {
+  const h = document.documentElement;
+  const osc = $('#acc-oscuro'), sub = $('#acc-subrayar');
+  if (osc) { osc.checked = h.classList.contains('oscuro');
+    osc.addEventListener('change', () => { h.classList.toggle('oscuro', osc.checked); guardarPref('ad_oscuro', osc.checked ? '1' : '0'); }); }
+  if (sub) { sub.checked = h.classList.contains('subrayar');
+    sub.addEventListener('change', () => { h.classList.toggle('subrayar', sub.checked); guardarPref('ad_subrayar', sub.checked ? '1' : '0'); }); }
+  $$('input[name="acc-texto"]').forEach(r => {
+    r.checked = r.value ? h.classList.contains(r.value) : !h.classList.contains('texto-grande') && !h.classList.contains('texto-muy-grande');
+    r.addEventListener('change', () => { h.classList.remove('texto-grande', 'texto-muy-grande'); if (r.value) h.classList.add(r.value);
+      guardarPref('ad_texto', r.value); if (map) setTimeout(() => map.invalidateSize(), 100); });
+  });
+})();
+// Videos en Lengua de Señas Argentina: cuando haya un video para una sección, se agrega acá ('id de sección': 'enlace')
+const LSA = {};
+function botonesLSA() {
+  for (const [sec, url] of Object.entries(LSA)) {
+    const s = document.getElementById(sec); if (!s || s.querySelector('.btn-lsa')) continue;
+    const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.className = 'btn-lsa inline-flex items-center gap-1.5 bg-violet-700 text-white font-bold text-sm px-3 py-2 rounded-xl';
+    a.textContent = 'Ver en LSA (Lengua de Señas Argentina)'; s.prepend(a);
+  }
+}
+botonesLSA();
 
 async function cargarPresentados() {
   if (!sb) return;
@@ -2216,16 +2415,18 @@ ${dni}`;
 }
 
 /* ============ TABS ============ */
-const TABS = ['mapa','simple','deportistas','transp','inst','pedir','dato','rse','tablero'];
+const TABS = ['mapa','simple','deportistas','transp','inst','pedir','dato','rse'];
 function showTab(t, push = true) {
+  const aTablero = t === 'tablero';
   if (!TABS.includes(t)) t = 'mapa';
+  if (aTablero) setTimeout(() => $('#inicio-tablero').scrollIntoView({ behavior: 'smooth' }), 200);
   TABS.forEach(x => {
     $('#s-' + x).classList.toggle('hidden', x !== t);
     $('#t-' + x).setAttribute('aria-selected', x === t);
   });
   if (push) history.replaceState(null, '', '#' + t);
   if (t === 'mapa' && map) setTimeout(() => map.invalidateSize(), 150);
-  if (t === 'tablero') cargarTablero();
+  if (t === 'mapa') { vigilarTablero(); iniciarMiLugar(); }
   if (t === 'rse') fetch('datos/colectas.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(calendarioNecesidades).catch(() => {});
   window.scrollTo({ top: 0 });
 }
