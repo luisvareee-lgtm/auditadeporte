@@ -199,7 +199,8 @@ def construir(db=None, cat=None, marco=None) -> dict:
         jb_revision = sum(1 for c in abiertos if "juegos_bonaerenses" in ((c.get("propuesta") or {}).get("temas") or []))
         salida.append({
             "slug": slug, "nombre": inst.get("nombre") or j["nombre"], "tipo": tipo_juris(slug),
-            "clubes": sorted(c["nombre"] for c in clubes_j), "estado": estado, "motivo": motivo,
+            "clubes": sorted(c["nombre"] for c in clubes_j), "club_ids": sorted(c.get("slug") or c.get("id") for c in clubes_j if c.get("slug") or c.get("id")),
+            "estado": estado, "motivo": motivo,
             "sitio_web": j.get("sitio_web") or inst.get("sitio_web"),
             "boletin_oficial": j.get("boletin_oficial"),
             "fuentes": [{"nombre": f["nombre"], "url": f["url"], "tipo": TIPO_SIMPLE.get(f["tipo"], "Datos oficiales"),

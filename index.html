@@ -1681,8 +1681,8 @@ async function datosTablero() {
 const nombreCorto = n => (n || '').replace(/^Municipalidad de (la Ciudad de )?/, '');
 function jurisDeClub(c) {
   const js = (TB && TB.juris) || [];
-  return { muni: js.find(j => j.tipo === 'municipio' && (j.clubes || []).includes(c.nombre)),
-           prov: js.find(j => j.slug.startsWith('prov-') && (j.clubes || []).includes(c.nombre)) };
+  const es = j => (j.club_ids || []).includes(c.id) || (j.clubes || []).includes(c.nombre);
+  return { muni: js.find(j => j.tipo === 'municipio' && es(j)), prov: js.find(j => j.slug.startsWith('prov-') && es(j)) };
 }
 function llenarMiLugar() {
   const sc = $('#ml-club'), sj = $('#ml-juris');
@@ -1733,7 +1733,7 @@ async function mostrarMiLugar({ club, juris }) {
       ${bloqueJuris(muni) || bloqueJuris(prov) || '<p class="text-sm text-slate-600">No tenemos cargado el municipio de este club.</p>'}</div>`;
   } else if (juris) {
     const j = (TB.juris || []).find(x => x.slug === juris);
-    const clubes = CLUBES.filter(c => j && (j.clubes || []).includes(c.nombre));
+    const clubes = CLUBES.filter(c => j && ((j.club_ids || []).includes(c.id) || (j.clubes || []).includes(c.nombre)));
     caja.innerHTML = bloqueJuris(j) + (clubes.length ? `<p class="text-sm mt-2">Clubes: ${clubes.map(c => `<button data-action="ml-ver-club" data-id="${esc(c.id)}" class="underline font-semibold text-blue-700 mr-2">${esc(c.nombre)}</button>`).join('')}</p>` : '');
   }
   try { localStorage.setItem('ad_mi_lugar', JSON.stringify({ club, juris })); } catch (e) {}
