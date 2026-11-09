@@ -7,11 +7,8 @@
 <meta name="description" content="Mapa federal de clubes de básquet sobre silla de ruedas (FABA), documentos públicos, pedidos de información y patrocinio directo a proveedores.">
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 
@@ -19,7 +16,14 @@
   :focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; border-radius: 6px; }
   .tab-btn[aria-selected="true"] { color: #0f172a; border-color: #f59e0b; background: #fffbeb; font-weight: 700; }
   #map { height: 560px; width: 100%; background: #0b1220; }
-  #map.modo-radar .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+  .grupo-pin { width: 46px; height: 46px; border-radius: 50%; background: #f59e0b; color: #0f172a; border: 3px solid #fff; display: grid; place-items: center;
+               font: 900 15px/1 system-ui, sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,.45); cursor: pointer; }
+  .globo { background: #fff; border: 2px solid #7c3aed; color: #4c1d95; border-radius: 14px 14px 14px 2px; padding: 3px 7px; font: 800 12px/1.2 system-ui, sans-serif;
+           box-shadow: 0 3px 8px rgba(0,0,0,.35); cursor: pointer; white-space: nowrap; }
+  .globo.colecta { border-color: #ea580c; color: #7c2d12; }
+  .maplibregl-popup-content { border-radius: 14px; padding: 12px 14px; max-width: 360px; }
+  .maplibregl-popup-content iframe { border: 0; width: 320px; max-width: 100%; height: 440px; border-radius: 10px; }
+  .pin { cursor: pointer; }
   @media (max-width: 640px) { #map { height: 420px; } }
   .pin { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px solid #1d4ed8;
          box-shadow: 0 4px 10px rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center;
@@ -29,9 +33,7 @@
                background: rgba(15,23,42,.92); color: #fff; font: 700 12px/1 system-ui, sans-serif;
                padding: 4px 8px; border-radius: 999px; display: none; pointer-events: none; }
   .zoom-ok .pin-label { display: block; }
-  .leaflet-div-icon { background: transparent; border: 0; }
-  .leaflet-popup-content-wrapper { border-radius: 14px; }
-  .leaflet-container a.btn-popup { color: #fff; }
+  a.btn-popup { color: #fff; }
   dialog { border: 0; border-radius: 20px; padding: 0; max-width: 760px; width: calc(100% - 24px); box-shadow: 0 25px 60px rgba(0,0,0,.45); }
   dialog::backdrop { background: rgba(2,6,23,.7); }
   .ruta { counter-reset: paso; }
@@ -75,8 +77,9 @@
   html.oscuro input, html.oscuro select, html.oscuro textarea { background-color: #0f172a !important; color: #f1f5f9 !important; border-color: #475569 !important; }
   html.oscuro input::placeholder, html.oscuro textarea::placeholder { color: #94a3b8 !important; }
   html.oscuro nav.bg-white { background-color: #0f172a !important; }
-  html.oscuro .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.95); }
-  html.oscuro .leaflet-popup-content-wrapper, html.oscuro .leaflet-popup-tip { background: #151d2e; color: #e5e7eb; }
+  html.oscuro .maplibregl-popup-content { background: #151d2e; color: #e5e7eb; }
+  html.oscuro .maplibregl-popup-tip { border-top-color: #151d2e !important; border-bottom-color: #151d2e !important; }
+  html.oscuro .globo { background: #1b2538; color: #ddd6fe; }
   html.oscuro .tablero { --s1:#3987e5; --s2:#d95926; --s3:#199e70; --tx:#f0efec; --tx2:#c3c2b7; --grid:#2c3a52; --sup:#1a1a19; }
   html.oscuro .tablero .barra:hover, html.oscuro .tablero .barra.activa { fill: #6aa8f0; }
   html.oscuro .shadow-lg, html.oscuro .shadow-xl { box-shadow: none !important; }
@@ -179,21 +182,34 @@
       <div class="lg:col-span-8 bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-700">
         <div class="p-3 flex flex-wrap items-center gap-2 border-b border-slate-700">
           <div class="flex gap-1.5" role="group" aria-label="Estilo de mapa">
-            <button data-action="capa" data-capa="radar" aria-pressed="true" class="capa-btn px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-800 text-sky-300 border border-slate-600 aria-pressed:bg-sky-400 aria-pressed:text-slate-900">Radar</button>
+            <button data-action="capa" data-capa="radar" aria-pressed="true" class="capa-btn px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-800 text-sky-300 border border-slate-600 aria-pressed:bg-sky-400 aria-pressed:text-slate-900">Oscuro</button>
             <button data-action="capa" data-capa="calle" aria-pressed="false" class="capa-btn px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-800 text-sky-300 border border-slate-600 aria-pressed:bg-sky-400 aria-pressed:text-slate-900">Calles</button>
             <button data-action="capa" data-capa="sat" aria-pressed="false" class="capa-btn px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-800 text-sky-300 border border-slate-600 aria-pressed:bg-sky-400 aria-pressed:text-slate-900">Satélite</button>
           </div>
           <div class="flex flex-wrap gap-1.5 ml-auto text-sm" role="group" aria-label="Ir a una región">
-            <button data-action="volar" data-lat="-38.4" data-lng="-63.6" data-z="4" class="px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-bold">Todo el país</button>
+            <button data-action="volar" data-lat="-38.4" data-lng="-63.6" data-z="3.6" class="px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-bold">Todo el país</button>
             <button data-action="volar" data-lat="-34.7" data-lng="-58.4" data-z="9" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">AMBA</button>
             <button data-action="volar" data-lat="-25.5" data-lng="-65.3" data-z="6" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">NOA</button>
             <button data-action="volar" data-lat="-32.5" data-lng="-64.5" data-z="6" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">Centro / Cuyo</button>
             <button data-action="volar" data-lat="-45" data-lng="-68" data-z="5" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">Patagonia</button>
+            <button data-action="volar" data-lat="-34.92" data-lng="-57.95" data-z="10" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">La Plata</button>
+            <button data-action="volar" data-lat="-32.3" data-lng="-60.7" data-z="7.6" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-600 hover:bg-slate-700">Rosario y Santa Fe</button>
           </div>
         </div>
-        <div id="map" role="application" aria-label="Mapa interactivo de clubes"></div>
+        <div class="px-3 pb-3 flex flex-wrap items-center gap-1.5 text-sm border-b border-slate-700" role="group" aria-label="Qué mostrar en el mapa">
+          <span class="text-xs font-bold text-slate-300 mr-1">Ver en el mapa:</span>
+          <button data-vista="clubes" aria-pressed="true" class="vista-btn px-2.5 py-1 rounded-lg font-bold border border-slate-600 text-slate-100 aria-pressed:bg-amber-400 aria-pressed:text-slate-900">Clubes</button>
+          <button data-vista="publicaciones" aria-pressed="false" class="vista-btn px-2.5 py-1 rounded-lg font-bold border border-slate-600 text-slate-100 aria-pressed:bg-amber-400 aria-pressed:text-slate-900">Publicaciones oficiales</button>
+          <button data-vista="colectas" aria-pressed="false" class="vista-btn px-2.5 py-1 rounded-lg font-bold border border-slate-600 text-slate-100 aria-pressed:bg-amber-400 aria-pressed:text-slate-900">Colectas 3D</button>
+          <button data-vista="convocatorias" aria-pressed="false" class="vista-btn px-2.5 py-1 rounded-lg font-bold border border-slate-600 text-slate-100 aria-pressed:bg-amber-400 aria-pressed:text-slate-900">Convocatorias 3D</button>
+          <button data-vista="dias" aria-pressed="false" class="vista-btn px-2.5 py-1 rounded-lg font-bold border border-slate-600 text-slate-100 aria-pressed:bg-amber-400 aria-pressed:text-slate-900">Días de aviso 3D</button>
+          <button data-vista="m_transparencia" aria-pressed="false" class="vista-btn px-2.5 py-1 rounded-lg font-bold border border-slate-600 text-slate-100 aria-pressed:bg-amber-400 aria-pressed:text-slate-900">Municipios: transparencia</button>
+          <button data-vista="m_porhab" aria-pressed="false" class="vista-btn px-2.5 py-1 rounded-lg font-bold border border-slate-600 text-slate-100 aria-pressed:bg-amber-400 aria-pressed:text-slate-900">Municipios: Deporte por habitante</button>
+          <button data-vista="m_pedidos" aria-pressed="false" class="vista-btn px-2.5 py-1 rounded-lg font-bold border border-slate-600 text-slate-100 aria-pressed:bg-amber-400 aria-pressed:text-slate-900">Municipios: pedidos</button>
+        </div>
+        <div id="map" class="relative" role="application" aria-label="Mapa interactivo de clubes, municipios y publicaciones oficiales"></div>
         <p id="map-aviso" class="hidden bg-amber-100 text-amber-900 text-sm px-4 py-2">No se pudieron cargar algunas teselas del mapa. Probá otro estilo o revisá tu conexión.</p>
-        <p class="px-4 py-2 text-xs text-slate-400">Tocá un logo para ver la ficha. Los números indican varios clubes cercanos: hacé zoom para separarlos.</p>
+        <p id="mapa-nota" class="px-4 py-2 text-xs text-slate-300">Tocá un logo para ver la ficha. Los círculos amarillos agrupan varios clubes: tocalos para acercarte. Con dos dedos (o clic derecho) girás e inclinás el mapa.</p>
       </div>
 
       <aside class="lg:col-span-4 space-y-3" aria-label="Directorio de clubes">
@@ -262,35 +278,7 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h3 class="font-black">Mapa 3D</h3>
-          <p class="text-xs text-slate-600">Por club, columnas; por municipio, su forma real levantada según el dato. Arrastrá para mover, con dos dedos (o clic derecho) para girar e inclinar.</p>
-        </div>
-        <div class="flex flex-wrap gap-2 text-sm" role="group" aria-label="Dato del mapa 3D">
-          <button data-tb3="colectas" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-900 bg-slate-900 text-white font-bold">Colectas</button>
-          <button data-tb3="convocatorias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Convocatorias</button>
-          <button data-tb3="dias" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Días de aviso</button>
-          <button data-tb3="clubes" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Clubes</button>
-          <span class="w-px bg-slate-300 mx-1"></span>
-          <button data-tb3="m_transparencia" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: transparencia</button>
-          <button data-tb3="m_porhab" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: Deporte por habitante</button>
-          <button data-tb3="m_pedidos" class="tb3 px-3 py-1.5 rounded-lg border-2 border-slate-300 font-bold">Municipios: pedidos presentados</button>
-        </div>
-      </div>
-      <div id="tb-3d" class="relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200"><p class="p-4 text-sm text-slate-600">Cargando el mapa 3D…</p></div>
-      <div class="flex flex-wrap gap-2 text-xs">
-        <span class="font-bold text-slate-600 self-center">Acercar:</span>
-        <button data-tbzoom="-63.6,-36.5,4.1" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Todo el país</button>
-        <button data-tbzoom="-58.45,-34.78,8.6" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">AMBA</button>
-        <button data-tbzoom="-57.95,-34.92,9.6" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">La Plata y Ensenada</button>
-        <button data-tbzoom="-64.3,-31.6,7.2" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Córdoba</button>
-        <button data-tbzoom="-60.7,-32.3,7.4" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Rosario y Santa Fe</button>
-        <button data-tbzoom="-68.8,-32.9,9.2" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Mendoza</button>
-      </div>
-      <p id="tb-3d-nota" class="text-xs text-slate-500"></p>
-    </div>
+
 
     <details class="bg-white rounded-2xl border border-slate-200 p-5 text-sm">
       <summary class="font-bold cursor-pointer">Ver los datos como tabla</summary>
@@ -1451,7 +1439,7 @@ const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov'
 const NOM_FIN = { viaje_torneo:'Viajes a torneos', inscripcion:'Inscripciones', silla_equipamiento:'Sillas y equipamiento', indumentaria:'Indumentaria', general:'Gastos generales' };
 const RSE_FIN = { viaje_torneo:'alta', silla_equipamiento:'alta', indumentaria:'alta', inscripcion:'media', general:'baja' };
 const HITOS = { promesa_estado:['Promesa del Estado','var(--s1)'], beca_atrasada:['Beca atrasada','var(--s2)'], reclamo:['Reclamo','var(--s3)'] };
-let TB = null, tbVista = 'colectas', tbDeck = null, tbEscala = 1, tbZoomRender = 4.1;
+let TB = null;
 const tip = (ev, html) => { const t = $('#tb-tip'); if (!html) { t.classList.add('hidden'); return; }
   t.innerHTML = html; t.classList.remove('hidden');
   const x = Math.min(ev.clientX + 14, window.innerWidth - t.offsetWidth - 8), y = Math.max(8, ev.clientY - t.offsetHeight - 12);
@@ -1540,70 +1528,10 @@ async function cargarTablero() {
   $('#tb-tabla').innerHTML = `<table class="text-sm min-w-[320px]"><thead><tr><th class="text-left pr-6">Mes</th><th class="text-right">Colectas</th></tr></thead><tbody>${dm.map(d => `<tr><td class="pr-6">${d.k}</td><td class="text-right tabular-nums">${d.v}</td></tr>`).join('')}</tbody></table>
     <table class="text-sm mt-4 min-w-[320px]"><thead><tr><th class="text-left pr-6">Destino</th><th class="text-right">Colectas</th></tr></thead><tbody>${fs.map(([k, v]) => `<tr><td class="pr-6">${esc(NOM_FIN[k] || k)}</td><td class="text-right tabular-nums">${v}</td></tr>`).join('')}</tbody></table>`;
   await semaforoYRespuestas();
-  mapa3D();
+  if (map && vistaDatos !== 'clubes') pintarVista();
 }
 
-// ---- Mapa 3D (deck.gl, se carga recién al abrir el tablero) ----
-function puntos3D() {
-  const { col, conv } = TB, porCuenta = {};
-  Object.values((col && col.por_cuenta) || {}).forEach(c => { porCuenta[(c.cuenta || '').toLowerCase()] = c.colectas; });
-  const porClub = {}; ((conv && conv.por_club) || []).forEach(g => { porClub[g.club_id] = g; });
-  return CLUBES.filter(c => c.lat && c.lng).map(c => ({
-    nombre: c.nombre, ciudad: c.ciudad || '', pos: [c.lng, c.lat],
-    colectas: porCuenta[(c.instagram || '').toLowerCase()] || 0,
-    convocatorias: (porClub[c.id] || {}).n || 0, dias: (porClub[c.id] || {}).prom || 0, clubes: 1 }));
-}
-function cargarScript(src) { return new Promise((ok, mal) => { if ([...document.scripts].some(x => x.src === src)) return ok();
-  const e = document.createElement('script'); e.src = src; e.onload = ok; e.onerror = mal; document.head.appendChild(e); }); }
-async function mapa3D() {
-  const caja = $('#tb-3d');
-  try { await cargarScript('https://unpkg.com/deck.gl@8.9.36/dist.min.js'); }
-  catch (e) { caja.innerHTML = vacio('No se pudo cargar el mapa 3D. Probá recargar la página.'); return; }
-  const muni = tbVista.startsWith('m_');
-  const datos = muni ? await capaMunicipios(tbVista) : puntos3D(), nombres = { colectas: 'colectas', convocatorias: 'convocatorias cargadas', dias: 'días de aviso promedio', clubes: 'club',
-    m_transparencia: 'transparencia', m_porhab: 'gasto en Deporte por habitante', m_pedidos: 'pedidos presentados' };
-  const val = d => muni ? d.v : d[tbVista];
-  const max = Math.max(1, ...datos.map(val));
-  const color = v => { const k = v / max; return [Math.round(215 - 173 * k), Math.round(232 - 112 * k), Math.round(250 - 36 * k), 235]; };
-  const capaDatos = muni
-    ? new deck.PolygonLayer({ id: 'municipios', data: datos, extruded: true, pickable: true, wireframe: true, getPolygon: d => d.poly, elevationScale: tbEscala,
-        getElevation: d => d.v ? 8000 + 120000 * d.v / max : 1500, getFillColor: d => d.v ? color(d.v) : [180, 180, 180, 140], getLineColor: [255, 255, 255],
-        updateTriggers: { getElevation: tbVista, getFillColor: tbVista } })
-    : null;
-  const capas = [
-    new deck.TileLayer({ id: 'base', data: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', minZoom: 0, maxZoom: 12, tileSize: 256,
-      renderSubLayers: p => { const b = p.tile.bbox; return new deck.BitmapLayer(p, { data: null, image: p.data, bounds: [b.west, b.south, b.east, b.north] }); } }),
-    new deck.ColumnLayer({ id: 'columnas', data: datos, diskResolution: 24, radius: 22000 * tbEscala, extruded: true, pickable: true, elevationScale: tbEscala,
-      getPosition: d => d.pos, getElevation: d => d[tbVista] ? 40000 + 260000 * d[tbVista] / max : 0,
-      getFillColor: d => d[tbVista] ? color(d[tbVista]) : [160, 160, 160, 120], updateTriggers: { getElevation: tbVista, getFillColor: tbVista } })];
-  if (muni) capas[1] = capaDatos;
-  const tooltip = ({ object: d }) => d && { html: d.slug
-      ? `<b>${esc(d.nombre)}</b><br>Transparencia: ${d.transp} %<br>Pedidos presentados: ${d.pedidos}<br>${d.porhab ? `Deporte: $ ${d.porhab.toLocaleString('es-AR')} gastados por habitante (al ${esc(fechaLinda(d.hasta))})` : d.pob ? 'Sin ejecución de Deporte publicada' : 'Sin población del municipio por separado en el censo'}`
-      : `<b>${esc(d.nombre)}</b><br>${esc(d.ciudad)}<br>Colectas: ${d.colectas} · Convocatorias: ${d.convocatorias}${d.dias ? ` · ${d.dias} días de aviso` : ''}`,
-    style: { background: '#0f172a', color: '#fff', fontSize: '12px', borderRadius: '8px', padding: '8px 10px' } };
-  if (!tbDeck) {
-    caja.innerHTML = '';
-    tbDeck = new deck.Deck({ parent: caja, width: '100%', height: '100%', controller: true, getTooltip: tooltip, layers: capas,
-      // al acercar, las columnas y las formas mantienen su tamaño en pantalla (antes crecían hasta tapar todo)
-      onViewStateChange: ({ viewState }) => { const e = Math.min(1, Math.pow(2, 4.1 - viewState.zoom));
-        if (Math.abs(Math.log2(e) - Math.log2(tbEscala)) > 0.25) { tbEscala = e; clearTimeout(tbDeck._t); tbDeck._t = setTimeout(() => mapa3D(), 60); } },
-      initialViewState: { longitude: -63.6, latitude: -36.5, zoom: window.innerWidth < 640 ? 3.3 : 4.1, pitch: 45, bearing: -10 } });
-    const atr = document.createElement('div'); atr.className = 'absolute bottom-1 right-2 text-[10px] text-slate-700 bg-white/80 px-1 rounded';
-    atr.innerHTML = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'; caja.appendChild(atr);
-  } else tbDeck.setProps({ layers: capas });
-  const unidades = muni ? [...new Set(datos.map(d => d.slug))] : datos, con = muni ? new Set(datos.filter(d => d.v).map(d => d.slug)).size : datos.filter(d => d[tbVista]).length;
-  $('#tb-3d-nota').textContent = `${con} de ${unidades.length} ${muni ? 'municipios' : 'clubes'} con dato de ${nombres[tbVista]}.` + (con ? '' : ' Todavía no hay datos de este tipo: se completan a medida que se aprueban en el panel, se publican reportes de ejecución o cargan los usuarios.')
-    + (muni ? ' Formas: unidades territoriales del Estado nacional (datos.gob.ar). Población: Censo 2022 (INDEC).' : '');
-}
-document.addEventListener('click', ev => { const z = ev.target.closest('[data-tbzoom]'); if (!z || !tbDeck) return;
-  const [lon, lat, zoom] = z.dataset.tbzoom.split(',').map(Number);
-  tbEscala = Math.min(1, Math.pow(2, 4.1 - (window.innerWidth < 640 ? zoom - 0.8 : zoom))); if (TB) mapa3D();
-  tbDeck.setProps({ initialViewState: { longitude: lon, latitude: lat, zoom: window.innerWidth < 640 ? zoom - 0.8 : zoom, pitch: 50, bearing: -10, transitionDuration: 900,
-    transitionInterpolator: new deck.FlyToInterpolator() } }); });
-document.addEventListener('click', ev => { const b = ev.target.closest('[data-tb3]'); if (!b) return;
-  tbVista = b.dataset.tb3;
-  $$('.tb3').forEach(x => { const on = x === b; x.classList.toggle('bg-slate-900', on); x.classList.toggle('text-white', on); x.classList.toggle('border-slate-900', on); x.classList.toggle('border-slate-300', !on); });
-  if (TB) mapa3D(); });
+
 
 // ---- Semáforo, respuestas, municipios 3D y calendario de necesidades
 const NIVEL = { publica: ['Publica', 'bg-emerald-100 text-emerald-900', '●'], a_medias: ['A medias', 'bg-amber-100 text-amber-900', '◐'], no_publica: ['No publica', 'bg-rose-100 text-rose-900', '○'] };
@@ -1776,7 +1704,7 @@ function guardarPref(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   $$('input[name="acc-texto"]').forEach(r => {
     r.checked = r.value ? h.classList.contains(r.value) : !h.classList.contains('texto-grande') && !h.classList.contains('texto-muy-grande');
     r.addEventListener('change', () => { h.classList.remove('texto-grande', 'texto-muy-grande'); if (r.value) h.classList.add(r.value);
-      guardarPref('ad_texto', r.value); if (map) setTimeout(() => map.invalidateSize(), 100); });
+      guardarPref('ad_texto', r.value); if (map) setTimeout(() => map.resize(), 100); });
   });
 })();
 // Videos en Lengua de Señas Argentina: cuando haya un video para una sección, se agrega acá ('id de sección': 'enlace')
@@ -2439,32 +2367,44 @@ function showTab(t, push = true) {
     $('#t-' + x).setAttribute('aria-selected', x === t);
   });
   if (push) history.replaceState(null, '', '#' + t);
-  if (t === 'mapa' && map) setTimeout(() => map.invalidateSize(), 150);
+  if (t === 'mapa' && map) setTimeout(() => map.resize(), 150);
   if (t === 'mapa') { vigilarTablero(); iniciarMiLugar(); }
   if (t === 'rse') fetch('datos/colectas.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(calendarioNecesidades).catch(() => {});
   window.scrollTo({ top: 0 });
 }
 
 /* ============ MAPA ============ */
-let map, cluster, capaActual;
-const ATTR_OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-const CAPAS = {
-  radar: () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution: ATTR_OSM }),
-  calle: () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution: ATTR_OSM }),
-  sat:   () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom:18, attribution:'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics' })
-};
+let map, capaActual = 'radar', vistaDatos = 'clubes', marcadores = {}, globos = [], mapaListo = false;
+const ATTR_OSM = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>';
+const ATTR_ESRI = 'Imágenes © Esri — Esri, Maxar, Earthstar Geographics';
+// Ubicación de las cuentas oficiales que no son de un club (para los globos de publicaciones)
+const SEDES = { basquetadaptadofaba: [-58.3816, -34.6037], comiteparalimpicoargentino: [-58.4173, -34.6118], enardinfo: [-58.4589, -34.556],
+  laslobasbasquet: [-58.4370, -34.5850], cilsaong: [-60.705, -31.635], prensaensenada: [-57.912, -34.864] };
+const escalaZoom = z => Math.min(1, Math.pow(2, 4.1 - z));      // al acercar, las columnas mantienen su tamaño en pantalla
+const alturaPorZoom = ['interpolate', ['exponential', 2], ['zoom'], 4.1, ['get', 'h'], 14, ['/', ['get', 'h'], 955]];
+
+function estiloBase() {
+  return { version: 8, sources: {
+      osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256, maxzoom: 19, attribution: ATTR_OSM },
+      sat: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 18, attribution: ATTR_ESRI } },
+    layers: [
+      { id: 'fondo', type: 'background', paint: { 'background-color': '#0b1220' } },
+      { id: 'osm', type: 'raster', source: 'osm' },
+      { id: 'sat', type: 'raster', source: 'sat', layout: { visibility: 'none' } }] };
+}
 function setCapa(nombre) {
-  if (!map) return;
-  if (capaActual) map.removeLayer(capaActual);
-  $('#map').classList.toggle('modo-radar', nombre === 'radar');
-  capaActual = CAPAS[nombre]().addTo(map);
-  let fallos = 0;
-  capaActual.on('tileerror', () => { if (++fallos > 6) $('#map-aviso').classList.remove('hidden'); });
-  capaActual.on('load', () => { fallos = 0; $('#map-aviso').classList.add('hidden'); });
+  capaActual = nombre;
   $$('.capa-btn').forEach(b => b.setAttribute('aria-pressed', b.dataset.capa === nombre));
+  if (!mapaListo) return;
+  map.setLayoutProperty('osm', 'visibility', nombre === 'sat' ? 'none' : 'visible');
+  map.setLayoutProperty('sat', 'visibility', nombre === 'sat' ? 'visible' : 'none');
+  const oscuro = nombre === 'radar';   // estilo oscuro: el mismo mapa, apagado y sin color
+  map.setPaintProperty('osm', 'raster-saturation', oscuro ? -0.85 : 0);
+  map.setPaintProperty('osm', 'raster-brightness-max', oscuro ? 0.42 : 1);
+  map.setPaintProperty('osm', 'raster-contrast', oscuro ? 0.15 : 0);
 }
 function pinEl(c) {
-  const wrap = document.createElement('div'); wrap.className = 'pin';
+  const wrap = document.createElement('button'); wrap.type = 'button'; wrap.className = 'pin'; wrap.setAttribute('aria-label', 'Club ' + c.nombre);
   if (c.logo) {
     const img = document.createElement('img'); img.src = c.logo; img.alt = '';
     img.onerror = () => { img.remove(); wrap.prepend(document.createTextNode(iniciales(c.nombre))); };
@@ -2477,33 +2417,156 @@ function pinEl(c) {
 function popupEl(c) {
   const d = document.createElement('div'); d.style.minWidth = '200px';
   const p = document.createElement('p'); p.style.cssText = 'font-weight:800;margin:0 0 2px'; p.textContent = c.nombre;
-  const s = document.createElement('p'); s.style.cssText = 'margin:0 0 8px;color:#475569;font-size:13px'; s.textContent = c.ciudad + ' · ' + c.division;
+  const s = document.createElement('p'); s.style.cssText = 'margin:0 0 8px;opacity:.8;font-size:13px'; s.textContent = [c.ciudad, c.division].filter(Boolean).join(' · ');
   const b = document.createElement('a'); b.href = '#'; b.className = 'btn-popup'; b.textContent = 'Ver ficha';
   b.style.cssText = 'display:block;text-align:center;background:#1d4ed8;padding:8px;border-radius:10px;font-weight:700;text-decoration:none';
   b.addEventListener('click', e => { e.preventDefault(); abrirClub(c.id); });
-  d.append(p, s, b); return d;
+  const m = document.createElement('a'); m.href = '#'; m.textContent = 'Datos de su municipio';
+  m.style.cssText = 'display:block;text-align:center;margin-top:6px;font-size:13px;font-weight:700;text-decoration:underline';
+  m.addEventListener('click', e => { e.preventDefault(); $('#ml-club').value = c.id; $('#ml-juris').value = ''; mostrarMiLugar({ club: c.id }); $('#mi-lugar').scrollIntoView({ behavior: 'smooth' }); });
+  d.append(p, s, b, m); return d;
 }
+const geoClubes = lista => ({ type: 'FeatureCollection', features: lista.filter(c => c.lat && c.lng)
+  .map(c => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [Number(c.lng), Number(c.lat)] }, properties: { id: c.id } })) });
 function pintarMarcadores() {
-  if (!cluster) return;
-  cluster.clearLayers();
-  filtrados().forEach(c => {
-    const m = L.marker([Number(c.lat), Number(c.lng)], {
-      icon: L.divIcon({ html: pinEl(c), className: '', iconSize: [44, 44], iconAnchor: [22, 22] }),
-      title: c.nombre, keyboard: true
-    });
-    m.bindPopup(popupEl(c));
-    cluster.addLayer(m);
-  });
+  if (!mapaListo) return;
+  Object.values(marcadores).forEach(m => m.remove()); marcadores = {};
+  map.getSource('clubes').setData(geoClubes(filtrados()));
+}
+// Marcadores HTML (logos) sincronizados con los grupos que calcula el mapa
+function sincronizarMarcadores() {
+  if (!mapaListo || !map.getSource('clubes') || !map.isSourceLoaded('clubes')) return;
+  const vistos = {};
+  for (const f of map.querySourceFeatures('clubes')) {
+    const p = f.properties, id = p.cluster ? 'g' + p.cluster_id : 'c' + p.id;
+    if (vistos[id]) continue;
+    let m = marcadores[id];
+    if (!m) {
+      if (p.cluster) {
+        const el = document.createElement('button'); el.type = 'button'; el.className = 'grupo-pin'; el.textContent = p.point_count;
+        el.setAttribute('aria-label', `${p.point_count} clubes: acercar`);
+        el.addEventListener('click', async () => { const z = await map.getSource('clubes').getClusterExpansionZoom(p.cluster_id);
+          map.easeTo({ center: f.geometry.coordinates, zoom: z + 0.2 }); });
+        m = new maplibregl.Marker({ element: el }).setLngLat(f.geometry.coordinates);
+      } else {
+        const c = CLUBES.find(x => x.id === p.id); if (!c) continue;
+        m = new maplibregl.Marker({ element: pinEl(c) }).setLngLat(f.geometry.coordinates).setPopup(new maplibregl.Popup({ offset: 28 }).setDOMContent(popupEl(c)));
+      }
+      marcadores[id] = m;
+    }
+    vistos[id] = m;
+    if (!m._en) { m.addTo(map); m._en = true; }
+  }
+  for (const id in marcadores) if (!vistos[id] && marcadores[id]._en) { marcadores[id].remove(); marcadores[id]._en = false; }
+}
+// Círculo de radio r (metros) alrededor de un punto, como polígono para levantarlo en 3D
+function circulo([lng, lat], r, n = 20) {
+  const out = []; for (let i = 0; i <= n; i++) { const a = 2 * Math.PI * i / n;
+    out.push([lng + (r * Math.cos(a)) / (111320 * Math.cos(lat * Math.PI / 180)), lat + (r * Math.sin(a)) / 110540]); }
+  return [out];
+}
+function datosColumnas() {
+  const { col, conv } = TB || {}, porCuenta = {}, porClub = {};
+  Object.values((col && col.por_cuenta) || {}).forEach(c => { porCuenta[(c.cuenta || '').toLowerCase()] = c.colectas; });
+  ((conv && conv.por_club) || []).forEach(g => { porClub[g.club_id] = g; porClub[slugActual(g.club_id)] = g; });
+  return CLUBES.filter(c => c.lat && c.lng).map(c => { const g = porClub[c.id] || porClub[slugActual(c.id)] || {};
+    return { c, colectas: porCuenta[(c.instagram || '').toLowerCase()] || 0, convocatorias: g.n || 0, dias: g.prom || 0 }; });
+}
+const colorRampa = (v, max) => { const k = max ? v / max : 0; return `rgb(${Math.round(215 - 173 * k)},${Math.round(232 - 112 * k)},${Math.round(250 - 36 * k)})`; };
+async function geoMunicipios(vista) {
+  const ds = await capaMunicipios(vista), max = Math.max(1, ...ds.map(d => d.v));
+  return { max, fc: { type: 'FeatureCollection', features: ds.map(d => ({ type: 'Feature', geometry: { type: 'Polygon', coordinates: d.poly },
+    properties: { slug: d.slug, nombre: d.nombre, v: d.v, h: d.v ? 8000 + 120000 * d.v / max : 1500, color: d.v ? colorRampa(d.v, max) : '#b4b4b4',
+      transp: d.transp, pedidos: d.pedidos, porhab: d.porhab, pob: d.pob || 0, hasta: d.hasta || '' } })) } };
+}
+function datosGlobos() {
+  const col = (TB && TB.col) || {}, items = [];
+  (col.recientes || []).forEach(r => items.push({ cuenta: r.cuenta, nombre: r.nombre_cuenta, fecha: r.fecha, link: r.permalink, tipo: 'colecta',
+    texto: 'Colecta' + ((r.finalidades || []).length ? ': ' + r.finalidades.map(f => NOM_FIN[f] || f).join(', ') : '') }));
+  (col.hitos_estado || []).forEach(h => items.push({ cuenta: h.cuenta_usuario || '', nombre: h.cuenta, fecha: h.fecha, link: h.permalink, tipo: h.senal,
+    texto: (HITOS[h.senal] || [h.senal])[0] }));
+  const usados = {};
+  return items.map(it => {
+    const u = (it.cuenta || '').toLowerCase(), club = CLUBES.find(c => (c.instagram || '').toLowerCase() === u || c.nombre === it.nombre);
+    const pos = club && club.lat ? [Number(club.lng), Number(club.lat)] : SEDES[u];
+    if (!pos) return null;
+    const k = pos.join(','), n = usados[k] = (usados[k] || 0) + 1;     // varios globos en el mismo lugar: en abanico
+    return { ...it, pos: [pos[0] + 0.03 * Math.cos(n * 1.3) * Math.min(n - 1, 1) * Math.ceil(n / 4), pos[1] + 0.03 * Math.sin(n * 1.3) * Math.min(n - 1, 1) * Math.ceil(n / 4)] };
+  }).filter(Boolean);
+}
+function popupGlobo(g) {
+  const d = document.createElement('div');
+  const code = (g.link.match(/instagram\.com\/(?:p|reel|tv)\/([^/?#]+)/) || [])[1];
+  d.innerHTML = `<p style="font-weight:800;margin:0">${esc(g.nombre)}</p><p style="margin:0 0 6px;font-size:13px;opacity:.85">${esc(fechaLinda(g.fecha))} · ${esc(g.texto)}</p>
+    ${code ? `<iframe src="https://www.instagram.com/p/${encodeURIComponent(code)}/embed/captioned/" loading="lazy" title="Publicación oficial de ${esc(g.nombre)}"></iframe>` : ''}
+    <a href="${esc(g.link)}" target="_blank" rel="noopener noreferrer" style="display:block;margin-top:6px;font-weight:700;text-decoration:underline">Abrir la publicación original</a>`;
+  return d;
+}
+async function pintarVista() {
+  if (!mapaListo) return;
+  await datosTablero();
+  for (const id of ['vista-ext', 'vista-borde']) if (map.getLayer(id)) map.removeLayer(id);
+  if (map.getSource('vista')) map.removeSource('vista');
+  globos.forEach(m => m.remove()); globos = [];
+  const nota = $('#mapa-nota'), v = vistaDatos;
+  const club = v === 'clubes' || v === 'publicaciones';
+  ['clubes-invisible'].forEach(id => map.setLayoutProperty(id, 'visibility', 'visible'));
+  if (v === 'publicaciones') {
+    const gs = datosGlobos();
+    gs.forEach(g => { const el = document.createElement('button'); el.type = 'button'; el.className = 'globo' + (g.tipo === 'colecta' ? ' colecta' : '');
+      el.textContent = (g.tipo === 'colecta' ? '💸 ' : '📣 ') + fechaLinda(g.fecha).slice(3); el.setAttribute('aria-label', `${g.texto}, ${g.nombre}, ${fechaLinda(g.fecha)}`);
+      globos.push(new maplibregl.Marker({ element: el, anchor: 'bottom-left' }).setLngLat(g.pos).setPopup(new maplibregl.Popup({ offset: 12, maxWidth: '360px' }).setDOMContent(popupGlobo(g))).addTo(map)); });
+    nota.textContent = gs.length ? `${gs.length} publicaciones oficiales revisadas (💸 colectas, 📣 promesas, becas o reclamos). Tocá un globo para ver la publicación.`
+      : 'Todavía no hay publicaciones oficiales revisadas para mostrar. Aparecen a medida que se aprueban en el panel.';
+  } else if (!club) {
+    let fc, max, desc;
+    if (v.startsWith('m_')) { ({ fc, max } = await geoMunicipios(v)); desc = { m_transparencia: 'transparencia', m_porhab: 'gasto en Deporte por habitante', m_pedidos: 'pedidos presentados' }[v]; }
+    else {
+      const ds = datosColumnas(); max = Math.max(1, ...ds.map(d => d[v])); const r = 22000 * escalaZoom(map.getZoom());
+      fc = { type: 'FeatureCollection', features: ds.map(d => ({ type: 'Feature', geometry: { type: 'Polygon', coordinates: circulo([Number(d.c.lng), Number(d.c.lat)], r) },
+        properties: { nombre: d.c.nombre, ciudad: d.c.ciudad || '', colectas: d.colectas, convocatorias: d.convocatorias, dias: d.dias, v: d[v],
+          h: d[v] ? 40000 + 260000 * d[v] / max : 0, color: d[v] ? colorRampa(d[v], max) : '#a0a0a0' } })) };
+      desc = { colectas: 'colectas', convocatorias: 'convocatorias cargadas', dias: 'días de aviso promedio' }[v];
+    }
+    map.addSource('vista', { type: 'geojson', data: fc });
+    map.addLayer({ id: 'vista-ext', type: 'fill-extrusion', source: 'vista', paint: { 'fill-extrusion-color': ['get', 'color'],
+      'fill-extrusion-height': alturaPorZoom, 'fill-extrusion-opacity': 0.88 } });
+    const con = fc.features.filter(f => f.properties.v).length;
+    nota.textContent = `${con} de ${fc.features.length} ${v.startsWith('m_') ? 'polígonos de municipios' : 'clubes'} con dato de ${desc}.`
+      + (con ? ' Tocá una forma para ver el detalle.' : ' Todavía no hay datos de este tipo: se completan con lo que se aprueba en el panel y lo que cargan los usuarios.')
+      + (v.startsWith('m_') ? ' Formas: datos.gob.ar. Población: Censo 2022 (INDEC).' : '');
+    if (map.getPitch() < 30) map.easeTo({ pitch: 50, bearing: -10, duration: 800 });
+  } else nota.textContent = 'Tocá un logo para ver la ficha. Los círculos amarillos agrupan varios clubes: tocalos para acercarte. Con dos dedos (o clic derecho) girás e inclinás el mapa.';
+  if (club && map.getPitch() > 5) map.easeTo({ pitch: 0, bearing: 0, duration: 600 });
+  Object.values(marcadores).forEach(m => { m.getElement().style.display = club ? '' : 'none'; });
 }
 function iniciarMapa() {
-  map = L.map('map', { center:[-38.4,-63.6], zoom:4, minZoom:3 });
-  setCapa('radar');
-  cluster = L.markerClusterGroup({ maxClusterRadius: 45, showCoverageOnHover: false });
-  map.addLayer(cluster);
-  const zoomLabels = () => $('#map').classList.toggle('zoom-ok', map.getZoom() >= 9);
-  map.on('zoomend', zoomLabels); zoomLabels();
-  pintarMarcadores();
+  if (!window.maplibregl) { $('#map').innerHTML = '<p class="p-4 text-sm text-slate-200">No se pudo cargar el mapa. Probá recargar la página.</p>'; return; }
+  map = new maplibregl.Map({ container: 'map', style: estiloBase(), center: [-63.6, -38.4], zoom: window.innerWidth < 640 ? 2.9 : 3.6, minZoom: 2.5, maxZoom: 17,
+    attributionControl: { compact: true }, maxPitch: 70 });
+  map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+  map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+  let fallos = 0;
+  map.on('error', e => { if (e && e.sourceId && ++fallos > 6) $('#map-aviso').classList.remove('hidden'); });
+  map.on('load', () => {
+    mapaListo = true;
+    map.addSource('clubes', { type: 'geojson', data: geoClubes(filtrados()), cluster: true, clusterRadius: 45, clusterMaxZoom: 12 });
+    map.addLayer({ id: 'clubes-invisible', type: 'circle', source: 'clubes', paint: { 'circle-radius': 1, 'circle-opacity': 0 } });
+    setCapa(document.documentElement.classList.contains('oscuro') ? 'radar' : capaActual);
+    map.on('render', sincronizarMarcadores);
+    map.on('click', 'vista-ext', e => { const p = e.features[0].properties;
+      new maplibregl.Popup().setLngLat(e.lngLat).setHTML(p.slug !== undefined
+        ? `<b>${esc(p.nombre)}</b><br>Transparencia: ${p.transp} %<br>Pedidos presentados: ${p.pedidos}<br>${+p.porhab ? `Deporte: $ ${(+p.porhab).toLocaleString('es-AR')} gastados por habitante (al ${esc(fechaLinda(p.hasta))})` : +p.pob ? 'Sin ejecución de Deporte publicada' : 'Sin dato de población'}`
+        : `<b>${esc(p.nombre)}</b><br>${esc(p.ciudad)}<br>Colectas: ${p.colectas} · Convocatorias: ${p.convocatorias}${+p.dias ? ` · ${p.dias} días de aviso` : ''}`).addTo(map); });
+    map.on('mouseenter', 'vista-ext', () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', 'vista-ext', () => { map.getCanvas().style.cursor = ''; });
+    let zAnt = map.getZoom();
+    map.on('zoomend', () => { $('#map').classList.toggle('zoom-ok', map.getZoom() >= 9);
+      if (['colectas', 'convocatorias', 'dias'].includes(vistaDatos) && Math.abs(map.getZoom() - zAnt) > 0.3) { zAnt = map.getZoom(); pintarVista(); } });
+  });
 }
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-vista]'); if (!b) return;
+  vistaDatos = b.dataset.vista; $$('.vista-btn').forEach(x => x.setAttribute('aria-pressed', x === b)); pintarVista(); });
 
 /* ============ FILTROS / DIRECTORIO ============ */
 function filtrados() {
@@ -2821,8 +2884,8 @@ document.addEventListener('click', e => {
   const a = e.target.closest('[data-action]'); if (!a) return;
   const act = a.dataset.action;
   if (act === 'capa') setCapa(a.dataset.capa);
-  else if (act === 'volar') map && map.flyTo([+a.dataset.lat, +a.dataset.lng], +a.dataset.z, { duration: 1.1 });
-  else if (act === 'club') { const c = CLUBES.find(x => x.id === a.dataset.id); if (c && map && !$('#s-mapa').classList.contains('hidden')) map.flyTo([Number(c.lat), Number(c.lng)], 11, { duration: 1 }); abrirClub(a.dataset.id); }
+  else if (act === 'volar') map && map.flyTo({ center: [+a.dataset.lng, +a.dataset.lat], zoom: (window.innerWidth < 640 ? -0.7 : 0) + +a.dataset.z, duration: 1100 });
+  else if (act === 'club') { const c = CLUBES.find(x => x.id === a.dataset.id); if (c && map && !$('#s-mapa').classList.contains('hidden')) map.flyTo({ center: [Number(c.lng), Number(c.lat)], zoom: 11, duration: 1000 }); abrirClub(a.dataset.id); }
   else if (act === 'abrir') $('#' + a.dataset.dialog).showModal();
   else if (act === 'cerrar') a.closest('dialog').close();
   else if (act === 'copiar') { const t = $('#' + a.dataset.target); t.select(); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.resolve(document.execCommand('copy'))).then(() => toast('Texto copiado')); }

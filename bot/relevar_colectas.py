@@ -397,19 +397,19 @@ def publicar(cli=None):
         ejec = []
     cx = contraste(filas, _cuenta_a_juris(cli), ejec)
     try:
-        pubs = cli.table("publicaciones_relevantes").select("nombre_cuenta,tipo_cuenta,fecha,permalink,senales") \
+        pubs = cli.table("publicaciones_relevantes").select("cuenta,nombre_cuenta,tipo_cuenta,fecha,permalink,senales") \
             .eq("revisada", True).execute().data or []
     except Exception:
         pubs = []
     por_mes = {f"{m:02d}": 0 for m in range(1, 13)}
     for f in filas:
         por_mes[f["fecha"][5:7]] = por_mes.get(f["fecha"][5:7], 0) + 1
-    hitos = sorted([{"fecha": p["fecha"], "cuenta": p["nombre_cuenta"], "senal": sn, "permalink": p["permalink"]}
+    hitos = sorted([{"fecha": p["fecha"], "cuenta": p["nombre_cuenta"], "cuenta_usuario": p.get("cuenta"), "senal": sn, "permalink": p["permalink"]}
                     for p in pubs for sn in p["senales"] if sn in ("promesa_estado", "beca_atrasada", "reclamo", "apoyo_estado")],
                    key=lambda x: x["fecha"])
     datos = {"actualizado": datetime.now(timezone.utc).strftime("%Y-%m-%d"), **agregar(filas), "patrones": pc.patrones(filas),
              "por_mes": por_mes, "hitos_estado": hitos[-200:],
-             "recientes": [{**{k: f.get(k) for k in ("nombre_cuenta", "tipo_cuenta", "fecha", "permalink", "finalidades", "torneos",
+             "recientes": [{**{k: f.get(k) for k in ("cuenta", "nombre_cuenta", "tipo_cuenta", "fecha", "permalink", "finalidades", "torneos",
                                                      "tipos_pedido", "montos")},
                             "presupuesto_municipio": cx.get(f["permalink"])}
                            for f in sorted(filas, key=lambda x: x["fecha"], reverse=True)[:30]]}
