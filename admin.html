@@ -143,6 +143,14 @@
       <h3>Escudos de los clubes</h3>
       <p class="nota">El bot toma la foto de perfil de la cuenta oficial de Instagram de cada club y la propone como escudo. Aprobala solo si es el escudo (a veces es una foto de personas o de un evento).</p>
       <div id="t-escudos"></div>
+      <details class="carga-colecta"><summary>Subir un escudo a mano</summary>
+        <form id="f-escudo" class="form">
+          <label>Club<select id="es-club" required><option value="">Elegí</option></select></label>
+          <label>Imagen (JPG o PNG, hasta 1 MB)<input id="es-archivo" type="file" accept="image/jpeg,image/png" required></label>
+          <label>De dónde sale<input id="es-fuente" required maxlength="120" placeholder="Sitio oficial de FABA, página del club…"></label>
+          <div class="acciones"><button class="btn primario">Subir y dejar para aprobar</button></div>
+        </form>
+      </details>
       <h3>Autoridades de un club</h3>
       <p class="nota">Presidente, secretario, delegado ante FABA… Siempre con un enlace público que lo respalde (acta, publicación oficial del club, nota) y la fecha de esa fuente. Si se carga otra persona en el mismo cargo, la anterior queda como histórica.</p>
       <form id="f-autoridad" class="form">

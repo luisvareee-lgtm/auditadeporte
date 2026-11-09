@@ -388,15 +388,29 @@ async function cargarEscudos() {
   $('#t-escudos').replaceChildren(tabla([['Club', x => x.nombre], ['Actual', x => img(x.actual)], ['Propuesto', x => img(x.url)], ['De dónde', x => x.fuente],
     ['', x => el('span', {}, el('button', { class: 'btn chico primario', onclick: () => decidirEscudo(x, true) }, 'Usar este escudo'), ' ',
       el('button', { class: 'btn chico', onclick: () => decidirEscudo(x, false) }, 'Descartar'))]], l, 'No hay escudos para revisar.'));
-  const sel = $('#au-club');
-  if (sel && sel.options.length <= 1) {
-    try { const { data } = await sb.from('clubes').select('id,nombre').order('nombre'); (data || []).forEach(c => sel.add(new Option(c.nombre, c.id))); } catch (e) {}
+  for (const sel of [$('#au-club'), $('#es-club')]) {
+    if (!sel || sel.options.length > 1) continue;
+    try { const { data } = await sb.from('clubes').select('id,slug,nombre').order('nombre');
+      (data || []).forEach(c => { const o = new Option(c.nombre, c.id); o.dataset.slug = c.slug; sel.add(o); }); } catch (e) {}
   }
 }
 async function decidirEscudo(x, ok) {
   try { await rpc('panel_escudo_decidir', { p_club: x.club_id, p_ok: ok }); aviso(ok ? 'Escudo publicado.' : 'Descartado.'); cargarEscudos(); }
   catch (e) { aviso(e.message, true); }
 }
+$('#f-escudo')?.addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const f = $('#es-archivo').files[0], sel = $('#es-club');
+  if (!f || f.size > 1048576 || !/^image\/(jpeg|png)$/.test(f.type)) { aviso('Elegí una imagen JPG o PNG de hasta 1 MB.', true); return; }
+  const ruta = `escudos/propuestos/${sel.selectedOptions[0].dataset.slug}-${Date.now()}.${f.type === 'image/png' ? 'png' : 'jpg'}`;
+  try {
+    const { error } = await sb.storage.from('capturas-publicas').upload(ruta, f, { contentType: f.type, upsert: true });
+    if (error) throw error;
+    const url = sb.storage.from('capturas-publicas').getPublicUrl(ruta).data.publicUrl;
+    await rpc('panel_escudo_manual', { p_club: sel.value, p_url: url, p_fuente: $('#es-fuente').value });
+    aviso('Escudo subido: aprobalo en la tabla de arriba.'); ev.target.reset(); cargarEscudos();
+  } catch (e) { aviso(e.message || String(e), true); }
+});
 $('#f-autoridad')?.addEventListener('submit', async ev => {
   ev.preventDefault();
   try {

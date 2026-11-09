@@ -42,6 +42,22 @@ end $$;
 revoke all on function public.panel_escudo_decidir(uuid, boolean) from public, anon;
 grant execute on function public.panel_escudo_decidir(uuid, boolean) to authenticated;
 
+-- escudo subido a mano desde el panel (por ejemplo, descargado del sitio de FABA): queda propuesto como los demás
+create or replace function public.panel_escudo_manual(p_club uuid, p_url text, p_fuente text) returns jsonb
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  perform public.panel_exige_admin();
+  if p_url !~ '^https://[a-z0-9-]+\.supabase\.co/storage/v1/object/public/capturas-publicas/escudos/' then
+    raise exception 'El escudo tiene que estar subido al almacenamiento del sitio.';
+  end if;
+  if length(trim(coalesce(p_fuente, ''))) < 4 then raise exception 'Indicá de dónde sale el escudo.'; end if;
+  insert into public.escudos_propuestos (club_id, url, fuente) values (p_club, p_url, trim(p_fuente))
+  on conflict (club_id) do update set url = excluded.url, fuente = excluded.fuente, propuesto_en = now();
+  return jsonb_build_object('ok', true);
+end $$;
+revoke all on function public.panel_escudo_manual(uuid, text, text) from public, anon;
+grant execute on function public.panel_escudo_manual(uuid, text, text) to authenticated;
+
 -- autoridades de un club (presidente, secretario, delegado ante FABA…), siempre con fuente pública y fecha
 create or replace function public.panel_cargar_autoridad_club(p_club uuid, p_cargo text, p_nombre text, p_fuente text, p_fecha date)
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
