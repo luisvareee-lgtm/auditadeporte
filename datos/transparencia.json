@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-08",
+ "actualizado": "2026-11-09",
  "totales": {
   "publica": 14,
   "a_medias": 6,
@@ -18,6 +18,9 @@
    "tipo": "municipio",
    "clubes": [
     "Instituto Municipal del Deporte Almirante Brown"
+   ],
+   "club_ids": [
+    "almirante-brown"
    ],
    "estado": "a_medias",
    "motivo": "Publica su boletín oficial en su sitio, pero el sitio rechaza la lectura automática. El equipo descarga los PDF y los revisa igual.",
@@ -76,6 +79,9 @@
    "tipo": "municipio",
    "clubes": [
     "Brown de Alta Gracia"
+   ],
+   "club_ids": [
+    "brown-alta-gracia"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -144,6 +150,9 @@
    "clubes": [
     "Municipalidad de Avellaneda"
    ],
+   "club_ids": [
+    "municipalidad-avellaneda"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial tiene una falla de seguridad que impide consultarlo de forma segura. Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM).",
    "sitio_web": "https://www.mda.gob.ar/",
@@ -201,6 +210,9 @@
    "tipo": "municipio",
    "clubes": [
     "DUBA"
+   ],
+   "club_ids": [
+    "duba"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -285,6 +297,9 @@
    "clubes": [
     "Municipalidad de Berazategui"
    ],
+   "club_ids": [
+    "municipalidad-berazategui"
+   ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.berazategui.gob.ar/",
@@ -356,6 +371,9 @@
    "clubes": [
     "CRIPAL"
    ],
+   "club_ids": [
+    "cripal"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://www.cipolletti.gob.ar/",
@@ -410,6 +428,9 @@
    "clubes": [
     "CEF N° 17"
    ],
+   "club_ids": [
+    "cef-17-corrientes"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://ciudaddecorrientes.gov.ar/",
@@ -463,6 +484,9 @@
    "tipo": "municipio",
    "clubes": [
     "Municipalidad de Ensenada"
+   ],
+   "club_ids": [
+    "municipalidad-ensenada"
    ],
    "estado": "a_medias",
    "motivo": "Publica información (compras, presupuesto o transparencia), pero no encontramos su boletín oficial revisable.",
@@ -529,6 +553,9 @@
    "clubes": [
     "Escuela Municipal de Básquet Adaptado Echeverría"
    ],
+   "club_ids": [
+    "escuela-municipal-echeverria"
+   ],
    "estado": "a_medias",
    "motivo": "Publica su boletín oficial, pero la página muestra ediciones viejas: solo hasta 2023.",
    "sitio_web": "https://www.estebanecheverria.gob.ar/",
@@ -594,6 +621,9 @@
    "clubes": [
     "CIDELI"
    ],
+   "club_ids": [
+    "cideli"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática. Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM).",
    "sitio_web": "https://www.mardelplata.gob.ar/",
@@ -651,6 +681,9 @@
    "tipo": "municipio",
    "clubes": [
     "DIMOT"
+   ],
+   "club_ids": [
+    "dimot"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -731,6 +764,9 @@
    "clubes": [
     "CEDIMA"
    ],
+   "club_ids": [
+    "cedima"
+   ],
    "estado": "a_medias",
    "motivo": "Publica información (compras, presupuesto o transparencia), pero no encontramos su boletín oficial revisable.",
    "sitio_web": "https://www.lamatanza.gov.ar/",
@@ -796,6 +832,9 @@
    "clubes": [
     "CRIPLaP"
    ],
+   "club_ids": [
+    "criplap"
+   ],
    "estado": "no_publica",
    "motivo": "No encontramos un boletín oficial ni un portal de transparencia que se pueda revisar. Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM).",
    "sitio_web": "https://www.laplata.gob.ar/",
@@ -853,6 +892,9 @@
    "tipo": "municipio",
    "clubes": [
     "Deportivo Malagueño"
+   ],
+   "club_ids": [
+    "deportivo-malagueno"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -921,6 +963,9 @@
    "clubes": [
     "PRODEA (Paraná / Entre Ríos)"
    ],
+   "club_ids": [
+    "prodea-parana"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://www.parana.gob.ar/",
@@ -974,6 +1019,9 @@
    "tipo": "municipio",
    "clubes": [
     "CROL (Club Rosarino de Lisiados)"
+   ],
+   "club_ids": [
+    "crol-rosario"
    ],
    "estado": "a_medias",
    "motivo": "Publica información (compras, presupuesto o transparencia), pero no encontramos su boletín oficial revisable.",
@@ -1044,6 +1092,9 @@
    "clubes": [
     "CRIGAL"
    ],
+   "club_ids": [
+    "crigal"
+   ],
    "estado": "no_publica",
    "motivo": "No encontramos un boletín oficial ni un portal de transparencia que se pueda revisar.",
    "sitio_web": "https://www.riogallegos.gob.ar/",
@@ -1097,6 +1148,9 @@
    "tipo": "municipio",
    "clubes": [
     "SOL Y LAGO / Río Tercero"
+   ],
+   "club_ids": [
+    "sol-y-lago-rio-tercero"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -1159,6 +1213,9 @@
    "clubes": [
     "ADU (Amigos Discapacitados Unidos)"
    ],
+   "club_ids": [
+    "adu-san-fernando"
+   ],
    "estado": "no_publica",
    "motivo": "No encontramos un boletín oficial ni un portal de transparencia que se pueda revisar. Parte de sus normas pueden aparecer en el sistema de boletines municipales de la Provincia (SIBOM).",
    "sitio_web": "https://www.sanfernando.gob.ar/",
@@ -1216,6 +1273,9 @@
    "tipo": "municipio",
    "clubes": [
     "Fu.Di.Tuc"
+   ],
+   "club_ids": [
+    "fudituc"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -1284,6 +1344,9 @@
    "clubes": [
     "Jujuy Básquet"
    ],
+   "club_ids": [
+    "jujuy-basquet"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial tiene una falla de seguridad que impide consultarlo de forma segura.",
    "sitio_web": "https://sansalvadordejujuy.gob.ar/",
@@ -1339,6 +1402,10 @@
     "APRI / Selección Invitada Litoral",
     "CILSA Santa Fe"
    ],
+   "club_ids": [
+    "apri-litoral",
+    "cilsa-santa-fe"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://www.santafeciudad.gov.ar/",
@@ -1393,6 +1460,9 @@
    "clubes": [
     "UNCuyo Básquet Adaptado"
    ],
+   "club_ids": [
+    "uncuyo-basquet-adaptado"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://ciudaddemendoza.gob.ar/",
@@ -1446,6 +1516,9 @@
    "tipo": "provincia",
    "clubes": [
     "CILSA Boca Juniors"
+   ],
+   "club_ids": [
+    "cilsa-boca-juniors"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -1512,6 +1585,18 @@
     "Municipalidad de Berazategui",
     "Municipalidad de Ensenada"
    ],
+   "club_ids": [
+    "adu-san-fernando",
+    "almirante-brown",
+    "cedima",
+    "cideli",
+    "criplap",
+    "duba",
+    "escuela-municipal-echeverria",
+    "municipalidad-avellaneda",
+    "municipalidad-berazategui",
+    "municipalidad-ensenada"
+   ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.gba.gob.ar/",
@@ -1574,6 +1659,9 @@
    "clubes": [
     "CEF N° 17"
    ],
+   "club_ids": [
+    "cef-17-corrientes"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial tiene una falla de seguridad que impide consultarlo de forma segura.",
    "sitio_web": "https://www.corrientes.gob.ar/",
@@ -1625,6 +1713,11 @@
     "Deportivo Malagueño",
     "SOL Y LAGO / Río Tercero"
    ],
+   "club_ids": [
+    "brown-alta-gracia",
+    "deportivo-malagueno",
+    "sol-y-lago-rio-tercero"
+   ],
    "estado": "no_publica",
    "motivo": "Rechaza la consulta automática de su boletín oficial.",
    "sitio_web": "https://www.cba.gov.ar/",
@@ -1673,6 +1766,9 @@
    "tipo": "provincia",
    "clubes": [
     "PRODEA (Paraná / Entre Ríos)"
+   ],
+   "club_ids": [
+    "prodea-parana"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -1729,6 +1825,9 @@
    "tipo": "provincia",
    "clubes": [
     "Jujuy Básquet"
+   ],
+   "club_ids": [
+    "jujuy-basquet"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -1787,6 +1886,10 @@
     "DIMOT",
     "UNCuyo Básquet Adaptado"
    ],
+   "club_ids": [
+    "dimot",
+    "uncuyo-basquet-adaptado"
+   ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.mendoza.gov.ar/",
@@ -1843,6 +1946,9 @@
    "clubes": [
     "CRIPAL"
    ],
+   "club_ids": [
+    "cripal"
+   ],
    "estado": "no_publica",
    "motivo": "Pide usuario y contraseña para consultar el boletín oficial.",
    "sitio_web": "https://www.rionegro.gov.ar/",
@@ -1891,6 +1997,9 @@
    "tipo": "provincia",
    "clubes": [
     "CRIGAL"
+   ],
+   "club_ids": [
+    "crigal"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -1950,6 +2059,11 @@
     "CILSA Santa Fe",
     "CROL (Club Rosarino de Lisiados)"
    ],
+   "club_ids": [
+    "apri-litoral",
+    "cilsa-santa-fe",
+    "crol-rosario"
+   ],
    "estado": "no_publica",
    "motivo": "Sus páginas oficiales no respondieron en las últimas revisiones (tres o más intentos seguidos).",
    "sitio_web": "https://www.santafe.gov.ar/",
@@ -2006,6 +2120,9 @@
    "clubes": [
     "Fu.Di.Tuc"
    ],
+   "club_ids": [
+    "fudituc"
+   ],
    "estado": "no_publica",
    "motivo": "Su sitio oficial no permite revisar los documentos de forma automática.",
    "sitio_web": "https://www.tucuman.gob.ar/",
@@ -2055,6 +2172,9 @@
    "tipo": "universidad",
    "clubes": [
     "UNCuyo Básquet Adaptado"
+   ],
+   "club_ids": [
+    "uncuyo-basquet-adaptado"
    ],
    "estado": "publica",
    "motivo": "Publica documentos oficiales que se pueden revisar.",
@@ -2147,6 +2267,33 @@
     "PRODEA (Paraná / Entre Ríos)",
     "SOL Y LAGO / Río Tercero",
     "UNCuyo Básquet Adaptado"
+   ],
+   "club_ids": [
+    "adu-san-fernando",
+    "almirante-brown",
+    "apri-litoral",
+    "brown-alta-gracia",
+    "cedima",
+    "cef-17-corrientes",
+    "cideli",
+    "cilsa-boca-juniors",
+    "cilsa-santa-fe",
+    "crigal",
+    "cripal",
+    "criplap",
+    "crol-rosario",
+    "deportivo-malagueno",
+    "dimot",
+    "duba",
+    "escuela-municipal-echeverria",
+    "fudituc",
+    "jujuy-basquet",
+    "municipalidad-avellaneda",
+    "municipalidad-berazategui",
+    "municipalidad-ensenada",
+    "prodea-parana",
+    "sol-y-lago-rio-tercero",
+    "uncuyo-basquet-adaptado"
    ],
    "estado": "a_medias",
    "motivo": "Publica datos, pero algunas de sus páginas oficiales no respondieron en la última revisión.",
