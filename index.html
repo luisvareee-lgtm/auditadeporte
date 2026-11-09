@@ -1657,7 +1657,7 @@ async function mostrarMiLugar({ club, juris }) {
   if (club) {
     const c = CLUBES.find(x => x.id === club || slugActual(x.id) === slugActual(club)); if (!c) return;
     const { muni, prov } = jurisDeClub(c);
-    const cuenta = (c.instagram || '').toLowerCase(), cs = Object.values((TB.col && TB.col.por_cuenta) || {}).find(x => (x.cuenta || '').toLowerCase() === cuenta);
+    const cuenta = (c.instagram || '').toLowerCase(), cs = cuenta ? Object.values((TB.col && TB.col.por_cuenta) || {}).find(x => (x.cuenta || '').toLowerCase() === cuenta) : null;
     const cv = ((TB.conv && TB.conv.por_club) || []).find(g => g.club_id === c.id);
     caja.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
       <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 space-y-2">
@@ -2469,10 +2469,10 @@ function circulo([lng, lat], r, n = 20) {
 }
 function datosColumnas() {
   const { col, conv } = TB || {}, porCuenta = {}, porClub = {};
-  Object.values((col && col.por_cuenta) || {}).forEach(c => { porCuenta[(c.cuenta || '').toLowerCase()] = c.colectas; });
+  Object.values((col && col.por_cuenta) || {}).forEach(c => { if (c.cuenta) porCuenta[c.cuenta.toLowerCase()] = c.colectas; });
   ((conv && conv.por_club) || []).forEach(g => { porClub[g.club_id] = g; porClub[slugActual(g.club_id)] = g; });
   return CLUBES.filter(c => c.lat && c.lng).map(c => { const g = porClub[c.id] || porClub[slugActual(c.id)] || {};
-    return { c, colectas: porCuenta[(c.instagram || '').toLowerCase()] || 0, convocatorias: g.n || 0, dias: g.prom || 0 }; });
+    return { c, colectas: (c.instagram && porCuenta[c.instagram.toLowerCase()]) || 0, convocatorias: g.n || 0, dias: g.prom || 0 }; });
 }
 const colorRampa = (v, max) => { const k = max ? v / max : 0; return `rgb(${Math.round(215 - 173 * k)},${Math.round(232 - 112 * k)},${Math.round(250 - 36 * k)})`; };
 async function geoMunicipios(vista) {
@@ -2489,7 +2489,7 @@ function datosGlobos() {
     texto: (HITOS[h.senal] || [h.senal])[0] }));
   const usados = {};
   return items.map(it => {
-    const u = (it.cuenta || '').toLowerCase(), club = CLUBES.find(c => (c.instagram || '').toLowerCase() === u || c.nombre === it.nombre);
+    const u = (it.cuenta || '').toLowerCase(), club = CLUBES.find(c => (u && (c.instagram || '').toLowerCase() === u) || c.nombre === it.nombre);
     const pos = club && club.lat ? [Number(club.lng), Number(club.lat)] : SEDES[u];
     if (!pos) return null;
     const k = pos.join(','), n = usados[k] = (usados[k] || 0) + 1;     // varios globos en el mismo lugar: en abanico
@@ -2644,9 +2644,9 @@ async function fichaAuditada(c) {
   if (!TB.geo) { try { const r = await fetch('datos/municipios_geo.json', { cache: 'no-store' }); TB.geo = r.ok ? await r.json() : { municipios: {} }; } catch (e) { TB.geo = { municipios: {} }; } }
   if (clubActivo !== c) return;
   const cuenta = (c.instagram || '').toLowerCase();
-  const cs = Object.values((TB.col && TB.col.por_cuenta) || {}).find(x => (x.cuenta || '').toLowerCase() === cuenta);
+  const cs = cuenta ? Object.values((TB.col && TB.col.por_cuenta) || {}).find(x => (x.cuenta || '').toLowerCase() === cuenta) : null;
   const cv = ((TB.conv && TB.conv.por_club) || []).find(g => g.club_id === c.id || g.club_id === slugActual(c.id));
-  const pubs = [...((TB.col && TB.col.recientes) || []).filter(r => (r.cuenta || '').toLowerCase() === cuenta).map(r => ({ f: r.fecha, t: 'Colecta', l: r.permalink })),
+  const pubs = !cuenta ? [] : [...((TB.col && TB.col.recientes) || []).filter(r => (r.cuenta || '').toLowerCase() === cuenta).map(r => ({ f: r.fecha, t: 'Colecta', l: r.permalink })),
     ...((TB.col && TB.col.hitos_estado) || []).filter(h => (h.cuenta_usuario || '').toLowerCase() === cuenta).map(h => ({ f: h.fecha, t: (HITOS[h.senal] || [h.senal])[0], l: h.permalink }))]
     .sort((a, b) => b.f.localeCompare(a.f)).slice(0, 5);
   const { muni, prov } = jurisDeClub(c);
