@@ -9,6 +9,10 @@ on:
       desde:
         description: "Desde qué fecha (AAAA-MM-DD)"
         default: "2010-01-01"
+      reevaluar:
+        description: "Quitar de la cola lo no revisado que entró con filtros viejos y volver a leer esas cuentas con el filtro de contexto"
+        type: boolean
+        default: false
   schedule: [{ cron: "30 */3 * * *" }]     # cada 3 horas: sigue el barrido donde quedó; si Meta frena, espera a la próxima
 permissions: { contents: read }
 concurrency: { group: actualidad-redes, cancel-in-progress: false }
@@ -26,7 +30,7 @@ jobs:
         run: python -m unittest test_supa test_relevar_colectas
         working-directory: bot
       - name: Relevar (no guarda textos, nombres, alias ni CBU)
-        run: python relevar_colectas.py --desde "${{ inputs.desde || '2010-01-01' }}" ${{ (github.event_name == 'schedule' || !inputs.prueba) && ' ' || '--prueba' }}
+        run: python relevar_colectas.py --desde "${{ inputs.desde || '2010-01-01' }}" ${{ (github.event_name == 'schedule' || !inputs.prueba) && ' ' || '--prueba' }} ${{ inputs.reevaluar && '--reevaluar' || '' }}
         working-directory: bot
         env:
           META_TOKEN: ${{ secrets.META_TOKEN }}

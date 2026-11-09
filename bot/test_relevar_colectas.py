@@ -108,5 +108,36 @@ class Barrido(unittest.TestCase):
         self.assertFalse(completo); self.assertEqual(len(posts), 2)
 
 
+class Contexto(unittest.TestCase):
+    """Todo tiene que ser de deporte adaptado / paralímpico / básquet en silla, no palabras sueltas."""
+    def test_cuentas_propias_y_generales(self):
+        self.assertIsNone(r.contexto_de("basquetadaptadofaba"))
+        self.assertIsNone(r.contexto_de("clubxbsr", "Club X"))
+        self.assertIsNone(r.contexto_de("clubx", "Club X Básquet Adaptado"))
+        self.assertEqual(r.contexto_de("enardinfo", "ENARD"), "enardinfo")
+        self.assertEqual(r.contexto_de("prensaensenada", "Municipio de Ensenada"), "prensaensenada")
+
+    def test_enard_deporte_convencional_no_entra(self):
+        txt = "Gracias a las empresas que acompañan a nuestros atletas de hockey y remo rumbo al Panamericano. Viajan a Lima."
+        self.assertEqual(r.senales(txt, "enardinfo"), [])
+        txt2 = "Rifa para el viaje del equipo de vóley al Sudamericano. Bono $2000, transferí al alias."
+        self.assertIsNone(r.clasificar(txt2, "2025-05-01", "enardinfo"))
+
+    def test_enard_paralimpico_si_entra(self):
+        txt = "La selección de básquet adaptado viaja al Parapanamericano con el apoyo del ENARD. Pasajes y estadía cubiertos."
+        self.assertIn("viaje", r.senales(txt, "enardinfo"))
+
+    def test_entrega_de_sillas_sin_deporte_no_entra(self):
+        txt = "El municipio realizó la entrega de sillas de ruedas nuevas a vecinos con discapacidad en el centro de salud barrial."
+        self.assertEqual(r.senales(txt, "prensaensenada"), [])
+        txt2 = "Entrega de sillas de ruedas deportivas nuevas para competir en la liga de alto rendimiento de básquet."
+        self.assertIn("equipamiento_nuevo", r.senales(txt2, "prensaensenada"))
+
+    def test_reclamo_suelto_no_entra(self):
+        self.assertNotIn("reclamo", r.senales("Hoy se reclamó la ganancia del sorteo del bingo. ¡Felicitaciones!", "basquetadaptadofaba"))
+        self.assertNotIn("reclamo", r.senales("Reclamá tu entrada para el show de fin de año.", None))
+        self.assertIn("reclamo", r.senales("Reclamamos los pasajes prometidos para el torneo: el plantel no puede viajar.", None))
+
+
 if __name__ == "__main__":
     unittest.main()

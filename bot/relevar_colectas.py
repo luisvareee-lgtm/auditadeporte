@@ -83,11 +83,14 @@ def _monto(m):
     return {"moneda": mon, "valor": v}
 
 
-def clasificar(caption: str, fecha: str = None):
-    """None si no es una colecta (o si habla de la salud de una persona). Si lo es: finalidades, cómo se pide,
-    a quién, torneos, montos y fecha límite (si la dice)."""
+def clasificar(caption: str, fecha: str = None, cuenta: str = None):
+    """None si no es una colecta (o si habla de la salud de una persona, o si en una cuenta general no es de deporte
+    adaptado). Si lo es: finalidades, cómo se pide, a quién, torneos, montos y fecha límite (si la dice)."""
     t = o._norm(caption or "")
-    if not RE_COLECTA.search(t) or RE_SALUD.search(t) or not RE_DINERO.search(t):
+    mc = RE_COLECTA.search(t)
+    if not mc or RE_SALUD.search(t) or not RE_DINERO.search(t):
+        return None
+    if not en_contexto(t, mc.start(), mc.end(), cuenta):
         return None
     if RE_FALSO.search(t) and not re.search(r"\b(rifas?|colectas?|recaud\w*|donacion(es)?)\b", t):
         return None
@@ -112,13 +115,60 @@ def clasificar(caption: str, fecha: str = None):
             "fecha_limite": limite}
 
 
+# ── Contexto: todo tiene que ser de deporte adaptado, paralímpico o básquet en silla ──────────────────────────
+# Las cuentas de clubes de básquet adaptado, FABA, Las Lobas y COPAR hablan de eso por definición. Las cuentas generales
+# (ENARD, prensa de un municipio, ONG de discapacidad en general) publican de todo: ahí cada hallazgo tiene que tener,
+# cerca de la palabra que lo marcó, términos del deporte adaptado. Una palabra suelta no alcanza.
+# Términos que por sí solos ya son deporte adaptado / paralímpico
+RE_ADAPTADO = re.compile(
+    r"\b(deportes? adaptad\w*|basquet(bol)? adaptad\w*|basquet(bol)? (sobre|en) sillas?|basquet de silla|sillas? (deportivas?|de juego|de competencia|de basquet)|"
+    r"paralimpic\w*|paraolimpic\w*|parapanamerican\w*|faba|iwbf|wheelchair basketball|las lobas|los condores sobre ruedas|"
+    r"deportistas? con discapacidad|atletas? con discapacidad|para ?atletismo|para ?natacion|para ?ciclismo|para ?tenis|para ?remo|"
+    r"para ?canotaje|tenis adaptado|rugby en silla|goalball|boccia|para ?powerlifting|torball|"
+    r"juegos (evita|bonaerenses) adaptad\w*|bsr)\b")
+# Términos de discapacidad que solo cuentan si cerca también hay deporte o competencia (una entrega de sillas de
+# ruedas hospitalarias o un acto general de discapacidad no es lo que buscamos)
+RE_DISCAPACIDAD = re.compile(r"\b(sillas? de ruedas|sillas? adaptadas?|personas? con discapacidad|discapacidad motriz|amputad\w*|lesion medular)\b")
+RE_DEPORTE = re.compile(r"\b(deport\w*|basquet\w*|torneos?|competen\w*|campeonatos?|seleccion\w*|atletas?|entrenamientos?|"
+                        r"liga|alto rendimiento|enard|cenard|juegos)\b")
+# Cuentas que por definición son de deporte adaptado: FABA, Las Lobas, COPAR y los clubes de básquet en silla.
+CONTEXTO_PROPIO = {"basquetadaptadofaba", "laslobasbasquet", "comiteparalimpicoargentino", "faba_web"}
+RE_CUENTA_PROPIA = re.compile(r"(?i)adaptad|silla|bsr|wheelchair|paralimp|lobas")
+VENTANA = 350                      # caracteres antes y después del hallazgo donde tiene que aparecer el contexto
+# "reclamo" solo cuenta si se refiere a algo del equipo (sillas, viajes, becas, cancha, indumentaria, apoyo)
+RE_RECLAMO_OBJETO = re.compile(r"\b(sillas?|viajes?|pasajes?|becas?|subsidios?|indumentaria|camisetas|cancha|gimnasio|estadio|"
+                               r"traslados?|micros?|apoyo|equipo|plantel|torneo|liga|seleccion\w*|deportistas?|jugador\w*)\b")
+
+
+def contexto_de(usuario: str, nombre: str = "") -> str:
+    """None si la cuenta es de deporte adaptado (todo lo que publica es del tema); si no, el usuario: entonces cada
+    hallazgo tiene que tener contexto propio alrededor."""
+    u = (usuario or "").lower()
+    if u in CONTEXTO_PROPIO or RE_CUENTA_PROPIA.search(u) or RE_CUENTA_PROPIA.search(nombre or ""):
+        return None
+    return u
+
+
+def hay_contexto(ventana: str) -> bool:
+    if RE_ADAPTADO.search(ventana):
+        return True
+    return bool(RE_DISCAPACIDAD.search(ventana) and RE_DEPORTE.search(ventana))
+
+
+def en_contexto(t: str, inicio: int, fin: int, cuenta: str = None) -> bool:
+    """t ya normalizado. True si la cuenta es de deporte adaptado o si alrededor del hallazgo hay términos del tema."""
+    if cuenta is None or cuenta in CONTEXTO_PROPIO:
+        return True
+    return hay_contexto(t[max(0, inicio - VENTANA):fin + VENTANA])
+
+
 # Otras señales útiles (no colectas): quién apoya, viajes, equipamiento, reclamos y avisos de torneo.
 SENALES = {
     "apoyo_estado": r"\b(gracias|agradec\w*)\b.{0,80}\b(municipio|municipalidad|intendente|instituto municipal|secretaria|subsecretaria|gobierno|enard)\b",
     "apoyo_empresas": r"\b(gracias|agradec\w*)\b.{0,80}\b(sponsors?|patrocin\w*|empresas?|comercios?|marcas?|auspicia\w*)\b|\bnuestros sponsors\b",
-    "viaje": r"\b(viajamos|viaje a|partimos (hacia|rumbo)|llegamos a|rumbo a|de gira)\b",
+    "viaje": r"\b(viajamos|viajan? (a|al|hacia|rumbo)|viaje a|partimos (hacia|rumbo)|llegamos a|rumbo a|de gira)\b",
     "equipamiento_nuevo": r"\b(nuevas? sillas?|entrega de sillas?|recibimos (las|nuevas)|nueva indumentaria|nuevas camisetas)\b",
-    "reclamo": r"\b(sin apoyo|falta de apoyo|no tenemos sillas|sillas rotas|nadie nos ayuda|abandon\w*|reclam\w*)\b",
+    "reclamo": r"\b(sin apoyo|falta de apoyo|no tenemos sillas|sillas rotas|nadie nos ayuda|nos abandonaron|abandonad[oa]s|reclam\w*)\b",
     "promesa_estado": r"\b(secretaria|subsecretaria) de deportes?\b.{0,120}\b(prometi\w*|compromet\w*|iban a|no lleg\w*|todavia no|nunca lleg\w*|esperamos)\b|"
                       r"\b(prometi\w*|compromet\w*|iban a|no lleg\w*)\b.{0,120}\b(secretaria|subsecretaria) de deportes?\b",
     "beca_atrasada": r"\bbecas?\b.{0,80}\b(atrasad\w*|adeud\w*|impag\w*|no (cobr|pag|lleg|deposit)\w*|sin cobrar|demor\w*|recort\w*|"
@@ -127,11 +177,22 @@ SENALES = {
 }
 
 
-def senales(caption: str) -> list:
+def senales(caption: str, cuenta: str = None) -> list:
+    """Señales con su contexto: cada una vale solo si alrededor hay deporte adaptado (o la cuenta es del tema), y
+    "reclamo" además tiene que referirse a algo del equipo."""
     t = o._norm(caption or "")
     if RE_SALUD.search(t):
         return []
-    return [k for k, rx in SENALES.items() if re.search(rx, t)]
+    out = []
+    for k, rx in SENALES.items():
+        for m in re.finditer(rx, t):
+            if not en_contexto(t, m.start(), m.end(), cuenta):
+                continue
+            if k == "reclamo" and not RE_RECLAMO_OBJETO.search(t[max(0, m.start() - 150):m.end() + 150]):
+                continue
+            out.append(k)
+            break
+    return out
 
 
 def _progreso(cuenta):
@@ -280,12 +341,12 @@ RECAUDACION_PROPIA = {"cilsaong": "ONG que se financia con campañas de donació
 
 def senales_cuenta(usuario, nombre, tipo, posts):
     """Publicaciones con señales útiles que no son colectas (quién apoya, viajes, reclamos, avisos de torneo)."""
-    out = []
+    out, ctx = [], contexto_de(usuario, nombre)
     for p in posts:
-        sn = senales(p.get("caption"))
+        sn = senales(p.get("caption"), ctx)
         if tipo == "institucion":           # ENARD, COPAR y otras agradecen a sus sponsors en cada posteo: no es un dato nuevo
             sn = [x for x in sn if x != "apoyo_empresas"]
-        if sn and p.get("permalink") and not clasificar(p.get("caption"), p.get("timestamp")):
+        if sn and p.get("permalink") and not clasificar(p.get("caption"), p.get("timestamp"), ctx):
             t = o._norm(p.get("caption") or "")
             out.append({"cuenta": usuario.lower(), "nombre_cuenta": nombre, "tipo_cuenta": tipo, "fecha": p["timestamp"][:10],
                         "permalink": p["permalink"], "senales": sn, "torneos": [k for k, rx in TORNEOS.items() if re.search(rx, t)]})
@@ -293,9 +354,9 @@ def senales_cuenta(usuario, nombre, tipo, posts):
 
 
 def relevar_cuenta(usuario, nombre, tipo, posts):
-    filas = []
+    filas, ctx = [], contexto_de(usuario, nombre)
     for p in posts:
-        c = clasificar(p.get("caption"), p.get("timestamp"))
+        c = clasificar(p.get("caption"), p.get("timestamp"), ctx)
         if not c or not p.get("permalink"):
             continue
         filas.append({"cuenta": usuario.lower(), "nombre_cuenta": nombre, "tipo_cuenta": tipo, "fecha": p["timestamp"][:10],
@@ -422,6 +483,39 @@ def publicar(cli=None):
     print("colectas publicadas:", datos["total"])
 
 
+def reevaluar():
+    """Saca de la cola lo que entró con los filtros viejos y todavía nadie revisó: todo lo de cuentas generales
+    (ENARD, prensa municipal, ONG) y las publicaciones marcadas solo como "reclamo". Esas cuentas se vuelven a leer
+    enteras con el filtro de contexto (los textos no se guardan, por eso hay que leerlas de nuevo). Lo ya aprobado
+    o descartado por una persona no se toca."""
+    try:
+        import actualidad_redes as ar
+        nombres = {d["instagram"].lower(): d["nombre"] for d in ar.cuentas_a_leer() if d.get("instagram")}
+    except Exception:
+        nombres = {}
+    generales = [c for c, n in nombres.items() if contexto_de(c, n)] + list(RECAUDACION_PROPIA)
+    borradas, releer = {"colectas": 0, "publicaciones": 0}, set(generales)
+    for cta in generales:
+        for tabla, k in (("colectas_relevadas", "colectas"), ("publicaciones_relevantes", "publicaciones")):
+            try:
+                r = o.db().table(tabla).delete().eq("cuenta", cta).eq("revisada", False).execute().data or []
+                borradas[k] += len(r)
+            except Exception as e:
+                print("no se pudo limpiar", tabla, str(e)[:80])
+    try:
+        r = o.db().table("publicaciones_relevantes").delete().eq("revisada", False).eq("senales", "{reclamo}").execute().data or []
+        borradas["publicaciones"] += len(r)
+        releer |= {x["cuenta"] for x in r}
+    except Exception as e:
+        print("no se pudo limpiar reclamos sueltos:", str(e)[:80])
+    for cta in releer:
+        try:
+            o.db().table("barrido_redes").update({"completo": False, "cursor": None, "posts_leidos": 0}).eq("cuenta", cta).execute()
+        except Exception:
+            pass
+    print("REEVALUAR:", json.dumps({**borradas, "cuentas_a_releer": len(releer)}, ensure_ascii=False))
+
+
 def main():
     if "--publicar" in sys.argv:
         try:
@@ -444,6 +538,8 @@ def main():
     except Exception as e:
         estados["faba_web"] = f"error: {str(e)[:80]}"
     presupuesto, otras = [LLAMADAS_POR_CORRIDA], []
+    if "--reevaluar" in sys.argv and not prueba:
+        reevaluar()
     if not prueba:                                   # lo que ya se había guardado de esas cuentas sin revisar, se quita
         for cta in RECAUDACION_PROPIA:
             try:
