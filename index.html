@@ -1681,7 +1681,7 @@ async function datosTablero() {
 const nombreCorto = n => (n || '').replace(/^Municipalidad de (la Ciudad de )?/, '');
 function jurisDeClub(c) {
   const js = (TB && TB.juris) || [];
-  const es = j => (j.club_ids || []).includes(c.id) || (j.clubes || []).includes(c.nombre);
+  const id = slugActual(c.id), es = j => (j.club_ids || []).includes(id) || (j.clubes || []).includes(c.nombre);
   return { muni: js.find(j => j.tipo === 'municipio' && es(j)), prov: js.find(j => j.slug.startsWith('prov-') && es(j)) };
 }
 function llenarMiLugar() {
@@ -1713,7 +1713,7 @@ async function mostrarMiLugar({ club, juris }) {
   if (!TB.geo) { try { const r = await fetch('datos/municipios_geo.json', { cache: 'no-store' }); TB.geo = r.ok ? await r.json() : { municipios: {} }; } catch (e) { TB.geo = { municipios: {} }; } }
   const caja = $('#ml-ficha');
   if (club) {
-    const c = CLUBES.find(x => x.id === club); if (!c) return;
+    const c = CLUBES.find(x => x.id === club || slugActual(x.id) === slugActual(club)); if (!c) return;
     const { muni, prov } = jurisDeClub(c);
     const cuenta = (c.instagram || '').toLowerCase(), cs = Object.values((TB.col && TB.col.por_cuenta) || {}).find(x => (x.cuenta || '').toLowerCase() === cuenta);
     const cv = ((TB.conv && TB.conv.por_club) || []).find(g => g.club_id === c.id);
@@ -1733,7 +1733,7 @@ async function mostrarMiLugar({ club, juris }) {
       ${bloqueJuris(muni) || bloqueJuris(prov) || '<p class="text-sm text-slate-600">No tenemos cargado el municipio de este club.</p>'}</div>`;
   } else if (juris) {
     const j = (TB.juris || []).find(x => x.slug === juris);
-    const clubes = CLUBES.filter(c => j && ((j.club_ids || []).includes(c.id) || (j.clubes || []).includes(c.nombre)));
+    const clubes = CLUBES.filter(c => j && ((j.club_ids || []).includes(slugActual(c.id)) || (j.clubes || []).includes(c.nombre)));
     caja.innerHTML = bloqueJuris(j) + (clubes.length ? `<p class="text-sm mt-2">Clubes: ${clubes.map(c => `<button data-action="ml-ver-club" data-id="${esc(c.id)}" class="underline font-semibold text-blue-700 mr-2">${esc(c.nombre)}</button>`).join('')}</p>` : '');
   }
   try { localStorage.setItem('ad_mi_lugar', JSON.stringify({ club, juris })); } catch (e) {}
