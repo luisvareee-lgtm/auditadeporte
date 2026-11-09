@@ -1,20 +1,62 @@
 {
  "actualizado": "2026-11-09",
- "total": 1,
+ "total": 29,
  "por_anio": {
-  "2026": 1
+  "2019": 1,
+  "2022": 1,
+  "2023": 1,
+  "2025": 1,
+  "2026": 25
  },
  "por_finalidad": {
-  "silla_equipamiento": 1
+  "silla_equipamiento": 5,
+  "general": 14,
+  "viaje_torneo": 12,
+  "inscripcion": 7
  },
- "por_torneo": {},
+ "por_torneo": {
+  "repechaje": 11,
+  "mundial": 11,
+  "paralimpicos": 3,
+  "parapanamericanos": 1
+ },
  "por_tipo_pedido": {
-  "otro": 1
+  "otro": 5,
+  "rifa_sorteo": 5,
+  "transferencia": 19,
+  "pedido_empresas": 1,
+  "pedido_estado": 6,
+  "venta_merch": 1
  },
  "por_destinatario": {
-  "personas": 1
+  "personas": 28,
+  "empresas": 1,
+  "estado": 6
  },
  "por_cuenta": {
+  "Selección argentina femenina (Las Lobas)": {
+   "cuenta": "laslobasbasquet",
+   "tipo": "seleccion",
+   "colectas": 16,
+   "ultima": "2026-06-02",
+   "finalidades": {
+    "general": 5,
+    "viaje_torneo": 10,
+    "inscripcion": 7,
+    "silla_equipamiento": 3
+   }
+  },
+  "Federación Argentina de Básquetbol Adaptado": {
+   "cuenta": "basquetadaptadofaba",
+   "tipo": "institucion",
+   "colectas": 9,
+   "ultima": "2026-06-29",
+   "finalidades": {
+    "general": 6,
+    "silla_equipamiento": 1,
+    "viaje_torneo": 2
+   }
+  },
   "Instituto Municipal del Deporte Almirante Brown": {
    "cuenta": "alte.brown1rabsr",
    "tipo": "club",
@@ -23,10 +65,426 @@
    "finalidades": {
     "silla_equipamiento": 1
    }
+  },
+  "Ente Nacional de Alto Rendimiento Deportivo": {
+   "cuenta": "enardinfo",
+   "tipo": "institucion",
+   "colectas": 1,
+   "ultima": "2026-04-12",
+   "finalidades": {
+    "general": 1
+   }
+  },
+  "Comité Paralímpico Argentino": {
+   "cuenta": "comiteparalimpicoargentino",
+   "tipo": "institucion",
+   "colectas": 1,
+   "ultima": "2026-02-20",
+   "finalidades": {
+    "general": 1
+   }
+  },
+  "Municipalidad de Ensenada": {
+   "cuenta": "prensaensenada",
+   "tipo": "club",
+   "colectas": 1,
+   "ultima": "2025-06-02",
+   "finalidades": {
+    "general": 1
+   }
   }
  },
- "montos_declarados": {},
+ "montos_declarados": {
+  "ARS": {
+   "cantidad": 18,
+   "mayor": 30000000.0
+  },
+  "USD": {
+   "cantidad": 7,
+   "mayor": 17000.0
+  }
+ },
  "patrones": [
+  {
+   "necesidad": "gastos generales",
+   "finalidad": "general",
+   "colectas": 5,
+   "cuentas": 2,
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "02": 1,
+    "04": 4
+   },
+   "montos": {
+    "USD": {
+     "menor": 4500.0,
+     "mayor": 4500.0
+    },
+    "ARS": {
+     "menor": 3000.0,
+     "mayor": 25000000.0
+    }
+   },
+   "dias_de_anticipacion": 10,
+   "rse": "baja",
+   "por_que_rse": "Es un gasto general sin destino claro: difícil de patrocinar; conviene detallarlo en necesidades concretas.",
+   "desde": "2026-02-25",
+   "hasta": "2026-04-11"
+  },
+  {
+   "necesidad": "viajes a torneos",
+   "finalidad": "viaje_torneo",
+   "colectas": 4,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "pedido_estado",
+    "transferencia"
+   ],
+   "torneos": [
+    "mundial",
+    "repechaje"
+   ],
+   "destinatarios": [
+    "estado",
+    "personas"
+   ],
+   "meses": {
+    "02": 4
+   },
+   "montos": {
+    "ARS": {
+     "menor": 25000000.0,
+     "mayor": 25000000.0
+    },
+    "USD": {
+     "menor": 3000.0,
+     "mayor": 17000.0
+    }
+   },
+   "dias_de_anticipacion": 7,
+   "rse": "alta",
+   "por_que_rse": "Es un bien o servicio concreto: una empresa puede pagar directo al proveedor y mostrar su marca.",
+   "desde": "2026-02-05",
+   "hasta": "2026-02-19"
+  },
+  {
+   "necesidad": "gastos generales",
+   "finalidad": "general",
+   "colectas": 3,
+   "cuentas": 2,
+   "tipos_pedido": [
+    "otro",
+    "transferencia"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "06": 3
+   },
+   "montos": {},
+   "dias_de_anticipacion": null,
+   "rse": "baja",
+   "por_que_rse": "Es un gasto general sin destino claro: difícil de patrocinar; conviene detallarlo en necesidades concretas.",
+   "desde": "2025-06-02",
+   "hasta": "2026-06-29"
+  },
+  {
+   "necesidad": "viajes a torneos",
+   "finalidad": "viaje_torneo",
+   "colectas": 3,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "pedido_estado",
+    "transferencia"
+   ],
+   "torneos": [
+    "paralimpicos",
+    "repechaje"
+   ],
+   "destinatarios": [
+    "estado",
+    "personas"
+   ],
+   "meses": {
+    "01": 2,
+    "02": 1
+   },
+   "montos": {
+    "ARS": {
+     "menor": 25000000.0,
+     "mayor": 25000000.0
+    }
+   },
+   "dias_de_anticipacion": null,
+   "rse": "alta",
+   "por_que_rse": "Es un bien o servicio concreto: una empresa puede pagar directo al proveedor y mostrar su marca.",
+   "desde": "2026-01-27",
+   "hasta": "2026-02-04"
+  },
+  {
+   "necesidad": "gastos generales",
+   "finalidad": "general",
+   "colectas": 2,
+   "cuentas": 2,
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "03": 2
+   },
+   "montos": {
+    "ARS": {
+     "menor": 1000.0,
+     "mayor": 20000000.0
+    }
+   },
+   "dias_de_anticipacion": null,
+   "rse": "baja",
+   "por_que_rse": "Es un gasto general sin destino claro: difícil de patrocinar; conviene detallarlo en necesidades concretas.",
+   "desde": "2026-03-10",
+   "hasta": "2026-03-30"
+  },
+  {
+   "necesidad": "gastos generales",
+   "finalidad": "general",
+   "colectas": 2,
+   "cuentas": 2,
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "torneos": [],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "05": 1,
+    "06": 1
+   },
+   "montos": {},
+   "dias_de_anticipacion": null,
+   "rse": "baja",
+   "por_que_rse": "Es un gasto general sin destino claro: difícil de patrocinar; conviene detallarlo en necesidades concretas.",
+   "desde": "2026-05-01",
+   "hasta": "2026-06-29"
+  },
+  {
+   "necesidad": "viajes a torneos",
+   "finalidad": "viaje_torneo",
+   "colectas": 2,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "otro",
+    "transferencia"
+   ],
+   "torneos": [
+    "repechaje"
+   ],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "05": 2
+   },
+   "montos": {
+    "ARS": {
+     "menor": 30000000.0,
+     "mayor": 30000000.0
+    }
+   },
+   "dias_de_anticipacion": 16,
+   "rse": "alta",
+   "por_que_rse": "Es un bien o servicio concreto: una empresa puede pagar directo al proveedor y mostrar su marca.",
+   "desde": "2026-05-19",
+   "hasta": "2026-05-27"
+  },
+  {
+   "necesidad": "viajes a torneos",
+   "finalidad": "viaje_torneo",
+   "colectas": 1,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "rifa_sorteo",
+    "venta_merch"
+   ],
+   "torneos": [],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "06": 1
+   },
+   "montos": {},
+   "dias_de_anticipacion": null,
+   "rse": "alta",
+   "por_que_rse": "Es un bien o servicio concreto: una empresa puede pagar directo al proveedor y mostrar su marca.",
+   "desde": "2019-06-27",
+   "hasta": "2019-06-27"
+  },
+  {
+   "necesidad": "gastos generales",
+   "finalidad": "general",
+   "colectas": 1,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "rifa_sorteo"
+   ],
+   "torneos": [],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "11": 1
+   },
+   "montos": {},
+   "dias_de_anticipacion": null,
+   "rse": "baja",
+   "por_que_rse": "Es un gasto general sin destino claro: difícil de patrocinar; conviene detallarlo en necesidades concretas.",
+   "desde": "2022-11-14",
+   "hasta": "2022-11-14"
+  },
+  {
+   "necesidad": "gastos generales",
+   "finalidad": "general",
+   "colectas": 1,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "rifa_sorteo"
+   ],
+   "torneos": [
+    "parapanamericanos"
+   ],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "08": 1
+   },
+   "montos": {},
+   "dias_de_anticipacion": null,
+   "rse": "baja",
+   "por_que_rse": "Es un gasto general sin destino claro: difícil de patrocinar; conviene detallarlo en necesidades concretas.",
+   "desde": "2023-08-17",
+   "hasta": "2023-08-17"
+  },
+  {
+   "necesidad": "gastos generales",
+   "finalidad": "general",
+   "colectas": 1,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "otro"
+   ],
+   "torneos": [
+    "paralimpicos"
+   ],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "02": 1
+   },
+   "montos": {},
+   "dias_de_anticipacion": null,
+   "rse": "baja",
+   "por_que_rse": "Es un gasto general sin destino claro: difícil de patrocinar; conviene detallarlo en necesidades concretas.",
+   "desde": "2026-02-20",
+   "hasta": "2026-02-20"
+  },
+  {
+   "necesidad": "inscripciones",
+   "finalidad": "inscripcion",
+   "colectas": 1,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "torneos": [
+    "mundial",
+    "repechaje"
+   ],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "03": 1
+   },
+   "montos": {
+    "ARS": {
+     "menor": 1000.0,
+     "mayor": 18000000.0
+    }
+   },
+   "dias_de_anticipacion": null,
+   "rse": "media",
+   "por_que_rse": "Se paga a un organizador (federación internacional, liga): patrocinable, pero primero corresponde pedirlo al Estado o a la federación.",
+   "desde": "2026-03-24",
+   "hasta": "2026-03-24"
+  },
+  {
+   "necesidad": "gastos generales",
+   "finalidad": "general",
+   "colectas": 1,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "pedido_empresas",
+    "rifa_sorteo"
+   ],
+   "torneos": [],
+   "destinatarios": [
+    "empresas"
+   ],
+   "meses": {
+    "04": 1
+   },
+   "montos": {},
+   "dias_de_anticipacion": 11,
+   "rse": "baja",
+   "por_que_rse": "Es un gasto general sin destino claro: difícil de patrocinar; conviene detallarlo en necesidades concretas.",
+   "desde": "2026-04-12",
+   "hasta": "2026-04-12"
+  },
+  {
+   "necesidad": "gastos generales",
+   "finalidad": "general",
+   "colectas": 1,
+   "cuentas": 1,
+   "tipos_pedido": [
+    "rifa_sorteo"
+   ],
+   "torneos": [
+    "repechaje"
+   ],
+   "destinatarios": [
+    "personas"
+   ],
+   "meses": {
+    "06": 1
+   },
+   "montos": {},
+   "dias_de_anticipacion": null,
+   "rse": "baja",
+   "por_que_rse": "Es un gasto general sin destino claro: difícil de patrocinar; conviene detallarlo en necesidades concretas.",
+   "desde": "2026-06-02",
+   "hasta": "2026-06-02"
+  },
   {
    "necesidad": "sillas y equipamiento",
    "finalidad": "silla_equipamiento",
@@ -51,22 +509,45 @@
   }
  ],
  "por_mes": {
-  "01": 0,
-  "02": 0,
-  "03": 0,
-  "04": 0,
-  "05": 0,
-  "06": 0,
+  "01": 2,
+  "02": 7,
+  "03": 3,
+  "04": 5,
+  "05": 3,
+  "06": 6,
   "07": 1,
-  "08": 0,
+  "08": 1,
   "09": 0,
   "10": 0,
-  "11": 0,
+  "11": 1,
   "12": 0
  },
- "hitos_estado": [],
+ "hitos_estado": [
+  {
+   "fecha": "2022-06-27",
+   "cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "cuenta_usuario": "basquetadaptadofaba",
+   "senal": "apoyo_estado",
+   "permalink": "https://www.instagram.com/p/CfU3iDorXGM/"
+  },
+  {
+   "fecha": "2026-10-16",
+   "cuenta": "Comité Paralímpico Argentino",
+   "cuenta_usuario": "comiteparalimpicoargentino",
+   "senal": "apoyo_estado",
+   "permalink": "https://www.instagram.com/p/DekgjNVCVbv/"
+  },
+  {
+   "fecha": "2026-10-23",
+   "cuenta": "Ente Nacional de Alto Rendimiento Deportivo",
+   "cuenta_usuario": "enardinfo",
+   "senal": "apoyo_estado",
+   "permalink": "https://www.instagram.com/reel/De1sPWPSGB9/"
+  }
+ ],
  "recientes": [
   {
+   "cuenta": "alte.brown1rabsr",
    "nombre_cuenta": "Instituto Municipal del Deporte Almirante Brown",
    "tipo_cuenta": "club",
    "fecha": "2026-07-30",
@@ -77,6 +558,633 @@
    "torneos": [],
    "tipos_pedido": [
     "otro"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "basquetadaptadofaba",
+   "nombre_cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-06-29",
+   "permalink": "https://www.instagram.com/reel/DaL2hj9x-c2/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "basquetadaptadofaba",
+   "nombre_cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-06-29",
+   "permalink": "https://www.instagram.com/reel/DaL0EIrxzqq/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "basquetadaptadofaba",
+   "nombre_cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-06-25",
+   "permalink": "https://www.instagram.com/p/DaBtS3XRQK6/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "tipos_pedido": [
+    "otro"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-06-02",
+   "permalink": "https://www.instagram.com/p/DZGfWjJt8ay/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [
+    "repechaje"
+   ],
+   "tipos_pedido": [
+    "rifa_sorteo"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-05-27",
+   "permalink": "https://www.instagram.com/p/DY2_Y8kxy-p/",
+   "finalidades": [
+    "viaje_torneo"
+   ],
+   "torneos": [
+    "repechaje"
+   ],
+   "tipos_pedido": [
+    "otro"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-05-19",
+   "permalink": "https://www.instagram.com/reel/DYiZjUNxGLg/",
+   "finalidades": [
+    "viaje_torneo"
+   ],
+   "torneos": [
+    "repechaje"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 30000000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-05-01",
+   "permalink": "https://www.instagram.com/reel/DXxnb0uN-O1/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "enardinfo",
+   "nombre_cuenta": "Ente Nacional de Alto Rendimiento Deportivo",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-04-12",
+   "permalink": "https://www.instagram.com/p/DXCBv-QloZ4/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [],
+   "tipos_pedido": [
+    "rifa_sorteo",
+    "pedido_empresas"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "basquetadaptadofaba",
+   "nombre_cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-04-11",
+   "permalink": "https://www.instagram.com/reel/DXALyCfkXzC/",
+   "finalidades": [
+    "silla_equipamiento"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 3000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "basquetadaptadofaba",
+   "nombre_cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-04-05",
+   "permalink": "https://www.instagram.com/reel/DWxDjMCkTSv/",
+   "finalidades": [
+    "viaje_torneo"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 3000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "basquetadaptadofaba",
+   "nombre_cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-04-03",
+   "permalink": "https://www.instagram.com/reel/DWrDfrlETSq/",
+   "finalidades": [
+    "viaje_torneo"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 3000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "basquetadaptadofaba",
+   "nombre_cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-04-01",
+   "permalink": "https://www.instagram.com/reel/DWlXCd6DsbI/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 3000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "basquetadaptadofaba",
+   "nombre_cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-03-30",
+   "permalink": "https://www.instagram.com/reel/DWhd3aQEdIb/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 3000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-03-24",
+   "permalink": "https://www.instagram.com/reel/DWPy-q8jZ4_/",
+   "finalidades": [
+    "inscripcion"
+   ],
+   "torneos": [
+    "mundial",
+    "repechaje"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 18000000.0,
+     "moneda": "ARS"
+    },
+    {
+     "valor": 1000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-03-10",
+   "permalink": "https://www.instagram.com/reel/DVuKd7OkWny/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 20000000.0,
+     "moneda": "ARS"
+    },
+    {
+     "valor": 5000.0,
+     "moneda": "ARS"
+    },
+    {
+     "valor": 2000.0,
+     "moneda": "ARS"
+    },
+    {
+     "valor": 1000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-02-25",
+   "permalink": "https://www.instagram.com/p/DVKQKzYjUdu/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [
+    "mundial"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 4500.0,
+     "moneda": "USD"
+    },
+    {
+     "valor": 25000000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "comiteparalimpicoargentino",
+   "nombre_cuenta": "Comité Paralímpico Argentino",
+   "tipo_cuenta": "institucion",
+   "fecha": "2026-02-20",
+   "permalink": "https://www.instagram.com/reel/DU-_Yv0Dbcp/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [
+    "paralimpicos"
+   ],
+   "tipos_pedido": [
+    "otro"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-02-19",
+   "permalink": "https://www.instagram.com/p/DU6ykZRjQgJ/",
+   "finalidades": [
+    "viaje_torneo",
+    "inscripcion"
+   ],
+   "torneos": [
+    "repechaje"
+   ],
+   "tipos_pedido": [
+    "transferencia",
+    "pedido_estado"
+   ],
+   "montos": [
+    {
+     "valor": 17000.0,
+     "moneda": "USD"
+    },
+    {
+     "valor": 4500.0,
+     "moneda": "USD"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-02-12",
+   "permalink": "https://www.instagram.com/p/DUrOq_RDa5h/",
+   "finalidades": [
+    "viaje_torneo",
+    "inscripcion",
+    "silla_equipamiento"
+   ],
+   "torneos": [
+    "repechaje"
+   ],
+   "tipos_pedido": [
+    "transferencia",
+    "pedido_estado"
+   ],
+   "montos": [
+    {
+     "valor": 25000000.0,
+     "moneda": "ARS"
+    },
+    {
+     "valor": 3000.0,
+     "moneda": "USD"
+    },
+    {
+     "valor": 4500.0,
+     "moneda": "USD"
+    },
+    {
+     "valor": 12000.0,
+     "moneda": "USD"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-02-08",
+   "permalink": "https://www.instagram.com/p/DUhCj-DDb_k/",
+   "finalidades": [
+    "viaje_torneo",
+    "inscripcion",
+    "silla_equipamiento"
+   ],
+   "torneos": [
+    "mundial",
+    "repechaje"
+   ],
+   "tipos_pedido": [
+    "transferencia",
+    "pedido_estado"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-02-05",
+   "permalink": "https://www.instagram.com/reel/DUZQz3nEkY-/",
+   "finalidades": [
+    "viaje_torneo"
+   ],
+   "torneos": [
+    "mundial",
+    "repechaje"
+   ],
+   "tipos_pedido": [
+    "transferencia"
+   ],
+   "montos": [
+    {
+     "valor": 25000000.0,
+     "moneda": "ARS"
+    },
+    {
+     "valor": 3000.0,
+     "moneda": "USD"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-02-04",
+   "permalink": "https://www.instagram.com/reel/DUUKJLGDfZY/",
+   "finalidades": [
+    "viaje_torneo",
+    "inscripcion"
+   ],
+   "torneos": [
+    "repechaje"
+   ],
+   "tipos_pedido": [
+    "transferencia",
+    "pedido_estado"
+   ],
+   "montos": [
+    {
+     "valor": 25000000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-01-30",
+   "permalink": "https://www.instagram.com/p/DUJyhU0jT9F/",
+   "finalidades": [
+    "viaje_torneo",
+    "inscripcion"
+   ],
+   "torneos": [
+    "repechaje",
+    "paralimpicos"
+   ],
+   "tipos_pedido": [
+    "transferencia",
+    "pedido_estado"
+   ],
+   "montos": [
+    {
+     "valor": 25000000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2026-01-27",
+   "permalink": "https://www.instagram.com/p/DUCH1mpjYOP/",
+   "finalidades": [
+    "viaje_torneo",
+    "inscripcion"
+   ],
+   "torneos": [
+    "repechaje",
+    "paralimpicos"
+   ],
+   "tipos_pedido": [
+    "transferencia",
+    "pedido_estado"
+   ],
+   "montos": [
+    {
+     "valor": 25000000.0,
+     "moneda": "ARS"
+    }
+   ],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "prensaensenada",
+   "nombre_cuenta": "Municipalidad de Ensenada",
+   "tipo_cuenta": "club",
+   "fecha": "2025-06-02",
+   "permalink": "https://www.instagram.com/reel/DKZuQuKx2I4/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [],
+   "tipos_pedido": [
+    "otro"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2023-08-17",
+   "permalink": "https://www.instagram.com/p/CwEEDh8Jjn7/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [
+    "parapanamericanos"
+   ],
+   "tipos_pedido": [
+    "rifa_sorteo"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "basquetadaptadofaba",
+   "nombre_cuenta": "Federación Argentina de Básquetbol Adaptado",
+   "tipo_cuenta": "institucion",
+   "fecha": "2022-11-14",
+   "permalink": "https://www.instagram.com/reel/Ck9Vmp7pIPV/",
+   "finalidades": [
+    "general"
+   ],
+   "torneos": [],
+   "tipos_pedido": [
+    "rifa_sorteo"
+   ],
+   "montos": [],
+   "presupuesto_municipio": null
+  },
+  {
+   "cuenta": "laslobasbasquet",
+   "nombre_cuenta": "Selección argentina femenina (Las Lobas)",
+   "tipo_cuenta": "seleccion",
+   "fecha": "2019-06-27",
+   "permalink": "https://www.instagram.com/p/BzOFiBgpdCr/",
+   "finalidades": [
+    "viaje_torneo",
+    "silla_equipamiento"
+   ],
+   "torneos": [],
+   "tipos_pedido": [
+    "rifa_sorteo",
+    "venta_merch"
    ],
    "montos": [],
    "presupuesto_municipio": null
