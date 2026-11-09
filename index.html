@@ -2381,7 +2381,7 @@ const ATTR_ESRI = 'Imágenes © Esri — Esri, Maxar, Earthstar Geographics';
 const SEDES = { basquetadaptadofaba: [-58.3816, -34.6037], comiteparalimpicoargentino: [-58.4173, -34.6118], enardinfo: [-58.4589, -34.556],
   laslobasbasquet: [-58.4370, -34.5850], cilsaong: [-60.705, -31.635], prensaensenada: [-57.912, -34.864] };
 const escalaZoom = z => Math.min(1, Math.pow(2, 4.1 - z));      // al acercar, las columnas mantienen su tamaño en pantalla
-const alturaPorZoom = ['interpolate', ['exponential', 2], ['zoom'], 4.1, ['get', 'h'], 14, ['/', ['get', 'h'], 955]];
+const alturaPorZoom = ['interpolate', ['exponential', 2], ['zoom'], 4.1, ['get', 'h'], 14, ['/', ['get', 'h'], 1400]];
 
 function estiloBase() {
   return { version: 8, sources: {
@@ -2450,11 +2450,13 @@ function sincronizarMarcadores() {
         m = new maplibregl.Marker({ element: el }).setLngLat(f.geometry.coordinates);
       } else {
         const c = CLUBES.find(x => x.id === p.id); if (!c) continue;
-        m = new maplibregl.Marker({ element: pinEl(c) }).setLngLat(f.geometry.coordinates).setPopup(new maplibregl.Popup({ offset: 28 }).setDOMContent(popupEl(c)));
+        const cont = document.createElement('div'); cont.appendChild(pinEl(c));    // el contenedor lo posiciona el mapa; el logo va adentro
+        m = new maplibregl.Marker({ element: cont }).setLngLat(f.geometry.coordinates).setPopup(new maplibregl.Popup({ offset: 28 }).setDOMContent(popupEl(c)));
       }
       marcadores[id] = m;
     }
     vistos[id] = m;
+    m.getElement().style.display = ['clubes', 'publicaciones'].includes(vistaDatos) ? '' : 'none';
     if (!m._en) { m.addTo(map); m._en = true; }
   }
   for (const id in marcadores) if (!vistos[id] && marcadores[id]._en) { marcadores[id].remove(); marcadores[id]._en = false; }
@@ -2476,7 +2478,7 @@ const colorRampa = (v, max) => { const k = max ? v / max : 0; return `rgb(${Math
 async function geoMunicipios(vista) {
   const ds = await capaMunicipios(vista), max = Math.max(1, ...ds.map(d => d.v));
   return { max, fc: { type: 'FeatureCollection', features: ds.map(d => ({ type: 'Feature', geometry: { type: 'Polygon', coordinates: d.poly },
-    properties: { slug: d.slug, nombre: d.nombre, v: d.v, h: d.v ? 8000 + 120000 * d.v / max : 1500, color: d.v ? colorRampa(d.v, max) : '#b4b4b4',
+    properties: { slug: d.slug, nombre: d.nombre, v: d.v, h: d.v ? 3000 + 45000 * d.v / max : 600, color: d.v ? colorRampa(d.v, max) : '#b4b4b4',
       transp: d.transp, pedidos: d.pedidos, porhab: d.porhab, pob: d.pob || 0, hasta: d.hasta || '' } })) } };
 }
 function datosGlobos() {
@@ -2525,7 +2527,7 @@ async function pintarVista() {
       const ds = datosColumnas(); max = Math.max(1, ...ds.map(d => d[v])); const r = 22000 * escalaZoom(map.getZoom());
       fc = { type: 'FeatureCollection', features: ds.map(d => ({ type: 'Feature', geometry: { type: 'Polygon', coordinates: circulo([Number(d.c.lng), Number(d.c.lat)], r) },
         properties: { nombre: d.c.nombre, ciudad: d.c.ciudad || '', colectas: d.colectas, convocatorias: d.convocatorias, dias: d.dias, v: d[v],
-          h: d[v] ? 40000 + 260000 * d[v] / max : 0, color: d[v] ? colorRampa(d[v], max) : '#a0a0a0' } })) };
+          h: d[v] ? 20000 + 130000 * d[v] / max : 0, color: d[v] ? colorRampa(d[v], max) : '#a0a0a0' } })) };
       desc = { colectas: 'colectas', convocatorias: 'convocatorias cargadas', dias: 'días de aviso promedio' }[v];
     }
     map.addSource('vista', { type: 'geojson', data: fc });
