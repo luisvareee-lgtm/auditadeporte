@@ -1305,6 +1305,15 @@ const CLUBES_LOCALES = [
 ].map(c => ({ id: c.id || slug(c.nombre), logo: "", rev: {}, ...c }));
 
 let CLUBES = [...CLUBES_LOCALES];
+// Slugs anteriores de la lista local -> slug actual en la base (los clubes duplicados se unificaron)
+var ALIAS_SLUG = { 'brown': 'almirante-brown', 'cilsa-sf': 'cilsa-santa-fe', 'cilsa-boca': 'cilsa-boca-juniors',
+  'adu': 'adu-san-fernando', 'apri': 'apri-litoral', 'crol': 'crol-rosario', 'echeverria': 'escuela-municipal-echeverria',
+  'prodea': 'prodea-parana', 'sol-lago': 'sol-y-lago-rio-tercero', 'uncuyo': 'uncuyo-basquet-adaptado',
+  'cef-17': 'cef-17-corrientes', 'alta-gracia': 'brown-alta-gracia', 'malagueno': 'deportivo-malagueno',
+  'muni-ensenada': 'municipalidad-ensenada', 'muni-berazategui': 'municipalidad-berazategui',
+  'muni-avellaneda': 'municipalidad-avellaneda', 'sica': 'sica-poeta-lugones' };
+var slugActual = id => ALIAS_SLUG[id] || id;
+
 
 const CRITERIOS = [
   { k:'balance', t:'Balance o memoria anual' },
@@ -2985,13 +2994,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         // Slugs anteriores de la lista local -> slug actual en la base (los clubes duplicados se unificaron
         // conservando la ficha más nueva). Sin esto, el mapa dejaba afuera a los clubes cuyo slug cambió.
-        const ALIAS_SLUG = { 'brown': 'almirante-brown', 'cilsa-sf': 'cilsa-santa-fe', 'cilsa-boca': 'cilsa-boca-juniors',
-          'adu': 'adu-san-fernando', 'apri': 'apri-litoral', 'crol': 'crol-rosario', 'echeverria': 'escuela-municipal-echeverria',
-          'prodea': 'prodea-parana', 'sol-lago': 'sol-y-lago-rio-tercero', 'uncuyo': 'uncuyo-basquet-adaptado',
-          'cef-17': 'cef-17-corrientes', 'alta-gracia': 'brown-alta-gracia', 'malagueno': 'deportivo-malagueno',
-          'muni-ensenada': 'municipalidad-ensenada', 'muni-berazategui': 'municipalidad-berazategui',
-          'muni-avellaneda': 'municipalidad-avellaneda', 'sica': 'sica-poeta-lugones' };
-        const slugActual = id => ALIAS_SLUG[id] || id;
         const slugsCanonic = new Set(CLUBES_LOCALES.map(c => slugActual(c.id)));
         const filtradosDb = clubesDb.filter(d => slugsCanonic.has(d.slug) && d.publicado !== false);   // despublicados: fuera del mapa
 
