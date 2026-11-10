@@ -17,6 +17,11 @@ async function pagina(vista = { width: 390, height: 844 }, { sinBase = false, de
   p.on('console', m => { if (m.type() === 'error') p.errores.push('consola: ' + m.text().slice(0, 160)); });
   await ctx.route(/supabase\.co/, async r => {
     if (sinBase) return r.abort('failed');
+    if (/\/rpc\/contar_apoyos_publicacion/.test(r.request().url())) {            // existe recién con db/29
+      const resp = await r.fetch().catch(() => null);
+      if (!resp || resp.status() === 404) { p.falta29 = true; return r.fulfill({ status: 200, body: '[]', headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' } }); }
+      return r.fulfill({ response: resp });
+    }
     const metodo = r.request().method();
     if (metodo === 'GET' || metodo === 'HEAD' || metodo === 'OPTIONS' || /\/rpc\/(contar|resumen)/.test(r.request().url())) return r.continue();
     if (dejarPasar(r.request())) return r.continue();
@@ -234,7 +239,7 @@ for (const [nombre, vista] of [['celular chico 320px', { width: 320, height: 640
   await p.click('#t-pedir'); await p.waitForTimeout(500);
   const hace = d => new Date(Date.now() - d * 864e5).toISOString().slice(0, 10);
   const slug = await p.evaluate(() => { const s = document.querySelector('#rl-juris'); const o = [...s.options].find(o => /^muni-/.test(o.value)); s.value = o.value; return o.value; });
-  await p.fill('#rl-fecha', hace(60)); await p.fill('#rl-exp', '4012-999/2026'); await p.click('#form-reloj button');
+  await p.fill('#rl-fecha', hace(60)); await p.fill('#rl-exp', '4012-999/2026'); await p.click('#rl-seguir');
   await p.waitForTimeout(300);
   let t = await p.textContent('#reloj-lista');
   await revisarTexto(p, E, 'pedido de hace 60 días', t, ['Plazo vencido sin respuesta', 'Corresponde presentar el pronto despacho', '4012-999/2026']);
@@ -244,11 +249,15 @@ for (const [nombre, vista] of [['celular chico 320px', { width: 320, height: 640
   await revisarTexto(p, E, 'pronto despacho', txt, ['pronto despacho', '4012-999/2026']);
   await p.click('[data-reloj="pronto-ok"]'); await p.waitForTimeout(200);
   await revisarTexto(p, E, 'después del pronto despacho', await p.textContent('#reloj-lista'), ['Pronto despacho presentado']);
-  await p.fill('#rl-fecha', hace(2)); await p.evaluate(v => { document.querySelector('#rl-juris').value = v; }, slug); await p.click('#form-reloj button'); await p.waitForTimeout(200);
+  await p.fill('#rl-fecha', hace(2)); await p.evaluate(v => { document.querySelector('#rl-juris').value = v; }, slug); await p.click('#rl-seguir'); await p.waitForTimeout(200);
   await revisarTexto(p, E, 'pedido de hace 2 días', await p.textContent('#reloj-lista'), ['En plazo', 'faltan']);
-  await p.fill('#rl-fecha', new Date(Date.now() + 5 * 864e5).toISOString().slice(0, 10)); await p.evaluate(v => { document.querySelector('#rl-juris').value = v; }, slug); await p.click('#form-reloj button'); await p.waitForTimeout(200);
+  await p.fill('#rl-fecha', new Date(Date.now() + 5 * 864e5).toISOString().slice(0, 10)); await p.evaluate(v => { document.querySelector('#rl-juris').value = v; }, slug); await p.click('#rl-seguir'); await p.waitForTimeout(200);
   const n = await p.evaluate(() => JSON.parse(localStorage.getItem('ad_mis_pedidos')).length);
   n === 2 ? ok(E, 'una fecha futura no se acepta') : anotar('media', E, `aceptó una fecha futura (${n} pedidos guardados)`);
+  await p.locator('[data-reloj="respondido"]').first().click(); await p.waitForTimeout(400);
+  await p.fill('#rp-fecha', hace(1)); await p.click('#rp-enviar'); await p.waitForTimeout(500);
+  const er = (p.envios || []).filter(e => /respuestas_pedidos/.test(e.url));
+  er.length === 1 ? ok(E, '"¿Te respondieron?" envía el caso (sin nombre): ' + er[0].cuerpo) : anotar('alta', E, `"¿Te respondieron?" no envió nada (${er.length})`);
   const ancho = await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   if (ancho > 4) anotar('media', E, `el reloj se sale del ancho del celular (${ancho}px)`);
   for (const e of p.errores) anotar('alta', E, e);

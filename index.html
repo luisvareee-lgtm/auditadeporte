@@ -986,26 +986,26 @@
           <div id="reloj-box" class="rounded-xl bg-white border-2 border-emerald-400 p-3 text-sm space-y-3">
             <h4 class="font-black text-emerald-950">Reloj de tu pedido: te decimos cuándo vence</h4>
             <p class="text-xs text-slate-600">Anotá cuándo lo presentaste y el sitio cuenta los días hábiles por vos. <strong>Queda guardado solo en este dispositivo</strong>: no se envía a ningún lado, ni siquiera el número de expediente.</p>
-            <form id="form-reloj" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div id="form-reloj" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <label class="text-xs font-bold">Organismo<select id="rl-juris" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"><option value="">Elegí</option></select></label>
               <label class="text-xs font-bold">Fecha en que lo presentaste<input id="rl-fecha" type="date" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"></label>
               <label class="text-xs font-bold">Expediente o comprobante (opcional)<input id="rl-exp" maxlength="60" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal" placeholder="Ej.: 4012-12345/2026"></label>
-              <div class="sm:col-span-3"><button class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-sm">Seguir este pedido</button></div>
-            </form>
+              <div class="sm:col-span-3"><button type="button" id="rl-seguir" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-sm">Seguir este pedido</button></div>
+            </div>
             <ul id="reloj-lista" class="space-y-3" aria-live="polite"></ul>
             <p class="text-xs text-slate-500">Las fechas son orientativas: se cuentan días hábiles sin sábados, domingos ni feriados nacionales. No incluye feriados provinciales o municipales ni asuetos. No es asesoramiento legal.</p>
           </div>
           <details id="resp-box" class="rounded-xl bg-white border border-emerald-200 p-3 text-sm">
             <summary class="font-bold cursor-pointer">¿Te respondieron? Contalo (sin nombre)</summary>
             <p class="text-xs text-slate-600 mt-2">Con esto el Tablero muestra cuánto tarda y cuánto responde cada organismo. No guardamos tu nombre ni el contenido de la respuesta.</p>
-            <form id="form-respuesta" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+            <div id="form-respuesta" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
               <label class="text-xs font-bold">Organismo<select id="rp-juris" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"><option value="">Elegí</option></select></label>
               <label class="text-xs font-bold">Fecha en que lo presentaste<input id="rp-pres" type="date" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"></label>
               <label class="text-xs font-bold">¿Qué pasó?<select id="rp-res" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal">
                 <option value="completa">Respondieron todo</option><option value="parcial">Respondieron una parte</option><option value="denegada">Lo negaron</option><option value="sin_respuesta">Todavía no respondieron</option></select></label>
               <label class="text-xs font-bold" id="rp-fecha-wrap">Fecha de la respuesta<input id="rp-fecha" type="date" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"></label>
-              <div class="sm:col-span-2"><button class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-sm">Sumar mi caso</button></div>
-            </form>
+              <div class="sm:col-span-2"><button type="button" id="rp-enviar" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-sm">Sumar mi caso</button></div>
+            </div>
           </details>
           <details class="rounded-xl bg-white border border-emerald-200 p-3 text-sm">
             <summary class="font-bold cursor-pointer">No me contestaron: armar el reclamo</summary>
@@ -1599,18 +1599,18 @@ document.addEventListener('focusin', ev => {
   (typeof JURIS !== 'undefined' ? JURIS : []).forEach(j => ev.target.add(new Option(j.nombre, j.slug)));
 });
 document.addEventListener('change', ev => { if (ev.target.id === 'rp-res') $('#rp-fecha-wrap').classList.toggle('hidden', ev.target.value === 'sin_respuesta'); });
-document.addEventListener('submit', async ev => {
-  if (ev.target.id !== 'form-respuesta') return;
-  ev.preventDefault();
+document.addEventListener('click', async ev => {
+  if (ev.target.id !== 'rp-enviar') return;
   if (!sb) { toast('No hay conexión con la base ahora.'); return; }
   const res = $('#rp-res').value, fila = { juris_slug: $('#rp-juris').value, fecha_presentado: $('#rp-pres').value, resultado: res,
     fecha_respuesta: res === 'sin_respuesta' ? null : ($('#rp-fecha').value || null) };
   if (!fila.juris_slug) { toast('Elegí el organismo.'); return; }
+  if (!fila.fecha_presentado) { toast('Poné la fecha en que lo presentaste.'); return; }
   if (res !== 'sin_respuesta' && !fila.fecha_respuesta) { toast('Poné la fecha de la respuesta.'); return; }
   if (fila.fecha_respuesta && fila.fecha_respuesta < fila.fecha_presentado) { toast('La respuesta no puede ser anterior al pedido.'); return; }
   const { error } = await sb.from('respuestas_pedidos').insert(fila, { returning: 'minimal' });
   if (error) { toast(/Demasiadas|futuras/.test(error.message) ? error.message : 'No pudimos sumarlo ahora. Probá más tarde.'); return; }
-  toast('¡Gracias! Sumamos tu caso.'); ev.target.reset(); if (TB) { TB.respuestas = null; }
+  toast('¡Gracias! Sumamos tu caso.'); ['#rp-juris', '#rp-pres', '#rp-fecha'].forEach(q => { $(q).value = ''; }); if (TB) { TB.respuestas = null; }
 });
 
 // El tablero se arma cuando el visitante llega con el scroll (no frena la carga inicial del mapa)
@@ -1808,14 +1808,13 @@ function pintarReloj() {
       </div></li>`;
   }).join('') || '<li class="text-xs text-slate-600">Todavía no seguís ningún pedido en este dispositivo.</li>';
 }
-document.addEventListener('submit', ev => {
-  if (ev.target.id !== 'form-reloj') return;
-  ev.preventDefault();
+document.addEventListener('click', ev => {
+  if (ev.target.id !== 'rl-seguir') return;
   const slug = $('#rl-juris').value, fecha = $('#rl-fecha').value;
   if (!slug || !fecha || fecha > hoyISO()) { toast('Elegí el organismo y una fecha que no sea futura.'); return; }
   const l = misPedidos();
   l.unshift({ id: String(Date.now()), slug, fecha, exp: $('#rl-exp').value.trim().slice(0, 60) });
-  if (guardarMisPedidos(l.slice(0, 30))) { ev.target.reset(); pintarReloj(); toast('Listo: el reloj ya está contando.'); }
+  if (guardarMisPedidos(l.slice(0, 30))) { ['#rl-juris', '#rl-fecha', '#rl-exp'].forEach(q => { $(q).value = ''; }); pintarReloj(); toast('Listo: el reloj ya está contando.'); }
 });
 document.addEventListener('click', ev => {
   const b = ev.target.closest('[data-reloj]'); if (!b) return;
@@ -1826,7 +1825,7 @@ document.addEventListener('click', ev => {
   else if (act === 'pronto-ok') { p.pronto = hoyISO(); guardarMisPedidos(l); }
   else if (act === 'respondido') {
     p.respondido = true; guardarMisPedidos(l);
-    const caja = $('#resp-box'); if (caja) { caja.open = true; caja.dispatchEvent(new Event('toggle')); $('#rp-pres').value = p.fecha; caja.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    const caja = $('#resp-box'); if (caja) { caja.open = true; const sj = $('#rp-juris'); if (sj.options.length <= 1) JURIS.forEach(x => sj.add(new Option(x.nombre, x.slug))); sj.value = p.slug; $('#rp-pres').value = p.fecha; caja.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
     toast('Si querés, contá abajo cómo respondieron (sin nombre): suma al tablero.');
   } else if (act === 'pronto') {
     if (j) { $('#p-tipo').value = j.tipo === 'municipio' ? 'municipio' : 'federacion'; $('#p-entidad').value = j.nombre; marcoPedido = { entidad: j.nombre, esMunicipio: j.tipo === 'municipio', slug: j.slug, ...j.pedido }; }
