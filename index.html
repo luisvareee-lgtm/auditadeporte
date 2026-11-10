@@ -25,6 +25,7 @@
   .maplibregl-popup-content { border-radius: 14px; padding: 12px 14px; max-width: 360px; }
   .maplibregl-popup-content iframe { border: 0; width: 320px; max-width: 100%; height: 440px; border-radius: 10px; }
   .pin { cursor: pointer; }
+  .tallo { position: absolute; left: 50%; top: 50%; height: 2px; background: #1d4ed8; transform-origin: 0 50%; pointer-events: none; z-index: -1; }
   @media (max-width: 640px) { #map { height: 420px; } }
   .pin { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px solid #1d4ed8;
          box-shadow: 0 4px 10px rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center;
@@ -2541,6 +2542,26 @@ function pintarMarcadores() {
   Object.values(marcadores).forEach(m => m.remove()); marcadores = {};
   map.getSource('clubes').setData(geoClubes(filtrados()));
 }
+// Abanico: cuando dos o más escudos caen casi en el mismo punto de la pantalla (clubes de una misma ciudad), se
+// separan en círculo y cada uno queda unido por una línea a su ubicación real. Así ninguno tapa a otro.
+function abrirAbanico(vistos) {
+  const sueltos = Object.entries(vistos).filter(([id, m]) => id[0] === 'c' && m.getElement().style.display !== 'none')
+    .map(([id, m]) => ({ m, p: map.project(m.getLngLat()) })).sort((a, b) => a.p.x - b.p.x || a.p.y - b.p.y);
+  const grupos = [];
+  for (const s of sueltos) {
+    const g = grupos.find(g => Math.hypot(g[0].p.x - s.p.x, g[0].p.y - s.p.y) < 34);
+    if (g) g.push(s); else grupos.push([s]);
+  }
+  for (const g of grupos) g.forEach((s, i) => {
+    const el = s.m.getElement(); let tallo = el.querySelector('.tallo');
+    if (g.length === 1) { if (s.m._ab) { s.m.setOffset([0, 0]); s.m._ab = ''; if (tallo) tallo.remove(); } return; }
+    const r = 30 + 4 * g.length, ang = -Math.PI / 2 + 2 * Math.PI * i / g.length, dx = Math.round(r * Math.cos(ang)), dy = Math.round(r * Math.sin(ang)), clave = dx + ',' + dy;
+    if (s.m._ab === clave) return;
+    s.m.setOffset([dx, dy]); s.m._ab = clave;
+    if (!tallo) { tallo = document.createElement('span'); tallo.className = 'tallo'; tallo.setAttribute('aria-hidden', 'true'); el.prepend(tallo); }
+    tallo.style.width = r + 'px'; tallo.style.transform = `rotate(${ang + Math.PI}rad)`;
+  });
+}
 // Marcadores HTML (logos) sincronizados con los grupos que calcula el mapa
 function sincronizarMarcadores() {
   if (!mapaListo || !map.getSource('clubes') || !map.isSourceLoaded('clubes')) return;
@@ -2567,6 +2588,7 @@ function sincronizarMarcadores() {
     m.getElement().style.display = ['clubes', 'publicaciones'].includes(vistaDatos) ? '' : 'none';
     if (!m._en) { m.addTo(map); m._en = true; }
   }
+  abrirAbanico(vistos);
   for (const id in marcadores) if (!vistos[id] && marcadores[id]._en) { marcadores[id].remove(); marcadores[id]._en = false; }
 }
 // Círculo de radio r (metros) alrededor de un punto, como polígono para levantarlo en 3D
@@ -2744,6 +2766,29 @@ function abrirClub(id) {
 }
 
 // Lo auditado hasta hoy sobre el club y su municipio, arriba de la ficha
+// Cuántos datos básicos del club tienen una fuente pública detrás. Es una medida de lo que pudimos documentar,
+// no una calificación del club: lo que falta puede no estar publicado por razones ajenas a él.
+function respaldoClub(c, cs, muni) {
+  const ej = muni && (muni.presupuesto_deporte || [])[0];
+  const items = [['Escudo con origen', !!c.logo_fuente], ['Red oficial pública', !!(c.instagram || c.facebook || c.web)],
+    ['Autoridades con fuente', !!(c.autoridades && c.autoridades.length)], ['Publicaciones revisadas', !!cs],
+    ['Presupuesto de Deporte de su municipio', !!ej]];
+  const n = items.filter(x => x[1]).length;
+  return `<div><p class="text-xs text-slate-700"><strong>${n} de ${items.length}</strong> datos básicos con fuente pública. No califica al club: muestra qué pudimos documentar.</p>
+    <ul class="flex flex-wrap gap-1 mt-1" aria-label="Datos con y sin fuente">${items.map(([t, ok]) => `<li class="px-2 py-0.5 rounded-full text-[11px] ${ok ? 'bg-emerald-100 text-emerald-900' : 'border border-slate-300 text-slate-600'}">${ok ? '✓' : '○'} ${t}<span class="sr-only">${ok ? ': con fuente' : ': sin fuente encontrada'}</span></li>`).join('')}</ul></div>`;
+}
+// Línea de tiempo de la ficha: lo que el club publicó (revisado) y, al lado de cada colecta, lo que el municipio
+// informaba de Deporte en ese momento. Dos hechos con su fuente, uno junto al otro; el sitio no saca conclusiones.
+function lineaTiempoClub(pubs) {
+  if (!pubs.length) return '';
+  let anio = '';
+  return `<p class="font-bold pt-1">Línea de tiempo: publicaciones oficiales revisadas</p><ol class="border-l-2 border-blue-300 ml-1 pl-3 space-y-2">${pubs.map(x => {
+    const cab = x.f.slice(0, 4) !== anio ? `<li class="text-xs font-black text-slate-500 -ml-1">${anio = x.f.slice(0, 4)}</li>` : '', p = x.pm;
+    return cab + `<li class="relative"><span class="absolute -left-[19px] top-1.5 w-2.5 h-2.5 rounded-full ${x.k === 'col' ? 'bg-orange-500' : 'bg-blue-600'}" aria-hidden="true"></span>
+      ${esc(fechaLinda(x.f))} · <strong>${esc(x.t)}</strong> · <a class="underline text-blue-700" href="${esc(x.l)}" target="_blank" rel="noopener noreferrer">ver publicación</a>
+      ${p ? `<span class="block text-xs text-slate-700 bg-white border border-slate-200 rounded-lg px-2 py-1 mt-1">Presupuesto de Deporte del municipio ${p.momento === 'antes' ? 'informado antes de esa fecha' : 'en el primer informe posterior'} (al ${esc(fechaLinda(p.hasta))}): ${p.porcentaje_devengado ?? '—'} % del crédito gastado. ${p.fuente ? `<a class="underline text-blue-700" href="${esc(p.fuente)}" target="_blank" rel="noopener noreferrer">Reporte</a>` : ''}</span>` : ''}</li>`; }).join('')}</ol>`;
+}
+
 async function fichaAuditada(c) {
   let caja = $('#club-auditado');
   if (!caja) { caja = document.createElement('div'); caja.id = 'club-auditado'; caja.className = 'space-y-3'; $('#club-nota').after(caja); }
@@ -2754,20 +2799,21 @@ async function fichaAuditada(c) {
   const cuenta = (c.instagram || '').toLowerCase();
   const cs = cuenta ? Object.values((TB.col && TB.col.por_cuenta) || {}).find(x => (x.cuenta || '').toLowerCase() === cuenta) : null;
   const cv = ((TB.conv && TB.conv.por_club) || []).find(g => g.club_id === c.id || g.club_id === slugActual(c.id));
-  const pubs = !cuenta ? [] : [...((TB.col && TB.col.recientes) || []).filter(r => (r.cuenta || '').toLowerCase() === cuenta).map(r => ({ f: r.fecha, t: 'Colecta', l: r.permalink })),
-    ...((TB.col && TB.col.hitos_estado) || []).filter(h => (h.cuenta_usuario || '').toLowerCase() === cuenta).map(h => ({ f: h.fecha, t: (HITOS[h.senal] || [h.senal])[0], l: h.permalink }))]
-    .sort((a, b) => b.f.localeCompare(a.f)).slice(0, 5);
+  const pubs = !cuenta ? [] : [...((TB.col && TB.col.recientes) || []).filter(r => (r.cuenta || '').toLowerCase() === cuenta).map(r => ({ f: r.fecha, t: 'Colecta', l: r.permalink, k: 'col', pm: r.presupuesto_municipio })),
+    ...((TB.col && TB.col.hitos_estado) || []).filter(h => (h.cuenta_usuario || '').toLowerCase() === cuenta).map(h => ({ f: h.fecha, t: (HITOS[h.senal] || [h.senal])[0], l: h.permalink, k: 'hito' }))]
+    .sort((a, b) => b.f.localeCompare(a.f)).slice(0, 12);
   const { muni, prov } = jurisDeClub(c);
   const sinAut = !(c.autoridades && c.autoridades.length);
   caja.innerHTML = `<div class="rounded-xl border-2 border-blue-200 bg-blue-50/50 p-3 space-y-2 text-sm">
       <p class="font-extrabold text-slate-900">Lo auditado hasta hoy</p>
+      ${respaldoClub(c, cs, muni)}
       <ul class="space-y-1">
         <li>Colectas en su cuenta oficial (revisadas): <strong>${cs ? cs.colectas : 0}</strong>${cs && cs.ultima ? `, la última el ${esc(fechaLinda(cs.ultima))}` : ''}.</li>
         <li>Convocatorias a torneos cargadas: <strong>${cv ? cv.n : 0}</strong>${cv ? `, con ${cv.prom} días de aviso en promedio` : ''}.</li>
         ${sinAut ? '<li>Autoridades: no encontramos la nómina publicada. Si el club es una asociación civil, su comisión directiva consta en el registro de personas jurídicas de su provincia (en Buenos Aires, la DPPJ; en CABA, la IGJ). Si tenés un acta o una publicación oficial, mandala desde "Enviar un dato".</li>' : ''}
         ${c.logo_fuente ? `<li class="text-xs text-slate-600">Escudo tomado de ${esc(c.logo_fuente.replace('instagram:', 'la cuenta oficial '))}${c.logo_fecha ? ' (' + esc(fechaLinda(c.logo_fecha)) + ')' : ''}.</li>` : ''}
       </ul>
-      ${pubs.length ? `<p class="font-bold pt-1">Publicaciones oficiales revisadas</p><ul class="space-y-1">${pubs.map(x => `<li>${esc(fechaLinda(x.f))} · ${esc(x.t)} · <a class="underline text-blue-700" href="${esc(x.l)}" target="_blank" rel="noopener noreferrer">ver publicación</a></li>`).join('')}</ul>` : ''}
+      ${lineaTiempoClub(pubs)}
     </div>${bloqueJuris(muni) || bloqueJuris(prov) || ''}`;
 }
 

@@ -197,6 +197,82 @@ for (const [nombre, vista] of [['celular chico 320px', { width: 320, height: 640
   ok(E, `${urls.length} enlaces revisados, ${rotos} rotos`);
 }
 
+// 9 ─ Aislamiento entre clubes: ninguna ficha muestra publicaciones de otra cuenta (clubes homónimos o sin Instagram)
+{
+  const E = 'Aislamiento entre clubes'; console.log('\n== ' + E);
+  const p = await pagina({ width: 1280, height: 900 });
+  const r = await p.evaluate(async () => {
+    const out = [];
+    await datosTablero();
+    const deCuenta = u => new Set([...((TB.col && TB.col.recientes) || []).filter(x => (x.cuenta || '').toLowerCase() === u).map(x => x.permalink),
+      ...((TB.col && TB.col.hitos_estado) || []).filter(x => (x.cuenta_usuario || '').toLowerCase() === u).map(x => x.permalink)]);
+    for (const c of CLUBES) {
+      abrirClub(c.id);
+      for (let i = 0; i < 40 && /Cargando/.test((document.querySelector('#club-auditado') || {}).textContent || 'Cargando'); i++) await new Promise(f => setTimeout(f, 100));
+      const caja = document.querySelector('#club-auditado'), u = (c.instagram || '').toLowerCase();
+      const links = [...caja.querySelectorAll('ol a[href*="instagram.com"]')].map(a => a.getAttribute('href'));
+      const propios = u ? deCuenta(u) : new Set();
+      const ajenos = links.filter(l => !propios.has(l));
+      const n = Number((caja.textContent.match(/Colectas en su cuenta oficial \(revisadas\): (\d+)/) || [])[1] || 0);
+      out.push({ nombre: c.nombre, ig: u, links: links.length, ajenos: ajenos.length, colectas: n });
+    }
+    return out;
+  });
+  const sinIg = r.filter(x => !x.ig), nombres = r.map(x => x.nombre);
+  for (const x of r) {
+    if (x.ajenos) anotar('alta', E, `${x.nombre}: muestra ${x.ajenos} publicación(es) que no son de su cuenta`);
+    if (!x.ig && (x.links || x.colectas)) anotar('alta', E, `${x.nombre} no tiene Instagram cargado y muestra ${x.links} publicaciones y ${x.colectas} colectas`);
+  }
+  const parecidos = nombres.filter(n => /brown/i.test(n));
+  ok(E, `${r.length} fichas revisadas (${sinIg.length} sin Instagram); clubes con "Brown" en el nombre: ${parecidos.length}`);
+}
+
+// 10 ─ Reloj de plazos: vecina que presentó un pedido hace 40 días y nadie respondió
+{
+  const E = 'Reloj de plazos'; console.log('\n== ' + E);
+  const p = await pagina({ width: 390, height: 844 });
+  await p.click('#t-pedir'); await p.waitForTimeout(500);
+  const hace = d => new Date(Date.now() - d * 864e5).toISOString().slice(0, 10);
+  const slug = await p.evaluate(() => { const s = document.querySelector('#rl-juris'); const o = [...s.options].find(o => /^muni-/.test(o.value)); s.value = o.value; return o.value; });
+  await p.fill('#rl-fecha', hace(60)); await p.fill('#rl-exp', '4012-999/2026'); await p.click('#form-reloj button');
+  await p.waitForTimeout(300);
+  let t = await p.textContent('#reloj-lista');
+  await revisarTexto(p, E, 'pedido de hace 60 días', t, ['Plazo vencido sin respuesta', 'Corresponde presentar el pronto despacho', '4012-999/2026']);
+  if ((p.envios || []).length) anotar('alta', E, 'el reloj envió datos a la base y tenía que quedar solo en el navegador'); else ok(E, 'no se envió nada a la base');
+  await p.click('[data-reloj="pronto"]'); await p.waitForTimeout(400);
+  const txt = await texto(p, '#p-texto');
+  await revisarTexto(p, E, 'pronto despacho', txt, ['pronto despacho', '4012-999/2026']);
+  await p.click('[data-reloj="pronto-ok"]'); await p.waitForTimeout(200);
+  await revisarTexto(p, E, 'después del pronto despacho', await p.textContent('#reloj-lista'), ['Pronto despacho presentado']);
+  await p.fill('#rl-fecha', hace(2)); await p.evaluate(v => { document.querySelector('#rl-juris').value = v; }, slug); await p.click('#form-reloj button'); await p.waitForTimeout(200);
+  await revisarTexto(p, E, 'pedido de hace 2 días', await p.textContent('#reloj-lista'), ['En plazo', 'faltan']);
+  await p.fill('#rl-fecha', new Date(Date.now() + 5 * 864e5).toISOString().slice(0, 10)); await p.evaluate(v => { document.querySelector('#rl-juris').value = v; }, slug); await p.click('#form-reloj button'); await p.waitForTimeout(200);
+  const n = await p.evaluate(() => JSON.parse(localStorage.getItem('ad_mis_pedidos')).length);
+  n === 2 ? ok(E, 'una fecha futura no se acepta') : anotar('media', E, `aceptó una fecha futura (${n} pedidos guardados)`);
+  const ancho = await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  if (ancho > 4) anotar('media', E, `el reloj se sale del ancho del celular (${ancho}px)`);
+  for (const e of p.errores) anotar('alta', E, e);
+}
+
+// 11 ─ "Quiero que publiquen" y librerías: un toque suma uno, sin datos personales, y todo carga con su huella
+{
+  const E = 'Quiero que publiquen y librerías'; console.log('\n== ' + E);
+  const p = await pagina({ width: 1280, height: 900 });
+  const libs = await p.evaluate(() => ({ mapa: !!window.maplibregl, iconos: !!window.lucide, base: !!window.supabase, plazos: !!window.Plazos }));
+  for (const [k, v] of Object.entries(libs)) v ? ok(E, `librería ${k} cargada`) : anotar('alta', E, `no cargó la librería ${k} (¿huella de integridad incorrecta?)`);
+  await p.click('#t-simple'); await p.waitForTimeout(600);
+  const b = p.locator('[data-action="quiero-publiquen"]').first();
+  if (await b.count()) {
+    await b.scrollIntoViewIfNeeded(); await b.click(); await p.waitForTimeout(500);
+    const env = (p.envios || []).filter(e => /apoyos_publicacion/.test(e.url));
+    if (env.length !== 1) anotar('alta', E, `se esperaban 1 envío y hubo ${env.length}`);
+    else { const c = JSON.parse(env[0].cuerpo); Object.keys(c).join() === 'juris_slug' ? ok(E, 'envía solo el organismo') : anotar('alta', E, 'envía más datos que el organismo: ' + Object.keys(c)); }
+    const ya = await p.locator('[data-action="quiero-publiquen"][disabled]').count();
+    ya ? ok(E, 'el botón queda marcado y no se puede sumar dos veces') : anotar('media', E, 'el botón no quedó marcado');
+  } else anotar('baja', E, 'no hay ningún organismo con el botón visible');
+  for (const e of p.errores) anotar('alta', E, e);
+}
+
 await nav.close();
 console.log('\n===== RESUMEN =====');
 for (const g of ['alta', 'media', 'baja']) {
