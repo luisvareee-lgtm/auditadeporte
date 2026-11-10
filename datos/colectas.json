@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-09",
+ "actualizado": "2026-11-10",
  "total": 29,
  "por_anio": {
   "2019": 1,
@@ -9,8 +9,8 @@
   "2026": 25
  },
  "por_finalidad": {
-  "silla_equipamiento": 5,
   "general": 14,
+  "silla_equipamiento": 5,
   "viaje_torneo": 12,
   "inscripcion": 7
  },
@@ -21,8 +21,8 @@
   "parapanamericanos": 1
  },
  "por_tipo_pedido": {
-  "otro": 5,
   "rifa_sorteo": 5,
+  "otro": 5,
   "transferencia": 19,
   "pedido_empresas": 1,
   "pedido_estado": 6,
