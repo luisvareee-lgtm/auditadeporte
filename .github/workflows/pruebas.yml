@@ -1,0 +1,25 @@
+name: Pruebas (todas, en cada cambio)
+on:
+  push:
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Dependencias de las pruebas
+        run: pip install pyyaml "pypdf>=4,<7" "pillow>=10,<12" "openpyxl>=3.1,<4" "python-docx>=1,<2" "markitdown[docx,xlsx,pptx]>=0.1,<0.2" "reportlab>=4,<6"
+      - name: Todas las pruebas de los bots (incluye la validez de los workflows)
+        run: python -m unittest discover -p "test_*.py"
+        working-directory: bot
+  integridad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Librerías externas con versión fija y huella correcta
+        run: node bot/verificacion/integridad.mjs

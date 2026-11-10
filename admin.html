@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.github.com; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>AuditaDeporte · Panel de administración</title>
 <link rel="stylesheet" href="admin.css">
 <script src="supabase-js.min.js" defer></script>
@@ -47,6 +47,7 @@
 
   <!-- ===== PANEL ===== -->
   <section id="v-panel" hidden>
+    <p id="aviso-latido" class="aviso" role="alert" hidden></p>
     <nav class="pestanas" role="tablist" aria-label="Secciones del panel">
       <button role="tab" data-tab="bandeja" aria-selected="true">Bandeja <span class="cuenta" id="c-bandeja"></span></button>
       <button role="tab" data-tab="alertas" aria-selected="false">Alertas <span class="cuenta alerta" id="c-vigia"></span></button>
@@ -205,6 +206,9 @@
     </div>
 
     <div id="p-estado" class="pestana" role="tabpanel" hidden>
+      <h2>Latido de los bots: ¿corrieron cuando tenían que correr?</h2>
+      <p class="nota">Se lee de GitHub (repositorio público). Si un bot programado falla o no corre en el tiempo esperado, aparece marcado acá y con un aviso arriba del panel.</p>
+      <div id="estado-latido"></div>
       <div id="estado-cobertura" class="kpis"></div>
       <h2>Alertas</h2><div id="estado-alertas"></div>
       <h2>Mesa: ¿cuánto coinciden los votantes con tus decisiones?</h2>

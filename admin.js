@@ -136,7 +136,7 @@ async function despuesDeLogin() {
   }
   $('#v-login').hidden = true; $('#v-panel').hidden = false; $('#sesion').hidden = false;
   $('#yo-email').textContent = yo.email || '';
-  await cargarBandeja(); cargarContadores();
+  await cargarBandeja(); cargarContadores(); cargarLatido();
   if (!(await pintarCuenta())) aviso('Recomendado: activá el segundo factor en la pestaña Cuenta.');
 }
 
@@ -402,12 +402,21 @@ $('#f-escudo')?.addEventListener('submit', async ev => {
   ev.preventDefault();
   const f = $('#es-archivo').files[0], sel = $('#es-club');
   if (!f || f.size > 1048576 || !/^image\/(jpeg|png)$/.test(f.type)) { aviso('Elegí una imagen JPG o PNG de hasta 1 MB.', true); return; }
-  const ruta = `escudos/propuestos/${sel.selectedOptions[0].dataset.slug}-${Date.now()}.${f.type === 'image/png' ? 'png' : 'jpg'}`;
   try {
-    const { error } = await sb.storage.from('capturas-publicas').upload(ruta, f, { contentType: f.type, upsert: true });
+    // se vuelve a dibujar como .webp cuadrado de 256 px (descarta metadatos) y se calcula su huella sha256
+    const bmp = await createImageBitmap(f), cv = document.createElement('canvas');
+    cv.width = cv.height = 256;
+    const k = Math.min(256 / bmp.width, 256 / bmp.height), w = bmp.width * k, h = bmp.height * k;
+    cv.getContext('2d').drawImage(bmp, (256 - w) / 2, (256 - h) / 2, w, h);
+    const blob = await new Promise(ok => cv.toBlob(ok, 'image/webp', 0.9));
+    if (!blob || blob.type !== 'image/webp') throw new Error('Este navegador no puede convertir la imagen a .webp.');
+    const sha = [...new Uint8Array(await crypto.subtle.digest('SHA-256', await blob.arrayBuffer()))].map(x => x.toString(16).padStart(2, '0')).join('');
+    const ruta = `escudos/${sel.selectedOptions[0].dataset.slug}-${sha.slice(0, 16)}.webp`;
+    const { error } = await sb.storage.from('capturas-publicas').upload(ruta, blob, { contentType: 'image/webp', upsert: true });
     if (error) throw error;
     const url = sb.storage.from('capturas-publicas').getPublicUrl(ruta).data.publicUrl;
-    await rpc('panel_escudo_manual', { p_club: sel.value, p_url: url, p_fuente: $('#es-fuente').value });
+    try { await rpc('panel_escudo_manual', { p_club: sel.value, p_url: url, p_fuente: $('#es-fuente').value, p_sha256: sha }); }
+    catch (_) { await rpc('panel_escudo_manual', { p_club: sel.value, p_url: url, p_fuente: $('#es-fuente').value }); }   // sin db/29
     aviso('Escudo subido: aprobalo en la tabla de arriba.'); ev.target.reset(); cargarEscudos();
   } catch (e) { aviso(e.message || String(e), true); }
 });
@@ -803,8 +812,48 @@ $('#f-fuente').addEventListener('submit', async ev => {
   catch (e) { aviso(e.message, true); }
 });
 
+// ---------------------------------------------------------------- latido de los bots (GitHub Actions, repositorio público)
+// Cada bot programado y cada cuántas horas, como mucho, tendría que haber una corrida que terminó bien.
+const REPO = 'luisvareee-lgtm/auditadeporte';
+const LATIDOS = [
+  ['relevar_colectas.yml', 'Barrido de redes (cada 3 h)', 7], ['procesar_cargados.yml', 'Procesar documentos cargados (cada hora)', 4],
+  ['agentes.yml', 'Agentes y vigía (diario)', 30], ['rastreo_sitios.yml', 'Rastreo de sitios oficiales (diario)', 30],
+  ['actualidad_redes.yml', 'Actividad de redes (semanal)', 24 * 8], ['relevar_faba.yml', 'Relevamiento de FABA (mensual)', 24 * 33],
+  ['escudos.yml', 'Escudos (mensual)', 24 * 33], ['pruebas.yml', 'Pruebas de cada cambio', null]];
+function evaluarLatido(maxHoras, corridas, ahora = Date.now()) {
+  // corridas: las últimas del workflow, de la más nueva a la más vieja. Devuelve {estado, horas, ultima}
+  const ult = corridas[0], bien = corridas.find(c => c.conclusion === 'success');
+  const horas = bien ? Math.round((ahora - new Date(bien.updated_at).getTime()) / 36e5) : null;
+  let estado = 'ok';
+  if (!ult) estado = 'nunca';
+  else if (ult.status === 'completed' && ult.conclusion === 'failure') estado = 'fallo';
+  else if (maxHoras && (horas === null || horas > maxHoras)) estado = 'atrasado';
+  return { estado, horas, ultima: ult ? ult.updated_at : null, url: ult ? ult.html_url : null };
+}
+async function cargarLatido() {
+  const filas = [];
+  await Promise.all(LATIDOS.map(async ([archivo, nombre, max]) => {
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${archivo}/runs?per_page=10&branch=main`, { headers: { Accept: 'application/vnd.github+json' } });
+      if (!r.ok) { filas.push({ nombre, estado: r.status === 404 ? 'nunca' : 'sin_dato', horas: null }); return; }
+      const corridas = ((await r.json()).workflow_runs || []).filter(c => max === null || c.event !== 'push');
+      filas.push({ nombre, ...evaluarLatido(max, corridas) });
+    } catch (_) { filas.push({ nombre, estado: 'sin_dato', horas: null }); }
+  }));
+  filas.sort((a, b) => a.nombre.localeCompare(b.nombre));
+  const TXT = { ok: 'Al día', fallo: 'La última corrida falló', atrasado: 'No corre hace demasiado', nunca: 'Todavía no corrió', sin_dato: 'No se pudo consultar GitHub' };
+  const mal = filas.filter(f => f.estado === 'fallo' || f.estado === 'atrasado');
+  const av = $('#aviso-latido');
+  if (av) { av.hidden = !mal.length; av.textContent = mal.length ? 'Atención: ' + mal.map(f => `${f.nombre}: ${TXT[f.estado].toLowerCase()}`).join(' · ') + '. Mirá "Estado y métricas".' : ''; }
+  const cont = $('#estado-latido');
+  if (cont) cont.replaceChildren(tabla([['Bot', x => x.nombre], ['Estado', x => TXT[x.estado]],
+    ['Última corrida buena', x => x.horas === null ? '—' : x.horas < 48 ? `hace ${x.horas} h` : `hace ${Math.round(x.horas / 24)} días`],
+    ['', x => x.url ? el('a', { href: x.url, target: '_blank', rel: 'noopener' }, 'ver en GitHub') : '']], filas, 'Sin datos.'));
+}
+
 // ---------------------------------------------------------------- estado y métricas
 async function cargarEstado() {
+  cargarLatido();
   const [r, a] = await Promise.all([rpc('panel_resumen'), rpc('panel_alertas')]);
   const c = r.cobertura, pct = v => v === null || v === undefined ? '—' : v + '%';
   $('#estado-cobertura').replaceChildren(
