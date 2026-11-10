@@ -7,10 +7,11 @@
 <meta name="description" content="Mapa federal de clubes de básquet sobre silla de ruedas (FABA), documentos públicos, pedidos de información y patrocinio directo a proveedores.">
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
 <script src="/supabase-js.min.js"></script>
-<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="/plazos.js"></script>
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" integrity="sha384-uTYyvsSSUZeaPhb5RbKlQa0zY/WpX/QHfvg2mczXyBQOpkWPEDy9lczyp+w7SKXu" crossorigin="anonymous"></script>
 
 <style>
   :focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; border-radius: 6px; }
@@ -973,13 +974,25 @@
           <ol class="list-decimal pl-5 space-y-1.5 text-sm text-slate-800">
             <li><strong>Presentalo</strong> por el canal oficial: mesa de entradas (llevá dos copias y pedí que te sellen una), el formulario web de acceso a la información o el correo oficial del organismo.</li>
             <li><strong>Guardá el comprobante:</strong> número de expediente, copia sellada o el correo con su respuesta automática. Sin eso no podés reclamar.</li>
-            <li><strong>Anotá la fecha</strong> y contá el plazo<span id="p-plazo-txt"></span>.</li>
+            <li><strong>Anotá la fecha</strong> en el reloj de abajo: cuenta el plazo por vos<span id="p-plazo-txt"></span>.</li>
             <li><strong>Si no contestan a tiempo</strong>, presentá el reclamo que te armamos abajo, por el mismo canal.</li>
             <li><strong>Si tampoco responden</strong>, el paso siguiente es judicial (amparo por mora o amparo por acceso a la información). Muchos colegios de abogados y defensorías tienen atención gratuita.</li>
           </ol>
           <div id="p-presente-wrap" class="hidden flex flex-wrap items-center gap-2">
             <button type="button" id="p-presente" class="border-2 border-emerald-700 text-emerald-800 hover:bg-white font-bold px-4 py-2 rounded-xl text-sm">Ya lo presenté</button>
             <span class="text-xs text-slate-600">Suma 1 al contador de <span id="p-presente-lugar"></span>. Sin nombre ni datos.</span>
+          </div>
+          <div id="reloj-box" class="rounded-xl bg-white border-2 border-emerald-400 p-3 text-sm space-y-3">
+            <h4 class="font-black text-emerald-950">Reloj de tu pedido: te decimos cuándo vence</h4>
+            <p class="text-xs text-slate-600">Anotá cuándo lo presentaste y el sitio cuenta los días hábiles por vos. <strong>Queda guardado solo en este dispositivo</strong>: no se envía a ningún lado, ni siquiera el número de expediente.</p>
+            <form id="form-reloj" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label class="text-xs font-bold">Organismo<select id="rl-juris" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"><option value="">Elegí</option></select></label>
+              <label class="text-xs font-bold">Fecha en que lo presentaste<input id="rl-fecha" type="date" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal"></label>
+              <label class="text-xs font-bold">Expediente o comprobante (opcional)<input id="rl-exp" maxlength="60" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-normal" placeholder="Ej.: 4012-12345/2026"></label>
+              <div class="sm:col-span-3"><button class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-sm">Seguir este pedido</button></div>
+            </form>
+            <ul id="reloj-lista" class="space-y-3" aria-live="polite"></ul>
+            <p class="text-xs text-slate-500">Las fechas son orientativas: se cuentan días hábiles sin sábados, domingos ni feriados nacionales. No incluye feriados provinciales o municipales ni asuetos. No es asesoramiento legal.</p>
           </div>
           <details id="resp-box" class="rounded-xl bg-white border border-emerald-200 p-3 text-sm">
             <summary class="font-bold cursor-pointer">¿Te respondieron? Contalo (sin nombre)</summary>
@@ -1647,6 +1660,7 @@ function bloqueJuris(j) {
     </ul>
     <div class="flex flex-wrap gap-2 pt-1">
       <button data-action="pedir-juris" data-slug="${esc(j.slug)}" class="bg-slate-900 text-white font-bold px-3 py-2 rounded-xl text-sm">Pedir lo que falta</button>
+      ${falta.length ? botonQuiero(j.slug, 'px-3 py-2') : ''}
       <button data-tab="simple" class="border-2 border-slate-300 font-bold px-3 py-2 rounded-xl text-sm">Ver el detalle</button>
     </div></div>`;
 }
@@ -1728,6 +1742,98 @@ async function cargarPresentados() {
     if (JURIS.length) pintarJuris();
   } catch (e) { /* el contador no es crítico */ }
 }
+
+// ── "Quiero que publiquen": apoyo anónimo (solo un número por organismo; no es una firma ni un petitorio) ──
+let APOYOS = {};
+const yaApoye = slug => { try { return localStorage.getItem('ad_apoyo_' + slug) === '1'; } catch (e) { return false; } };
+function botonQuiero(slug, pad) {
+  const n = Number(APOYOS[slug] || 0), ya = yaApoye(slug);
+  return `<button data-action="quiero-publiquen" data-slug="${esc(slug)}" ${ya ? 'disabled' : ''} class="border-2 border-blue-700 text-blue-800 hover:bg-blue-50 disabled:opacity-70 font-bold ${pad} rounded-xl text-sm">${ya ? '✓ Ya lo pediste' : 'Quiero que publiquen'}${n ? ` · ${n}` : ''}</button>`;
+}
+async function cargarApoyos() {
+  if (!sb) return;
+  try {
+    const { data, error } = await sb.rpc('contar_apoyos_publicacion');
+    if (error) return;                                   // sin db/29 el botón igual se ve, sin número
+    APOYOS = Object.fromEntries((data || []).map(r => [r.juris_slug, Number(r.total)]));
+    if (JURIS.length) pintarJuris();
+  } catch (e) { /* no es crítico */ }
+}
+async function quieroPubliquen(slug, boton) {
+  if (!sb || yaApoye(slug)) return;
+  boton.disabled = true;
+  const { error } = await sb.from('apoyos_publicacion').insert({ juris_slug: slug }, { returning: 'minimal' });
+  if (error) { boton.disabled = false; toast('No pudimos sumarlo ahora. Probá más tarde.'); return; }
+  try { localStorage.setItem('ad_apoyo_' + slug, '1'); } catch (e) { /* igual se sumó */ }
+  APOYOS[slug] = Number(APOYOS[slug] || 0) + 1;
+  toast('Sumado. Si querés que tenga efecto legal, presentá el pedido: es lo que obliga a responder.');
+  pintarJuris();
+}
+
+// ── Reloj de plazos: los pedidos que sigue esta persona, guardados solo en su navegador ──
+const hoyISO = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
+function misPedidos() { try { return JSON.parse(localStorage.getItem('ad_mis_pedidos') || '[]'); } catch (e) { return []; } }
+function guardarMisPedidos(l) { try { localStorage.setItem('ad_mis_pedidos', JSON.stringify(l)); return true; } catch (e) { toast('Este navegador no deja guardar datos: el reloj no se va a conservar.'); return false; } }
+const fechaCorta = s => s ? s.split('-').reverse().join('/') : '';
+const PASOS_RELOJ = ['Presentado', 'En plazo', 'Prórroga', 'Vencido', 'Pronto despacho', 'Reclamo o vía judicial'];
+function pintarReloj() {
+  const ul = $('#reloj-lista'); if (!ul || !window.Plazos) return;
+  const sel = $('#rl-juris');
+  if (sel && sel.options.length <= 1 && JURIS.length) sel.insertAdjacentHTML('beforeend', JURIS.map(j => `<option value="${esc(j.slug)}">${esc(j.nombre)}</option>`).join(''));
+  const hoy = hoyISO(), lista = misPedidos();
+  ul.innerHTML = lista.map(p => {
+    const j = JURIS.find(x => x.slug === p.slug) || {}, marco = j.pedido || {}, e = Plazos.estadoPedido(p, marco, hoy);
+    const color = { respondido: 'bg-emerald-100 text-emerald-900', en_plazo: 'bg-blue-100 text-blue-900', por_vencer: 'bg-amber-100 text-amber-900',
+      vencido: 'bg-rose-100 text-rose-900', pronto_despacho: 'bg-amber-100 text-amber-900', pronto_vencido: 'bg-rose-100 text-rose-900' }[e.estado];
+    const detalle = e.estado === 'respondido' ? 'Lo marcaste como respondido.'
+      : e.estado === 'pronto_despacho' ? `Presentaste el pronto despacho el ${fechaCorta(p.pronto)}. Como referencia, esperá hasta el ${fechaCorta(e.vence2)} (${e.faltan2} días hábiles).`
+      : e.estado === 'pronto_vencido' ? `Pasaron 10 días hábiles desde el pronto despacho (${fechaCorta(p.pronto)}) sin respuesta. Paso siguiente: ${esc(marco.reclamo || 'reclamo ante el órgano de control o vía judicial')}. Para la vía judicial hace falta un abogado: muchos colegios de abogados y defensorías atienden gratis.`
+      : e.estado === 'vencido' ? `El plazo venció el ${fechaCorta(e.vence)} (hace ${-e.faltan} días hábiles). Corresponde presentar el pronto despacho.`
+      : `Vence el <strong>${fechaCorta(e.vence)}</strong>: ${e.faltan === 0 ? 'es hoy' : `faltan ${e.faltan} días hábiles`}.`;
+    const nota = e.plazo.referencia ? 'La norma de este organismo no fija plazo: se usan 15 días hábiles como referencia (Ley 27.275).'
+      : `Plazo: ${e.plazo.dias} días${p.prorroga ? ` + ${e.plazo.prorroga} de prórroga` : ''}${e.plazo.diceHabiles ? ' hábiles' : ' (la norma dice "días"; se cuentan como hábiles administrativos, que es la regla general: verificalo en la norma)'}.`;
+    const bt = (act, txt, cls = 'border border-slate-300') => `<button type="button" data-reloj="${act}" data-id="${esc(p.id)}" class="${cls} font-bold px-3 py-1.5 rounded-lg text-xs">${txt}</button>`;
+    return `<li class="rounded-xl border border-slate-200 p-3 space-y-2">
+      <div class="flex flex-wrap items-center gap-2"><strong>${esc(j.nombre || p.slug)}</strong><span class="px-2 py-0.5 rounded-full text-xs font-bold ${color}">${esc(e.texto)}</span></div>
+      <ol class="flex flex-wrap gap-1 text-[11px]" aria-label="Etapas del pedido">${PASOS_RELOJ.map((t, i) => `<li class="px-2 py-0.5 rounded ${i + 1 === e.paso ? 'bg-slate-900 text-white font-bold' : i + 1 < e.paso ? 'bg-slate-200 text-slate-700' : 'border border-slate-200 text-slate-500'}"${i + 1 === e.paso ? ' aria-current="step"' : ''}>${i + 1}. ${t}</li>`).join('')}</ol>
+      <p class="text-slate-800">Presentado el ${fechaCorta(p.fecha)}${p.exp ? ` · comprobante ${esc(p.exp)}` : ''}. ${detalle}</p>
+      <p class="text-xs text-slate-600">${nota}</p>
+      <div class="flex flex-wrap gap-2">
+        ${e.estado === 'respondido' ? '' : bt('respondido', 'Me respondieron', 'bg-emerald-700 text-white')}
+        ${['en_plazo', 'por_vencer', 'vencido'].includes(e.estado) && e.plazo.prorroga && !p.prorroga ? bt('prorroga', `Avisaron prórroga (+${e.plazo.prorroga} días)`) : ''}
+        ${e.estado === 'vencido' ? bt('pronto', 'Armar el pronto despacho', 'bg-slate-900 text-white') : ''}
+        ${e.estado === 'vencido' ? bt('pronto-ok', 'Ya presenté el pronto despacho') : ''}
+        ${bt('quitar', 'Quitar')}
+      </div></li>`;
+  }).join('') || '<li class="text-xs text-slate-600">Todavía no seguís ningún pedido en este dispositivo.</li>';
+}
+document.addEventListener('submit', ev => {
+  if (ev.target.id !== 'form-reloj') return;
+  ev.preventDefault();
+  const slug = $('#rl-juris').value, fecha = $('#rl-fecha').value;
+  if (!slug || !fecha || fecha > hoyISO()) { toast('Elegí el organismo y una fecha que no sea futura.'); return; }
+  const l = misPedidos();
+  l.unshift({ id: String(Date.now()), slug, fecha, exp: $('#rl-exp').value.trim().slice(0, 60) });
+  if (guardarMisPedidos(l.slice(0, 30))) { ev.target.reset(); pintarReloj(); toast('Listo: el reloj ya está contando.'); }
+});
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('[data-reloj]'); if (!b) return;
+  const l = misPedidos(), p = l.find(x => x.id === b.dataset.id); if (!p) return;
+  const act = b.dataset.reloj, j = JURIS.find(x => x.slug === p.slug);
+  if (act === 'quitar') guardarMisPedidos(l.filter(x => x !== p));
+  else if (act === 'prorroga') { p.prorroga = true; guardarMisPedidos(l); }
+  else if (act === 'pronto-ok') { p.pronto = hoyISO(); guardarMisPedidos(l); }
+  else if (act === 'respondido') {
+    p.respondido = true; guardarMisPedidos(l);
+    const caja = $('#resp-box'); if (caja) { caja.open = true; caja.dispatchEvent(new Event('toggle')); $('#rp-pres').value = p.fecha; caja.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    toast('Si querés, contá abajo cómo respondieron (sin nombre): suma al tablero.');
+  } else if (act === 'pronto') {
+    if (j) { $('#p-tipo').value = j.tipo === 'municipio' ? 'municipio' : 'federacion'; $('#p-entidad').value = j.nombre; marcoPedido = { entidad: j.nombre, esMunicipio: j.tipo === 'municipio', slug: j.slug, ...j.pedido }; }
+    $('#r-fecha').value = p.fecha; $('#r-exp').value = p.exp || '';
+    armarReclamo();
+  }
+  pintarReloj();
+});
 
 async function marcarPresentado(slugJ, boton) {
   if (!sb || yaPresente(slugJ)) return;
@@ -1818,7 +1924,7 @@ async function cargarSimple() {
         : `<p><strong>Hasta hoy no apareció ningún documento que hable de deporte adaptado.</strong> Eso no prueba que no haya plata: quiere decir que en lo que estos lugares publican, y se puede leer, no está escrito. Por eso es importante pedir la información.</p>`}
       <p><strong>${esc(t.no_publica)} lugares no publican datos abiertos:</strong> no podemos ver sus papeles. Abajo te mostramos cuáles son y cómo pedírselos.</p>`;
     pintarJuris();
-    cargarPresentados(); cargarConvocatorias();
+    cargarPresentados(); cargarConvocatorias(); cargarApoyos(); pintarReloj();
   } catch (e) {
     $('#simple-lectura').innerHTML = '<p>No pudimos cargar el resumen en este momento. Probá de nuevo en un rato.</p>';
   }
@@ -1891,6 +1997,7 @@ function pintarJuris() {
         <button data-action="pedir-juris" data-slug="${esc(j.slug)}" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-sm">${j.estado === 'publica' ? 'Pedir más información' : 'Pedí esta información'}</button>
         <button data-action="ya-presente" data-slug="${esc(j.slug)}" ${yaPresente(j.slug) ? 'disabled' : ''} class="w-full sm:w-auto border-2 border-emerald-700 text-emerald-800 hover:bg-emerald-50 disabled:opacity-60 disabled:hover:bg-transparent font-bold px-4 py-2 rounded-xl text-sm">${yaPresente(j.slug) ? '✓ Ya lo presentaste' : 'Ya lo presenté'}</button>
       </div>
+      ${j.estado === 'publica' ? '' : `<div class="flex flex-wrap items-center gap-2">${botonQuiero(j.slug, 'px-4 py-2')}<span class="text-xs text-slate-600">Un toque, sin nombre ni datos. Muestra cuánta gente quiere ver esta información publicada.</span></div>`}
       <p class="text-xs text-slate-600">${(() => { const n = Number((PRESENTADOS[j.slug] || {}).total || 0);
         return n ? `<strong>${n} ${n === 1 ? 'persona avisó' : 'personas avisaron'}</strong> que ya presentaron este pedido. Es un aviso anónimo: no lo verificamos.` : 'Todavía nadie avisó que presentó este pedido. ¿Sos la primera persona?'; })()}</p>
     </li>`;
@@ -2362,6 +2469,7 @@ function showTab(t, push = true) {
   const aTablero = t === 'tablero';
   if (!TABS.includes(t)) t = 'mapa';
   if (aTablero) setTimeout(() => $('#inicio-tablero').scrollIntoView({ behavior: 'smooth' }), 200);
+  if (t === 'pedir') pintarReloj();
   TABS.forEach(x => {
     $('#s-' + x).classList.toggle('hidden', x !== t);
     $('#t-' + x).setAttribute('aria-selected', x === t);
@@ -2985,6 +3093,7 @@ document.addEventListener('click', e => {
     $('#d-texto').value = 'Estado de las sillas del equipo (lista): ' + ($('#nc-detalle').value.trim() || '[número de inventario, qué está roto, qué falta, desde cuándo]'); $('#d-texto').focus();
   }
   else if (act === 'ya-presente') marcarPresentado(a.dataset.slug, a);
+  else if (act === 'quiero-publiquen') quieroPubliquen(a.dataset.slug, a);
   else if (act === 'postular') { $('#post-cod').textContent = a.dataset.cod; $('#post-estado').textContent = ''; $('#dlg-post').showModal(); }
 });
 $$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));

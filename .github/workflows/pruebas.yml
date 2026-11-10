@@ -14,8 +14,10 @@ jobs:
       - name: Dependencias de las pruebas
         run: pip install pyyaml "pypdf>=4,<7" "pillow>=10,<12" "openpyxl>=3.1,<4" "python-docx>=1,<2" "markitdown[docx,xlsx,pptx]>=0.1,<0.2" "reportlab>=4,<6"
       - name: Todas las pruebas de los bots (incluye la validez de los workflows)
-        run: python -m unittest discover -p "test_*.py"
+        run: python -m unittest discover -p "test_*.py" 2>&1 | tee salida.txt; grep -i "skip" salida.txt || true; grep -q "^OK" salida.txt
         working-directory: bot
+      - name: Pruebas del reloj de plazos
+        run: node --test bot/verificacion/test_plazos.cjs
   integridad:
     runs-on: ubuntu-latest
     timeout-minutes: 5

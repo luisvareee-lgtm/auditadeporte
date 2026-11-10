@@ -16,7 +16,7 @@ ARCHIVOS = sorted(glob.glob(os.path.join(RAIZ, ".github", "workflows", "*.yml"))
 CAMPO = re.compile(r"^(\*|\d+(-\d+)?)(/\d+)?(,(\*|\d+(-\d+)?)(/\d+)?)*$")
 
 
-@unittest.skipIf(yaml is None, "falta PyYAML")
+@unittest.skipIf(yaml is None and not os.environ.get("CI"), "falta PyYAML")
 class Workflows(unittest.TestCase):
     def cargar(self, ruta):
         with open(ruta, encoding="utf-8") as f:

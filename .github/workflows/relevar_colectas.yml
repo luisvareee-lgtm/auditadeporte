@@ -9,6 +9,10 @@ on:
       desde:
         description: "Desde qué fecha (AAAA-MM-DD)"
         default: "2010-01-01"
+      reevaluar_local:
+        description: "Volver a aplicar las reglas a lo ya leído usando la memoria guardada (no consulta a Meta)"
+        type: boolean
+        default: false
       reevaluar:
         description: "Quitar de la cola lo no revisado que entró con filtros viejos y volver a leer esas cuentas con el filtro de contexto"
         type: boolean
@@ -27,7 +31,7 @@ jobs:
       - name: Transcriptor de audio para videos (modelo chico, en la CPU)
         run: pip install "faster-whisper>=1,<2" || echo "sin transcriptor, los videos se clasifican solo por su texto"
       - name: Tests
-        run: python -m unittest test_supa test_relevar_colectas
+        run: python -m unittest test_supa test_relevar_colectas test_aprendizaje_casos
         working-directory: bot
       - name: Relevar (no guarda textos, nombres, alias ni CBU)
         run: python relevar_colectas.py --desde "${{ inputs.desde || '2010-01-01' }}" ${{ (github.event_name == 'schedule' || !inputs.prueba) && ' ' || '--prueba' }} ${{ inputs.reevaluar && '--reevaluar' || '' }}
@@ -35,5 +39,12 @@ jobs:
         env:
           META_TOKEN: ${{ secrets.META_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}
+      - name: Aprender de las decisiones del panel y ordenar la cola (no descarta nada solo)
+        if: ${{ github.event_name == 'schedule' || !inputs.prueba }}
+        run: python aprendizaje_casos.py ${{ inputs.reevaluar_local && '--reevaluar' || '' }}
+        working-directory: bot
+        env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.service_role }}

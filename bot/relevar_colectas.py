@@ -87,12 +87,7 @@ def clasificar(caption: str, fecha: str = None, cuenta: str = None):
     """None si no es una colecta (o si habla de la salud de una persona, o si en una cuenta general no es de deporte
     adaptado). Si lo es: finalidades, cómo se pide, a quién, torneos, montos y fecha límite (si la dice)."""
     t = o._norm(caption or "")
-    mc = RE_COLECTA.search(t)
-    if not mc or RE_SALUD.search(t) or not RE_DINERO.search(t):
-        return None
-    if not en_contexto(t, mc.start(), mc.end(), cuenta):
-        return None
-    if RE_FALSO.search(t) and not re.search(r"\b(rifas?|colectas?|recaud\w*|donacion(es)?)\b", t):
+    if not es_colecta_de(huella(caption), cuenta is None or cuenta in CONTEXTO_PROPIO):
         return None
     fin = [k for k, rx in FINALIDADES.items() if re.search(rx, t)] or ["general"]
     tipos = [k for k, rx in TIPOS_PEDIDO.items() if re.search(rx, t)] or ["otro"]
@@ -177,22 +172,95 @@ SENALES = {
 }
 
 
+# ── Huella: lo único que se conserva de un posteo. Son marcas de un diccionario cerrado (qué términos de NUESTRAS
+# listas aparecieron y con qué contexto), nunca el texto, ni nombres, ni palabras fuera de la lista. Con la huella
+# guardada se pueden cambiar las reglas y volver a evaluar lo ya leído sin gastar consultas a Meta.
+DICCIONARIO = {
+    # deporte adaptado y su equipamiento
+    "basquet_adaptado": r"basquet(bol)? (adaptad\w*|(sobre|en) sillas?)|basquet de silla", "deporte_adaptado": r"deportes? adaptad\w*",
+    "paralimpico": r"paralimpic\w*|paraolimpic\w*|parapanamerican\w*", "faba": r"faba", "silla_deportiva": r"sillas? (deportivas?|de juego|de competencia|de basquet)",
+    "silla_de_ruedas": r"sillas? de ruedas", "discapacidad": r"discapacidad", "repuestos": r"repuestos?|cubiertas|camaras|ejes|rayos|rulemanes|camber",
+    "indumentaria": r"indumentaria|camisetas", "pelotas": r"pelotas|balones",
+    # competencia
+    "liga": r"liga( nacional)?", "torneo": r"torneos?|campeonatos?", "cuadrangular": r"cuadrangular|final four|triangular", "seleccion": r"seleccion\w*",
+    "concentracion": r"concentracion\w*", "alto_rendimiento": r"alto rendimiento", "entrenamiento": r"entrenamientos?|practicas?", "fixture": r"fixture|cronograma|sede",
+    # deporte convencional (suele indicar que el posteo no es del tema)
+    "futbol": r"futbol", "hockey": r"hockey|leonas|leones", "voley": r"voley\w*", "rugby": r"rugby(?! en silla)|pumas", "handball": r"handball",
+    "natacion": r"(?<!para )(?<!para)natacion", "atletismo": r"(?<!para )(?<!para)atletismo|maraton", "tenis": r"tenis(?! adaptado)", "boxeo": r"boxeo", "ciclismo": r"ciclismo",
+    "olimpico": r"olimpic\w*|juegos panamericanos", "juegos_bonaerenses": r"juegos bonaerenses", "juegos_evita": r"juegos evita",
+    # plata y pedidos
+    "rifa": r"rifas?|bonos? contribucion", "colecta": r"colectas?|recaud\w*", "donacion": r"donacion(es)?|dona(r|nos|ndo)", "alias_o_cbu": r"alias|cbu|cvu",
+    "transferencia": r"transferencias?|mercado pago", "sorteo": r"sorteos?", "premio": r"premios?", "entradas": r"entradas?", "bingo": r"bingo|pena|show|festival",
+    "venta": r"venta de|vendemos", "valor": r"valor|precio|\$",
+    # viaje
+    "pasajes": r"pasajes?", "alojamiento": r"alojamiento|estadia|hotel", "micro": r"micros?|combis?|colectivo|traslados?", "comida": r"comidas?|viandas?|alimentos",
+    "combustible": r"combustible|nafta", "inscripcion": r"inscripcion(es)?", "viaje": r"viaj\w*|rumbo a",
+    # Estado, instituciones y empresas
+    "municipio": r"municip\w*|intendent\w*", "provincia": r"provincia\w*|gobernador\w*", "nacion": r"nacion|subsecretaria de deportes|secretaria de deportes",
+    "enard": r"enard|cenard", "copar": r"comite paralimpico", "beca": r"becas?", "subsidio": r"subsidios?|aportes?", "sponsor": r"sponsors?|patrocin\w*|auspici\w*",
+    "empresa": r"empresas?|comercios?|marcas?", "agradecimiento": r"gracias|agradec\w*",
+    # otros contextos frecuentes en cuentas generales
+    "hospital": r"hospital\w*|centro de salud|salita|sanatorio", "vecinos": r"vecin[oa]s", "acto": r"acto|inauguracion|homenaje", "entrega": r"entrega de",
+    "escuela": r"escuelas?|colegios?|alumnos", "curso": r"cursos?|capacitacion|clinica", "reclamo": r"reclam\w*|sin apoyo|falta de apoyo",
+}
+_DICC = {k: re.compile(r"\b(" + rx + r")\b") for k, rx in DICCIONARIO.items()}
+RE_RESCATE = re.compile(r"\b(rifas?|colectas?|recaud\w*|donacion(es)?)\b")
+
+
+def _marcas(t, ini, fin):
+    """Contexto alrededor de un hallazgo: f = deporte adaptado, d = discapacidad, p = deporte/competencia, o = algo del equipo."""
+    v = t[max(0, ini - VENTANA):fin + VENTANA]
+    return ("f" if RE_ADAPTADO.search(v) else "") + ("d" if RE_DISCAPACIDAD.search(v) else "") + ("p" if RE_DEPORTE.search(v) else "") + \
+           ("o" if RE_RECLAMO_OBJETO.search(t[max(0, ini - 150):fin + 150]) else "")
+
+
+def _vale(marcas: str, propia: bool) -> bool:
+    return propia or "f" in marcas or ("d" in marcas and "p" in marcas)
+
+
+def huella(caption: str):
+    """None si el posteo habla de la salud de una persona (de esos no se guarda nada). Si no:
+    {"t": [términos del diccionario], "s": {señal: marcas de contexto}, "c": marcas de colecta (si pide plata)}."""
+    t = o._norm(caption or "")
+    if RE_SALUD.search(t):
+        return None
+    h = {"t": sorted(k for k, rx in _DICC.items() if rx.search(t)), "s": {}}
+    for k, rx in SENALES.items():
+        mejor = None
+        for m in re.finditer(rx, t):
+            mk = _marcas(t, m.start(), m.end())
+            if mejor is None or len(mk) > len(mejor):
+                mejor = mk
+            if _vale(mk, False) and (k != "reclamo" or "o" in mk):
+                mejor = mk
+                break
+        if mejor is not None:
+            h["s"][k] = mejor
+    mc = RE_COLECTA.search(t)
+    if mc:
+        h["c"] = _marcas(t, mc.start(), mc.end()).replace("o", "") + ("$" if RE_DINERO.search(t) else "") + \
+                 ("x" if RE_FALSO.search(t) else "") + ("r" if RE_RESCATE.search(t) else "")
+    return h
+
+
+def senales_de(h, propia: bool) -> list:
+    """Las señales que valen según las reglas de hoy. propia = la cuenta es de deporte adaptado."""
+    if not h:
+        return []
+    return [k for k, mk in h["s"].items() if _vale(mk, propia) and (k != "reclamo" or "o" in mk)]
+
+
+def es_colecta_de(h, propia: bool) -> bool:
+    c = (h or {}).get("c")
+    if c is None or "$" not in c or not _vale(c, propia):
+        return False
+    return not ("x" in c and "r" not in c)
+
+
 def senales(caption: str, cuenta: str = None) -> list:
     """Señales con su contexto: cada una vale solo si alrededor hay deporte adaptado (o la cuenta es del tema), y
     "reclamo" además tiene que referirse a algo del equipo."""
-    t = o._norm(caption or "")
-    if RE_SALUD.search(t):
-        return []
-    out = []
-    for k, rx in SENALES.items():
-        for m in re.finditer(rx, t):
-            if not en_contexto(t, m.start(), m.end(), cuenta):
-                continue
-            if k == "reclamo" and not RE_RECLAMO_OBJETO.search(t[max(0, m.start() - 150):m.end() + 150]):
-                continue
-            out.append(k)
-            break
-    return out
+    return senales_de(huella(caption), cuenta is None or cuenta in CONTEXTO_PROPIO)
 
 
 def _progreso(cuenta):
@@ -339,11 +407,38 @@ def leer_faba_web(desde: date):
 RECAUDACION_PROPIA = {"cilsaong": "ONG que se financia con campañas de donación permanentes"}
 
 
+MEMORIA = []          # huellas de la corrida (se guardan en memoria_lexica, db/29)
+
+
+def descartados() -> set:
+    """Permalinks que una persona ya descartó en el panel: no se vuelven a proponer aunque la cuenta se lea de nuevo."""
+    try:
+        return {r["permalink"] for r in o.db().table("memoria_lexica").select("permalink").eq("decision", "descartado").limit(20000).execute().data or []}
+    except Exception:
+        return set()
+
+
+def guardar_memoria():
+    if not MEMORIA:
+        return
+    try:
+        for i in range(0, len(MEMORIA), 500):          # no pisa la decisión humana: esas columnas no se mandan
+            o.db().table("memoria_lexica").upsert(MEMORIA[i:i + 500], on_conflict="permalink").execute()
+        print("huellas guardadas:", len(MEMORIA))
+    except Exception as e:
+        print("sin db/29 (memoria_lexica): las huellas no se guardan:", str(e)[:100])
+
+
 def senales_cuenta(usuario, nombre, tipo, posts):
     """Publicaciones con señales útiles que no son colectas (quién apoya, viajes, reclamos, avisos de torneo)."""
     out, ctx = [], contexto_de(usuario, nombre)
     for p in posts:
-        sn = senales(p.get("caption"), ctx)
+        h = huella(p.get("caption"))
+        if h and (h["s"] or "c" in h) and p.get("permalink") and "instagram.com" in p["permalink"]:
+            MEMORIA.append({"permalink": p["permalink"], "cuenta": usuario.lower(), "tipo_cuenta": tipo, "fecha": p["timestamp"][:10],
+                            "terminos": h["t"], "huella": {"s": h["s"], **({"c": h["c"]} if "c" in h else {}),
+                                                           "tor": [k for k, rx in TORNEOS.items() if re.search(rx, o._norm(p.get("caption") or ""))]}})
+        sn = senales_de(h, ctx is None)
         if tipo == "institucion":           # ENARD, COPAR y otras agradecen a sus sponsors en cada posteo: no es un dato nuevo
             sn = [x for x in sn if x != "apoyo_empresas"]
         if sn and p.get("permalink") and not clasificar(p.get("caption"), p.get("timestamp"), ctx):
@@ -563,6 +658,11 @@ def main():
             if e.estado in ("limite_meta", "token_vencido"):
                 break
         time.sleep(ar.PAUSA)
+    if not prueba:
+        ya_no = descartados()
+        otras = [x for x in otras if x["permalink"] not in ya_no]
+        todas = [x for x in todas if x["permalink"] not in ya_no]
+        guardar_memoria()
     sen = {}
     for x in otras:
         for k in x["senales"]:

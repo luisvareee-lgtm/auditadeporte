@@ -10,7 +10,7 @@ except ImportError:
 import escudos_clubes as e
 
 
-@unittest.skipIf(Image is None, "falta Pillow")
+@unittest.skipIf(Image is None and not __import__("os").environ.get("CI"), "falta Pillow")
 class Escudos(unittest.TestCase):
     def _jpg(self, tam=(600, 300), exif=True):
         im, b = Image.new("RGB", tam, (200, 30, 30)), io.BytesIO()

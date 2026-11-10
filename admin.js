@@ -366,17 +366,31 @@ for (const [id, opts] of Object.entries(OPC_COLECTA)) {
 const marcados = id => [...document.querySelectorAll('#' + id + ' input:checked')].map(i => i.value);
 const etiquetas = l => (l || []).map(x => ETIQ_COLECTA[x] || x.replace(/_/g, ' ')).join(', ') || '—';
 
+// Descartar pide el motivo: con eso el bot aprende qué tipo de posteo no va (db/29). Lo más probable se muestra primero.
+const MOTIVOS = [['fuera_de_contexto', 'No es deporte adaptado'], ['deporte_convencional', 'Es deporte convencional'], ['no_es_del_tipo', 'No es lo que dice la etiqueta'],
+  ['salud_o_persona', 'Es sobre la salud o la vida de una persona'], ['repetida', 'Repetida'], ['otro', 'Otro motivo']];
+function selDescartar(fn) {
+  const s = el('select', { class: 'btn chico', 'aria-label': 'Descartar: elegí el motivo' }, el('option', { value: '' }, 'Descartar…'), ...MOTIVOS.map(([v, t]) => el('option', { value: v }, t)));
+  s.addEventListener('change', () => { if (s.value) fn(s.value); });
+  return s;
+}
+const porPuntaje = l => [...(l || [])].sort((a, b) => (a.revisada - b.revisada) || ((b.puntaje ?? -1) - (a.puntaje ?? -1)));
+const chipPuntaje = x => x.revisada || x.puntaje == null ? '' : el('span', { class: 'chip ' + (x.puntaje >= 70 ? 'ok' : x.puntaje >= 40 ? 'obs' : ''), title: 'Estimado a partir de tus decisiones anteriores. Es solo para ordenar: decidís vos.' }, `Parecido a lo que aprobás: ${x.puntaje}%`);
+async function revisarCon(fn, x, ok, motivo) {
+  try { await rpc(fn, { p_id: x.id, p_ok: ok, p_motivo: motivo || null }); }
+  catch (_) { await rpc(fn, { p_id: x.id, p_ok: ok }); }                    // sin db/29 todavía no existe el motivo
+}
 async function cargarColectas() {
   let l;
   try { l = await rpc('panel_colectas'); }
   catch (e) { $('#t-colectas').replaceChildren(el('p', { class: 'aviso' }, 'Falta correr db/21 y db/22 en Supabase: ' + e.message)); return; }
   $('#t-colectas').replaceChildren(tabla([
-    ['Publicación', x => el('span', {}, el('strong', {}, x.nombre_cuenta), ` · ${x.fecha} · ${x.fuente}`, el('br'), enlace(x.permalink))],
+    ['Publicación', x => el('span', {}, el('strong', {}, x.nombre_cuenta), ` · ${x.fecha} · ${x.fuente}`, el('br'), enlace(x.permalink), ' ', chipPuntaje(x))],
     ['Para qué / cómo', x => el('span', {}, etiquetas(x.finalidades), el('br'), el('span', { class: 'meta' }, etiquetas(x.tipos_pedido)))],
     ['Torneo y monto', x => el('span', {}, etiquetas(x.torneos), el('br'), (x.montos || []).map(m => `${m.moneda} ${Number(m.valor).toLocaleString('es-AR')}`).join(' · ') || '—')],
     ['', x => x.revisada ? el('span', { class: 'chip ok' }, 'Aprobada') : el('span', {},
       el('button', { class: 'btn chico primario', onclick: () => revisarColecta(x, true) }, 'Aprobar'), ' ',
-      el('button', { class: 'btn chico', onclick: () => revisarColecta(x, false) }, 'Descartar'))]], l, 'Todavía no hay colectas relevadas.'));
+      selDescartar(m => revisarColecta(x, false, m)))]], porPuntaje(l), 'Todavía no hay colectas relevadas.'));
 }
 const ETQ_SENAL = { apoyo_estado: 'Agradece al Estado', apoyo_empresas: 'Agradece a empresas', viaje: 'Viaje', equipamiento_nuevo: 'Equipamiento nuevo',
   reclamo: 'Reclamo', convocatoria_torneo: 'Aviso de torneo', promesa_estado: 'Promesa de la Subsecretaría', beca_atrasada: 'Beca atrasada' };
@@ -435,14 +449,14 @@ async function cargarBarrido() {
   $('#t-barrido').replaceChildren(
     tabla([['Cuenta', x => '@' + x.cuenta], ['Posteos leídos', x => x.posts_leidos], ['Estado', x => el('span', { class: 'chip ' + (x.completo ? 'ok' : 'obs') }, x.completo ? 'Completo (lee lo nuevo)' : 'En curso')],
       ['Más nuevo', x => x.mas_nuevo || '—'], ['Última corrida', x => fecha(x.actualizado)]], d.cuentas || [], 'Todavía no se barrió ninguna cuenta.'),
-    tabla([['Publicación', x => el('span', {}, el('strong', {}, x.nombre_cuenta), ` · ${x.fecha}`, el('br'), enlace(x.permalink))],
+    tabla([['Publicación', x => el('span', {}, el('strong', {}, x.nombre_cuenta), ` · ${x.fecha}`, el('br'), enlace(x.permalink), ' ', chipPuntaje(x))],
       ['Señales', x => (x.senales || []).map(k => ETQ_SENAL[k] || k).join(', ')], ['Torneo', x => (x.torneos || []).join(', ') || '—'],
       ['', x => x.revisada ? el('span', { class: 'chip ok' }, 'Aprobada') : el('span', {},
         el('button', { class: 'btn chico primario', onclick: () => revisarPublicacion(x, true) }, 'Aprobar'), ' ',
-        el('button', { class: 'btn chico', onclick: () => revisarPublicacion(x, false) }, 'Descartar'))]], d.publicaciones || [], 'Todavía no hay publicaciones marcadas.'));
+        selDescartar(m => revisarPublicacion(x, false, m)))]], porPuntaje(d.publicaciones), 'Todavía no hay publicaciones marcadas.'));
 }
-async function revisarPublicacion(x, ok) {
-  try { await rpc('panel_publicacion_revisar', { p_id: x.id, p_ok: ok }); aviso(ok ? 'Aprobada.' : 'Descartada.'); cargarBarrido(); }
+async function revisarPublicacion(x, ok, motivo) {
+  try { await revisarCon('panel_publicacion_revisar', x, ok, motivo); aviso(ok ? 'Aprobada.' : 'Descartada.'); cargarBarrido(); }
   catch (e) { aviso(e.message, true); }
 }
 async function cargarConvocatoriasPanel() {
@@ -458,9 +472,8 @@ async function cargarConvocatoriasPanel() {
       try { await rpc('panel_borrar_convocatoria', { p_id: x.id }); aviso('Borrado.'); cargarConvocatoriasPanel(); } catch (e) { aviso(e.message, true); } } }, 'Borrar')]],
     l, 'Todavía no hay convocatorias cargadas.'));
 }
-async function revisarColecta(x, ok) {
-  if (!ok && !await confirmar('Descartar la colecta', 'Se borra del relevamiento (por ejemplo, si es de salud o de una persona). ¿Seguro?', 'Descartar')) return;
-  try { await rpc('panel_colecta_revisar', { p_id: x.id, p_ok: ok }); aviso(ok ? 'Aprobada: entra en el próximo resumen.' : 'Descartada.'); cargarColectas(); }
+async function revisarColecta(x, ok, motivo) {
+  try { await revisarCon('panel_colecta_revisar', x, ok, motivo); aviso(ok ? 'Aprobada: entra en el próximo resumen.' : 'Descartada.'); cargarColectas(); }
   catch (e) { aviso(e.message, true); }
 }
 $('#f-colecta')?.addEventListener('submit', async ev => {

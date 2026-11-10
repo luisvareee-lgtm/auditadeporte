@@ -6,74 +6,110 @@
     "norma": "Ley 27.275 de Acceso a la Información Pública",
     "plazo": "15 días hábiles, prorrogables por otros 15",
     "reclamo": "Agencia de Acceso a la Información Pública (AAIP), argentina.gob.ar/aaip",
-    "alcance": "organismos nacionales y entidades que reciben fondos públicos nacionales, en lo relativo a esos fondos"
+    "alcance": "organismos nacionales y entidades que reciben fondos públicos nacionales, en lo relativo a esos fondos",
+    "dias": 15,
+    "prorroga": 15,
+    "dias_dice_habiles": true
   },
   "prov-buenos-aires": {
     "norma": "Ley 12.475 de acceso a documentos administrativos",
     "plazo": "8 días, prorrogables por 10",
     "reclamo": "Secretaría General de la Gobernación; ante el silencio, amparo por mora",
-    "alcance": "Poder Ejecutivo provincial. No obliga a los municipios: a ellos se les pide con la base constitucional"
+    "alcance": "Poder Ejecutivo provincial. No obliga a los municipios: a ellos se les pide con la base constitucional",
+    "dias": 8,
+    "prorroga": 10,
+    "dias_dice_habiles": false
   },
   "prov-caba": {
     "norma": "Ley 104 de Acceso a la Información Pública de la Ciudad",
     "plazo": "10 días hábiles, prorrogables por 15",
     "reclamo": "Ministerio de Gobierno de la Ciudad (autoridad de aplicación); ante el silencio, amparo",
-    "alcance": "los tres poderes de la Ciudad y entidades que reciben fondos públicos"
+    "alcance": "los tres poderes de la Ciudad y entidades que reciben fondos públicos",
+    "dias": 10,
+    "prorroga": 15,
+    "dias_dice_habiles": true
   },
   "prov-cordoba": {
     "norma": "Ley 8803 de Acceso al Conocimiento de los Actos del Estado",
     "plazo": "10 días hábiles, prorrogables por 10",
     "reclamo": "ante el silencio, amparo por mora",
-    "alcance": "Estado provincial; los municipios cordobeses suelen tener ordenanza propia"
+    "alcance": "Estado provincial; los municipios cordobeses suelen tener ordenanza propia",
+    "dias": 10,
+    "prorroga": 10,
+    "dias_dice_habiles": true
   },
   "prov-corrientes": {
     "norma": "Ley 5834 de acceso a la información pública",
     "plazo": "30 días hábiles",
     "reclamo": "ante el silencio, amparo por mora",
-    "alcance": "Estado provincial"
+    "alcance": "Estado provincial",
+    "dias": 30,
+    "prorroga": 0,
+    "dias_dice_habiles": true
   },
   "prov-entre-rios": {
     "norma": "Decreto 1169/05 de acceso a la información pública",
     "plazo": "10 días, prorrogables por 10",
     "reclamo": "Oficina Anticorrupción y Ética Pública (Fiscalía de Estado)",
-    "alcance": "Poder Ejecutivo provincial"
+    "alcance": "Poder Ejecutivo provincial",
+    "dias": 10,
+    "prorroga": 10,
+    "dias_dice_habiles": false
   },
   "prov-jujuy": {
     "norma": "Ley 5886 de acceso a la información pública",
     "plazo": "15 días, prorrogables por 5",
     "reclamo": "Dirección de Transparencia y Gobierno Abierto",
-    "alcance": "Estado provincial"
+    "alcance": "Estado provincial",
+    "dias": 15,
+    "prorroga": 5,
+    "dias_dice_habiles": false
   },
   "prov-mendoza": {
     "norma": "Ley 9070 de acceso a la información pública",
     "plazo": "15 días, prorrogables por 15",
     "reclamo": "Oficina de Investigaciones Administrativas y Ética Pública",
-    "alcance": "Estado provincial; si el pedido es al municipio, se suma su ordenanza si existe"
+    "alcance": "Estado provincial; si el pedido es al municipio, se suma su ordenanza si existe",
+    "dias": 15,
+    "prorroga": 15,
+    "dias_dice_habiles": false
   },
   "prov-rio-negro": {
     "norma": "Ley 1829 de libre acceso a las fuentes de información pública (Decreto 1028/2004)",
     "plazo": "la norma no fija plazo: se pide respuesta en un plazo razonable",
     "reclamo": "ante el silencio, amparo por mora",
-    "alcance": "Estado provincial"
+    "alcance": "Estado provincial",
+    "dias": 15,
+    "prorroga": 0,
+    "plazo_referencia": true
   },
   "prov-santa-cruz": {
     "norma": "Ley 3540 de acceso a la información pública",
     "plazo": "10 días, prorrogables por 10",
     "reclamo": "ante el silencio, amparo por mora",
-    "alcance": "Estado provincial"
+    "alcance": "Estado provincial",
+    "dias": 10,
+    "prorroga": 10,
+    "dias_dice_habiles": false
   },
   "prov-santa-fe": {
     "norma": "Decretos 692/09 y 1774/09 de acceso a la información (la ley provincial tuvo media sanción, sin vigencia a la fecha de esta guía)",
     "plazo": "15 días, prorrogables por 10",
     "reclamo": "Dirección Provincial de Anticorrupción y Transparencia del Sector Público",
-    "alcance": "Poder Ejecutivo provincial"
+    "alcance": "Poder Ejecutivo provincial",
+    "dias": 15,
+    "prorroga": 10,
+    "dias_dice_habiles": false
   },
   "prov-tucuman": {
     "norma": "sin ley provincial general de acceso a la información: rige la base constitucional",
     "plazo": "no hay plazo legal provincial: se pide respuesta en un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
     "reclamo": "ante el silencio, amparo",
     "alcance": "Estado provincial",
-    "fuente_jurisprudencia": "CSJT, 'Robles, Juan Roberto c/ Provincia de Tucumán', 03/10/2018: el derecho no requiere demostrar un interés particular"
+    "fuente_jurisprudencia": "CSJT, 'Robles, Juan Roberto c/ Provincia de Tucumán', 03/10/2018: el derecho no requiere demostrar un interés particular",
+    "dias": 15,
+    "prorroga": 0,
+    "plazo_referencia": true
   },
   "municipio_pba": {
     "extra": "La Ley 14.491 (modifica la Ley Orgánica de las Municipalidades) regula la publicación de las normas municipales en el Boletín Oficial Municipal."
@@ -81,14 +117,21 @@
   "municipio": {
     "norma": "ordenanza municipal de acceso a la información, si existe, y la base constitucional",
     "plazo": "el que fije la ordenanza; si no hay, un plazo razonable (como referencia, 15 días hábiles de la Ley 27.275)",
-    "reclamo": "ante el silencio, amparo por mora ante la justicia"
+    "reclamo": "ante el silencio, amparo por mora ante la justicia",
+    "dias": 15,
+    "prorroga": 0,
+    "plazo_referencia": true
   },
   "municipios_con_ordenanza": {
     "muni-rosario": {
       "norma": "Ordenanza 7249/2001 de acceso a la información pública municipal",
       "plazo": "10 días hábiles administrativos, prorrogables una sola vez por 10 más con resolución fundada (art. 8)",
       "reclamo": "si no responde en plazo o responde en forma parcial o ambigua, se considera negativa (art. 9) y queda habilitado el amparo",
-      "fuente": "https://www.opengovpartnership.org/wp-content/uploads/gravity_forms/28-aa56230a9d14aae5a8c65bfaa422aad8/2023/03/Ordenanza-7249-2001.pdf"
+      "fuente": "https://www.opengovpartnership.org/wp-content/uploads/gravity_forms/28-aa56230a9d14aae5a8c65bfaa422aad8/2023/03/Ordenanza-7249-2001.pdf",
+      "dias": 10,
+      "prorroga": 0,
+      "dias_dice_habiles": true
     }
-  }
+  },
+  "_nota_plazos": "dias/prorroga: plazo en números para el reloj del sitio. dias_dice_habiles=false significa que la norma dice 'días' a secas: el sitio los cuenta como hábiles administrativos (regla general del procedimiento administrativo) y lo avisa. plazo_referencia=true: la norma no fija plazo y se usa 15 días hábiles como referencia."
 }
