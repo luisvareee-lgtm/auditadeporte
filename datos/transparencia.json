@@ -1,12 +1,12 @@
 {
- "actualizado": "2026-11-11",
+ "actualizado": "2026-11-12",
  "totales": {
   "publica": 14,
   "a_medias": 6,
   "no_publica": 16,
   "jurisdicciones": 36,
   "clubes": 25,
-  "documentos_leidos": 217,
+  "documentos_leidos": 233,
   "encontrados_para_revisar": 5,
   "publicados": 0
  },
@@ -107,7 +107,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -235,9 +235,9 @@
      "responde": true
     },
     {
-     "nombre": "Bahía Blanca: compras y licitaciones",
-     "url": "https://www.bahia.gob.ar/compra/",
-     "tipo": "Compras y licitaciones",
+     "nombre": "Concejo Deliberante de Bahía Blanca",
+     "url": "https://concejobahia.gob.ar/",
+     "tipo": "Concejo Deliberante",
      "responde": true
     },
     {
@@ -247,16 +247,16 @@
      "responde": true
     },
     {
-     "nombre": "Concejo Deliberante de Bahía Blanca",
-     "url": "https://concejobahia.gob.ar/",
-     "tipo": "Concejo Deliberante",
+     "nombre": "Bahía Blanca: compras y licitaciones",
+     "url": "https://www.bahia.gob.ar/compra/",
+     "tipo": "Compras y licitaciones",
      "responde": true
     }
    ],
    "documentos_leidos": 29,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -333,7 +333,7 @@
    "documentos_leidos": 24,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -524,7 +524,7 @@
    "documentos_leidos": 3,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -748,7 +748,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -812,10 +812,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 7,
+   "documentos_leidos": 9,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -941,22 +941,22 @@
    "boletin_oficial": null,
    "fuentes": [
     {
-     "nombre": "Malagueño: portal de transparencia",
-     "url": "https://www.malagueno.gob.ar/transparencia/",
-     "tipo": "Transparencia y presupuesto",
-     "responde": true
-    },
-    {
      "nombre": "Malagueño: digesto de ordenanzas y resoluciones",
      "url": "https://digesto.malagueno.gob.ar/",
      "tipo": "Boletín oficial",
+     "responde": true
+    },
+    {
+     "nombre": "Malagueño: portal de transparencia",
+     "url": "https://www.malagueno.gob.ar/transparencia/",
+     "tipo": "Transparencia y presupuesto",
      "responde": true
     }
    ],
    "documentos_leidos": 5,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -1083,13 +1083,13 @@
      "nombre": "Rosario: compras y licitaciones",
      "url": "https://www.rosario.gob.ar/inicio/compras-y-licitaciones",
      "tipo": "Compras y licitaciones",
-     "responde": false
+     "responde": true
     }
    ],
-   "documentos_leidos": 7,
+   "documentos_leidos": 14,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -1099,7 +1099,7 @@
     {
      "clave": "compras",
      "texto": "Compras y licitaciones",
-     "estado": "parcial"
+     "estado": "completo"
     },
     {
      "clave": "presupuesto",
@@ -1216,10 +1216,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 7,
+   "documentos_leidos": 13,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-05",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -1605,7 +1605,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -1691,7 +1691,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -1867,7 +1867,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -1926,10 +1926,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 17,
+   "documentos_leidos": 18,
    "encontrados_para_revisar": 1,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -1993,7 +1993,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -2110,7 +2110,7 @@
    "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -2176,7 +2176,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
@@ -2422,7 +2422,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-12",
    "checklist": [
     {
      "clave": "boletin",
