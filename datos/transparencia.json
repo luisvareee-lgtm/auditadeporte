@@ -1,12 +1,12 @@
 {
- "actualizado": "2026-11-12",
+ "actualizado": "2026-11-13",
  "totales": {
-  "publica": 14,
-  "a_medias": 6,
+  "publica": 15,
+  "a_medias": 5,
   "no_publica": 16,
   "jurisdicciones": 36,
   "clubes": 25,
-  "documentos_leidos": 233,
+  "documentos_leidos": 240,
   "encontrados_para_revisar": 5,
   "publicados": 0
  },
@@ -1605,7 +1605,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-13",
    "checklist": [
     {
      "clave": "boletin",
@@ -1691,7 +1691,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-13",
    "checklist": [
     {
      "clave": "boletin",
@@ -1867,7 +1867,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-13",
    "checklist": [
     {
      "clave": "boletin",
@@ -1929,7 +1929,7 @@
    "documentos_leidos": 18,
    "encontrados_para_revisar": 1,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-13",
    "checklist": [
     {
      "clave": "boletin",
@@ -1993,7 +1993,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-13",
    "checklist": [
     {
      "clave": "boletin",
@@ -2110,7 +2110,7 @@
    "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-13",
    "checklist": [
     {
      "clave": "boletin",
@@ -2176,7 +2176,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-13",
    "checklist": [
     {
      "clave": "boletin",
@@ -2401,8 +2401,8 @@
     "sol-y-lago-rio-tercero",
     "uncuyo-basquet-adaptado"
    ],
-   "estado": "a_medias",
-   "motivo": "Publica datos, pero algunas de sus páginas oficiales no respondieron en la última revisión.",
+   "estado": "publica",
+   "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.argentina.gob.ar/",
    "boletin_oficial": null,
    "fuentes": [
@@ -2410,7 +2410,7 @@
      "nombre": "Boletín Oficial de la República Argentina",
      "url": "https://www.boletinoficial.gob.ar/",
      "tipo": "Boletín oficial",
-     "responde": false
+     "responde": true
     },
     {
      "nombre": "Presupuesto Abierto: datos abiertos de ejecución",
@@ -2419,15 +2419,15 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 1,
+   "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-13",
    "checklist": [
     {
      "clave": "boletin",
      "texto": "Boletín oficial con decretos y resoluciones",
-     "estado": "parcial"
+     "estado": "completo"
     },
     {
      "clave": "compras",
