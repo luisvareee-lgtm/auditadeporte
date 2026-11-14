@@ -1,12 +1,12 @@
 {
- "actualizado": "2026-11-13",
+ "actualizado": "2026-11-14",
  "totales": {
-  "publica": 15,
-  "a_medias": 5,
+  "publica": 14,
+  "a_medias": 6,
   "no_publica": 16,
   "jurisdicciones": 36,
   "clubes": 25,
-  "documentos_leidos": 240,
+  "documentos_leidos": 247,
   "encontrados_para_revisar": 5,
   "publicados": 0
  },
@@ -229,12 +229,6 @@
    "boletin_oficial": null,
    "fuentes": [
     {
-     "nombre": "Bahía Blanca: digesto y boletín oficial",
-     "url": "https://www.bahia.gob.ar/digestomunicipal/",
-     "tipo": "Boletín oficial",
-     "responde": true
-    },
-    {
      "nombre": "Concejo Deliberante de Bahía Blanca",
      "url": "https://concejobahia.gob.ar/",
      "tipo": "Concejo Deliberante",
@@ -251,12 +245,18 @@
      "url": "https://www.bahia.gob.ar/compra/",
      "tipo": "Compras y licitaciones",
      "responde": true
+    },
+    {
+     "nombre": "Bahía Blanca: digesto y boletín oficial",
+     "url": "https://www.bahia.gob.ar/digestomunicipal/",
+     "tipo": "Boletín oficial",
+     "responde": true
     }
    ],
    "documentos_leidos": 29,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -333,7 +333,7 @@
    "documentos_leidos": 24,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-12",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -595,7 +595,7 @@
    "documentos_leidos": 10,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -1335,8 +1335,8 @@
    "club_ids": [
     "fudituc"
    ],
-   "estado": "publica",
-   "motivo": "Publica documentos oficiales que se pueden revisar.",
+   "estado": "a_medias",
+   "motivo": "Publica información (compras, presupuesto o transparencia), pero no encontramos su boletín oficial revisable.",
    "sitio_web": "https://www.smt.gob.ar/",
    "boletin_oficial": null,
    "fuentes": [
@@ -1350,18 +1350,18 @@
      "nombre": "San Miguel de Tucumán: boletín oficial digital",
      "url": "https://www.smt.gob.ar/nota/boletin-oficial-digital/56",
      "tipo": "Boletín oficial",
-     "responde": true
+     "responde": false
     }
    ],
    "documentos_leidos": 10,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-11",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
      "texto": "Boletín oficial con decretos y resoluciones",
-     "estado": "completo"
+     "estado": "parcial"
     },
     {
      "clave": "compras",
@@ -1605,7 +1605,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-13",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -1691,7 +1691,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-13",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -1867,7 +1867,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-13",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -1926,10 +1926,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 18,
+   "documentos_leidos": 19,
    "encontrados_para_revisar": 1,
    "publicados": 0,
-   "ultima_revision": "2026-11-13",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -1993,7 +1993,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-13",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -2110,7 +2110,7 @@
    "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-13",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -2176,7 +2176,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-13",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
@@ -2419,10 +2419,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 8,
+   "documentos_leidos": 14,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-13",
+   "ultima_revision": "2026-11-14",
    "checklist": [
     {
      "clave": "boletin",
