@@ -1,12 +1,12 @@
 {
- "actualizado": "2026-11-14",
+ "actualizado": "2026-11-15",
  "totales": {
-  "publica": 14,
-  "a_medias": 6,
+  "publica": 13,
+  "a_medias": 7,
   "no_publica": 16,
   "jurisdicciones": 36,
   "clubes": 25,
-  "documentos_leidos": 247,
+  "documentos_leidos": 253,
   "encontrados_para_revisar": 5,
   "publicados": 0
  },
@@ -1605,7 +1605,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-14",
+   "ultima_revision": "2026-11-15",
    "checklist": [
     {
      "clave": "boletin",
@@ -1691,7 +1691,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-14",
+   "ultima_revision": "2026-11-15",
    "checklist": [
     {
      "clave": "boletin",
@@ -1867,7 +1867,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-14",
+   "ultima_revision": "2026-11-15",
    "checklist": [
     {
      "clave": "boletin",
@@ -1929,7 +1929,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 1,
    "publicados": 0,
-   "ultima_revision": "2026-11-14",
+   "ultima_revision": "2026-11-15",
    "checklist": [
     {
      "clave": "boletin",
@@ -1993,7 +1993,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-14",
+   "ultima_revision": "2026-11-15",
    "checklist": [
     {
      "clave": "boletin",
@@ -2095,8 +2095,8 @@
    "club_ids": [
     "crigal"
    ],
-   "estado": "publica",
-   "motivo": "Publica documentos oficiales que se pueden revisar.",
+   "estado": "a_medias",
+   "motivo": "Su página oficial no respondió en la última revisión. Se vuelve a intentar todos los días.",
    "sitio_web": "https://www.santacruz.gob.ar/",
    "boletin_oficial": null,
    "fuentes": [
@@ -2104,18 +2104,18 @@
      "nombre": "Boletín Oficial de Santa Cruz",
      "url": "https://www.santacruz.gob.ar/boletin-oficial",
      "tipo": "Boletín oficial",
-     "responde": true
+     "responde": false
     }
    ],
    "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-14",
+   "ultima_revision": "2026-11-15",
    "checklist": [
     {
      "clave": "boletin",
      "texto": "Boletín oficial con decretos y resoluciones",
-     "estado": "completo"
+     "estado": "parcial"
     },
     {
      "clave": "compras",
@@ -2176,7 +2176,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-14",
+   "ultima_revision": "2026-11-15",
    "checklist": [
     {
      "clave": "boletin",
@@ -2407,22 +2407,22 @@
    "boletin_oficial": null,
    "fuentes": [
     {
-     "nombre": "Boletín Oficial de la República Argentina",
-     "url": "https://www.boletinoficial.gob.ar/",
-     "tipo": "Boletín oficial",
-     "responde": true
-    },
-    {
      "nombre": "Presupuesto Abierto: datos abiertos de ejecución",
      "url": "https://www.presupuestoabierto.gob.ar/sici/datos-abiertos",
      "tipo": "Datos oficiales",
      "responde": true
+    },
+    {
+     "nombre": "Boletín Oficial de la República Argentina",
+     "url": "https://www.boletinoficial.gob.ar/",
+     "tipo": "Boletín oficial",
+     "responde": true
     }
    ],
-   "documentos_leidos": 14,
+   "documentos_leidos": 20,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-14",
+   "ultima_revision": "2026-11-15",
    "checklist": [
     {
      "clave": "boletin",
