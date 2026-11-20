@@ -1,9 +1,9 @@
 {
- "actualizado": "2026-11-19",
+ "actualizado": "2026-11-20",
  "totales": {
   "publica": 14,
-  "a_medias": 6,
-  "no_publica": 16,
+  "a_medias": 5,
+  "no_publica": 17,
   "jurisdicciones": 36,
   "clubes": 25,
   "documentos_leidos": 273,
@@ -256,7 +256,7 @@
    "documentos_leidos": 29,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -333,7 +333,7 @@
    "documentos_leidos": 24,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -595,7 +595,7 @@
    "documentos_leidos": 10,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-17",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -1335,8 +1335,8 @@
    "club_ids": [
     "fudituc"
    ],
-   "estado": "a_medias",
-   "motivo": "Su página oficial no respondió en la última revisión. Se vuelve a intentar todos los días.",
+   "estado": "no_publica",
+   "motivo": "Sus páginas oficiales no respondieron en las últimas revisiones (tres o más intentos seguidos).",
    "sitio_web": "https://www.smt.gob.ar/",
    "boletin_oficial": null,
    "fuentes": [
@@ -1356,7 +1356,7 @@
    "documentos_leidos": 10,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -1605,7 +1605,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -1691,7 +1691,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -1867,7 +1867,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -1929,7 +1929,7 @@
    "documentos_leidos": 21,
    "encontrados_para_revisar": 1,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -1993,7 +1993,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -2110,7 +2110,7 @@
    "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -2176,7 +2176,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
@@ -2422,7 +2422,7 @@
    "documentos_leidos": 26,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-20",
    "checklist": [
     {
      "clave": "boletin",
