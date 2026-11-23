@@ -1,8 +1,8 @@
 {
- "actualizado": "2026-11-22",
+ "actualizado": "2026-11-23",
  "totales": {
-  "publica": 13,
-  "a_medias": 6,
+  "publica": 14,
+  "a_medias": 5,
   "no_publica": 17,
   "jurisdicciones": 36,
   "clubes": 25,
@@ -229,15 +229,15 @@
    "boletin_oficial": null,
    "fuentes": [
     {
-     "nombre": "Bahía Blanca: datos de presupuesto",
-     "url": "http://datos.bahia.gob.ar/dataset?groups=presupuesto",
-     "tipo": "Transparencia y presupuesto",
-     "responde": true
-    },
-    {
      "nombre": "Bahía Blanca: digesto y boletín oficial",
      "url": "https://www.bahia.gob.ar/digestomunicipal/",
      "tipo": "Boletín oficial",
+     "responde": true
+    },
+    {
+     "nombre": "Bahía Blanca: datos de presupuesto",
+     "url": "http://datos.bahia.gob.ar/dataset?groups=presupuesto",
+     "tipo": "Transparencia y presupuesto",
      "responde": true
     },
     {
@@ -256,7 +256,7 @@
    "documentos_leidos": 29,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-20",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -333,7 +333,7 @@
    "documentos_leidos": 24,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-20",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -595,7 +595,7 @@
    "documentos_leidos": 10,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-20",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -1356,7 +1356,7 @@
    "documentos_leidos": 10,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-20",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -1605,7 +1605,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-22",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -1691,7 +1691,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-22",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -1867,7 +1867,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-22",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -1929,7 +1929,7 @@
    "documentos_leidos": 22,
    "encontrados_para_revisar": 1,
    "publicados": 0,
-   "ultima_revision": "2026-11-22",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -1993,7 +1993,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-22",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -2095,8 +2095,8 @@
    "club_ids": [
     "crigal"
    ],
-   "estado": "a_medias",
-   "motivo": "Su página oficial no respondió en la última revisión. Se vuelve a intentar todos los días.",
+   "estado": "publica",
+   "motivo": "Publica documentos oficiales que se pueden revisar.",
    "sitio_web": "https://www.santacruz.gob.ar/",
    "boletin_oficial": null,
    "fuentes": [
@@ -2104,18 +2104,18 @@
      "nombre": "Boletín Oficial de Santa Cruz",
      "url": "https://www.santacruz.gob.ar/boletin-oficial",
      "tipo": "Boletín oficial",
-     "responde": false
+     "responde": true
     }
    ],
    "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-22",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
      "texto": "Boletín oficial con decretos y resoluciones",
-     "estado": "parcial"
+     "estado": "completo"
     },
     {
      "clave": "compras",
@@ -2176,7 +2176,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-22",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
@@ -2422,7 +2422,7 @@
    "documentos_leidos": 26,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-22",
+   "ultima_revision": "2026-11-23",
    "checklist": [
     {
      "clave": "boletin",
