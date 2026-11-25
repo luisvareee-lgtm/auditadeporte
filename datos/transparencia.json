@@ -1,12 +1,12 @@
 {
- "actualizado": "2026-11-24",
+ "actualizado": "2026-11-25",
  "totales": {
   "publica": 14,
   "a_medias": 5,
   "no_publica": 17,
   "jurisdicciones": 36,
   "clubes": 25,
-  "documentos_leidos": 274,
+  "documentos_leidos": 275,
   "encontrados_para_revisar": 5,
   "publicados": 0
  },
@@ -1605,7 +1605,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-24",
+   "ultima_revision": "2026-11-25",
    "checklist": [
     {
      "clave": "boletin",
@@ -1691,7 +1691,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-24",
+   "ultima_revision": "2026-11-25",
    "checklist": [
     {
      "clave": "boletin",
@@ -1867,7 +1867,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-24",
+   "ultima_revision": "2026-11-25",
    "checklist": [
     {
      "clave": "boletin",
@@ -1926,10 +1926,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 22,
+   "documentos_leidos": 23,
    "encontrados_para_revisar": 1,
    "publicados": 0,
-   "ultima_revision": "2026-11-24",
+   "ultima_revision": "2026-11-25",
    "checklist": [
     {
      "clave": "boletin",
@@ -1993,7 +1993,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-24",
+   "ultima_revision": "2026-11-25",
    "checklist": [
     {
      "clave": "boletin",
@@ -2110,7 +2110,7 @@
    "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-24",
+   "ultima_revision": "2026-11-25",
    "checklist": [
     {
      "clave": "boletin",
@@ -2176,7 +2176,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-24",
+   "ultima_revision": "2026-11-25",
    "checklist": [
     {
      "clave": "boletin",
@@ -2422,7 +2422,7 @@
    "documentos_leidos": 26,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-24",
+   "ultima_revision": "2026-11-25",
    "checklist": [
     {
      "clave": "boletin",
