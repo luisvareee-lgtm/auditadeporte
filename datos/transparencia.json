@@ -1,12 +1,12 @@
 {
- "actualizado": "2026-11-25",
+ "actualizado": "2026-11-26",
  "totales": {
   "publica": 14,
   "a_medias": 5,
   "no_publica": 17,
   "jurisdicciones": 36,
   "clubes": 25,
-  "documentos_leidos": 275,
+  "documentos_leidos": 281,
   "encontrados_para_revisar": 5,
   "publicados": 0
  },
@@ -107,7 +107,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -256,7 +256,7 @@
    "documentos_leidos": 29,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-23",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -318,22 +318,22 @@
    "boletin_oficial": null,
    "fuentes": [
     {
-     "nombre": "Berazategui: licitaciones",
-     "url": "https://berazategui.gob.ar/licitaciones",
-     "tipo": "Compras y licitaciones",
-     "responde": true
-    },
-    {
      "nombre": "Berazategui: boletín municipal",
      "url": "https://berazategui.gob.ar/boletin-municipal",
      "tipo": "Boletín oficial",
+     "responde": true
+    },
+    {
+     "nombre": "Berazategui: licitaciones",
+     "url": "https://berazategui.gob.ar/licitaciones",
+     "tipo": "Compras y licitaciones",
      "responde": true
     }
    ],
    "documentos_leidos": 24,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-23",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -524,7 +524,7 @@
    "documentos_leidos": 3,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -595,7 +595,7 @@
    "documentos_leidos": 10,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-23",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -748,7 +748,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -815,7 +815,7 @@
    "documentos_leidos": 9,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -956,7 +956,7 @@
    "documentos_leidos": 5,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -1089,7 +1089,7 @@
    "documentos_leidos": 14,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -1216,10 +1216,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 19,
+   "documentos_leidos": 25,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-19",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -1356,7 +1356,7 @@
    "documentos_leidos": 10,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-23",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -1605,7 +1605,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-25",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -1691,7 +1691,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-25",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -1867,7 +1867,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-25",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -1929,7 +1929,7 @@
    "documentos_leidos": 23,
    "encontrados_para_revisar": 1,
    "publicados": 0,
-   "ultima_revision": "2026-11-25",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -1993,7 +1993,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-25",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -2110,7 +2110,7 @@
    "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-25",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -2176,7 +2176,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-25",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
@@ -2422,7 +2422,7 @@
    "documentos_leidos": 26,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-25",
+   "ultima_revision": "2026-11-26",
    "checklist": [
     {
      "clave": "boletin",
