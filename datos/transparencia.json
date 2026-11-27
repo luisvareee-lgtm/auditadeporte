@@ -1,13 +1,13 @@
 {
- "actualizado": "2026-11-26",
+ "actualizado": "2026-11-27",
  "totales": {
   "publica": 14,
   "a_medias": 5,
   "no_publica": 17,
   "jurisdicciones": 36,
   "clubes": 25,
-  "documentos_leidos": 281,
-  "encontrados_para_revisar": 5,
+  "documentos_leidos": 282,
+  "encontrados_para_revisar": 6,
   "publicados": 0
  },
  "fuente_marco_legal": "https://www.fundacionapolo.org/wp-content/uploads/2023/08/INFORME-Leyes-de-ACCESO-A-LA-INFO-PUBLICA.pdf",
@@ -1605,7 +1605,7 @@
    "documentos_leidos": 19,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-26",
+   "ultima_revision": "2026-11-27",
    "checklist": [
     {
      "clave": "boletin",
@@ -1691,7 +1691,7 @@
    "documentos_leidos": 8,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-26",
+   "ultima_revision": "2026-11-27",
    "checklist": [
     {
      "clave": "boletin",
@@ -1867,7 +1867,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-26",
+   "ultima_revision": "2026-11-27",
    "checklist": [
     {
      "clave": "boletin",
@@ -1926,10 +1926,10 @@
      "responde": true
     }
    ],
-   "documentos_leidos": 23,
-   "encontrados_para_revisar": 1,
+   "documentos_leidos": 24,
+   "encontrados_para_revisar": 2,
    "publicados": 0,
-   "ultima_revision": "2026-11-26",
+   "ultima_revision": "2026-11-27",
    "checklist": [
     {
      "clave": "boletin",
@@ -1993,7 +1993,7 @@
    "documentos_leidos": 1,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-26",
+   "ultima_revision": "2026-11-27",
    "checklist": [
     {
      "clave": "boletin",
@@ -2110,7 +2110,7 @@
    "documentos_leidos": 23,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-26",
+   "ultima_revision": "2026-11-27",
    "checklist": [
     {
      "clave": "boletin",
@@ -2176,7 +2176,7 @@
    "documentos_leidos": 0,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-26",
+   "ultima_revision": "2026-11-27",
    "checklist": [
     {
      "clave": "boletin",
@@ -2422,7 +2422,7 @@
    "documentos_leidos": 26,
    "encontrados_para_revisar": 0,
    "publicados": 0,
-   "ultima_revision": "2026-11-26",
+   "ultima_revision": "2026-11-27",
    "checklist": [
     {
      "clave": "boletin",
